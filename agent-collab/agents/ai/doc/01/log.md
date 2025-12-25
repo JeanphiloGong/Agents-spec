@@ -355,3 +355,36 @@
       to: "human/gong"
       notes:
         - "如需加入示例技能路径，可在 README.md 追加示例段落。"
+
+- timestamp: 2025-12-25T15:29:47+08:00
+  agent:
+    id: ai/doc/01
+    role: 文档工程师 / Doc Writer
+  content:
+    objective: "新增实验负责人规范并补齐 AI 评估与灰度发布规范。"
+    context: "用户要求为 A/B 测试、灰度发布与评估分别建立角色规范。"
+    scope:
+      in:
+        - "新增 `agent-specs/product/experiment-manager/AGENTS.md`"
+        - "更新 `agent-specs/ai-advanced/ai-evaluator/AGENTS.md`"
+        - "更新 `agent-specs/infra/release-engineer/AGENTS.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/plan.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/log.md`"
+      out:
+        - "不修改任何代码或配置文件"
+        - "不更新 README.md（如需另开任务）"
+    status:
+      doing:
+        - ""
+      next:
+        - "如需，将角色索引补充到 README.md"
+      done:
+        - "完成实验负责人、AI 评估与灰度发布规范"
+    artifacts:
+      - "agent-specs/product/experiment-manager/AGENTS.md:1"
+      - "agent-specs/ai-advanced/ai-evaluator/AGENTS.md:1"
+      - "agent-specs/infra/release-engineer/AGENTS.md:1"
+    handoff:
+      to: "human/gong"
+      notes:
+        - "如需数据侧实验角色，可新增 data/experiment-analyst。"
