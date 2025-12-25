@@ -13,5 +13,4 @@ Notes:
 - Add new departments under the tech lead or split by domain.
 - Historical roles with migrated logs:
   - ai/doc/01 (agents/ai/doc/01/log.md)
-  - ai/backend-rust/01 (agents/ai/backend-rust/01/log.md)
 - Raw backup of the original work log remains in coordination/work_log_legacy.md.
