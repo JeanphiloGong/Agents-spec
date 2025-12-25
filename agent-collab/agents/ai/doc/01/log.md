@@ -242,3 +242,61 @@
       to: "human/gong"
       notes:
         - "如需同步到 AGENTS.md，可另行裁剪更新。"
+
+- timestamp: 2025-12-25T14:07:01+08:00
+  agent:
+    id: ai/doc/01
+    role: 文档工程师 / Doc Writer
+  content:
+    objective: "新增爬虫工程师 AGENTS 规范（工程视角与数据视角）。"
+    context: "用户要求创建两个版本的爬虫工程师 AGENTS.md。"
+    scope:
+      in:
+        - "新增 `agent-specs/engineering/crawler-engineer/AGENTS.md`"
+        - "新增 `agent-specs/data/crawler-engineer/AGENTS.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/plan.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/log.md`"
+      out:
+        - "不修改任何代码或配置文件"
+        - "不更新 README.md（如需另开任务）"
+    status:
+      doing:
+        - ""
+      next:
+        - "如需，将角色索引补充到 README.md"
+      done:
+        - "完成工程视角与数据视角爬虫规范"
+    artifacts:
+      - "agent-specs/engineering/crawler-engineer/AGENTS.md:1"
+      - "agent-specs/data/crawler-engineer/AGENTS.md:1"
+    handoff:
+      to: "human/gong"
+      notes:
+        - "如需更细分为采集/解析/合规角色，可继续拆分。"
+
+- timestamp: 2025-12-25T14:10:17+08:00
+  agent:
+    id: ai/doc/01
+    role: 文档工程师 / Doc Writer
+  content:
+    objective: "更新 README.md，补充新角色索引并完善项目介绍。"
+    context: "用户要求补充索引并更新 README.md 介绍项目。"
+    scope:
+      in:
+        - "更新 `README.md`"
+      out:
+        - "不修改任何代码或配置文件"
+    status:
+      doing:
+        - ""
+      next:
+        - ""
+      done:
+        - "新增 marketing/legal/documentation 目录说明"
+        - "补充爬虫/文档/法务/市场角色索引"
+    artifacts:
+      - "README.md:1"
+    handoff:
+      to: "human/gong"
+      notes:
+        - "如需补充 Risk & Compliance 角色，可新增 legal/ 或 risk/ 目录。"

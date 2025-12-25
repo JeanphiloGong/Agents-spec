@@ -2,6 +2,7 @@
 
 ## 📘 项目介绍
 agents-spec-repo 用于管理 AI Agents 在不同工程/产品角色下的行为规范与代码生成规则。目标不是写业务代码，而是提供角色化规范，确保输出一致、专业、可控。
+仓库同时提供多智能体协作模板与角色索引，方便新项目快速落地与复用。
 
 ## 🎯 为什么需要这个仓库？
 - AI 同时承担文档助手、代码生成、测试生成、架构辅助、多智能体子角色等任务，需要统一规范
@@ -19,6 +20,9 @@ agents-spec-repo/
         ├── data/                  # 数据分析/工程/科学/平台/MLOps
         ├── ai-advanced/           # LLM/Prompt/Agent/评估/训练
         ├── design/                # UI/UX/交互/设计系统
+        ├── documentation/         # 技术写作/文档规范
+        ├── marketing/             # 市场营销/增长/定位
+        ├── legal/                 # 法务/合规
         ├── infra/                 # DevOps/SRE/云/安全/网络/DBA/发布/运维
         ├── product/               # PM/PO/项目经理/Scrum Master
         └── leadership/            # Tech Lead/Engineering Manager/CTO
@@ -36,6 +40,7 @@ agents-spec-repo/
 | 架构师 | 整体系统架构、技术选型、规范指导 | `agent-specs/engineering/architecture/AGENTS.md` |
 | 平台工程师 | 内部平台、CI/CD、工程工具、统一框架 | `agent-specs/engineering/platform/AGENTS.md` |
 | 系统工程师 | 底层系统设计（Linux、网络、内核调优） | `agent-specs/engineering/system/AGENTS.md` |
+| 爬虫工程师（工程） | 抓取系统、并发/限速、容错与监控 | `agent-specs/engineering/crawler-engineer/AGENTS.md` |
 | DevOps 工程师 | 自动化部署、流水线、基础设施即代码 | `agent-specs/infra/devops/AGENTS.md` |
 | SRE | 监控、日志、报警、容灾、可靠性 | `agent-specs/infra/sre/AGENTS.md` |
 | 安全工程师 | 安全审计、渗透、安全防护、密钥体系 | `agent-specs/infra/security/AGENTS.md` |
@@ -59,6 +64,7 @@ agents-spec-repo/
 | 数据工程师 | 构建 ETL、数据流、数据仓库 | `agent-specs/data/data-engineer/AGENTS.md` |
 | 数据平台工程师 | 大数据平台、湖仓、数据治理 | `agent-specs/data/data-platform-engineer/AGENTS.md` |
 | MLOps / ML 工程师 | 模型部署、监控、漂移治理 | `agent-specs/data/mlops-engineer/AGENTS.md` |
+| 爬虫工程师（数据采集） | 数据采集、质量控制、字段口径 | `agent-specs/data/crawler-engineer/AGENTS.md` |
 
 ### 🤖 AI 相关角色（AI/LLM Roles）
 | 角色 | 职责 | AGENTS 路径 |
@@ -78,6 +84,11 @@ agents-spec-repo/
 | 项目经理 | 协调团队、排期、进度管理 | `agent-specs/product/project-manager/AGENTS.md` |
 | Scrum Master | 敏捷流程、站会、迭代仪式 | `agent-specs/product/scrum-master/AGENTS.md` |
 
+### 📣 市场与增长类（Marketing & Growth）
+| 角色 | 职责 | AGENTS 路径 |
+| --- | --- | --- |
+| 市场营销经理 | 定位、传播、渠道与增长策略 | `agent-specs/marketing/marketing-manager/AGENTS.md` |
+
 ### 🎨 设计与用户体验类（Design & UX）
 | 角色 | 职责 | AGENTS 路径 |
 | --- | --- | --- |
@@ -85,6 +96,11 @@ agents-spec-repo/
 | UX 设计师 | 用户研究、体验策略、信息架构 | `agent-specs/design/ux-designer/AGENTS.md` |
 | 交互设计师 | 交互流程、操作路径、可用性 | `agent-specs/design/interaction-designer/AGENTS.md` |
 | 设计系统工程师 | 组件库、主题样式、设计系统工程化 | `agent-specs/design/design-system-engineer/AGENTS.md` |
+
+### 📝 文档与知识管理（Documentation）
+| 角色 | 职责 | AGENTS 路径 |
+| --- | --- | --- |
+| 文档工程师 / Technical Writer | 项目说明、API 文档、前端与运维文档 | `agent-specs/documentation/technical-writer/AGENTS.md` |
 
 ### 📦 运维、发布与基础设施类（Ops & Infra）
 | 角色 | 职责 | AGENTS 路径 |
@@ -94,6 +110,11 @@ agents-spec-repo/
 | 网络工程师 | 网络架构、CDN、路由与安全 | `agent-specs/infra/network-engineer/AGENTS.md` |
 | 数据库管理员 | 数据库调优、备份恢复、查询优化 | `agent-specs/infra/database-admin/AGENTS.md` |
 
+### ⚖️ 法务与合规类（Legal & Compliance）
+| 角色 | 职责 | AGENTS 路径 |
+| --- | --- | --- |
+| 法务顾问 / Legal Counsel | 合规审查、风险识别、合同条款 | `agent-specs/legal/legal-counsel/AGENTS.md` |
+
 ### 💎 团队高级角色（Leadership）
 | 角色 | 职责 | AGENTS 路径 |
 | --- | --- | --- |
@@ -102,7 +123,6 @@ agents-spec-repo/
 | CTO | 技术战略方向、技术体系建设 | `agent-specs/leadership/cto/AGENTS.md` |
 
 ### 🧬 待补充角色
-- 技术文档工程师（Technical Writer）— AGENTS.md 待补充
 - 风险与合规工程师（Risk & Compliance Engineer）— AGENTS.md 待补充
 - 技术支持工程师（Support Engineer）— AGENTS.md 待补充
 

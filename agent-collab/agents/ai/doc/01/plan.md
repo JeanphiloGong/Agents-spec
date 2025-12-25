@@ -7,6 +7,8 @@
 - 在 `agent-specs/engineering/frontend/frontend-ui-polish/SKILL.md` 产出前端美化技能模板。
 - 在 `agent-specs/documentation/technical-writer/AGENTS.md` 产出文档助手规范。
 - 在 `AGENTS.template.md` 补充“新角色创建空 AGENTS.md”规则。
+- 在 `agent-specs/engineering/crawler-engineer/AGENTS.md` 与 `agent-specs/data/crawler-engineer/AGENTS.md` 产出爬虫工程师规范。
+- 更新 `README.md`，补充新角色索引与项目介绍。
 
 ## Deliverables
 - `agent-specs/marketing/marketing-manager/AGENTS.md`
@@ -15,6 +17,9 @@
 - `agent-specs/engineering/frontend/frontend-ui-polish/SKILL.md`
 - `agent-specs/documentation/technical-writer/AGENTS.md`
 - `AGENTS.template.md`
+- `agent-specs/engineering/crawler-engineer/AGENTS.md`
+- `agent-specs/data/crawler-engineer/AGENTS.md`
+- `README.md`
 
 ## Milestones
 - 完成市场营销规范
@@ -23,6 +28,8 @@
 - 完成前端美化技能模板
 - 完成文档助手 AGENTS 模板
 - 完成 AGENTS.template.md 规则补充
+- 完成爬虫工程师双版本规范
+- 完成 README.md 索引与介绍更新
 
 ## Dependencies
 - 已确认 WRITE_DOC 与目录规划（marketing/product/legal/frontend/documentation）
