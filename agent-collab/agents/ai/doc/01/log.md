@@ -541,6 +541,35 @@
       notes:
         - "如需补充 Java/Node 等教学模板，可按同样结构扩展。"
 
+- timestamp: 2026-01-08T09:44:08+08:00
+  agent:
+    id: ai/doc/01
+    role: 文档工程师 / Doc Writer
+  content:
+    objective: "新增通用运维工程师 AGENTS 规范。"
+    context: "用户要求补充通用运维角色规范。"
+    scope:
+      in:
+        - "新增 `agent-specs/infra/ops-engineer/AGENTS.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/plan.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/log.md`"
+      out:
+        - "不修改任何代码或配置文件"
+        - "不更新 README.md（如需另开任务）"
+    status:
+      doing:
+        - ""
+      next:
+        - ""
+      done:
+        - "完成运维工程师 AGENTS 规范"
+    artifacts:
+      - "agent-specs/infra/ops-engineer/AGENTS.md:1"
+    handoff:
+      to: "human/gong"
+      notes:
+        - "如需在 README 索引更新，可继续补充。"
+
 - timestamp: 2025-12-25T15:32:48+08:00
   agent:
     id: ai/doc/01
