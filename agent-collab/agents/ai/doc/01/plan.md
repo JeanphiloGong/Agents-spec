@@ -16,6 +16,10 @@
 - 更新 `agent-specs/infra/release-engineer/AGENTS.md`，补齐灰度/金丝雀规范。
 - 将 A/B 测试角色补充到 README 索引。
 - 将 AI 评估与灰度发布角色在 README 索引中明确说明。
+- 在 `agent-specs/design/ui-designer/AGENTS.md` 产出 UI 设计角色规范。
+- 在 `agent-specs/engineering/frontend/svelte/tutorial/AGENTS.md` 产出教学型模板。
+- 强化后端教学模板，补充大师级教育理念与教学流程。
+- 新增通用运维工程师规范 `agent-specs/infra/ops-engineer/AGENTS.md`。
 
 ## Deliverables
 - `agent-specs/marketing/marketing-manager/AGENTS.md`
@@ -34,6 +38,14 @@
 - `agent-specs/infra/release-engineer/AGENTS.md`
 - `README.md`（experiment-manager 索引）
 - `README.md`（ai-evaluator / release-engineer 描述）
+- `agent-specs/design/ui-designer/AGENTS.md`
+- `agent-specs/engineering/frontend/svelte/tutorial/AGENTS.md`
+- `agent-specs/engineering/backend/tutorial/AGENTS.md`
+- `agent-specs/engineering/backend/go/tutorial/AGENTS.md`
+- `agent-specs/engineering/backend/python/tutorial/AGENTS.md`
+- `agent-specs/engineering/backend/rust/tutorial/AGENTS.md`
+- `agent-specs/engineering/backend/lua/tutorial/AGENTS.md`
+- `agent-specs/infra/ops-engineer/AGENTS.md`
 
 ## Milestones
 - 完成市场营销规范
@@ -49,6 +61,10 @@
 - 完成 A/B 测试、评测与灰度发布规范
 - 完成 A/B 测试角色索引补充
 - 完成 AI 评估与灰度发布索引说明
+- 完成 UI 设计规范与文章
+- 完成 Svelte 教学模板
+- 完成后端教学模板教育理念增强
+- 完成通用运维工程师规范
 
 ## Dependencies
 - 已确认 WRITE_DOC 与目录规划（marketing/product/legal/frontend/documentation）

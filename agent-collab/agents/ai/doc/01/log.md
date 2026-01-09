@@ -415,6 +415,161 @@
       notes:
         - ""
 
+- timestamp: 2025-12-26T14:13:30+08:00
+  agent:
+    id: ai/doc/01
+    role: 文档工程师 / Doc Writer
+  content:
+    objective: "新增 UI 设计角色规范与 API 驱动 UI 设计文章。"
+    context: "用户要求添加 UI 设计文章，并新增 UI 设计 AGENTS.md。"
+    scope:
+      in:
+        - "新增 `agent-specs/design/ui-designer/AGENTS.md`"
+        - "新增 `agent-specs/design/ui-designer/ui-design-guide.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/plan.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/log.md`"
+      out:
+        - "不修改任何代码或配置文件"
+        - "不更新 README.md（如需另开任务）"
+    status:
+      doing:
+        - ""
+      next:
+        - ""
+      done:
+        - "完成 UI 设计规范与文章"
+    artifacts:
+      - "agent-specs/design/ui-designer/AGENTS.md:1"
+      - "agent-specs/design/ui-designer/ui-design-guide.md:1"
+    handoff:
+      to: "human/gong"
+      notes:
+        - "如需将文章链接加入 README，可追加条目。"
+
+- timestamp: 2025-12-26T15:23:32+08:00
+  agent:
+    id: ai/doc/01
+    role: 文档工程师 / Doc Writer
+  content:
+    objective: "按要求删除 UI 设计文章，后续改为技能形式。"
+    context: "用户要求删除 ui-design-guide.md，并改为需要时制作 skill。"
+    scope:
+      in:
+        - "删除 `agent-specs/design/ui-designer/ui-design-guide.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/plan.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/log.md`"
+      out:
+        - "不修改任何代码或配置文件"
+        - "不更新 README.md（如需另开任务）"
+    status:
+      doing:
+        - ""
+      next:
+        - "如需，将 UI 设计文章改为技能模板"
+      done:
+        - "删除 ui-design-guide.md"
+    artifacts:
+      - "agent-specs/design/ui-designer/ui-design-guide.md"
+    handoff:
+      to: "human/gong"
+      notes:
+        - "如需改为 skill，将新增 `agent-specs/design/ui-designer/<skill-name>/SKILL.md`。"
+
+- timestamp: 2025-12-31T09:36:30+08:00
+  agent:
+    id: ai/doc/01
+    role: 文档工程师 / Doc Writer
+  content:
+    objective: "新增 Svelte 教学类 AGENTS 模板，用于项目复现式学习。"
+    context: "用户要求在 svelte 目录添加教学 AGENTS.md。"
+    scope:
+      in:
+        - "新增 `agent-specs/engineering/frontend/svelte/tutorial/AGENTS.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/plan.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/log.md`"
+      out:
+        - "不修改任何代码或配置文件"
+        - "不更新 README.md（如需另开任务）"
+    status:
+      doing:
+        - ""
+      next:
+        - ""
+      done:
+        - "完成 Svelte 教学模板"
+    artifacts:
+      - "agent-specs/engineering/frontend/svelte/tutorial/AGENTS.md:1"
+    handoff:
+      to: "human/gong"
+      notes:
+        - "如需增加 React/Vue 教学模板，可按同样结构扩展。"
+
+- timestamp: 2025-12-31T09:45:39+08:00
+  agent:
+    id: ai/doc/01
+    role: 文档工程师 / Doc Writer
+  content:
+    objective: "强化后端教学模板，引入大师级教育理念与教学流程。"
+    context: "用户要求后端教学 AGENTS.md 加强并引入教育理念。"
+    scope:
+      in:
+        - "更新 `agent-specs/engineering/backend/tutorial/AGENTS.md`"
+        - "更新 `agent-specs/engineering/backend/go/tutorial/AGENTS.md`"
+        - "更新 `agent-specs/engineering/backend/python/tutorial/AGENTS.md`"
+        - "更新 `agent-specs/engineering/backend/rust/tutorial/AGENTS.md`"
+        - "更新 `agent-specs/engineering/backend/lua/tutorial/AGENTS.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/plan.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/log.md`"
+      out:
+        - "不修改任何代码或配置文件"
+        - "不更新 README.md（如需另开任务）"
+    status:
+      doing:
+        - ""
+      next:
+        - ""
+      done:
+        - "完成后端教学模板的教育理念增强"
+    artifacts:
+      - "agent-specs/engineering/backend/tutorial/AGENTS.md:1"
+      - "agent-specs/engineering/backend/go/tutorial/AGENTS.md:1"
+      - "agent-specs/engineering/backend/python/tutorial/AGENTS.md:1"
+      - "agent-specs/engineering/backend/rust/tutorial/AGENTS.md:1"
+      - "agent-specs/engineering/backend/lua/tutorial/AGENTS.md:1"
+    handoff:
+      to: "human/gong"
+      notes:
+        - "如需补充 Java/Node 等教学模板，可按同样结构扩展。"
+
+- timestamp: 2026-01-08T09:44:08+08:00
+  agent:
+    id: ai/doc/01
+    role: 文档工程师 / Doc Writer
+  content:
+    objective: "新增通用运维工程师 AGENTS 规范。"
+    context: "用户要求补充通用运维角色规范。"
+    scope:
+      in:
+        - "新增 `agent-specs/infra/ops-engineer/AGENTS.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/plan.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/log.md`"
+      out:
+        - "不修改任何代码或配置文件"
+        - "不更新 README.md（如需另开任务）"
+    status:
+      doing:
+        - ""
+      next:
+        - ""
+      done:
+        - "完成运维工程师 AGENTS 规范"
+    artifacts:
+      - "agent-specs/infra/ops-engineer/AGENTS.md:1"
+    handoff:
+      to: "human/gong"
+      notes:
+        - "如需在 README 索引更新，可继续补充。"
+
 - timestamp: 2025-12-25T15:32:48+08:00
   agent:
     id: ai/doc/01
