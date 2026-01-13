@@ -570,6 +570,35 @@
       notes:
         - "如需在 README 索引更新，可继续补充。"
 
+- timestamp: 2026-01-13T15:03:26+08:00
+  agent:
+    id: ai/doc/01
+    role: 文档工程师 / Doc Writer
+  content:
+    objective: "新增生活规划 AGENTS 规范（大师级规划能力）。"
+    context: "用户指定 WRITE_DOC，并放置于 productivity 目录。"
+    scope:
+      in:
+        - "新增 `agent-specs/productivity/life-planner/AGENTS.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/plan.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/log.md`"
+      out:
+        - "不修改任何代码或配置文件"
+        - "不更新 README.md（如需另开任务）"
+    status:
+      doing:
+        - ""
+      next:
+        - "如需，将角色索引补充到 README.md"
+      done:
+        - "完成生活规划 AGENTS 规范"
+    artifacts:
+      - "agent-specs/productivity/life-planner/AGENTS.md:1"
+    handoff:
+      to: "human/gong"
+      notes:
+        - "如需细分为职业/健康/财务规划，可拆分子角色。"
+
 - timestamp: 2025-12-25T15:32:48+08:00
   agent:
     id: ai/doc/01
