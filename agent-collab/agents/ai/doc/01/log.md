@@ -599,6 +599,35 @@
       notes:
         - "如需细分为职业/健康/财务规划，可拆分子角色。"
 
+- timestamp: 2026-01-15T15:24:10+08:00
+  agent:
+    id: ai/doc/01
+    role: 文档工程师 / Doc Writer
+  content:
+    objective: "新增多智能体系统工程师 AGENTS 规范。"
+    context: "用户要求在 ai-advanced 目录新增多 agent 交互系统规范。"
+    scope:
+      in:
+        - "新增 `agent-specs/ai-advanced/agent-systems-engineer/AGENTS.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/plan.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/log.md`"
+      out:
+        - "不修改任何代码或配置文件"
+        - "不更新 README.md（如需另开任务）"
+    status:
+      doing:
+        - ""
+      next:
+        - "如需，将角色索引补充到 README.md"
+      done:
+        - "完成多智能体系统工程师 AGENTS 规范"
+    artifacts:
+      - "agent-specs/ai-advanced/agent-systems-engineer/AGENTS.md:1"
+    handoff:
+      to: "human/gong"
+      notes:
+        - "如需补充评估/仿真规范，可扩展至 ai-evaluator。"
+
 - timestamp: 2025-12-25T15:32:48+08:00
   agent:
     id: ai/doc/01
