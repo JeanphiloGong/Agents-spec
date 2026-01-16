@@ -16,8 +16,8 @@ description: Create standard, high-quality git commit messages and commit plans;
 ## Workflow
 
 1. Clarify scope and repository policy.
-   - Ask for any existing commit convention or template.
-   - Ask once whether to ignore unrelated changes; proceed based on the answer without re-asking.
+   - Default to this skill's template and do not ask about other conventions unless the user explicitly mentions one.
+   - Ignore unrelated changes by default; do not add them unless explicitly requested.
 2. Review change intent.
    - Summarize what changed and why, not how.
 3. Propose commit splits.
@@ -47,10 +47,9 @@ Common types:
 - test: add or update tests
 - chore: tooling or maintenance
 
-Examples:
-- `feat(api): add pagination to list endpoints`
-- `fix(auth): handle expired refresh tokens`
-- `docs: update onboarding steps`
+All commits must use the master template below with full Why/What/Impact/Tests/Refs sections.
+
+Examples (full format):
 ```
 feat(search): add query filters
 
@@ -69,6 +68,44 @@ Tests:
 
 Refs:
 - ISSUE-1423
+```
+```
+fix(auth): handle expired refresh tokens
+
+Why:
+- Sessions were failing silently after token expiry.
+
+What:
+- Add explicit refresh error handling in auth middleware.
+- Surface a clear user-facing error message.
+
+Impact:
+- Fewer auth drop-offs; no API changes.
+
+Tests:
+- unit: auth_refresh_spec
+
+Refs:
+- AUTH-221
+```
+```
+docs: update onboarding steps
+
+Why:
+- New environment variables were added and not documented.
+
+What:
+- Add setup prerequisites and env var table.
+- Clarify local dev workflow.
+
+Impact:
+- Faster onboarding; no runtime impact.
+
+Tests:
+- not run (documentation-only change)
+
+Refs:
+- DOCS-45
 ```
 ```
 feat(search): add query filters
