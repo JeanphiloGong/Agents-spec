@@ -657,6 +657,39 @@
       notes:
         - "如需加入 commitlint 或模板示例，可继续扩展。"
 
+- timestamp: 2026-01-16T14:14:32+08:00
+  agent:
+    id: ai/doc/01
+    role: 文档工程师 / Doc Writer
+  content:
+    objective: "统一技能目录结构，按角色目录下的 skills 子目录归档。"
+    context: "用户要求将技能与 AGENTS.md 分离，采用角色目录内 skills 结构。"
+    scope:
+      in:
+        - "移动 `agent-specs/engineering/frontend/frontend-ui-polish` → `agent-specs/engineering/frontend/skills/`"
+        - "移动 `agent-specs/documentation/technical-writer/project-skill-author` → `agent-specs/documentation/technical-writer/skills/`"
+        - "移动 `agent-specs/engineering/backend/code-commenting-skill` → `agent-specs/engineering/backend/skills/`"
+        - "移动 `agent-specs/engineering/git-commit-skill` → `agent-specs/engineering/skills/`"
+      out:
+        - "不修改任何代码或配置文件"
+        - "不更新 README.md（如需另开任务）"
+    status:
+      doing:
+        - ""
+      next:
+        - "如需更新 README 索引中的技能路径，再行补充"
+      done:
+        - "完成技能目录迁移"
+    artifacts:
+      - "agent-specs/engineering/frontend/skills/frontend-ui-polish/SKILL.md:1"
+      - "agent-specs/documentation/technical-writer/skills/project-skill-author/SKILL.md:1"
+      - "agent-specs/engineering/backend/skills/code-commenting-skill/SKILL.md:1"
+      - "agent-specs/engineering/skills/git-commit-skill/SKILL.md:1"
+    handoff:
+      to: "human/gong"
+      notes:
+        - "如需将技能同步到 ~/.codex/skills，可选择性复制。"
+
 - timestamp: 2025-12-25T15:32:48+08:00
   agent:
     id: ai/doc/01
