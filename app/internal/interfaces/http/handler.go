@@ -1,7 +1,9 @@
 package httpapi
 
 import (
+	"context"
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -20,16 +22,18 @@ type Handler struct {
 	search   *search.Service
 	indexer  ports.Indexer
 	rootPath string
+	logger   *slog.Logger
 }
 
 // NewHandler wires HTTP endpoints to use cases and index ports.
-func NewHandler(searchSvc *search.Service, indexer ports.Indexer, rootPath string) *Handler {
-	return &Handler{search: searchSvc, indexer: indexer, rootPath: rootPath}
+func NewHandler(searchSvc *search.Service, indexer ports.Indexer, rootPath string, logger *slog.Logger) *Handler {
+	return &Handler{search: searchSvc, indexer: indexer, rootPath: rootPath, logger: logger}
 }
 
 // Router returns the HTTP routes; adapters stay outside the use case layer.
 func (h *Handler) Router() http.Handler {
 	r := chi.NewRouter()
+	r.Use(h.requestLogger)
 	r.Get("/api/health", h.handleHealth)
 	r.Get("/api/docs", h.handleDocs)
 	r.Get("/api/docs/{id}", h.handleDocByID)
@@ -39,6 +43,27 @@ func (h *Handler) Router() http.Handler {
 	r.Get("/api/tags", h.handleTags)
 	r.Get("/api/stats", h.handleStats)
 	return r
+}
+
+func (h *Handler) requestLogger(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		ctx := r.Context()
+		requestID := r.Header.Get("X-Request-Id")
+		if requestID != "" {
+			ctx = withRequestID(ctx, requestID)
+		}
+		rw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
+		next.ServeHTTP(rw, r.WithContext(ctx))
+		h.logger.Info(
+			"request completed",
+			"method", r.Method,
+			"path", r.URL.Path,
+			"status", rw.status,
+			"duration_ms", time.Since(start).Milliseconds(),
+			"request_id", requestID,
+		)
+	})
 }
 
 func (h *Handler) handleHealth(w http.ResponseWriter, _ *http.Request) {
@@ -63,6 +88,7 @@ func (h *Handler) handleDocs(w http.ResponseWriter, r *http.Request) {
 
 	result, err := h.search.Search(r.Context(), query)
 	if err != nil {
+		h.logger.Error("search failed", "error", err, "request_id", requestIDFromContext(r.Context()))
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -88,6 +114,7 @@ func (h *Handler) handleDocByID(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusNotFound, "not found")
 			return
 		}
+		h.logger.Error("doc lookup failed", "error", err, "doc_id", id, "request_id", requestIDFromContext(r.Context()))
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -109,25 +136,30 @@ func (h *Handler) handleDownload(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusNotFound, "not found")
 			return
 		}
+		h.logger.Error("download lookup failed", "error", err, "doc_id", id, "request_id", requestIDFromContext(r.Context()))
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	absRoot, err := filepath.Abs(h.rootPath)
 	if err != nil {
+		h.logger.Error("root path resolution failed", "error", err, "request_id", requestIDFromContext(r.Context()))
 		writeError(w, http.StatusInternalServerError, "root path error")
 		return
 	}
 	absPath, err := filepath.Abs(doc.Path)
 	if err != nil {
+		h.logger.Error("file path resolution failed", "error", err, "path", doc.Path, "request_id", requestIDFromContext(r.Context()))
 		writeError(w, http.StatusInternalServerError, "file path error")
 		return
 	}
 	if !strings.HasPrefix(absPath, absRoot) {
 		// Prevent path traversal outside the configured root.
+		h.logger.Warn("download path rejected", "path", absPath, "request_id", requestIDFromContext(r.Context()))
 		writeError(w, http.StatusForbidden, "invalid path")
 		return
 	}
 	if _, err := os.Stat(absPath); err != nil {
+		h.logger.Error("download file missing", "error", err, "path", absPath, "request_id", requestIDFromContext(r.Context()))
 		writeError(w, http.StatusNotFound, "file missing")
 		return
 	}
@@ -138,6 +170,7 @@ func (h *Handler) handleDownload(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleTags(w http.ResponseWriter, r *http.Request) {
 	snapshot, err := h.indexer.BuildIndex(r.Context())
 	if err != nil {
+		h.logger.Error("tags index failed", "error", err, "request_id", requestIDFromContext(r.Context()))
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -161,6 +194,7 @@ func (h *Handler) handleSuggestions(w http.ResponseWriter, r *http.Request) {
 	}
 	snapshot, err := h.indexer.BuildIndex(r.Context())
 	if err != nil {
+		h.logger.Error("suggestions index failed", "error", err, "request_id", requestIDFromContext(r.Context()))
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -197,11 +231,13 @@ func (h *Handler) handleRelated(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusNotFound, "not found")
 			return
 		}
+		h.logger.Error("related lookup failed", "error", err, "doc_id", id, "request_id", requestIDFromContext(r.Context()))
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	snapshot, err := h.indexer.BuildIndex(r.Context())
 	if err != nil {
+		h.logger.Error("related index failed", "error", err, "request_id", requestIDFromContext(r.Context()))
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -231,6 +267,7 @@ func (h *Handler) handleRelated(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	snapshot, err := h.indexer.BuildIndex(r.Context())
 	if err != nil {
+		h.logger.Error("stats index failed", "error", err, "request_id", requestIDFromContext(r.Context()))
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -309,6 +346,31 @@ func writeJSON(w http.ResponseWriter, status int, payload interface{}) {
 
 func writeError(w http.ResponseWriter, status int, msg string) {
 	writeJSON(w, status, map[string]string{"error": msg})
+}
+
+type statusWriter struct {
+	http.ResponseWriter
+	status int
+}
+
+func (w *statusWriter) WriteHeader(statusCode int) {
+	w.status = statusCode
+	w.ResponseWriter.WriteHeader(statusCode)
+}
+
+type requestIDKey struct{}
+
+func withRequestID(ctx context.Context, id string) context.Context {
+	return context.WithValue(ctx, requestIDKey{}, id)
+}
+
+func requestIDFromContext(ctx context.Context) string {
+	if v := ctx.Value(requestIDKey{}); v != nil {
+		if id, ok := v.(string); ok {
+			return id
+		}
+	}
+	return ""
 }
 
 type tocItem struct {

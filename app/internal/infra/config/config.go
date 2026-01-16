@@ -9,11 +9,18 @@ import (
 
 type Config struct {
 	Server ServerConfig `yaml:"server"`
+	Log    LogConfig    `yaml:"log"`
 	Index  IndexConfig  `yaml:"index"`
 }
 
 type ServerConfig struct {
 	Addr string `yaml:"addr"`
+}
+
+type LogConfig struct {
+	Service string `yaml:"service"`
+	Env     string `yaml:"env"`
+	Level   string `yaml:"level"`
 }
 
 type IndexConfig struct {

@@ -6,6 +6,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"sort"
@@ -22,6 +23,7 @@ type Indexer struct {
 	ScanGlob   string
 	ExcerptLen int
 	MaxResults int
+	Logger     *slog.Logger
 }
 
 // errMaxResults stops traversal without treating it as a fatal error.
@@ -67,6 +69,9 @@ func (i *Indexer) BuildIndex(ctx context.Context) (ports.IndexSnapshot, error) {
 		doc, parseErr := parseFile(path, info, i)
 		if parseErr != nil {
 			// Skip unreadable or malformed docs; indexer remains best-effort.
+			if i.Logger != nil {
+				i.Logger.Warn("doc parse failed", "error", parseErr, "path", path)
+			}
 			return nil
 		}
 		docs = append(docs, doc)
@@ -85,6 +90,9 @@ func (i *Indexer) BuildIndex(ctx context.Context) (ports.IndexSnapshot, error) {
 	})
 	if err != nil {
 		if !errors.Is(err, filepath.SkipAll) && !errors.Is(err, errMaxResults) {
+			if i.Logger != nil {
+				i.Logger.Error("index walk failed", "error", err)
+			}
 			return ports.IndexSnapshot{}, err
 		}
 	}
