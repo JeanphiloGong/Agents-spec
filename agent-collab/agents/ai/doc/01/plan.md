@@ -20,6 +20,10 @@
 - 在 `agent-specs/engineering/frontend/svelte/tutorial/AGENTS.md` 产出教学型模板。
 - 强化后端教学模板，补充大师级教育理念与教学流程。
 - 新增通用运维工程师规范 `agent-specs/infra/ops-engineer/AGENTS.md`。
+- 新增生活规划规范 `agent-specs/productivity/life-planner/AGENTS.md`。
+- 新增多智能体系统工程师规范 `agent-specs/ai-advanced/agent-systems-engineer/AGENTS.md`。
+- 新增 Git 仓库管理规范 `agent-specs/infra/release-engineer/git-repo-manager/AGENTS.md`。
+- 将技能统一迁移到角色目录下的 `skills/` 子目录。
 
 ## Deliverables
 - `agent-specs/marketing/marketing-manager/AGENTS.md`
@@ -46,6 +50,13 @@
 - `agent-specs/engineering/backend/rust/tutorial/AGENTS.md`
 - `agent-specs/engineering/backend/lua/tutorial/AGENTS.md`
 - `agent-specs/infra/ops-engineer/AGENTS.md`
+- `agent-specs/productivity/life-planner/AGENTS.md`
+- `agent-specs/ai-advanced/agent-systems-engineer/AGENTS.md`
+- `agent-specs/infra/release-engineer/git-repo-manager/AGENTS.md`
+- `agent-specs/engineering/frontend/skills/frontend-ui-polish/SKILL.md`
+- `agent-specs/documentation/technical-writer/skills/project-skill-author/SKILL.md`
+- `agent-specs/engineering/backend/skills/code-commenting-skill/SKILL.md`
+- `agent-specs/engineering/skills/git-commit-skill/SKILL.md`
 
 ## Milestones
 - 完成市场营销规范
@@ -65,6 +76,10 @@
 - 完成 Svelte 教学模板
 - 完成后端教学模板教育理念增强
 - 完成通用运维工程师规范
+- 完成生活规划 AGENTS 规范
+- 完成多智能体系统工程师规范
+- 完成 Git 仓库管理规范
+- 完成技能目录结构调整
 
 ## Dependencies
 - 已确认 WRITE_DOC 与目录规划（marketing/product/legal/frontend/documentation）
