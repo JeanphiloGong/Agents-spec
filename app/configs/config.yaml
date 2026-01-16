@@ -1,0 +1,9 @@
+server:
+  addr: ":7070"
+
+index:
+  root_path: ".."
+  scan_glob: "AGENTS.md"
+  excerpt_len: 200
+  max_results: 2000
+  cache_ttl_seconds: 30
