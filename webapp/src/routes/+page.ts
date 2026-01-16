@@ -49,6 +49,10 @@ export const load: PageLoad = async ({ fetch, url }) => {
 		const tags = tagsRes.ok ? await tagsRes.json() : { tags: {} };
 		const stats = statsRes.ok ? await statsRes.json() : { total: 0, recent: [] };
 		const detailPayload = detailRes && detailRes.ok ? await detailRes.json() : null;
+		const relatedRes = url.searchParams.get('id')
+			? await fetch(`${API_BASE}/related?id=${url.searchParams.get('id')}`)
+			: null;
+		const relatedPayload = relatedRes && relatedRes.ok ? await relatedRes.json() : { items: [] };
 		const detailContent = detailPayload?.doc?.content ?? '';
 		const detailHtml = detailContent ? DOMPurify.sanitize(marked.parse(detailContent)) : '';
 
@@ -58,6 +62,8 @@ export const load: PageLoad = async ({ fetch, url }) => {
 			stats,
 			detail: detailPayload?.doc ?? null,
 			detailHtml,
+			toc: detailPayload?.toc ?? [],
+			related: relatedPayload?.items ?? [],
 			error: '',
 			query: {
 				q: url.searchParams.get('q') ?? '',
@@ -78,6 +84,8 @@ export const load: PageLoad = async ({ fetch, url }) => {
 			stats: { total: 0, recent: [] },
 			detail: null,
 			detailHtml: '',
+			toc: [],
+			related: [],
 			error: error instanceof Error ? error.message : 'Failed to load docs',
 			query: {
 				q: url.searchParams.get('q') ?? '',

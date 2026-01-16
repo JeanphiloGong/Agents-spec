@@ -54,7 +54,7 @@
 					<span class="tag">{item.type}</span>
 				</div>
 				<p style="color:var(--muted);margin:0;">
-					{item.excerpt}
+					{@html item.excerpt}
 				</p>
 				<div style="display:flex;gap:10px;flex-wrap:wrap;">
 					<span class="tag">{item.dept}</span>

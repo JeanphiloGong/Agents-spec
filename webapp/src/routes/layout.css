@@ -237,6 +237,65 @@ a {
 	overflow: auto;
 }
 
+.markdown-body mark {
+	background: rgba(230, 197, 122, 0.28);
+	color: var(--ink);
+	padding: 2px 4px;
+	border-radius: 6px;
+}
+
+.chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 10px;
+	border-radius: 999px;
+	border: 1px solid var(--line);
+	color: var(--ink);
+	background: #101015;
+	font-size: 12px;
+}
+
+.chip button {
+	border: none;
+	background: transparent;
+	color: var(--muted);
+	cursor: pointer;
+}
+
+.suggestion-list {
+	display: grid;
+	gap: 8px;
+	max-height: 200px;
+	overflow: auto;
+}
+
+.suggestion-item {
+	padding: 10px 12px;
+	border-radius: 12px;
+	border: 1px solid var(--line);
+	background: #101015;
+	color: var(--ink);
+	cursor: pointer;
+	transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.suggestion-item:hover {
+	border-color: rgba(230, 197, 122, 0.4);
+	transform: translateY(-1px);
+}
+
+.toc {
+	display: grid;
+	gap: 6px;
+	font-size: 13px;
+	color: var(--muted);
+}
+
+.toc a {
+	color: inherit;
+	text-decoration: none;
+}
 .skeleton-line {
 	height: 12px;
 	border-radius: 999px;
