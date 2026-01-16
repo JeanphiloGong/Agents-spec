@@ -154,6 +154,11 @@ Refs:
 - <issue/ticket/PR>
 ```
 
+## Mandatory Format Rule
+
+- Every commit must use the full template with Why/What/Impact/Tests/Refs.
+- Single-line commit messages are not allowed.
+
 ## Golden Rules (Top 10)
 
 1. Keep commits small and focused on a single change.
