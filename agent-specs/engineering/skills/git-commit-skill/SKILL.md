@@ -57,6 +57,25 @@ feat(search): add query filters
 Why:
 - Users need to narrow results by date and status.
 
+What:
+- Add filter params to query builder.
+- Extend search handler to accept new filters.
+
+Impact:
+- More precise results; no breaking changes.
+
+Tests:
+- unit: search_filter_spec
+
+Refs:
+- ISSUE-1423
+```
+```
+feat(search): add query filters
+
+Why:
+- Users need to narrow results by date and status.
+
 How:
 - Add filter params to query builder.
 
@@ -74,6 +93,28 @@ Notes:
 
 Refs:
 - ISSUE-1423
+```
+
+## Master Commit Template
+
+```
+<type>(optional-scope): <subject>
+
+Why:
+- <user or system problem being solved>
+
+What:
+- <key change 1>
+- <key change 2>
+
+Impact:
+- <behavior impact, compatibility, or migration notes>
+
+Tests:
+- <tests run, or "not run" with reason>
+
+Refs:
+- <issue/ticket/PR>
 ```
 
 ## Golden Rules (Top 10)
