@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,6 +13,7 @@ import (
 	"agents-app/internal/app/adapters/fs"
 	"agents-app/internal/app/usecases/search"
 	"agents-app/internal/infra/config"
+	"agents-app/internal/infra/logging"
 	httpapi "agents-app/internal/interfaces/http"
 )
 
@@ -26,17 +28,24 @@ func main() {
 		log.Fatalf("config error: %v", err)
 	}
 
+	logger := logging.New(logging.Config{
+		Service: cfg.Log.Service,
+		Env:     cfg.Log.Env,
+		Level:   logging.ParseLevel(cfg.Log.Level, slog.LevelInfo),
+	})
+
 	indexer := &fs.Indexer{
 		RootPath:   cfg.Index.RootPath,
 		ScanGlob:   cfg.Index.ScanGlob,
 		ExcerptLen: cfg.Index.ExcerptLen,
 		MaxResults: cfg.Index.MaxResults,
+		Logger:     logger,
 	}
 	// Cache reduces repeated disk walks for hot endpoints.
 	cached := search.NewCachedIndexer(indexer, time.Duration(cfg.Index.CacheTTL)*time.Second)
 	searchSvc := search.New(cached)
 
-	handler := httpapi.NewHandler(searchSvc, cached, cfg.Index.RootPath)
+	handler := httpapi.NewHandler(searchSvc, cached, cfg.Index.RootPath, logger)
 	router := handler.Router()
 
 	cors := httpapi.CORSConfig{
@@ -55,9 +64,9 @@ func main() {
 	}
 
 	go func() {
-		log.Printf("listening on %s", cfg.Server.Addr)
+		logger.Info("server listening", "addr", cfg.Server.Addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("server error: %v", err)
+			logger.Error("server error", "error", err)
 		}
 	}()
 
@@ -69,6 +78,6 @@ func main() {
 	defer cancel()
 	// Graceful shutdown to finish in-flight requests.
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Printf("shutdown error: %v", err)
+		logger.Error("shutdown error", "error", err)
 	}
 }

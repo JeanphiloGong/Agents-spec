@@ -1,6 +1,11 @@
 server:
   addr: ":7070"
 
+log:
+  service: "agents-api"
+  env: "dev"
+  level: "info"
+
 index:
   root_path: ".."
   scan_glob: "AGENTS.md"
