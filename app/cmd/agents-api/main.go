@@ -18,6 +18,7 @@ import (
 func main() {
 	configPath := os.Getenv("AGENTS_CONFIG")
 	if configPath == "" {
+		// Default to repo-local config for dev runs; override in prod via env.
 		configPath = "configs/config.yaml"
 	}
 	cfg, err := config.Load(configPath)
@@ -31,6 +32,7 @@ func main() {
 		ExcerptLen: cfg.Index.ExcerptLen,
 		MaxResults: cfg.Index.MaxResults,
 	}
+	// Cache reduces repeated disk walks for hot endpoints.
 	cached := search.NewCachedIndexer(indexer, time.Duration(cfg.Index.CacheTTL)*time.Second)
 	searchSvc := search.New(cached)
 
@@ -65,6 +67,7 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+	// Graceful shutdown to finish in-flight requests.
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Printf("shutdown error: %v", err)
 	}

@@ -24,6 +24,7 @@ type IndexConfig struct {
 	CacheTTL   int    `yaml:"cache_ttl_seconds"`
 }
 
+// Load reads YAML config from disk; callers decide on defaults and env overrides.
 func Load(path string) (Config, error) {
 	var cfg Config
 	data, err := os.ReadFile(path)

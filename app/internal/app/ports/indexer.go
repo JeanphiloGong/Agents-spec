@@ -11,6 +11,7 @@ type Indexer interface {
 }
 
 type IndexSnapshot struct {
+	// Docs preserves a stable ordering for presentation (sorted by UpdatedAt).
 	Docs      []model.AgentDoc
 	ByID      map[string]model.AgentDoc
 	ByDept    map[string][]string

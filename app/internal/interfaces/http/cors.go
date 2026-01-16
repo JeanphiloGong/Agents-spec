@@ -8,6 +8,7 @@ type CORSConfig struct {
 	AllowHeaders string
 }
 
+// WithCORS applies a minimal permissive policy for public read-only APIs.
 func WithCORS(next http.Handler, cfg CORSConfig) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", cfg.AllowOrigin)

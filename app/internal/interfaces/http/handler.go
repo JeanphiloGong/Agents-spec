@@ -22,10 +22,12 @@ type Handler struct {
 	rootPath string
 }
 
+// NewHandler wires HTTP endpoints to use cases and index ports.
 func NewHandler(searchSvc *search.Service, indexer ports.Indexer, rootPath string) *Handler {
 	return &Handler{search: searchSvc, indexer: indexer, rootPath: rootPath}
 }
 
+// Router returns the HTTP routes; adapters stay outside the use case layer.
 func (h *Handler) Router() http.Handler {
 	r := chi.NewRouter()
 	r.Get("/api/health", h.handleHealth)
@@ -121,6 +123,7 @@ func (h *Handler) handleDownload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !strings.HasPrefix(absPath, absRoot) {
+		// Prevent path traversal outside the configured root.
 		writeError(w, http.StatusForbidden, "invalid path")
 		return
 	}
@@ -258,6 +261,7 @@ type docItem struct {
 
 func toDocItem(doc model.AgentDoc, query string) docItem {
 	excerpt := doc.Excerpt
+	// Lightweight inline highlight for list previews only.
 	if query != "" {
 		excerpt = highlightMatch(excerpt, query)
 	}

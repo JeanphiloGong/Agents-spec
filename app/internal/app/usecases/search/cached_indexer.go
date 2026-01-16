@@ -18,6 +18,7 @@ type CachedIndexer struct {
 	loaded   bool
 }
 
+// NewCachedIndexer provides a simple TTL cache to reduce filesystem scans.
 func NewCachedIndexer(inner ports.Indexer, ttl time.Duration) *CachedIndexer {
 	return &CachedIndexer{inner: inner, ttl: ttl}
 }

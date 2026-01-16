@@ -30,6 +30,7 @@ type Service struct {
 	indexer ports.Indexer
 }
 
+// New keeps the use case independent from any concrete indexer.
 func New(indexer ports.Indexer) *Service {
 	return &Service{indexer: indexer}
 }
@@ -51,6 +52,7 @@ func (s *Service) Search(ctx context.Context, q Query) (Result, error) {
 
 	matches := make([]model.AgentDoc, 0, len(snapshot.Docs))
 	for _, doc := range snapshot.Docs {
+		// Filter first to keep text checks cheap.
 		if !matchFilters(doc, q) {
 			continue
 		}

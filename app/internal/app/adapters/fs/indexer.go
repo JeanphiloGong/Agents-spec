@@ -24,6 +24,7 @@ type Indexer struct {
 	MaxResults int
 }
 
+// errMaxResults stops traversal without treating it as a fatal error.
 var errMaxResults = errors.New("max results reached")
 
 type FrontMatter struct {
@@ -54,6 +55,7 @@ func (i *Indexer) BuildIndex(ctx context.Context) (ports.IndexSnapshot, error) {
 		}
 		if info.IsDir() {
 			if shouldSkipDir(info.Name()) {
+				// Skip heavy or generated directories to avoid slow scans.
 				return filepath.SkipDir
 			}
 			return nil
@@ -64,6 +66,7 @@ func (i *Indexer) BuildIndex(ctx context.Context) (ports.IndexSnapshot, error) {
 
 		doc, parseErr := parseFile(path, info, i)
 		if parseErr != nil {
+			// Skip unreadable or malformed docs; indexer remains best-effort.
 			return nil
 		}
 		docs = append(docs, doc)
@@ -167,6 +170,7 @@ func parseFrontMatter(content string) (FrontMatter, string) {
 
 	front := FrontMatter{}
 	if err := yaml.Unmarshal([]byte(frontRaw), &front); err != nil {
+		// Fall back to path-derived metadata if YAML is invalid.
 		return FrontMatter{}, content
 	}
 	return front, body
@@ -247,6 +251,7 @@ func uniqueLower(items []string) []string {
 }
 
 func buildID(path string) string {
+	// Path-based hash keeps IDs stable across content edits.
 	h := sha1.Sum([]byte(path))
 	return hex.EncodeToString(h[:])
 }
