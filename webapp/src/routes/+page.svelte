@@ -1,7 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import DocDetail from '$lib/components/DocDetail.svelte';
 	import DocList from '$lib/components/DocList.svelte';
+	import DOMPurify from 'dompurify';
+	import { marked } from 'marked';
+	import { onMount } from 'svelte';
+
+	const API_BASE = 'http://localhost:7070/api';
 
 	type DocItem = {
 		id: string;
@@ -13,6 +19,7 @@
 		tags: string[];
 		updated_at: string;
 		excerpt: string;
+		content?: string;
 	};
 
 	type DocsResponse = {
@@ -29,6 +36,18 @@
 		recent: DocItem[];
 	};
 
+	type QueryState = {
+		q: string;
+		dept: string;
+		role: string;
+		type: string;
+		tags: string;
+		sort: string;
+		page: string;
+		size: string;
+		id: string;
+	};
+
 	type LoadData = {
 		docs: DocsResponse;
 		tags: TagsResponse;
@@ -38,26 +57,140 @@
 		toc: { level: number; text: string }[];
 		related: DocItem[];
 		error: string;
-		query: {
-			q: string;
-			dept: string;
-			role: string;
-			type: string;
-			tags: string;
-			sort: string;
-			page: string;
-			size: string;
-			id: string;
-		};
+		query: QueryState;
 	};
 
-	let { data } = $props<{ data: LoadData }>();
+	const buildQueryState = (url: URL): QueryState => ({
+		q: url.searchParams.get('q') ?? '',
+		dept: url.searchParams.get('dept') ?? '',
+		role: url.searchParams.get('role') ?? '',
+		type: url.searchParams.get('type') ?? '',
+		tags: url.searchParams.get('tags') ?? '',
+		sort: url.searchParams.get('sort') ?? 'updated',
+		page: url.searchParams.get('page') ?? '1',
+		size: url.searchParams.get('size') ?? '20',
+		id: url.searchParams.get('id') ?? ''
+	});
+
+	const buildQueryString = (query: QueryState) => {
+		const params = new URLSearchParams();
+		if (query.q) params.set('q', query.q);
+		if (query.dept) params.set('dept', query.dept);
+		if (query.role) params.set('role', query.role);
+		if (query.type) params.set('type', query.type);
+		if (query.tags) params.set('tags', query.tags);
+		if (query.sort) params.set('sort', query.sort);
+		params.set('page', query.page || '1');
+		params.set('size', query.size || '20');
+		return params.toString();
+	};
+
+	let data = $state<LoadData>({
+		docs: { total: 0, items: [] },
+		tags: { tags: {} },
+		stats: { total: 0, recent: [] },
+		detail: null,
+		detailHtml: '',
+		toc: [],
+		related: [],
+		error: '',
+		query: {
+			q: '',
+			dept: '',
+			role: '',
+			type: '',
+			tags: '',
+			sort: 'updated',
+			page: '1',
+			size: '20',
+			id: ''
+		}
+	});
+
+	let listLoading = $state(false);
+	let detailLoading = $state(false);
 
 	const query = $derived(data.query);
 	const tagEntries = $derived(Object.entries(data.tags?.tags ?? {}).slice(0, 10));
 	const pageSize = $derived(Number.parseInt(query.size || '20', 10));
 	const currentPage = $derived(Number.parseInt(query.page || '1', 10));
 	const totalPages = $derived(Math.max(1, Math.ceil((data.docs?.total ?? 0) / pageSize)));
+
+	const loadFromUrl = async (url: URL) => {
+		const nextQuery = buildQueryState(url);
+		listLoading = true;
+		detailLoading = Boolean(nextQuery.id);
+		data.error = '';
+
+		try {
+			const queryString = buildQueryString(nextQuery);
+			const [docsRes, tagsRes, statsRes] = await Promise.all([
+				fetch(`${API_BASE}/docs?${queryString}`),
+				fetch(`${API_BASE}/tags`),
+				fetch(`${API_BASE}/stats`)
+			]);
+
+			if (!docsRes.ok) throw new Error('Failed to load docs');
+
+			const docs = await docsRes.json();
+			const tags = tagsRes.ok ? await tagsRes.json() : { tags: {} };
+			const stats = statsRes.ok ? await statsRes.json() : { total: 0, recent: [] };
+
+			let detail: DocItem | null = null;
+			let detailHtml = '';
+			let toc: { level: number; text: string }[] = [];
+			let related: DocItem[] = [];
+
+			if (nextQuery.id) {
+				const [detailRes, relatedRes] = await Promise.all([
+					fetch(`${API_BASE}/docs/${nextQuery.id}`),
+					fetch(`${API_BASE}/related?id=${nextQuery.id}`)
+				]);
+				const detailPayload = detailRes.ok ? await detailRes.json() : null;
+				const relatedPayload = relatedRes.ok ? await relatedRes.json() : { items: [] };
+				detail = detailPayload?.doc ?? null;
+				toc = detailPayload?.toc ?? [];
+				related = relatedPayload?.items ?? [];
+				const content = detailPayload?.doc?.content ?? '';
+				detailHtml = content ? DOMPurify.sanitize(marked.parse(content)) : '';
+			}
+
+			data = {
+				docs,
+				tags,
+				stats,
+				detail,
+				detailHtml,
+				toc,
+				related,
+				error: '',
+				query: nextQuery
+			};
+		} catch (error) {
+			data = {
+				...data,
+				docs: { total: 0, items: [] },
+				tags: { tags: {} },
+				stats: { total: 0, recent: [] },
+				detail: null,
+				detailHtml: '',
+				toc: [],
+				related: [],
+				error: error instanceof Error ? error.message : 'Failed to load docs',
+				query: nextQuery
+			};
+		} finally {
+			listLoading = false;
+			detailLoading = false;
+		}
+	};
+
+	onMount(() => {
+		const unsubscribe = page.subscribe(($page) => {
+			loadFromUrl($page.url);
+		});
+		return unsubscribe;
+	});
 
 	const submitSearch = async (event: SubmitEvent) => {
 		event.preventDefault();
@@ -134,7 +267,7 @@
 		suggestionLoading = true;
 		suggestionError = '';
 		try {
-			const response = await fetch(`http://localhost:7070/api/suggestions?q=${trimmed}`);
+			const response = await fetch(`${API_BASE}/suggestions?q=${trimmed}`);
 			if (!response.ok) throw new Error('Failed to load suggestions');
 			const payload = await response.json();
 			suggestionTitles = payload?.titles ?? [];
@@ -220,7 +353,7 @@
 				<DocList
 					items={data.docs?.items ?? []}
 					error={data.error}
-					isLoading={!data.docs?.items?.length && !data.error}
+					isLoading={listLoading}
 					onSelect={openDetail}
 				/>
 				<div
@@ -346,7 +479,7 @@
 				html={data.detailHtml}
 				toc={data.toc}
 				related={data.related}
-				isLoading={!data.detail}
+				isLoading={detailLoading}
 			/>
 		</div>
 	</div>
