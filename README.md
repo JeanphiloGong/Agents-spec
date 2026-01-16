@@ -1,5 +1,7 @@
 # agents-spec-repo
 
+[English](#english)
+
 ## 📘 项目介绍
 agents-spec-repo 用于管理 AI Agents 在不同工程/产品角色下的行为规范与代码生成规则。目标不是写业务代码，而是提供角色化规范，确保输出一致、专业、可控。
 仓库同时提供多智能体协作模板与角色索引，方便新项目快速落地与复用。
@@ -12,6 +14,33 @@ agents-spec-repo 用于管理 AI Agents 在不同工程/产品角色下的行为
 ## 🔧 Skills（Codex 技能）
 本仓库支持将项目规范与工作流沉淀为 Codex Skills，便于外部开发者或客户通过 AI 直接与项目交互。
 参考： [OpenAI Codex Skills](https://developers.openai.com/codex/skills)
+技能推荐按角色放置在 `agent-specs/<role>/skills/` 目录中，便于与角色规范绑定；如需本机使用，可同步到 `~/.codex/skills`。
+
+## 🤝 协作方式
+- 先阅读 `AGENTS.md` 与 `AGENTS.template.md`，理解权限与协作边界
+- 新角色请放在 `agent-specs/` 下，并补齐对应 `AGENTS.md`
+- 讨论与变更请记录到 `agent-collab/` 的相应频道或日志
+
+## ✅ 贡献指南
+- 仅修改文档类文件时使用 `WRITE_DOC`
+- 任何代码/配置变更必须获得 `WRITE_CODE` 授权
+- 变更提交请保持可追溯、可解释
+
+## 🧭 沟通与支持
+- 角色沟通：`agent-collab/agents/<id>/inbox.md` 与 `outbox.md`
+- 部门内讨论：`agent-collab/channels/dept-*.md`
+- 跨部门沟通：`agent-collab/channels/global.md`
+
+## 🔒 安全与合规
+- 禁止提交密钥、Token、PII
+- 生产相关决策需记录在 `agent-collab/coordination/decisions.md`
+
+## 🏷️ 版本与发布
+- 本仓库以文档规范为主，发布节奏以变更合并为准
+- 需要正式发布说明时可新增 `CHANGELOG.md`
+
+## 📜 许可
+- 暂未指定，按需补充
 
 ## 📁 仓库目录结构
 ```text
@@ -118,6 +147,50 @@ agents-spec-repo/
 ### ⚖️ 法务与合规类（Legal & Compliance）
 | 角色 | 职责 | AGENTS 路径 |
 | --- | --- | --- |
+
+---
+
+# English
+
+## 📘 Overview
+agents-spec-repo defines role-based AI agent behavior specs and collaboration norms for engineering and product teams. It is not a business codebase; it is a role-spec repository to keep outputs consistent, professional, and auditable.
+It also ships multi-agent collaboration templates and role indexes for quick adoption in new projects.
+
+## 🎯 Why this repository?
+- AI agents span documentation, code generation, testing, architecture support, and multi-agent roles
+- Without shared norms, outputs become inconsistent, unsafe, and hard to audit
+- Role-based specifications make results stable and reusable
+
+## 🔧 Skills (Codex)
+This repo supports Codex Skills so external developers or customers can use AI to integrate with a project.
+Reference: [OpenAI Codex Skills](https://developers.openai.com/codex/skills)
+Place skills under `agent-specs/<role>/skills/` and sync to `~/.codex/skills` if needed.
+
+## 🤝 Collaboration
+- Read `AGENTS.md` and `AGENTS.template.md` first to understand boundaries
+- Add new roles under `agent-specs/` with a matching `AGENTS.md`
+- Record discussions and changes in `agent-collab/` channels/logs
+
+## ✅ Contributing
+- Use `WRITE_DOC` for documentation-only changes
+- Any code or config change requires explicit `WRITE_CODE`
+- Keep commits traceable and explain intent
+
+## 🧭 Support
+- Role inbox/outbox: `agent-collab/agents/<id>/inbox.md` and `outbox.md`
+- Department channels: `agent-collab/channels/dept-*.md`
+- Cross-department: `agent-collab/channels/global.md`
+
+## 🔒 Security & Compliance
+- Never commit secrets, tokens, or PII
+- Record production-impacting decisions in `agent-collab/coordination/decisions.md`
+
+## 🏷️ Versioning & Releases
+- This repo is documentation-first; releases align with merged updates
+- Add `CHANGELOG.md` if formal release notes are needed
+
+## 📜 License
+- Not specified yet
 | 法务顾问 / Legal Counsel | 合规审查、风险识别、合同条款 | `agent-specs/legal/legal-counsel/AGENTS.md` |
 
 ### 💎 团队高级角色（Leadership）
