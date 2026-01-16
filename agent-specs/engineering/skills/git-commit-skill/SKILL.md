@@ -17,6 +17,7 @@ description: Create standard, high-quality git commit messages and commit plans;
 
 1. Clarify scope and repository policy.
    - Ask for any existing commit convention or template.
+   - Ask once whether to ignore unrelated changes; proceed based on the answer without re-asking.
 2. Review change intent.
    - Summarize what changed and why, not how.
 3. Propose commit splits.
@@ -91,7 +92,7 @@ Refs:
 ## Change Scope Rule
 
 - Base commit messages only on the AI's own changes.
-- If unrelated or user-made changes are present, ask before including them.
+- If unrelated or user-made changes are present, ask once before including them, then proceed.
 
 ## Output Format
 
