@@ -254,7 +254,14 @@
 
 {#if paletteOpen}
 	<div class="overlay" role="button" tabindex="0" onclick={closePalette} onkeydown={closePalette}>
-		<div class="modal" role="dialog" aria-modal="true" onclick={(event) => event.stopPropagation()}>
+		<div
+			class="modal"
+			role="dialog"
+			aria-modal="true"
+			tabindex="0"
+			onclick={(event) => event.stopPropagation()}
+			onkeydown={(event) => event.stopPropagation()}
+		>
 			<div class="modal-header">
 				<div class="modal-title">搜索 AGENTS.md</div>
 				<button class="button ghost" type="button" onclick={closePalette}>关闭</button>
@@ -322,7 +329,14 @@
 
 {#if query.id}
 	<div class="overlay" role="button" tabindex="0" onclick={closeDetail} onkeydown={closeDetail}>
-		<div class="modal" role="dialog" aria-modal="true" onclick={(event) => event.stopPropagation()}>
+		<div
+			class="modal"
+			role="dialog"
+			aria-modal="true"
+			tabindex="0"
+			onclick={(event) => event.stopPropagation()}
+			onkeydown={(event) => event.stopPropagation()}
+		>
 			<div class="modal-header">
 				<div class="modal-title">文档详情</div>
 				<button class="button ghost" type="button" onclick={closeDetail}>关闭</button>
