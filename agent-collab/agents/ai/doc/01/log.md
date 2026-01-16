@@ -628,6 +628,35 @@
       notes:
         - "如需补充评估/仿真规范，可扩展至 ai-evaluator。"
 
+- timestamp: 2026-01-16T09:54:25+08:00
+  agent:
+    id: ai/doc/01
+    role: 文档工程师 / Doc Writer
+  content:
+    objective: "新增 Git 仓库管理与提交规范 AGENTS 模板。"
+    context: "用户要求新增 git-repo-manager 规范，放在 release-engineer 目录。"
+    scope:
+      in:
+        - "新增 `agent-specs/infra/release-engineer/git-repo-manager/AGENTS.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/plan.md`"
+        - "更新 `agent-collab/agents/ai/doc/01/log.md`"
+      out:
+        - "不修改任何代码或配置文件"
+        - "不更新 README.md（如需另开任务）"
+    status:
+      doing:
+        - ""
+      next:
+        - "如需，将角色索引补充到 README.md"
+      done:
+        - "完成 Git 仓库管理规范"
+    artifacts:
+      - "agent-specs/infra/release-engineer/git-repo-manager/AGENTS.md:1"
+    handoff:
+      to: "human/gong"
+      notes:
+        - "如需加入 commitlint 或模板示例，可继续扩展。"
+
 - timestamp: 2025-12-25T15:32:48+08:00
   agent:
     id: ai/doc/01
