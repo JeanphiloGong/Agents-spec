@@ -22,6 +22,19 @@
 		content?: string;
 	};
 
+	type RawDoc = Partial<DocItem> & {
+		ID?: string;
+		Title?: string;
+		Path?: string;
+		Dept?: string;
+		Role?: string;
+		Type?: string;
+		Tags?: string[];
+		UpdatedAt?: string;
+		Excerpt?: string;
+		Content?: string;
+	};
+
 	type DocsResponse = {
 		total: number;
 		items: DocItem[];
@@ -58,6 +71,22 @@
 		related: DocItem[];
 		error: string;
 		query: QueryState;
+	};
+
+	const normalizeDoc = (raw: RawDoc | null): DocItem | null => {
+		if (!raw) return null;
+		return {
+			id: raw.id ?? raw.ID ?? '',
+			title: raw.title ?? raw.Title ?? '',
+			path: raw.path ?? raw.Path ?? '',
+			dept: raw.dept ?? raw.Dept ?? '',
+			role: raw.role ?? raw.Role ?? '',
+			type: raw.type ?? raw.Type ?? '',
+			tags: raw.tags ?? raw.Tags ?? [],
+			updated_at: raw.updated_at ?? raw.UpdatedAt ?? '',
+			excerpt: raw.excerpt ?? raw.Excerpt ?? '',
+			content: raw.content ?? raw.Content ?? ''
+		};
 	};
 
 	const buildQueryState = (url: URL): QueryState => ({
@@ -148,10 +177,10 @@
 				]);
 				const detailPayload = detailRes.ok ? await detailRes.json() : null;
 				const relatedPayload = relatedRes.ok ? await relatedRes.json() : { items: [] };
-				detail = detailPayload?.doc ?? null;
+				detail = normalizeDoc(detailPayload?.doc ?? null);
 				toc = detailPayload?.toc ?? [];
 				related = relatedPayload?.items ?? [];
-				const content = detailPayload?.doc?.content ?? '';
+				const content = detail?.content ?? '';
 				detailHtml = content ? DOMPurify.sanitize(marked.parse(content)) : '';
 			}
 
