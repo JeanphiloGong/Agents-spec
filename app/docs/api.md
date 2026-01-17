@@ -5,8 +5,17 @@ Base URL: `/api`
 ## Conventions
 - Content-Type: `application/json`
 - Time format: RFC3339
-- Errors: `{ "error": "message" }`
+- Request ID: `X-Request-Id` response header (echoed if provided; generated if absent)
+- Trace ID: optional `X-Trace-Id` request header (echoed when provided)
+- Errors: `{ "error": { "code": "invalid_request", "message": "..." }, "request_id": "..." }`
 - Pagination: `page` (1-based), `size`
+- Limits: `q` length <= 200, `tags` <= 20, `size` <= 200, `limit` <= `index.max_results` (when configured)
+
+## Error Codes
+- `invalid_request`: invalid or missing query/path parameters
+- `not_found`: document or file not found
+- `forbidden`: rejected access (for example, invalid download path)
+- `internal_error`: unexpected server error
 
 ## Health
 
@@ -24,15 +33,15 @@ Response
 `GET /api/docs`
 
 Query params
-- `q`: keyword (title/content/tags)
+- `q`: keyword (title/content/tags), max length 200
 - `dept`: department filter
 - `role`: role filter
 - `type`: doc type filter (`spec|template|tutorial`)
-- `tags`: comma-separated tags
+- `tags`: comma-separated tags, max 20
 - `sort`: `updated` (default) or `name`
 - `page`: page number (default 1)
-- `size`: page size (default 20)
-- `limit`: max results cap (optional)
+- `size`: page size (default 20, max 200)
+- `limit`: max results cap (optional, bounded by `index.max_results` if set)
 
 Notes
 - When `q` is provided, `excerpt` returns a snippet with `<mark>` tag for the first match.
@@ -88,7 +97,7 @@ Response
 `GET /api/docs/{id}/download`
 
 Response
-- `Content-Disposition: attachment; filename=AGENTS.md`
+- `Content-Disposition: attachment; filename="<basename>"`
 - File content (raw markdown)
 
 ## Suggestions
@@ -102,6 +111,10 @@ Response
   "tags": ["backend", "engineering"]
 }
 ```
+
+Notes
+- `q` max length 200
+- Results limited to 20 titles and 20 tags
 
 ## Related Docs
 
@@ -125,6 +138,9 @@ Response
   ]
 }
 ```
+
+Notes
+- Results limited to 10 items
 
 ## Tags
 
@@ -163,3 +179,6 @@ Response
   ]
 }
 ```
+
+Notes
+- `recent` is limited to 10 items
