@@ -21,42 +21,42 @@
 	let { items, error, isLoading, onSelect } = $props<Props>();
 </script>
 
-<div class="card-grid" style="margin-top:28px;">
+<div class="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
 	{#if error}
-		<div class="glass-card" style="padding:18px;color:#9b2c2c;">
+		<div class="card p-4 text-sm text-red-700">
 			{error}
 		</div>
 	{:else if isLoading}
-		<div class="glass-card" style="padding:18px;display:grid;gap:12px;">
-			<div class="skeleton-line" style="width:60%;"></div>
-			<div class="skeleton-line"></div>
-			<div class="skeleton-line" style="width:80%;"></div>
+		<div class="card grid gap-3 p-4">
+			<div class="skeleton-line h-4 w-3/5"></div>
+			<div class="skeleton-line h-3"></div>
+			<div class="skeleton-line h-3 w-4/5"></div>
 		</div>
-		<div class="glass-card" style="padding:18px;display:grid;gap:12px;">
-			<div class="skeleton-line" style="width:55%;"></div>
-			<div class="skeleton-line"></div>
-			<div class="skeleton-line" style="width:70%;"></div>
+		<div class="card grid gap-3 p-4">
+			<div class="skeleton-line h-4 w-1/2"></div>
+			<div class="skeleton-line h-3"></div>
+			<div class="skeleton-line h-3 w-3/4"></div>
 		</div>
 	{:else if items?.length}
 		{#each items as item, index}
 			<button
-				class="glass-card card fade-up"
+				class="card card-hover fade-up grid cursor-pointer gap-3 p-5 text-left"
 				type="button"
-				style={`padding:18px;display:grid;gap:10px;text-align:left;border:none;cursor:pointer;animation-delay:${index * 60}ms;`}
+				style={`animation-delay:${index * 60}ms;`}
 				onclick={() => onSelect(item)}
 				aria-label={`查看 ${item.title}`}
 			>
-				<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+				<div class="flex items-start justify-between gap-3">
 					<div>
-						<div style="font-weight:700;">{item.title}</div>
-						<div style="font-size:12px;color:var(--muted);">{item.path}</div>
+						<div class="text-base font-semibold text-slate-900">{item.title}</div>
+						<div class="text-xs text-slate-500">{item.path}</div>
 					</div>
 					<span class="tag">{item.type}</span>
 				</div>
-				<p style="color:var(--muted);margin:0;">
+				<p class="m-0 text-sm text-slate-600 leading-relaxed">
 					{@html item.excerpt}
 				</p>
-				<div style="display:flex;gap:10px;flex-wrap:wrap;">
+				<div class="flex flex-wrap gap-2">
 					<span class="tag">{item.dept}</span>
 					<span class="tag">{item.role}</span>
 					{#each item.tags?.slice(0, 3) ?? [] as tag}
@@ -66,7 +66,7 @@
 			</button>
 		{/each}
 	{:else}
-		<div class="glass-card" style="padding:18px;color:var(--muted);">
+		<div class="card p-4 text-sm text-slate-500">
 			暂无匹配的 AGENTS.md 结果。
 		</div>
 	{/if}
