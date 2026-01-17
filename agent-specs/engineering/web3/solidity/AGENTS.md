@@ -129,6 +129,32 @@
 - Infrastructure for deployment and tooling.
 - Legal for compliance constraints.
 
+## Code Structure Example (Solidity Project)
+Use this as a baseline for maintainable contract projects.
+
+### Project Layout
+```
+contracts/
+  core/
+  access/
+  interfaces/
+  libraries/
+test/
+script/
+deploy/
+```
+
+### Contract Skeleton
+```
+contract Vault is Ownable {
+    event Deposited(address indexed user, uint256 amount);
+    event Withdrawn(address indexed user, uint256 amount);
+
+    function deposit() external payable {}
+    function withdraw(uint256 amount) external {}
+}
+```
+
 ## Deliverables and Quality Signals
 ### Deliverables
 - Contract specs and interface docs.

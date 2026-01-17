@@ -129,6 +129,36 @@
 - Infrastructure for node and provider setup.
 - Legal for compliance constraints.
 
+## Code Structure Example (On-chain + Off-chain)
+Use this as a reference layout for clear boundaries between contracts and services.
+
+### Reference Layout
+```
+contracts/
+  core/
+  access/
+  interfaces/
+  libraries/
+services/
+  api/
+  indexer/
+  relayer/
+  worker/
+infra/
+  chain/
+  storage/
+  messaging/
+docs/
+  trust-model.md
+```
+
+### Interaction Sketch
+```
+[api] -> [chain client] -> [node/provider]
+[indexer] -> [storage] -> [api]
+[relayer] -> [chain]
+```
+
 ## Deliverables and Quality Signals
 ### Deliverables
 - Chain architecture and trust model docs.

@@ -129,6 +129,44 @@
 - Infrastructure for node and provider setup.
 - Legal for compliance constraints.
 
+## Code Structure Example (Go Web3 Service)
+Use this as a reference for clean boundaries in Go services that interact with chains.
+
+### Package Layout
+```
+cmd/
+  server/
+internal/
+  app/
+    ports/
+      in/
+      out/
+    usecases/
+  chain/
+    client/
+    abi/
+  indexer/
+  relayer/
+  wallet/
+  infra/
+    provider/
+    storage/
+    messaging/
+```
+
+### Interface Sketch
+```
+type ChainClient interface {
+    CallContract(ctx context.Context, req CallRequest) (CallResult, error)
+    SendTx(ctx context.Context, tx Tx) (TxHash, error)
+}
+
+type Signer interface {
+    Address() Address
+    SignTx(ctx context.Context, tx Tx) (SignedTx, error)
+}
+```
+
 ## Deliverables and Quality Signals
 ### Deliverables
 - Chain architecture and trust model docs.
