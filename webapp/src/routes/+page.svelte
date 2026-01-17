@@ -1,224 +1,56 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { goto, invalidateAll } from '$app/navigation';
+	import { navigating } from '$app/stores';
 	import DocDetail from '$lib/components/DocDetail.svelte';
 	import DocList from '$lib/components/DocList.svelte';
-	import DOMPurify from 'dompurify';
-	import { marked } from 'marked';
-	import { onMount } from 'svelte';
+	import PaginationControls from '$lib/components/PaginationControls.svelte';
+	import SearchPanel from '$lib/components/SearchPanel.svelte';
+	import { API_BASE } from '$lib/config/api';
+	import { formatNumber, locale, setLocale, t } from '$lib/i18n';
+	import { trackEvent } from '$lib/analytics';
+	import { theme, toggleTheme } from '$lib/stores/theme';
+	import type { DocItem } from '$lib/types/docs';
+	import type { PageData } from './$types';
+	import { onDestroy, tick } from 'svelte';
 
-	const API_BASE = 'http://localhost:7070/api';
+	type ErrorKey = '' | 'list_failed' | 'detail_failed' | 'suggestion_failed';
 
-	type DocItem = {
-		id: string;
-		title: string;
-		path: string;
-		dept: string;
-		role: string;
-		type: string;
-		tags: string[];
-		updated_at: string;
-		excerpt: string;
-		content?: string;
-	};
-
-	type RawDoc = Partial<DocItem> & {
-		ID?: string;
-		Title?: string;
-		Path?: string;
-		Dept?: string;
-		Role?: string;
-		Type?: string;
-		Tags?: string[];
-		UpdatedAt?: string;
-		Excerpt?: string;
-		Content?: string;
-	};
-
-	type DocsResponse = {
-		total: number;
-		items: DocItem[];
-	};
-
-	type TagsResponse = {
-		tags: Record<string, number>;
-	};
-
-	type StatsResponse = {
-		total: number;
-		recent: DocItem[];
-	};
-
-	type QueryState = {
-		q: string;
-		dept: string;
-		role: string;
-		type: string;
-		tags: string;
-		sort: string;
-		page: string;
-		size: string;
-		id: string;
-	};
-
-	type LoadData = {
-		docs: DocsResponse;
-		tags: TagsResponse;
-		stats: StatsResponse;
-		detail: DocItem | null;
-		detailHtml: string;
-		toc: { level: number; text: string }[];
-		related: DocItem[];
-		error: string;
-		query: QueryState;
-	};
-
-	const normalizeDoc = (raw: RawDoc | null): DocItem | null => {
-		if (!raw) return null;
-		return {
-			id: raw.id ?? raw.ID ?? '',
-			title: raw.title ?? raw.Title ?? '',
-			path: raw.path ?? raw.Path ?? '',
-			dept: raw.dept ?? raw.Dept ?? '',
-			role: raw.role ?? raw.Role ?? '',
-			type: raw.type ?? raw.Type ?? '',
-			tags: raw.tags ?? raw.Tags ?? [],
-			updated_at: raw.updated_at ?? raw.UpdatedAt ?? '',
-			excerpt: raw.excerpt ?? raw.Excerpt ?? '',
-			content: raw.content ?? raw.Content ?? ''
-		};
-	};
-
-	const buildQueryState = (url: URL): QueryState => ({
-		q: url.searchParams.get('q') ?? '',
-		dept: url.searchParams.get('dept') ?? '',
-		role: url.searchParams.get('role') ?? '',
-		type: url.searchParams.get('type') ?? '',
-		tags: url.searchParams.get('tags') ?? '',
-		sort: url.searchParams.get('sort') ?? 'updated',
-		page: url.searchParams.get('page') ?? '1',
-		size: url.searchParams.get('size') ?? '20',
-		id: url.searchParams.get('id') ?? ''
-	});
-
-	const buildQueryString = (query: QueryState) => {
-		const params = new URLSearchParams();
-		if (query.q) params.set('q', query.q);
-		if (query.dept) params.set('dept', query.dept);
-		if (query.role) params.set('role', query.role);
-		if (query.type) params.set('type', query.type);
-		if (query.tags) params.set('tags', query.tags);
-		if (query.sort) params.set('sort', query.sort);
-		params.set('page', query.page || '1');
-		params.set('size', query.size || '20');
-		return params.toString();
-	};
-
-	let data = $state<LoadData>({
-		docs: { total: 0, items: [] },
-		tags: { tags: {} },
-		stats: { total: 0, recent: [] },
-		detail: null,
-		detailHtml: '',
-		toc: [],
-		related: [],
-		error: '',
-		query: {
-			q: '',
-			dept: '',
-			role: '',
-			type: '',
-			tags: '',
-			sort: 'updated',
-			page: '1',
-			size: '20',
-			id: ''
-		}
-	});
-
-	let listLoading = $state(false);
-	let detailLoading = $state(false);
+	let { data } = $props<{ data: PageData }>();
 
 	const query = $derived(data.query);
-	const tagEntries = $derived(Object.entries(data.tags?.tags ?? {}).slice(0, 10));
 	const pageSize = $derived(Number.parseInt(query.size || '20', 10));
 	const currentPage = $derived(Number.parseInt(query.page || '1', 10));
-	const totalPages = $derived(Math.max(1, Math.ceil((data.docs?.total ?? 0) / pageSize)));
+	const totalItems = $derived(data.docs?.total ?? 0);
+	const totalPages = $derived(Math.max(1, Math.ceil(totalItems / pageSize)));
+	const recentDocs = $derived(data.stats?.recent ?? []);
 
-	const loadFromUrl = async (url: URL) => {
-		const nextQuery = buildQueryState(url);
-		listLoading = true;
-		detailLoading = Boolean(nextQuery.id);
-		data.error = '';
+	const tagEntries = $derived(
+		Object.entries(data.tags?.tags ?? {})
+			.sort((a, b) => b[1] - a[1])
+			.slice(0, 10)
+	);
+	const deptOptions = $derived(
+		Array.from(new Set(data.docs?.items?.map((item) => item.dept).filter(Boolean) ?? [])).sort()
+	);
+	const roleOptions = $derived(
+		Array.from(new Set(data.docs?.items?.map((item) => item.role).filter(Boolean) ?? [])).sort()
+	);
 
-		try {
-			const queryString = buildQueryString(nextQuery);
-			const [docsRes, tagsRes, statsRes] = await Promise.all([
-				fetch(`${API_BASE}/docs?${queryString}`),
-				fetch(`${API_BASE}/tags`),
-				fetch(`${API_BASE}/stats`)
-			]);
+	const isNavigating = $derived(Boolean($navigating));
+	const navigatingToId = $derived($navigating?.to?.url?.searchParams.get('id') ?? '');
+	const listLoading = $derived(isNavigating && !navigatingToId);
+	const detailLoading = $derived(isNavigating && Boolean(navigatingToId));
 
-			if (!docsRes.ok) throw new Error('Failed to load docs');
+	let suggestionTitles = $state<string[]>([]);
+	let suggestionTags = $state<string[]>([]);
+	let suggestionLoading = $state(false);
+	let suggestionError = $state<ErrorKey>('');
+	let suggestionTimer: ReturnType<typeof setTimeout> | null = null;
 
-			const docs = await docsRes.json();
-			const tags = tagsRes.ok ? await tagsRes.json() : { tags: {} };
-			const stats = statsRes.ok ? await statsRes.json() : { total: 0, recent: [] };
+	let detailDialog: HTMLDivElement | null = null;
 
-			let detail: DocItem | null = null;
-			let detailHtml = '';
-			let toc: { level: number; text: string }[] = [];
-			let related: DocItem[] = [];
-
-			if (nextQuery.id) {
-				const [detailRes, relatedRes] = await Promise.all([
-					fetch(`${API_BASE}/docs/${nextQuery.id}`),
-					fetch(`${API_BASE}/related?id=${nextQuery.id}`)
-				]);
-				const detailPayload = detailRes.ok ? await detailRes.json() : null;
-				const relatedPayload = relatedRes.ok ? await relatedRes.json() : { items: [] };
-				detail = normalizeDoc(detailPayload?.doc ?? null);
-				toc = detailPayload?.toc ?? [];
-				related = relatedPayload?.items ?? [];
-				const content = detail?.content ?? '';
-				detailHtml = content ? DOMPurify.sanitize(marked.parse(content)) : '';
-			}
-
-			data = {
-				docs,
-				tags,
-				stats,
-				detail,
-				detailHtml,
-				toc,
-				related,
-				error: '',
-				query: nextQuery
-			};
-		} catch (error) {
-			data = {
-				...data,
-				docs: { total: 0, items: [] },
-				tags: { tags: {} },
-				stats: { total: 0, recent: [] },
-				detail: null,
-				detailHtml: '',
-				toc: [],
-				related: [],
-				error: error instanceof Error ? error.message : 'Failed to load docs',
-				query: nextQuery
-			};
-		} finally {
-			listLoading = false;
-			detailLoading = false;
-		}
-	};
-
-	onMount(() => {
-		const unsubscribe = page.subscribe(($page) => {
-			loadFromUrl($page.url);
-		});
-		return unsubscribe;
+	onDestroy(() => {
+		if (suggestionTimer) clearTimeout(suggestionTimer);
 	});
 
 	const submitSearch = async (event: SubmitEvent) => {
@@ -237,9 +69,19 @@
 		params.set('page', '1');
 
 		await goto(`/?${params.toString()}`);
+		trackEvent('search_submitted', {
+			q: params.get('q') ?? '',
+			dept: params.get('dept') ?? '',
+			role: params.get('role') ?? '',
+			type: params.get('type') ?? '',
+			tags: params.get('tags') ?? ''
+		});
 	};
 
 	const clearSearch = async () => {
+		suggestionTitles = [];
+		suggestionTags = [];
+		suggestionError = '';
 		await goto('/');
 	};
 
@@ -254,6 +96,26 @@
 			page: query.page,
 			size: query.size,
 			id: doc.id
+		});
+		for (const [key, value] of params.entries()) {
+			if (!value) params.delete(key);
+		}
+		await goto(`/?${params.toString()}`);
+		trackEvent('doc_opened', { id: doc.id, title: doc.title });
+		await tick();
+		detailDialog?.focus();
+	};
+
+	const closeDetail = async () => {
+		const params = new URLSearchParams({
+			q: query.q,
+			dept: query.dept,
+			role: query.role,
+			type: query.type,
+			tags: query.tags,
+			sort: query.sort,
+			page: query.page,
+			size: query.size
 		});
 		for (const [key, value] of params.entries()) {
 			if (!value) params.delete(key);
@@ -279,12 +141,6 @@
 		await goto(`/?${params.toString()}`);
 	};
 
-	let paletteOpen = $state(false);
-	let suggestionTitles = $state<string[]>([]);
-	let suggestionTags = $state<string[]>([]);
-	let suggestionLoading = $state(false);
-	let suggestionError = $state('');
-
 	const fetchSuggestions = async (keyword: string) => {
 		const trimmed = keyword.trim();
 		if (!trimmed) {
@@ -297,209 +153,232 @@
 		suggestionError = '';
 		try {
 			const response = await fetch(`${API_BASE}/suggestions?q=${trimmed}`);
-			if (!response.ok) throw new Error('Failed to load suggestions');
+			if (!response.ok) throw new Error('suggestion_failed');
 			const payload = await response.json();
 			suggestionTitles = payload?.titles ?? [];
 			suggestionTags = payload?.tags ?? [];
-		} catch (error) {
-			suggestionError = error instanceof Error ? error.message : 'Failed to load suggestions';
+		} catch {
+			suggestionError = 'suggestion_failed';
 		} finally {
 			suggestionLoading = false;
 		}
 	};
-	const closePalette = () => {
-		paletteOpen = false;
+
+	const scheduleSuggestions = (keyword: string) => {
+		if (suggestionTimer) clearTimeout(suggestionTimer);
+		suggestionTimer = setTimeout(() => {
+			fetchSuggestions(keyword);
+		}, 180);
 	};
 
-	const closeDetail = async () => {
-		const params = new URLSearchParams({
-			q: query.q,
-			dept: query.dept,
-			role: query.role,
-			type: query.type,
-			tags: query.tags,
-			sort: query.sort,
-			page: query.page,
-			size: query.size
-		});
-		for (const [key, value] of params.entries()) {
-			if (!value) params.delete(key);
-		}
-		await goto(`/?${params.toString()}`);
-	};
-
-	const selectSuggestion = async (value: string) => {
+	const selectTitleSuggestion = async (value: string) => {
 		const params = new URLSearchParams({
 			q: value,
 			page: '1',
 			size: query.size || '20'
 		});
 		await goto(`/?${params.toString()}`);
-		paletteOpen = false;
+	};
+
+	const selectTagSuggestion = async (value: string) => {
+		const params = new URLSearchParams({
+			q: query.q,
+			dept: query.dept,
+			role: query.role,
+			type: query.type,
+			tags: value,
+			sort: query.sort,
+			page: '1',
+			size: query.size || '20'
+		});
+		for (const [key, val] of params.entries()) {
+			if (!val) params.delete(key);
+		}
+		await goto(`/?${params.toString()}`);
+	};
+
+	const retryLoad = async () => {
+		if (typeof window === 'undefined') return;
+		await invalidateAll();
+	};
+
+	const handleOverlayKey = (event: KeyboardEvent) => {
+		if (event.key === 'Escape') closeDetail();
+	};
+
+	const handleDialogKey = (event: KeyboardEvent) => {
+		if (event.key === 'Escape') {
+			event.stopPropagation();
+			closeDetail();
+		}
 	};
 </script>
 
 <svelte:head>
-	<title>AGENTS · Library</title>
-	<meta
-		name="description"
-		content="统一索引、搜索、筛选、下载 AGENTS.md，面向多智能体协作的文档枢纽。"
-	/>
+	<title>{$t('app.title')}</title>
+	<meta name="description" content={$t('app.description')} />
 </svelte:head>
 
+<a
+	href="#main-content"
+	class="sr-only focus:not-sr-only focus:absolute focus:left-6 focus:top-6 focus:z-50 focus:rounded-full focus:bg-surface focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-ink"
+>
+	{$t('controls.skipToContent')}
+</a>
+
 <div class="min-h-screen flex flex-col">
-	<header class="mx-auto w-full max-w-6xl px-4 sm:px-6 py-16 fade-in">
-		<div class="card grid gap-5 p-6">
-			<div class="flex items-center gap-3">
-				<div
-					class="flex h-10 w-10 items-center justify-center rounded-xl border border-black/10 bg-white/70 text-orange-600"
-					aria-hidden="true"
-				>
-					<svg viewBox="0 0 24 24" width="20" height="20" fill="none">
-						<rect x="5" y="4" width="14" height="16" rx="2" stroke="currentColor" stroke-width="1.5" />
-						<path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" />
-					</svg>
+	<header class="mx-auto w-full max-w-content px-4 sm:px-6 py-section">
+		<div class="card grid gap-6 p-card">
+			<div class="flex flex-wrap items-start justify-between gap-4">
+				<div class="flex items-center gap-3">
+					<div
+						class="flex h-10 w-10 items-center justify-center rounded-xl border border-border/70 bg-surface/70 text-accent"
+						aria-hidden="true"
+					>
+						<svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+							<rect x="5" y="4" width="14" height="16" rx="2" stroke="currentColor" stroke-width="1.5" />
+							<path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" />
+						</svg>
+					</div>
+					<div>
+						<div class="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+							{$t('brand.title')}
+						</div>
+						<div class="text-xs text-muted">{$t('brand.subtitle')}</div>
+					</div>
 				</div>
-				<div>
-					<div class="text-xs font-semibold tracking-[0.2em] text-slate-500">AGENTS</div>
-					<div class="text-xs text-slate-500">AGENTS Library · Search · Download</div>
+				<div class="flex flex-wrap items-center gap-3">
+					<label class="grid gap-1 text-xs font-semibold text-muted">
+						{$t('controls.language')}
+						<select
+							class="input-field min-w-[140px]"
+							value={$locale}
+							aria-label={$t('aria.languageSelect')}
+							onchange={(event) =>
+								setLocale((event.target as HTMLSelectElement).value as typeof $locale)}
+						>
+							<option value="zh-CN">{$t('locale.zh')}</option>
+							<option value="en">{$t('locale.en')}</option>
+						</select>
+					</label>
+					<button
+						class="btn btn-ghost"
+						type="button"
+						onclick={toggleTheme}
+						aria-label={$t('aria.themeToggle')}
+					>
+						<span class="text-xs font-semibold uppercase tracking-[0.2em]">
+							{$t('controls.theme')}
+						</span>
+						<span class="text-sm">
+							{$theme === 'dark' ? $t('controls.themeDark') : $t('controls.themeLight')}
+						</span>
+					</button>
 				</div>
 			</div>
-			<h1 class="m-0 text-3xl leading-tight sm:text-4xl lg:text-[44px]">
-				AGENTS 项目文档中心
-			</h1>
-			<div class="flex flex-wrap gap-3">
-				<button class="btn btn-primary" type="button" onclick={() => (paletteOpen = true)}>
-					搜索
-				</button>
+			<div class="grid gap-2">
+				<h1 class="m-0 text-3xl leading-tight sm:text-4xl lg:text-[44px]">
+					{$t('hero.heading')}
+				</h1>
+				<p class="m-0 max-w-2xl text-sm text-muted">{$t('hero.subheading')}</p>
 			</div>
+			<SearchPanel
+				query={query}
+				tagEntries={tagEntries}
+				suggestionTitles={suggestionTitles}
+				suggestionTags={suggestionTags}
+				suggestionLoading={suggestionLoading}
+				suggestionError={suggestionError}
+				deptOptions={deptOptions}
+				roleOptions={roleOptions}
+				isSearching={listLoading}
+				onSubmit={submitSearch}
+				onClear={clearSearch}
+				onSuggest={scheduleSuggestions}
+				onSelectTitle={selectTitleSuggestion}
+				onSelectTag={selectTagSuggestion}
+			/>
+			{#if recentDocs.length}
+				<div class="grid gap-2">
+					<div class="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+						{$t('status.recent')}
+					</div>
+					<div class="flex flex-wrap gap-2">
+						{#each recentDocs.slice(0, 4) as item}
+							<button
+								class="chip"
+								type="button"
+								onclick={() => openDetail(item)}
+								aria-label={$t('actions.view', { title: item.title })}
+							>
+								{item.title}
+							</button>
+						{/each}
+					</div>
+				</div>
+			{/if}
 		</div>
 	</header>
 
-	<main class="flex-1">
-		<section id="list" class="py-6 sm:py-10">
-			<div class="mx-auto w-full max-w-6xl px-4 sm:px-6">
-				<DocList
-					items={data.docs?.items ?? []}
-					error={data.error}
-					isLoading={listLoading}
-					onSelect={openDetail}
-				/>
-				<div class="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-500">
-					<button
-						class="btn btn-ghost"
-						type="button"
-						disabled={currentPage <= 1}
-						onclick={() => goToPage(currentPage - 1)}
-					>
-						上一页
-					</button>
-					<span class="text-sm text-slate-500">
-						第 {currentPage} / {totalPages} 页 · 共 {data.docs?.total ?? 0} 条
-					</span>
-					<button
-						class="btn btn-ghost"
-						type="button"
-						disabled={currentPage >= totalPages}
-						onclick={() => goToPage(currentPage + 1)}
-					>
-						下一页
-					</button>
+	<main class="flex-1" id="main-content">
+		<section
+			class="mx-auto w-full max-w-content px-4 pb-section sm:px-6"
+			aria-labelledby="results-title"
+		>
+			<div class="flex flex-wrap items-end justify-between gap-4">
+				<div class="grid gap-1">
+					<h2 class="m-0 text-xl font-semibold text-ink" id="results-title">
+						{$t('list.title')}
+					</h2>
+					<p class="m-0 text-sm text-muted">
+						{$t('list.total', { count: formatNumber(totalItems, $locale) })}
+					</p>
+				</div>
+				<div class="text-sm text-muted">
+					{$t('status.results', { count: formatNumber(totalItems, $locale) })}
 				</div>
 			</div>
+			<DocList
+				items={data.docs?.items ?? []}
+				error={data.listError}
+				isLoading={listLoading}
+				onSelect={openDetail}
+				onRetry={retryLoad}
+			/>
+			<div class="mt-6">
+				<PaginationControls
+					currentPage={currentPage}
+					totalPages={totalPages}
+					totalItems={totalItems}
+					isLoading={listLoading}
+					onPrev={() => goToPage(currentPage - 1)}
+					onNext={() => goToPage(currentPage + 1)}
+				/>
+			</div>
 		</section>
-
 	</main>
 </div>
 
-{#if paletteOpen}
-	<div class="overlay" role="button" tabindex="0" onclick={closePalette} onkeydown={closePalette}>
-		<div
-			class="modal grid gap-4"
-			role="dialog"
-			aria-modal="true"
-			tabindex="0"
-			onclick={(event) => event.stopPropagation()}
-			onkeydown={(event) => event.stopPropagation()}
-		>
-			<div class="flex items-center justify-between gap-3">
-				<div class="text-base font-semibold text-slate-900">搜索 AGENTS.md</div>
-				<button class="btn btn-ghost" type="button" onclick={closePalette}>关闭</button>
-			</div>
-			<form class="grid gap-3" onsubmit={submitSearch}>
-				<input
-					id="search-input"
-					name="q"
-					type="text"
-					value={query.q}
-					placeholder="输入关键词..."
-					class="input-field"
-					oninput={(event) => fetchSuggestions((event.target as HTMLInputElement).value)}
-				/>
-				<div class="flex flex-wrap gap-3">
-					<button class="btn btn-primary" type="submit">搜索</button>
-					<button class="btn btn-ghost" type="button" onclick={clearSearch}>
-						清空
-					</button>
-				</div>
-				{#if suggestionLoading}
-					<div class="text-sm text-slate-500">加载建议中...</div>
-				{:else if suggestionError}
-					<div class="text-sm text-red-700">{suggestionError}</div>
-				{:else if suggestionTitles.length || suggestionTags.length}
-					<div class="grid gap-3">
-						{#if suggestionTitles.length}
-							<div>
-								<div class="text-xs uppercase tracking-[0.2em] text-slate-500">标题</div>
-								<div class="mt-2 grid max-h-52 gap-2 overflow-auto pr-1">
-									{#each suggestionTitles as title}
-										<button
-											class="w-full rounded-xl border border-black/10 bg-white/70 px-3 py-2 text-left text-sm text-slate-700 transition hover:-translate-y-0.5 hover:border-black/30"
-											type="button"
-											onclick={() => selectSuggestion(title)}
-										>
-											{title}
-										</button>
-									{/each}
-								</div>
-							</div>
-						{/if}
-						{#if suggestionTags.length}
-							<div>
-								<div class="text-xs uppercase tracking-[0.2em] text-slate-500">标签</div>
-								<div class="mt-2 flex flex-wrap gap-2">
-									{#each suggestionTags as tag}
-										<button
-											class="chip"
-											type="button"
-											onclick={() => selectSuggestion(tag)}
-										>
-											{tag}
-										</button>
-									{/each}
-								</div>
-							</div>
-						{/if}
-					</div>
-				{/if}
-			</form>
-		</div>
-	</div>
-{/if}
-
 {#if query.id}
-	<div class="overlay" role="button" tabindex="0" onclick={closeDetail} onkeydown={closeDetail}>
+	<div class="overlay" role="presentation" tabindex="-1" onclick={closeDetail} onkeydown={handleOverlayKey}>
 		<div
 			class="modal grid gap-4"
 			role="dialog"
 			aria-modal="true"
-			tabindex="0"
+			aria-labelledby="detail-dialog-title"
+			tabindex="-1"
+			bind:this={detailDialog}
+			data-testid="detail-dialog"
 			onclick={(event) => event.stopPropagation()}
-			onkeydown={(event) => event.stopPropagation()}
+			onkeydown={handleDialogKey}
 		>
 			<div class="flex items-center justify-between gap-3">
-				<div class="text-base font-semibold text-slate-900">文档详情</div>
-				<button class="btn btn-ghost" type="button" onclick={closeDetail}>关闭</button>
+				<div class="text-base font-semibold text-ink" id="detail-dialog-title">
+					{$t('detail.title')}
+				</div>
+				<button class="btn btn-ghost" type="button" onclick={closeDetail}>
+					{$t('actions.close')}
+				</button>
 			</div>
 			<DocDetail
 				doc={data.detail}
@@ -507,6 +386,9 @@
 				toc={data.toc}
 				related={data.related}
 				isLoading={detailLoading}
+				error={data.detailError}
+				onRetry={retryLoad}
+				onSelectRelated={openDetail}
 			/>
 		</div>
 	</div>

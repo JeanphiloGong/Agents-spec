@@ -5,26 +5,48 @@
 @layer base {
 	:root {
 		color-scheme: light;
-		--paper: #f7f2eb;
-		--paper-strong: #efe7dc;
-		--paper-glow: #fff3e6;
-		--ink: #1f1f24;
-		--muted: #63646f;
-		--accent: #ea580c;
-		--accent-soft: rgba(234, 88, 12, 0.18);
-		--accent-ink: #7c2d12;
+		--color-canvas: 247 244 237;
+		--color-surface: 255 255 255;
+		--color-ink: 24 25 31;
+		--color-muted: 92 96 109;
+		--color-border: 224 215 203;
+		--color-accent: 234 88 12;
+		--color-accent-strong: 194 65 12;
+		--color-accent-soft: 234 88 12;
+		--color-danger: 185 28 28;
+		--color-overlay: 17 24 39;
+	}
+
+	[data-theme='dark'] {
+		color-scheme: dark;
+		--color-canvas: 15 17 20;
+		--color-surface: 24 27 33;
+		--color-ink: 243 244 246;
+		--color-muted: 155 163 175;
+		--color-border: 52 59 69;
+		--color-accent: 251 146 60;
+		--color-accent-strong: 249 115 22;
+		--color-accent-soft: 251 146 60;
+		--color-danger: 248 113 113;
+		--color-overlay: 3 4 7;
+	}
+
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
 	}
 
 	body {
 		margin: 0;
 		min-height: 100vh;
 		font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
-		color: var(--ink);
+		color: rgb(var(--color-ink));
 		background: radial-gradient(
-			circle at 12% 10%,
-			var(--paper-glow) 0%,
-			var(--paper) 45%,
-			var(--paper-strong) 100%
+			circle at 10% 8%,
+			rgb(var(--color-canvas) / 0.98) 0%,
+			rgb(var(--color-canvas) / 0.9) 46%,
+			rgb(var(--color-border) / 0.5) 100%
 		);
 	}
 
@@ -41,28 +63,37 @@
 	}
 
 	mark {
-		background: var(--accent-soft);
-		color: var(--accent-ink);
+		background: rgb(var(--color-accent-soft) / 0.2);
+		color: rgb(var(--color-accent-strong));
 		padding: 0 0.2em;
 		border-radius: 0.35em;
+	}
+
+	a,
+	button,
+	input,
+	select,
+	textarea,
+	summary {
+		@apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas;
 	}
 }
 
 @layer components {
 	.card {
-		@apply rounded-3xl border border-black/10 bg-white/80 shadow-xl backdrop-blur-md;
+		@apply rounded-2xl border border-border/70 bg-surface/90 shadow-soft backdrop-blur;
 	}
 
 	.card-hover {
-		@apply transition duration-150 hover:-translate-y-1 hover:border-black/20 hover:shadow-2xl;
+		@apply transition duration-150 hover:-translate-y-1 hover:border-border/90 hover:shadow-lift;
 	}
 
 	.overlay {
-		@apply fixed inset-0 z-50 grid place-items-center bg-black/40 backdrop-blur-sm p-6;
+		@apply fixed inset-0 z-50 grid place-items-center bg-overlay/40 backdrop-blur-sm p-6;
 	}
 
 	.modal {
-		@apply w-full max-w-4xl rounded-3xl border border-black/10 bg-white/90 shadow-2xl backdrop-blur-md p-6;
+		@apply w-full max-w-4xl rounded-2xl border border-border/70 bg-surface/95 shadow-lift backdrop-blur-md p-6 max-h-[90vh] overflow-y-auto;
 	}
 
 	.btn {
@@ -70,23 +101,23 @@
 	}
 
 	.btn-primary {
-		@apply bg-orange-500 text-white shadow-lg hover:-translate-y-0.5 hover:bg-orange-600;
+		@apply bg-accent text-white shadow-soft hover:-translate-y-0.5 hover:bg-accent-strong;
 	}
 
 	.btn-ghost {
-		@apply border border-black/10 bg-white/70 text-slate-900 hover:-translate-y-0.5 hover:shadow-lg;
+		@apply border border-border/70 bg-surface/70 text-ink hover:-translate-y-0.5 hover:shadow-soft;
 	}
 
 	.tag {
-		@apply inline-flex items-center gap-1 rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-slate-600;
+		@apply inline-flex items-center gap-1 rounded-full bg-accent-soft/10 px-3 py-1 text-xs font-semibold text-muted;
 	}
 
 	.chip {
-		@apply inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1 text-xs font-semibold text-slate-700;
+		@apply inline-flex items-center gap-2 rounded-full border border-border/70 bg-surface/70 px-3 py-1 text-xs font-semibold text-ink transition hover:border-border hover:shadow-soft;
 	}
 
 	.input-field {
-		@apply w-full rounded-2xl border border-black/10 bg-white/80 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:ring-2 focus:ring-orange-200;
+		@apply w-full rounded-2xl border border-border/70 bg-surface/80 px-4 py-3 text-sm text-ink placeholder:text-muted focus:border-accent/70 focus:ring-2 focus:ring-accent/20;
 	}
 }
 
@@ -94,7 +125,12 @@
 	.skeleton-line {
 		height: 12px;
 		border-radius: 999px;
-		background: linear-gradient(90deg, #eee4d8 0%, #f7f2eb 50%, #eee4d8 100%);
+		background: linear-gradient(
+			90deg,
+			rgb(var(--color-border) / 0.4) 0%,
+			rgb(var(--color-surface) / 0.6) 50%,
+			rgb(var(--color-border) / 0.4) 100%
+		);
 		background-size: 200% 100%;
 		animation: shimmer 1.2s ease-in-out infinite;
 	}
