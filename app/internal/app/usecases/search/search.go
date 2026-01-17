@@ -94,6 +94,90 @@ func (s *Service) GetByID(ctx context.Context, id string) (model.AgentDoc, error
 	return doc, nil
 }
 
+func (s *Service) Tags(ctx context.Context) (map[string]int, error) {
+	snapshot, err := s.indexer.BuildIndex(ctx)
+	if err != nil {
+		return nil, err
+	}
+	counts := make(map[string]int, len(snapshot.ByTag))
+	for tag, ids := range snapshot.ByTag {
+		counts[tag] = len(ids)
+	}
+	return counts, nil
+}
+
+func (s *Service) Suggestions(ctx context.Context, raw string, limit int) ([]string, []string, error) {
+	q := strings.TrimSpace(raw)
+	if q == "" {
+		return []string{}, []string{}, nil
+	}
+	snapshot, err := s.indexer.BuildIndex(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	needle := strings.ToLower(q)
+	titleSet := map[string]struct{}{}
+	tagSet := map[string]struct{}{}
+	for _, doc := range snapshot.Docs {
+		if strings.Contains(strings.ToLower(doc.Title), needle) {
+			titleSet[doc.Title] = struct{}{}
+		}
+		for _, tag := range doc.Tags {
+			if strings.Contains(strings.ToLower(tag), needle) {
+				tagSet[tag] = struct{}{}
+			}
+		}
+	}
+	titles := setToSortedSlice(titleSet, limit)
+	tags := setToSortedSlice(tagSet, limit)
+	return titles, tags, nil
+}
+
+func (s *Service) Related(ctx context.Context, id string, limit int) ([]model.AgentDoc, error) {
+	snapshot, err := s.indexer.BuildIndex(ctx)
+	if err != nil {
+		return nil, err
+	}
+	doc, ok := snapshot.ByID[id]
+	if !ok {
+		return nil, ports.ErrNotFound
+	}
+	tagSet := make(map[string]struct{}, len(doc.Tags))
+	for _, t := range doc.Tags {
+		tagSet[t] = struct{}{}
+	}
+	related := make([]model.AgentDoc, 0, limit)
+	seen := map[string]struct{}{doc.ID: {}}
+	for _, candidate := range snapshot.Docs {
+		if _, ok := seen[candidate.ID]; ok {
+			continue
+		}
+		if candidate.Dept == doc.Dept || shareTag(candidate.Tags, tagSet) {
+			seen[candidate.ID] = struct{}{}
+			related = append(related, candidate)
+		}
+		if limit > 0 && len(related) >= limit {
+			break
+		}
+	}
+	return related, nil
+}
+
+func (s *Service) Stats(ctx context.Context, limit int) (int, []model.AgentDoc, error) {
+	snapshot, err := s.indexer.BuildIndex(ctx)
+	if err != nil {
+		return 0, nil, err
+	}
+	total := len(snapshot.Docs)
+	recent := snapshot.Docs
+	if limit > 0 && len(recent) > limit {
+		recent = recent[:limit]
+	}
+	out := make([]model.AgentDoc, len(recent))
+	copy(out, recent)
+	return total, out, nil
+}
+
 func matchFilters(doc model.AgentDoc, q Query) bool {
 	if q.Dept != "" && doc.Dept != q.Dept {
 		return false
@@ -148,4 +232,25 @@ func sortDocs(docs []model.AgentDoc, sortKey string) {
 			return docs[i].UpdatedAt.After(docs[j].UpdatedAt)
 		})
 	}
+}
+
+func setToSortedSlice(items map[string]struct{}, limit int) []string {
+	out := make([]string, 0, len(items))
+	for v := range items {
+		out = append(out, v)
+	}
+	sort.Strings(out)
+	if limit > 0 && len(out) > limit {
+		out = out[:limit]
+	}
+	return out
+}
+
+func shareTag(tags []string, target map[string]struct{}) bool {
+	for _, t := range tags {
+		if _, ok := target[t]; ok {
+			return true
+		}
+	}
+	return false
 }
