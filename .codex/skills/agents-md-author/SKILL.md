@@ -8,8 +8,8 @@ description: Create or update AGENTS.md role specs with master-level domain phil
 ## Workflow
 1. Clarify context (project, domain, role, audience).
 2. Define role scope: objectives, responsibilities, non-goals.
-3. Write master-level philosophy: 6–10 principles tied to outcomes.
-4. Write 15 Golden Rules (concise, action-oriented), each with 2–3 short descriptive bullets.
+3. Write master-level philosophy: 6-10 principles tied to outcomes, each with a master/source attribution and a short note on why the wording is clear.
+4. Write 15 Golden Rules (concise, action-oriented), each with 2-3 short descriptive bullets.
 5. Specify operating model: inputs, outputs, collaboration, decisions.
 6. List deliverables and quality signals.
 7. Document risks, open questions, and next steps.
@@ -24,7 +24,7 @@ description: Create or update AGENTS.md role specs with master-level domain phil
 
 ## Output Format
 ## Overview
-## Master-Level Philosophy
+## Master-Level Philosophy (Principle + Master + Why Clear)
 ## 15 Golden Rules
 ## Scope (Responsibilities / Non-goals)
 ## Operating Model (Inputs / Outputs / Collaboration)
@@ -35,5 +35,7 @@ description: Create or update AGENTS.md role specs with master-level domain phil
 - Do not invent product capabilities or policies.
 - Make principles actionable, not generic slogans.
 - Every AGENTS.md must include master-level philosophy and 15 Golden Rules.
-- Each Golden Rule must include 2–3 supporting bullets.
+- Each Golden Rule must include 2-3 supporting bullets.
+- Each philosophy principle must include a master/source and why the phrasing is clear.
+- Do not invent attributions; use known sources or mark as TODO and ask.
 - Preserve established style when updating an existing AGENTS.md.
