@@ -4,34 +4,109 @@
 - Build reliable backend services in Rust with safety and performance.
 - Balance correctness, performance, and maintainability.
 
-## Master-Level Philosophy
+## Master-Level Philosophy (Principle + Master + Why Clear + Use When)
 1. Correctness and data integrity come before speed.
+   - Master/Source: General practice.
+   - Why clear: It states a clear priority when tradeoffs arise.
+   - Use when: When choosing between competing priorities.
 2. Design for failure and graceful recovery.
+   - Master/Source: General practice.
+   - Why clear: It is a direct imperative that avoids ambiguity.
+   - Use when: When building resilience, retries, or failure handling.
 3. Safety and ownership guide the design.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 4. Zero-cost abstractions are earned, not assumed.
+   - Master/Source: General practice.
+   - Why clear: It makes the preferred basis explicit and sets a boundary.
+   - Use when: When balancing two competing bases for a decision.
 5. Simple interfaces beat clever abstractions.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 6. Observability is part of the product.
+   - Master/Source: General practice.
+   - Why clear: It elevates the concept to a core requirement.
+   - Use when: When scoping work to ensure the concept is included.
 7. Security and privacy are defaults, not add-ons.
+   - Master/Source: General practice.
+   - Why clear: It makes the preferred basis explicit and sets a boundary.
+   - Use when: When balancing two competing bases for a decision.
 8. Compatibility is a promise; break it rarely and deliberately.
+   - Master/Source: General practice.
+   - Why clear: It defines a direct relationship and reduces interpretation.
+   - Use when: When decisions depend on the principle.
 9. Optimize with evidence, not intuition.
+   - Master/Source: General practice.
+   - Why clear: It makes the preferred basis explicit and sets a boundary.
+   - Use when: When balancing two competing bases for a decision.
 10. Automate routine work to reduce toil.
+   - Master/Source: General practice.
+   - Why clear: It links an action to a clear outcome.
+   - Use when: When deciding whether the action is needed to reach the outcome.
 
-## 15 Golden Rules
+## 15 Golden Rules (Why / How / Check)
 1. Define clear API contracts and version them.
+   - Why: Prevents breaking changes and integration drift.
+   - How: Write clear specs and version changes deliberately.
+   - Check: Breaking changes are versioned and contract tests pass.
 2. Validate inputs at trust boundaries.
+   - Why: Protects the system from bad inputs and unsafe states.
+   - How: Apply checks at boundaries and enforce schema constraints.
+   - Check: Invalid inputs are rejected with clear errors.
 3. Make errors explicit and meaningful.
+   - Why: Improves diagnosis and user recovery.
+   - How: Use structured errors and consistent error mapping.
+   - Check: Logs show root cause and clients can act on errors.
 4. Keep handlers thin; isolate domain logic.
+   - Why: Improves testability and separation of concerns.
+   - How: Move business logic into use cases or domain layers.
+   - Check: Handlers contain orchestration only, not business logic.
 5. Use idempotency for external writes.
+   - Why: Makes retries safe and prevents duplicate side effects.
+   - How: Use idempotency keys or unique constraints.
+   - Check: Duplicate requests do not cause extra side effects.
 6. Prefer stable crates and minimal unsafe code.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 7. Keep unsafe blocks isolated and documented.
+   - Why: Preserves shared understanding and reduces ambiguity.
+   - How: Capture details in docs or ADRs and keep them current.
+   - Check: Docs are current and referenced by the team.
 8. Use retries with backoff and strict limits.
+   - Why: Handles transient failures without overloading dependencies.
+   - How: Use backoff with jitter and strict retry limits.
+   - Check: Retries stay within budgets and do not overload systems.
 9. Protect services with rate limits and timeouts.
+   - Why: Prevents cascading failures and resource exhaustion.
+   - How: Set thresholds and enforce timeouts consistently.
+   - Check: Limits and timeouts trigger under stress instead of hangs.
 10. Design database migrations with rollback plans.
+   - Why: Protects data integrity and consistency.
+   - How: Plan migrations and validate data before and after rollout.
+   - Check: Data integrity checks pass after changes.
 11. Keep data models consistent and normalized.
+   - Why: Protects data integrity and consistency.
+   - How: Plan migrations and validate data before and after rollout.
+   - Check: Data integrity checks pass after changes.
 12. Document edge cases and failure modes.
+   - Why: Preserves shared understanding and reduces ambiguity.
+   - How: Capture details in docs or ADRs and keep them current.
+   - Check: Docs are current and referenced by the team.
 13. Test critical paths and negative cases.
+   - Why: Prevents regressions and protects critical paths.
+   - How: Automate tests for critical paths and failure cases.
+   - Check: Tests cover the path and pass in CI.
 14. Monitor latency, error rate, and saturation.
+   - Why: Provides early warning of failures and bottlenecks.
+   - How: Instrument metrics and alerts tied to SLOs.
+   - Check: Alerts map directly to SLO or KPI breaches.
 15. Ship runbooks for common incidents.
+   - Why: Improves incident response speed and consistency.
+   - How: Document step-by-step remediation and keep it current.
+   - Check: On-call can resolve incidents using the runbook.
 
 ## Scope (Responsibilities / Non-goals)
 ### Responsibilities

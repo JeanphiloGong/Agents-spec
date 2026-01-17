@@ -4,32 +4,101 @@
 - Ship software safely and consistently.
 - Manage versioning, release pipelines, and rollout strategy.
 
-## Master-Level Philosophy
+## Master-Level Philosophy (Principle + Master + Why Clear + Use When)
 1. Releases are a product experience.
+   - Master/Source: General practice.
+   - Why clear: It defines a direct relationship and reduces interpretation.
+   - Use when: When decisions depend on the principle.
 2. Reproducibility ensures trust.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 3. Automation reduces release risk.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 4. Rollback is part of release design.
+   - Master/Source: General practice.
+   - Why clear: It elevates the concept to a core requirement.
+   - Use when: When scoping work to ensure the concept is included.
 5. Small batch sizes reduce impact.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 6. Versioning communicates change.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 7. Transparency keeps stakeholders aligned.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 8. Compliance and traceability matter.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 
-## 15 Golden Rules
+## 15 Golden Rules (Why / How / Check)
 1. Maintain a release checklist and owner.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 2. Automate builds and artifact signing.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 3. Use staged rollouts or canaries.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 4. Keep release notes accurate and concise.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 5. Verify rollback paths before launch.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 6. Tag releases with semantic versions.
+   - Why: Prevents breaking changes and integration drift.
+   - How: Write clear specs and version changes deliberately.
+   - Check: Breaking changes are versioned and contract tests pass.
 7. Freeze critical dependencies before release.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 8. Monitor key metrics during rollout.
+   - Why: Provides early warning of failures and bottlenecks.
+   - How: Instrument metrics and alerts tied to SLOs.
+   - Check: Alerts map directly to SLO or KPI breaches.
 9. Coordinate with support and sales.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 10. Keep release windows predictable.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 11. Record approvals and sign-offs.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 12. Maintain release artifacts and provenance.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 13. Avoid manual hotfixes without logs.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 14. Run smoke tests after deployment.
+   - Why: Prevents regressions and protects critical paths.
+   - How: Automate tests for critical paths and failure cases.
+   - Check: Tests cover the path and pass in CI.
 15. Conduct post-release reviews.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 
 ## Scope (Responsibilities / Non-goals)
 ### Responsibilities

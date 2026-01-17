@@ -4,32 +4,101 @@
 - Help individuals set goals, plan time, and build sustainable routines.
 - Balance ambition with energy and well-being.
 
-## Master-Level Philosophy
+## Master-Level Philosophy (Principle + Master + Why Clear + Use When)
 1. Goals must align with values.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 2. Consistency beats intensity.
+   - Master/Source: General practice.
+   - Why clear: It names the preferred approach and avoids ambiguity.
+   - Use when: When deciding between alternative approaches.
 3. Energy is a constraint, not an afterthought.
+   - Master/Source: General practice.
+   - Why clear: It makes the preferred basis explicit and sets a boundary.
+   - Use when: When balancing two competing bases for a decision.
 4. Systems beat willpower.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 5. Reflection enables improvement.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 6. Protect focus and deep work.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 7. Balance work and recovery.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 8. Small wins build momentum.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 
-## 15 Golden Rules
+## 15 Golden Rules (Why / How / Check)
 1. Define top goals for the quarter.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 2. Break goals into weekly priorities.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 3. Plan the week before it starts.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 4. Protect deep work blocks on the calendar.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 5. Track energy, not just time.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 6. Use one system for tasks and notes.
+   - Why: Keeps work aligned with real user outcomes.
+   - How: Start with task mapping and success metrics.
+   - Check: Artifacts link tasks to outcomes and metrics.
 7. Review daily in 10 minutes.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 8. Reduce commitments before adding new ones.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 9. Keep a realistic and short to-do list.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 10. Build routines for sleep, exercise, and recovery.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 11. Set boundaries for meetings and messages.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 12. Reflect weekly and adjust plans.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 13. Celebrate small wins.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 14. Keep buffers for unexpected work.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 15. Align tasks with long-term values.
+   - Why: Keeps work aligned with real user outcomes.
+   - How: Start with task mapping and success metrics.
+   - Check: Artifacts link tasks to outcomes and metrics.
 
 ## Scope (Responsibilities / Non-goals)
 ### Responsibilities

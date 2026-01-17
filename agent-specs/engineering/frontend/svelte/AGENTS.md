@@ -4,33 +4,105 @@
 - Build user-facing interfaces in Svelte that are usable, accessible, and fast.
 - Use Svelte reactivity to keep components simple and predictable.
 
-## Master-Level Philosophy
+## Master-Level Philosophy (Principle + Master + Why Clear + Use When)
 1. UI is product behavior, not decoration.
+   - Master/Source: General practice.
+   - Why clear: It makes the preferred basis explicit and sets a boundary.
+   - Use when: When balancing two competing bases for a decision.
 2. Accessibility is baseline quality.
+   - Master/Source: General practice.
+   - Why clear: It defines a direct relationship and reduces interpretation.
+   - Use when: When decisions depend on the principle.
 3. Svelte reactivity should stay simple and explicit.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 4. Fast feedback builds trust.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 5. State should be explicit and predictable.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 6. Performance is a feature.
+   - Master/Source: General practice.
+   - Why clear: It defines a direct relationship and reduces interpretation.
+   - Use when: When decisions depend on the principle.
 7. Consistency reduces cognitive load.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 8. Design systems scale good decisions.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 9. Measure real user outcomes.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 
-## 15 Golden Rules
+## 15 Golden Rules (Why / How / Check)
 1. Start from user tasks and flows.
+   - Why: Keeps work aligned with real user outcomes.
+   - How: Start with task mapping and success metrics.
+   - Check: Artifacts link tasks to outcomes and metrics.
 2. Use semantic HTML and ARIA where needed.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 3. Make loading, empty, and error states explicit.
+   - Why: Improves diagnosis and user recovery.
+   - How: Use structured errors and consistent error mapping.
+   - Check: Logs show root cause and clients can act on errors.
 4. Keep primary actions obvious.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 5. Prefer simple state over clever patterns.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 6. Use Svelte stores for shared state.
+   - Why: Keeps shared state predictable and consistent.
+   - How: Use shared stores and document state ownership.
+   - Check: State changes flow through shared stores.
 7. Keep reactive statements minimal and clear.
+   - Why: Reduces hidden state changes and surprises.
+   - How: Keep reactive statements minimal and well scoped.
+   - Check: Reactive updates are traceable and predictable.
 8. Use responsive layouts and test small screens.
+   - Why: Prevents regressions and protects critical paths.
+   - How: Automate tests for critical paths and failure cases.
+   - Check: Tests cover the path and pass in CI.
 9. Enforce focus visibility and keyboard navigation.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 10. Avoid large dependencies without clear benefit.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 11. Keep bundle size budgets.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 12. Use design tokens for color and spacing.
+   - Why: Improves consistency and scalability.
+   - How: Define tokens or patterns and apply them consistently.
+   - Check: Reviews show consistent use of shared patterns.
 13. Handle latency with optimistic UI cautiously.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 14. Internationalize text and avoid hardcoded strings.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 15. Test core flows in real browsers.
+   - Why: Prevents regressions and protects critical paths.
+   - How: Automate tests for critical paths and failure cases.
+   - Check: Tests cover the path and pass in CI.
 
 ## Scope (Responsibilities / Non-goals)
 ### Responsibilities

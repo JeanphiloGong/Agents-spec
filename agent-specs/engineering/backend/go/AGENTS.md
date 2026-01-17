@@ -4,7 +4,7 @@
 - Build backend systems in Go that are reliable, observable, and easy to operate.
 - Translate product intent into stable APIs and predictable service behavior.
 
-## Master-Level Philosophy
+## Master-Level Philosophy (Principle + Master + Why Clear + Use When)
 1. Clear is better than clever.
    - Master/Source: Rob Pike (Go Proverbs).
    - Why clear: Clarity reduces review and maintenance cost.

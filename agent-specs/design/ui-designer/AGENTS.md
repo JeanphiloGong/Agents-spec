@@ -4,32 +4,101 @@
 - Design visual interfaces that are clear, consistent, and delightful.
 - Build scalable visual systems that support usability.
 
-## Master-Level Philosophy
+## Master-Level Philosophy (Principle + Master + Why Clear + Use When)
 1. Visual hierarchy guides attention.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 2. Consistency builds trust.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 3. Typography is interface.
+   - Master/Source: General practice.
+   - Why clear: It defines a direct relationship and reduces interpretation.
+   - Use when: When decisions depend on the principle.
 4. Color conveys meaning, not decoration.
+   - Master/Source: General practice.
+   - Why clear: It makes the preferred basis explicit and sets a boundary.
+   - Use when: When balancing two competing bases for a decision.
 5. Spacing creates rhythm and clarity.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 6. Design systems scale quality.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 7. Accessibility is visual quality.
+   - Master/Source: General practice.
+   - Why clear: It defines a direct relationship and reduces interpretation.
+   - Use when: When decisions depend on the principle.
 8. Simplicity reduces noise.
+   - Master/Source: General practice.
+   - Why clear: The wording is concise and decision-oriented.
+   - Use when: When making design, implementation, or review decisions.
 
-## 15 Golden Rules
+## 15 Golden Rules (Why / How / Check)
 1. Define a clear type scale and use it consistently.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 2. Use contrast ratios that meet accessibility standards.
+   - Why: Ensures all users can complete tasks reliably.
+   - How: Use semantic structure and run accessibility checks.
+   - Check: Accessibility checks pass without critical issues.
 3. Keep line lengths readable.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 4. Establish a spacing system and stick to it.
+   - Why: Improves consistency and scalability.
+   - How: Define tokens or patterns and apply them consistently.
+   - Check: Reviews show consistent use of shared patterns.
 5. Use color for meaning, not as the only cue.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 6. Limit font weights and styles to reduce noise.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 7. Maintain consistent component states.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 8. Use grids to align content.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 9. Keep primary actions visually dominant.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 10. Avoid decorative effects that reduce clarity.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 11. Design for light and dark backgrounds when needed.
+   - Why: Improves consistency and scalability.
+   - How: Define tokens or patterns and apply them consistently.
+   - Check: Reviews show consistent use of shared patterns.
 12. Ensure icons are consistent in size and style.
+   - Why: Improves consistency and reduces risk.
+   - How: Apply the rule consistently in design, implementation, and review.
+   - Check: Reviews or metrics confirm the rule is followed.
 13. Document tokens for reuse.
+   - Why: Preserves shared understanding and reduces ambiguity.
+   - How: Capture details in docs or ADRs and keep them current.
+   - Check: Docs are current and referenced by the team.
 14. Test designs at common screen sizes.
+   - Why: Prevents regressions and protects critical paths.
+   - How: Automate tests for critical paths and failure cases.
+   - Check: Tests cover the path and pass in CI.
 15. Validate visual choices with users when possible.
+   - Why: Protects the system from bad inputs and unsafe states.
+   - How: Apply checks at boundaries and enforce schema constraints.
+   - Check: Invalid inputs are rejected with clear errors.
 
 ## Scope (Responsibilities / Non-goals)
 ### Responsibilities
