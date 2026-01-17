@@ -22,6 +22,19 @@
 		content?: string;
 	};
 
+	type RawDoc = Partial<DocItem> & {
+		ID?: string;
+		Title?: string;
+		Path?: string;
+		Dept?: string;
+		Role?: string;
+		Type?: string;
+		Tags?: string[];
+		UpdatedAt?: string;
+		Excerpt?: string;
+		Content?: string;
+	};
+
 	type DocsResponse = {
 		total: number;
 		items: DocItem[];
@@ -58,6 +71,22 @@
 		related: DocItem[];
 		error: string;
 		query: QueryState;
+	};
+
+	const normalizeDoc = (raw: RawDoc | null): DocItem | null => {
+		if (!raw) return null;
+		return {
+			id: raw.id ?? raw.ID ?? '',
+			title: raw.title ?? raw.Title ?? '',
+			path: raw.path ?? raw.Path ?? '',
+			dept: raw.dept ?? raw.Dept ?? '',
+			role: raw.role ?? raw.Role ?? '',
+			type: raw.type ?? raw.Type ?? '',
+			tags: raw.tags ?? raw.Tags ?? [],
+			updated_at: raw.updated_at ?? raw.UpdatedAt ?? '',
+			excerpt: raw.excerpt ?? raw.Excerpt ?? '',
+			content: raw.content ?? raw.Content ?? ''
+		};
 	};
 
 	const buildQueryState = (url: URL): QueryState => ({
@@ -148,10 +177,10 @@
 				]);
 				const detailPayload = detailRes.ok ? await detailRes.json() : null;
 				const relatedPayload = relatedRes.ok ? await relatedRes.json() : { items: [] };
-				detail = detailPayload?.doc ?? null;
+				detail = normalizeDoc(detailPayload?.doc ?? null);
 				toc = detailPayload?.toc ?? [];
 				related = relatedPayload?.items ?? [];
-				const content = detailPayload?.doc?.content ?? '';
+				const content = detail?.content ?? '';
 				detailHtml = content ? DOMPurify.sanitize(marked.parse(content)) : '';
 			}
 
@@ -318,12 +347,12 @@
 	/>
 </svelte:head>
 
-<div class="page">
-	<header class="shell section fade-in">
-		<div class="glass-card" style="padding:24px;display:grid;gap:18px;">
-			<div style="display:flex;align-items:center;gap:12px;">
+<div class="min-h-screen flex flex-col">
+	<header class="mx-auto w-full max-w-6xl px-4 sm:px-6 py-16 fade-in">
+		<div class="card grid gap-5 p-6">
+			<div class="flex items-center gap-3">
 				<div
-					style="width:40px;height:40px;border-radius:12px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;"
+					class="flex h-10 w-10 items-center justify-center rounded-xl border border-black/10 bg-white/70 text-orange-600"
 					aria-hidden="true"
 				>
 					<svg viewBox="0 0 24 24" width="20" height="20" fill="none">
@@ -332,46 +361,44 @@
 					</svg>
 				</div>
 				<div>
-					<div style="font-weight:700;letter-spacing:0.04em;">AGENTS</div>
-					<div style="font-size:12px;color:var(--muted);">AGENTS Library · Search · Download</div>
+					<div class="text-xs font-semibold tracking-[0.2em] text-slate-500">AGENTS</div>
+					<div class="text-xs text-slate-500">AGENTS Library · Search · Download</div>
 				</div>
 			</div>
-			<h1 style="font-size:clamp(30px,3.2vw,44px);margin:0;">
+			<h1 class="m-0 text-3xl leading-tight sm:text-4xl lg:text-[44px]">
 				AGENTS 项目文档中心
 			</h1>
-			<div style="display:flex;gap:12px;flex-wrap:wrap;">
-				<button class="button primary" type="button" onclick={() => (paletteOpen = true)}>
+			<div class="flex flex-wrap gap-3">
+				<button class="btn btn-primary" type="button" onclick={() => (paletteOpen = true)}>
 					搜索
 				</button>
 			</div>
 		</div>
 	</header>
 
-	<main>
-		<section id="list" class="section">
-			<div class="shell">
+	<main class="flex-1">
+		<section id="list" class="py-6 sm:py-10">
+			<div class="mx-auto w-full max-w-6xl px-4 sm:px-6">
 				<DocList
 					items={data.docs?.items ?? []}
 					error={data.error}
 					isLoading={listLoading}
 					onSelect={openDetail}
 				/>
-				<div
-					style="margin-top:20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;"
-				>
+				<div class="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-500">
 					<button
-						class="button ghost"
+						class="btn btn-ghost"
 						type="button"
 						disabled={currentPage <= 1}
 						onclick={() => goToPage(currentPage - 1)}
 					>
 						上一页
 					</button>
-					<span style="color:var(--muted);">
+					<span class="text-sm text-slate-500">
 						第 {currentPage} / {totalPages} 页 · 共 {data.docs?.total ?? 0} 条
 					</span>
 					<button
-						class="button ghost"
+						class="btn btn-ghost"
 						type="button"
 						disabled={currentPage >= totalPages}
 						onclick={() => goToPage(currentPage + 1)}
@@ -388,46 +415,46 @@
 {#if paletteOpen}
 	<div class="overlay" role="button" tabindex="0" onclick={closePalette} onkeydown={closePalette}>
 		<div
-			class="modal"
+			class="modal grid gap-4"
 			role="dialog"
 			aria-modal="true"
 			tabindex="0"
 			onclick={(event) => event.stopPropagation()}
 			onkeydown={(event) => event.stopPropagation()}
 		>
-			<div class="modal-header">
-				<div class="modal-title">搜索 AGENTS.md</div>
-				<button class="button ghost" type="button" onclick={closePalette}>关闭</button>
+			<div class="flex items-center justify-between gap-3">
+				<div class="text-base font-semibold text-slate-900">搜索 AGENTS.md</div>
+				<button class="btn btn-ghost" type="button" onclick={closePalette}>关闭</button>
 			</div>
-			<form style="display:grid;gap:12px;" onsubmit={submitSearch}>
+			<form class="grid gap-3" onsubmit={submitSearch}>
 				<input
 					id="search-input"
 					name="q"
 					type="text"
 					value={query.q}
 					placeholder="输入关键词..."
-					class="input-dark"
+					class="input-field"
 					oninput={(event) => fetchSuggestions((event.target as HTMLInputElement).value)}
 				/>
-				<div style="display:flex;gap:12px;flex-wrap:wrap;">
-					<button class="button primary" type="submit">搜索</button>
-					<button class="button ghost" type="button" onclick={clearSearch}>
+				<div class="flex flex-wrap gap-3">
+					<button class="btn btn-primary" type="submit">搜索</button>
+					<button class="btn btn-ghost" type="button" onclick={clearSearch}>
 						清空
 					</button>
 				</div>
 				{#if suggestionLoading}
-					<div style="color:var(--muted);">加载建议中...</div>
+					<div class="text-sm text-slate-500">加载建议中...</div>
 				{:else if suggestionError}
-					<div style="color:#9b2c2c;">{suggestionError}</div>
+					<div class="text-sm text-red-700">{suggestionError}</div>
 				{:else if suggestionTitles.length || suggestionTags.length}
-					<div style="display:grid;gap:12px;">
+					<div class="grid gap-3">
 						{#if suggestionTitles.length}
 							<div>
-								<div style="font-size:12px;color:var(--muted);margin-bottom:6px;">标题</div>
-								<div class="suggestion-list">
+								<div class="text-xs uppercase tracking-[0.2em] text-slate-500">标题</div>
+								<div class="mt-2 grid max-h-52 gap-2 overflow-auto pr-1">
 									{#each suggestionTitles as title}
 										<button
-											class="suggestion-item"
+											class="w-full rounded-xl border border-black/10 bg-white/70 px-3 py-2 text-left text-sm text-slate-700 transition hover:-translate-y-0.5 hover:border-black/30"
 											type="button"
 											onclick={() => selectSuggestion(title)}
 										>
@@ -439,8 +466,8 @@
 						{/if}
 						{#if suggestionTags.length}
 							<div>
-								<div style="font-size:12px;color:var(--muted);margin-bottom:6px;">标签</div>
-								<div style="display:flex;gap:8px;flex-wrap:wrap;">
+								<div class="text-xs uppercase tracking-[0.2em] text-slate-500">标签</div>
+								<div class="mt-2 flex flex-wrap gap-2">
 									{#each suggestionTags as tag}
 										<button
 											class="chip"
@@ -463,16 +490,16 @@
 {#if query.id}
 	<div class="overlay" role="button" tabindex="0" onclick={closeDetail} onkeydown={closeDetail}>
 		<div
-			class="modal"
+			class="modal grid gap-4"
 			role="dialog"
 			aria-modal="true"
 			tabindex="0"
 			onclick={(event) => event.stopPropagation()}
 			onkeydown={(event) => event.stopPropagation()}
 		>
-			<div class="modal-header">
-				<div class="modal-title">文档详情</div>
-				<button class="button ghost" type="button" onclick={closeDetail}>关闭</button>
+			<div class="flex items-center justify-between gap-3">
+				<div class="text-base font-semibold text-slate-900">文档详情</div>
+				<button class="btn btn-ghost" type="button" onclick={closeDetail}>关闭</button>
 			</div>
 			<DocDetail
 				doc={data.detail}
