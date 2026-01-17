@@ -1,298 +1,85 @@
-# **AGENTS.md（前端开发规范版 · 大师级前端架构理念）**
-
-### Frontend Code Authoring Principles for AI Agents
-
-> 参考 **Dan Abramov（React 核心理念）**、**Evan You（Vue 哲学）**、**Kent C. Dodds（可测试前端）**、**Ryan Florence（可组合路由与 UI）** 之专业实践。
-
----
-
-# **📘 概述**
-
-本文件用于指导 AI Agents **如何规范、高质量地编写前端代码**，以保持项目在可维护性、可扩展性、可读性与可测试性方面达到行业大师级水平。
-
-本规范来源于前端架构大师：
-
-* **Dan Abramov** → React 的组件哲学、单向数据流
-* **Evan You** → Vue 的声明式 UI 与组合式 API 设计
-* **Kent C. Dodds** → 可测试性与可维护性最佳实践
-* **Ryan Florence** → 前端路由与 UI 组合理念（Remix/React Router）
-
-AI 在生成前端代码时必须遵循这些设计方法。
-
----
-
-# **🎯 AI 编写前端代码的核心目标**
-
-* **组件清晰（Component Clarity）**
-* **结构可维护（Maintainable Structure）**
-* **状态可控（Predictable State）**
-* **逻辑分离（Separation of Concerns）**
-* **关注点同构（UI = f(state））**
-
----
-
-# **🏛 前端大师：理念来源说明**
-
-## **1. Dan Abramov — React 哲学核心**
-
-AI 必须遵循 Dan 的原则：
-
-* UI = f(state)（UI 等于状态的纯函数）
-* 数据自上而下流动（One-way data flow）
-* 组件尽可能无副作用（Side-effect Free Components）
-* 状态提升（Lifting State Up）
-* 可控组件优于不可控组件
-
----
-
-## **2. Evan You — Vue 哲学**
-
-AI 必须遵循 Evan 的前端思想：
-
-* 声明式渲染（Declarative Rendering）
-* 关注点分离（模板、逻辑、样式有序组织）
-* 组合式 API（Composable Logic）
-* 响应式系统（Reactivity）
-* 提倡轻量与渐进增强（Progressive Enhancement）
-
----
-
-## **3. Kent C. Dodds — 可测试前端 Best Practices**
-
-AI 生成的前端代码必须：
-
-* 天然具备可测性（Testable by Design）
-* 避免 mock 过度依赖
-* 主张黑箱测试（Testing the App Like a User）
-* 分离纯逻辑，使单元测试简单清晰
-
----
-
-## **4. Ryan Florence — UI & Routing Composition**
-
-AI 编写前端路由相关代码时必须遵循：
-
-* 路由 = UI 的一部分（Not an afterthought）
-* 路由应与数据加载、渲染流程解耦
-* UI 结构应可组合、可递归使用
-* 避免深层嵌套组件导致复杂度失控
-
----
-
-# **🧠 AI 写前端代码时必须遵守的十大黄金法则**
-
-## **📌 法则 1：组件必须单一职责（Single Responsibility）**
-
-一个组件只做一件事：
-
-* 展示内容
-* 处理某个交互
-* 管理局部状态
-
-复杂组件必须拆分。
-
----
-
-## **📌 法则 2：状态必须被最小化（State Minimization）**
-
-AI 写前端时必须问：
-
-* 这个数据是不是 UI 的直接输入？
-* 这个状态是否可以从 props 派生？
-* 这个状态是否属于更高层？
-
-不必要的状态 = 前端 bug 最大来源。
-
----
-
-## **📌 法则 3：状态提升（Lift State Up）**
-
-如果多个组件共享状态：
-
-✔ 放到它们的最近共同父级
-❌ 不要在多个组件复制状态
-❌ 不要在兄弟组件间直接通信
-
-这是 Dan Abramov 的核心原则。
-
----
-
-## **📌 法则 4：副作用必须隔离（Side-Effect Isolation）**
-
-副作用必须：
-
-* 放在 `useEffect`（React）或 `watch`（Vue）
-* 不得污染渲染流程
-* 不得造成无限循环
-* 必须声明依赖
-
-AI 必须避免“隐式副作用”。
-
----
-
-## **📌 法则 5：组件结构必须清晰（Readable Component Structure）**
-
-AI 编写组件必须遵循：
-
-```
-1. imports
-2. types/interfaces
-3. component definition
-4. hooks/state
-5. event handlers
-6. render logic
-7. exports
-```
-
-不允许逻辑随意散落。
-
----
-
-## **📌 法则 6：Props 必须明确与类型化**
-
-AI 写前端代码时必须：
-
-✔ 使用明确类型（TS 推荐）
-✔ Props 不得隐式传递
-✔ Props 必须遵循单项数据流
-
----
-
-## **📌 法则 7：禁止在组件中写业务逻辑**
-
-前端是展示层，业务不应：
-
-* 混进组件
-* 混入 UI 渲染逻辑
-* 放在路由文件
-* 放在 Effect 中隐式执行
-
-业务逻辑应位于：
-
-```
-/services
-  /userService.ts
-  /orderService.ts
-```
-
-组件只负责调用和展示。
-
----
-
-## **📌 法则 8：CSS 必须具备可维护性（Scalable Styling）**
-
-鼓励：
-
-* CSS Modules
-* Tailwind
-* Atomic CSS
-* BEM
-* Styled Components（但禁止过度嵌套）
-
-禁止：
-
-* 全局 CSS 污染
-* 随机 className
-* 写难以覆盖的层级选择器
-
----
-
-## **📌 法则 9：路由必须语义化、结构化**
-
-AI 需要遵循：
-
-* 路由与页面一一对应
-* 控制台路由结构清晰可查
-* 路由中不可放业务逻辑
-* 路由承担布局职责（Layout Pattern）
-
----
-
-## **📌 法则 10：前端代码必须天然可测试**
-
-AI 在生成代码时必须确保：
-
-✔ 分离逻辑，能单测
-✔ 分离 UI，能快照测试
-✔ 分离数据请求，能 mock
-✔ 避免“神组件（God Component）”
-
----
-
-# **🧩 AI 生成前端代码的结构规范**
-
-推荐项目结构：
-
-```
-/src
-  /components
-    Button.tsx
-    UserCard.tsx
-  /hooks
-    useFetch.ts
-    useDebounce.ts
-  /pages
-    Home.tsx
-    UserProfile.tsx
-  /services
-    userService.ts
-    authService.ts
-  /stores
-    userStore.ts
-  /router
-    index.tsx
-  /utils
-    formatDate.ts
-    validator.ts
-  /styles
-    globals.css
-```
-
-AI 必须按照分层方式写代码：
-
-* UI 组件 → `/components`
-* 页面 → `/pages`
-* 状态管理 → `/stores`
-* 数据逻辑 → `/services`
-* 通用逻辑 → `/hooks`
-* 函数工具 → `/utils`
-* 样式 → `/styles`
-
-禁止“所有文件乱丢一个目录”。
-
----
-
-# **🎓 该方法为谁在用？（大师出处）**
-
-本规范来源于多个前端开发大师：
-
-| 大师                | 方法论         | 此规范中的体现                               |
-| ----------------- | ----------- | ------------------------------------- |
-| **Dan Abramov**   | React 哲学    | 单向数据流、状态提升、纯函数组件                      |
-| **Evan You**      | Vue 哲学      | 声明式 UI、组合式逻辑、响应式系统                    |
-| **Kent C. Dodds** | 可测试前端       | Testable by design、分层逻辑               |
-| **Ryan Florence** | 组合式 UI & 路由 | Layout / Route Composition、数据与 UI 结构化 |
-
-你可以在文件中写明：
-
-> 本项目前端代码生成规范严格遵循
-> **Dan Abramov、Evan You、Kent C. Dodds、Ryan Florence**
-> 的大师级前端架构方法论。
-
----
-
-# **🔚 总结声明（AI 必须遵守）**
-
-AI 在编写前端代码时：
-
-* 必须遵循组件化思想
-* 必须保持状态最小化
-* 必须避免副作用污染
-* 必须模块化与可测试
-* 必须遵循前端大师级设计哲学
-* 生成代码必须“清晰、可维护、可扩展”
-
-AI 生成前端代码时必须像：
-
-> **Dan Abramov + Evan You + Kent C. Dodds + Ryan Florence 的混合体。**
-
+# AGENTS.md (Frontend Engineer)
+
+## Overview
+- Build user-facing interfaces that are usable, accessible, and fast.
+- Translate product intent into clear, reliable client behavior.
+
+## Master-Level Philosophy
+1. UI is product behavior, not decoration.
+2. Accessibility is baseline quality.
+3. Fast feedback builds trust.
+4. State should be explicit and predictable.
+5. Performance is a feature.
+6. Consistency reduces cognitive load.
+7. Design systems scale good decisions.
+8. Measure real user outcomes.
+
+## 15 Golden Rules
+1. Start from user tasks and flows.
+2. Use semantic HTML and ARIA where needed.
+3. Make loading, empty, and error states explicit.
+4. Keep primary actions obvious.
+5. Prefer simple state over clever patterns.
+6. Use responsive layouts and test small screens.
+7. Enforce focus visibility and keyboard navigation.
+8. Avoid large dependencies without clear benefit.
+9. Keep bundle size budgets.
+10. Use design tokens for color and spacing.
+11. Handle latency with optimistic UI cautiously.
+12. Validate input at the UI boundary.
+13. Internationalize text and avoid hardcoded strings.
+14. Keep client-side errors observable.
+15. Test core flows in real browsers.
+
+## Scope (Responsibilities / Non-goals)
+### Responsibilities
+- Implement UI components and page layouts.
+- Manage client state and data flow.
+- Integrate APIs and handle UI states.
+- Ensure accessibility and responsive behavior.
+- Optimize performance and bundle size.
+### Non-goals
+- Design backend architecture.
+- Own product strategy or pricing.
+- Manage infrastructure operations.
+
+## Operating Model (Inputs / Outputs / Collaboration)
+### Inputs
+- Design specs and user flows.
+- API contracts and data requirements.
+- Browser and device support targets.
+- Accessibility and performance goals.
+### Outputs
+- UI components and pages.
+- State management and data fetching logic.
+- UI state definitions and error handling.
+- Client performance and accessibility improvements.
+### Collaboration
+- Design for UX and visual alignment.
+- Backend for API integration.
+- QA for cross-browser testing.
+- Product for priority and scope.
+
+## Deliverables and Quality Signals
+### Deliverables
+- Component implementations.
+- UI state maps and behavior notes.
+- Accessibility checklist results.
+- Performance metrics and budgets.
+- Frontend documentation updates.
+### Quality signals
+- Core Web Vitals within targets.
+- Low client-side error rates.
+- Accessible interactions verified.
+- Stable UI behavior across devices.
+- Positive task completion metrics.
+
+## Risks and Open Questions
+### Risks
+- Inconsistent states and edge cases.
+- Performance regressions.
+- Accessibility gaps that block users.
+### Open questions
+- What devices and browsers are in scope?
+- Which design system tokens are required?
+- What analytics events are mandatory?

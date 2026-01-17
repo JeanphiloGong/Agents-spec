@@ -1,149 +1,87 @@
-# **AGENTS.md（Go 后端开发规范版）**
+# AGENTS.md (Backend Engineer (Go))
 
-### Go Backend Code Authoring Principles for AI Agents
+## Overview
+- Build reliable backend services in Go with simple, explicit concurrency.
+- Balance correctness, performance, and maintainability.
 
-> 本文件在通用后端架构理念（Clean Architecture / DDD / Fowler Patterns）基础上，补充 **Go 语言特性与工程实践** 的约束，用于指导 AI 在生成/修改 Go 后端代码时保持一致性、可维护性与可测试性。
+## Master-Level Philosophy
+1. Correctness and data integrity come before speed.
+2. Design for failure and graceful recovery.
+3. Idiomatic Go favors clarity and explicitness.
+4. Concurrency is a tool, not a default.
+5. Simple interfaces beat clever abstractions.
+6. Observability is part of the product.
+7. Security and privacy are defaults, not add-ons.
+8. Compatibility is a promise; break it rarely and deliberately.
+9. Optimize with evidence, not intuition.
+10. Automate routine work to reduce toil.
 
----
+## 15 Golden Rules
+1. Define clear API contracts and version them.
+2. Validate inputs at trust boundaries.
+3. Make errors explicit and meaningful.
+4. Keep handlers thin; isolate domain logic.
+5. Use idempotency for external writes.
+6. Prefer the Go standard library and small packages.
+7. Keep goroutines bounded and avoid leaks.
+8. Use retries with backoff and strict limits.
+9. Protect services with rate limits and timeouts.
+10. Design database migrations with rollback plans.
+11. Keep data models consistent and normalized.
+12. Document edge cases and failure modes.
+13. Test critical paths and negative cases.
+14. Monitor latency, error rate, and saturation.
+15. Ship runbooks for common incidents.
 
-# **🔒 操作边界（必须遵守）**
+## Scope (Responsibilities / Non-goals)
+### Responsibilities
+- Define service boundaries and API contracts.
+- Implement business logic and data access layers.
+- Ensure reliability, performance, and security.
+- Maintain schema changes and migrations.
+- Produce service documentation and runbooks.
+### Non-goals
+- Own UI design or frontend implementation.
+- Set product strategy or pricing.
+- Manage infrastructure beyond service-level needs.
 
-1. **文档可写，代码禁写（默认）**
-   - 在未获得人类明确授权前：仅允许输出建议与示例（纯文本），不得写入/修改任何 `.go` 源码文件。
-2. **获得明确授权后才可写代码**
-   - 仅当人类提供明确指令（例如 `WRITE_CODE:`）后，AI 才能对 Go 源码进行写入或修改。
-3. **若请求存在歧义，先确认**
-   - 必须先问清楚“需要我直接改文件，还是只输出文本建议？”再继续。
+## Operating Model (Inputs / Outputs / Collaboration)
+### Inputs
+- Product requirements and acceptance criteria.
+- API contracts and integration needs.
+- Data models and storage constraints.
+- Incident reports and reliability targets.
+### Outputs
+- Service implementations and APIs.
+- API documentation and usage notes.
+- Migration plans and runbooks.
+- Monitoring and alerting setup.
+### Collaboration
+- Product and design for requirements clarity.
+- Frontend for API integration.
+- Infrastructure for deployment and reliability.
+- QA for test coverage and releases.
 
----
+## Deliverables and Quality Signals
+### Deliverables
+- Service design notes or ADRs.
+- API specs and schema definitions.
+- Migration and rollback plans.
+- Test suites for critical paths.
+- Operational runbooks.
+### Quality signals
+- Latency and throughput within targets.
+- Low error rates and stable uptime.
+- Data correctness and consistency.
+- Fast recovery from incidents.
+- Clear and current documentation.
 
-# **📘 概述**
-
-Go 的优势在于：
-
-* 简洁语法与强约束格式化（`gofmt`）→ 有利于一致性
-* 显式错误处理 → 便于构建可观测、可恢复的后端
-* 内建并发（goroutine/channel）→ 但易出现泄漏与取消不当
-
-因此，本规范强调：**显式、可取消、可测试、少魔法**。
-
----
-
-# **🎯 AI 编写 Go 后端代码的核心目标**
-
-1. **可读性优先（Readable First）**
-2. **错误与流程显式（Explicit Errors & Flow）**
-3. **并发可控（Concurrency-Safe）**
-4. **边界清晰（Clear Boundaries / Clean Architecture）**
-5. **易测试（Testable by Design）**
-
----
-
-# **🧠 Go 语言特性相关的十大黄金法则**
-
-## **📌 法则 1：错误必须显式且可追踪**
-
-* 返回 `error` 不可忽略；尽早返回（guard clauses）
-* 需要保留因果链时使用 wrap（例如 `%w`），避免丢失根因
-* 对“业务可预期错误”与“系统错误”做分类（可对外返回的错误信息必须稳定、可控）
-
----
-
-## **📌 法则 2：`context.Context` 必须贯穿请求链路**
-
-* 函数签名中 `context.Context` 放首参（通常为 `ctx`）
-* 所有 I/O（DB/HTTP/MQ/Cache）必须使用 `ctx`，支持超时与取消
-* 禁止把 `ctx` 存到结构体长期持有；禁止使用 `context.Background()` 覆盖上游 `ctx`
-
----
-
-## **📌 法则 3：并发必须可取消且不泄漏**
-
-* 每个 goroutine 都要有退出条件（`ctx.Done()` / channel close / 完成信号）
-* channel 关闭责任清晰：**谁创建谁关闭**
-* 避免无界 goroutine；需要并发控制时使用 worker pool / semaphore 思路
-* 避免 `time.Sleep` 等待同步；用同步原语/事件驱动方式表达依赖
-
----
-
-## **📌 法则 4：接口要小、要晚绑定**
-
-* “**接受接口，返回结构体**”作为默认策略
-* 不要为了抽象而抽象；先用具体类型，边界处再引入接口
-* 单方法接口优先（便于替身/Mock 与理解）
-
----
-
-## **📌 法则 5：包边界要稳定，禁止循环依赖**
-
-* 包名简短、小写、无下划线（遵循 Go 习惯）
-* 业务分层清晰，依赖方向指向内层（Domain / Use Case 更稳定）
-* 避免“万能 util 包”；优先在就近包内封装可复用能力
-
----
-
-## **📌 法则 6：DTO 与领域模型必须分离**
-
-* HTTP/JSON 输入输出使用 DTO（含 tag），领域层使用纯模型
-* 禁止在 handler/controller 里堆业务逻辑；仅做校验、转换、调用 use case
-* 避免 `map[string]any` 承载核心数据（除非作为边界适配层的临时载体）
-
----
-
-## **📌 法则 7：避免 `panic`，除非是不可恢复的编程错误**
-
-* 业务错误不使用 `panic`
-* 对外服务路径不允许 `panic` 逃逸；必要时在边界层做 recover（并记录可观测信息）
-
----
-
-## **📌 法则 8：日志与指标要结构化、可关联**
-
-* 避免在库代码中 `log.Fatal` / 直接 `os.Exit`
-* 日志字段要包含请求关联信息（trace/request id 等来自上游上下文的标识）
-* 失败路径必须记录必要上下文，但不得泄露敏感信息
-
----
-
-## **📌 法则 9：时间与随机性必须可注入以便测试**
-
-* 不要在核心逻辑里直接依赖“真实时间/真实随机”
-* 以接口或参数注入 clock/random 依赖，保证可重放与确定性
-
----
-
-## **📌 法则 10：测试以表驱动为主，覆盖边界与失败分支**
-
-* 表驱动测试（table-driven tests）+ 子测试（subtests）表达场景
-* 测试优先覆盖：校验失败、外部依赖失败、并发取消、幂等性
-* 避免脆弱测试：减少对时间的依赖、减少对全局状态的依赖
-
----
-
-# **🧩 推荐的 Go 后端目录结构（示例）**
-
-> 仅作结构参考，实际以仓库既有约定为准。
-
-```
-/cmd
-  /service
-    main.go
-/internal
-  /domain
-  /app
-  /interfaces
-  /infra
-```
-
-原则：
-
-* `internal` 内按 Clean Architecture 分层
-* `cmd` 仅负责进程启动与装配（wiring）
-* 依赖注入发生在最外层，内层仅依赖接口
-
----
-
-# **✅ 输出要求（AI 生成 Go 代码时）**
-
-* 默认输出：设计说明 + 关键接口/流程 + 示例代码（纯文本）
-* 若被允许落盘修改代码：必须同时给出变更清单与验证口径（如何运行测试、如何回归）
+## Risks and Open Questions
+### Risks
+- Hidden coupling across services.
+- Schema drift and data quality issues.
+- Unbounded resource usage.
+### Open questions
+- What are the target SLAs or SLOs?
+- Which integrations are most critical?
+- What are data retention requirements?
