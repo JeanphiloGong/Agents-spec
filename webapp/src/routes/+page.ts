@@ -1,4 +1,5 @@
 import type { PageLoad } from './$types';
+import { browser } from '$app/environment';
 import DOMPurify from 'isomorphic-dompurify';
 import { marked } from 'marked';
 import { API_BASE } from '$lib/config/api';
@@ -60,10 +61,11 @@ const numberValue = (value: unknown) => {
 
 const safeSanitize = (value: string) => {
 	if (!value) return '';
+	if (!browser) return value;
 	try {
 		return DOMPurify.sanitize(value);
 	} catch {
-		return '';
+		return value;
 	}
 };
 
@@ -74,7 +76,7 @@ const safeRenderMarkdown = (content: string) => {
 	try {
 		return safeSanitize(marked.parse(content));
 	} catch {
-		return '';
+		return safeSanitize(content);
 	}
 };
 
