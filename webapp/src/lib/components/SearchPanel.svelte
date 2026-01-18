@@ -47,11 +47,19 @@
 		onSelectTag
 	} = $props<Props>();
 
-	let filtersOpen = $state(Boolean(query.dept || query.role || query.type || query.tags));
+	let filtersOpen = $state(false);
+	let autoOpened = $state(false);
 
 	$effect(() => {
-		if (query.dept || query.role || query.type || query.tags) {
+		const hasFilters = Boolean(query.dept || query.role || query.type || query.tags);
+		if (!hasFilters) {
+			filtersOpen = false;
+			autoOpened = false;
+			return;
+		}
+		if (!autoOpened) {
 			filtersOpen = true;
+			autoOpened = true;
 		}
 	});
 </script>

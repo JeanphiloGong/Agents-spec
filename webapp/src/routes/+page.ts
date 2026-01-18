@@ -58,7 +58,25 @@ const numberValue = (value: unknown) => {
 	return Number.isFinite(num) ? num : 0;
 };
 
-const sanitizeSnippet = (value: string) => (value ? DOMPurify.sanitize(value) : '');
+const safeSanitize = (value: string) => {
+	if (!value) return '';
+	try {
+		return DOMPurify.sanitize(value);
+	} catch {
+		return '';
+	}
+};
+
+const sanitizeSnippet = (value: string) => safeSanitize(value);
+
+const safeRenderMarkdown = (content: string) => {
+	if (!content) return '';
+	try {
+		return safeSanitize(marked.parse(content));
+	} catch {
+		return '';
+	}
+};
 
 const normalizeDoc = (raw: RawDoc | null): DocItem | null => {
 	if (!raw) return null;
@@ -187,9 +205,10 @@ export const load: PageLoad = async ({ url, fetch }) => {
 
 	if (query.id) {
 		try {
+			const encodedId = encodeURIComponent(query.id);
 			const [detailRes, relatedRes] = await Promise.all([
-				fetch(`${API_BASE}/docs/${query.id}`),
-				fetch(`${API_BASE}/related?id=${query.id}`)
+				fetch(`${API_BASE}/docs/${encodedId}`),
+				fetch(`${API_BASE}/related?id=${encodedId}`)
 			]);
 
 			if (detailRes.ok) {
@@ -203,7 +222,7 @@ export const load: PageLoad = async ({ url, fetch }) => {
 				detail = normalizeDoc(mergedDoc);
 
 				const markdown = detail?.content ?? '';
-				detailHtml = markdown ? DOMPurify.sanitize(marked.parse(markdown)) : '';
+				detailHtml = safeRenderMarkdown(markdown);
 
 				const providedToc = payload?.toc ?? payload?.Toc;
 				toc = resolveToc(markdown, providedToc);
