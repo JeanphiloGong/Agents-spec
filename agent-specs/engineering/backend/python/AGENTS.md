@@ -133,6 +133,39 @@
 - Infrastructure for deployment and reliability.
 - QA for test coverage and releases.
 
+## Code Structure Example (DDD)
+Use this as a reference layout for clean DDD boundaries in Python services.
+
+### Reference Layout
+```
+app/
+  ports/
+    inbound/
+    outbound/
+  usecases/
+domain/
+  model/
+  services/
+  policies/
+interface/
+  api/
+  cli/
+  jobs/
+infra/
+  db/
+  cache/
+  messaging/
+  repos/
+tests/
+main.py
+```
+
+### Interaction Sketch
+```
+[interface/api] -> [app/usecases] -> [domain]
+[app/usecases] -> [app/ports] -> [infra]
+```
+
 ## Deliverables and Quality Signals
 ### Deliverables
 - Service design notes or ADRs.
