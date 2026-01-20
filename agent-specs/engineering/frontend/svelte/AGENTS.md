@@ -147,6 +147,79 @@
 - Stable UI behavior across devices.
 - Positive task completion metrics.
 
+## Master-Level Architecture Examples
+### Example 1: Feature-Oriented Svelte Structure
+```
+src/
+  lib/
+    components/
+      ui/
+        Button.svelte
+        Input.svelte
+      data/
+        StatusBadge.svelte
+    features/
+      billing/
+        components/
+          InvoiceTable.svelte
+        stores/
+          billingStore.ts
+        api/
+          billingApi.ts
+        routes/
+          BillingPage.svelte
+      onboarding/
+        components/
+          Checklist.svelte
+        stores/
+          onboardingStore.ts
+        routes/
+          OnboardingPage.svelte
+    stores/
+      sessionStore.ts
+    utils/
+      formatters.ts
+```
+- Intent: Split by user-facing domains to keep state, API, and UI cohesive.
+- Use when: The product has multiple distinct user tasks or domains.
+
+### Example 2: Page Composition with Explicit UI States
+```
+src/
+  routes/
+    account/
+      +page.svelte
+  lib/
+    features/
+      account/
+        AccountView.svelte
+        AccountSkeleton.svelte
+        AccountError.svelte
+        accountStore.ts
+```
+- Intent: Separate loading, error, and success states into distinct components.
+- Use when: Async data drives most UI behavior and failure recovery matters.
+
+### Example 3: Shared Layout and Design Tokens
+```
+src/
+  lib/
+    design/
+      tokens.css
+      typography.css
+      spacing.css
+    layout/
+      AppShell.svelte
+      Sidebar.svelte
+      Topbar.svelte
+    components/
+      ui/
+        Button.svelte
+        Modal.svelte
+```
+- Intent: Centralize visual primitives and layout composition for consistency.
+- Use when: Multiple teams or features need shared UI rules.
+
 ## Risks and Open Questions
 ### Risks
 - Inconsistent states and edge cases.
