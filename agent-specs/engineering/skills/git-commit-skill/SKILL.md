@@ -158,6 +158,7 @@ Refs:
 
 - Every commit must use the full template with Why/What/Impact/Tests/Refs.
 - Single-line commit messages are not allowed.
+- Prefer file-based commits (e.g., `git commit -F <file>`) to avoid newline escaping/garbling.
 
 ## Golden Rules (Top 10)
 
