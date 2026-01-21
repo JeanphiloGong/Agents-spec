@@ -47,6 +47,27 @@ log.info("request completed",
 )
 ```
 
+## Chinese Log Format Standard (Module-Aware)
+
+Use a module-aware prefix based on location:
+
+- `svc`: service layer (business services)
+- `router`: routing layer
+- `controller`: controller/handler layer
+- `domain`: domain layer
+
+Format:
+
+```
+[<module>.<component>] <动作描述> 关键字段=%s 关键字段=%s
+```
+
+Example:
+
+```
+"[svc.content_process] 目录节点加载完成 请求id=%s 节点题目=%s 选择的内容=%s"
+```
+
 ## Output Format
 
 ```
