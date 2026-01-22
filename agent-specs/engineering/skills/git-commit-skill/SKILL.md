@@ -26,6 +26,10 @@ description: Create standard, high-quality git commit messages and commit plans;
    - Use Conventional Commits unless another standard is specified.
 5. Add validation notes.
    - Include relevant tests or verification steps if provided.
+6. Staging policy.
+   - Do not run `git add` by default; the human reviews and stages changes.
+   - If AI-authored changes are not staged, remind the user to stage them.
+   - If only unrelated changes are unstaged, do not prompt.
 
 ## Commit Message Standard
 
