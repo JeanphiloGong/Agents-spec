@@ -5,6 +5,17 @@ description: Create a project-specific Codex skill package (SKILL.md plus option
 
 # Project Skill Author
 
+## Trigger and Scope (Required)
+
+Use this skill when you must design a reusable, project-level skill package
+for external or cross-team users. This is not for single prompts or one-off
+task guides.
+
+In scope: project-wide skills, onboarding skills, coordination skills, or
+multi-domain guidance with auditable workflows.
+Out of scope: pure API integration skills, internal-only prompts, or
+single-use task scripts.
+
 ## Skill Philosophy (Master-Level)
 
 - Skills are reusable decision systems, not one-off prompts.
@@ -21,6 +32,7 @@ description: Create a project-specific Codex skill package (SKILL.md plus option
 - Prefer decision artifacts that can be audited later.
 - Maintain a clear separation between “guidance” and “evidence.”
 - Iteration is mandatory: every skill must include an acceptance loop and a next-step plan.
+- Treat improvement as continuous: each delivery must include an upgrade path.
 
 ## Master Workflow (Decision-Grade)
 
@@ -51,6 +63,170 @@ description: Create a project-specific Codex skill package (SKILL.md plus option
    - Specify what evidence is stored and where.
 12. Add iteration loop.
    - Require acceptance review, feedback capture, and a next-iteration plan.
+13. Add reinforcement plan.
+   - Define how the skill learns from repeated use and failures.
+## Iteration Loop (Required)
+
+- Run acceptance review using `references/acceptance-criteria.md` and record pass/fail evidence.
+- Capture gaps with scope impact and ownership (who resolves and by when).
+- Define a next-iteration checklist that targets the highest-impact gap first.
+- Explicitly name the highest-risk gap and the concrete verification step to close it.
+
+## Reinforcement Plan (Required)
+
+Goals
+
+Reduce recurring failures by turning them into explicit, testable guardrails.
+
+Improve success rate by promoting consistently high-performing workflows into defaults.
+
+Maintain quality by retiring/demoting patterns that repeatedly fail validation.
+
+Operating Rules
+
+Reinforcement runs in a repeatable four-step loop.
+
+Changes must be localized, reversible, and auditable (small diffs, clear rationale).
+
+Every loop produces artifacts: a plan note, a change log, a verification record, and a reflection entry.
+
+Audit baseline
+
+Each reinforcement round must produce:
+- A Git commit that contains only that round's changes.
+- An audit record in `references/reinforcement-audit.jsonl`.
+- Validate the record with `scripts/validate_reinforcement_audit.py`.
+
+Four-step Reinforcement Cycle
+1) Plan (Objective + Scope)
+
+Objective
+
+State the user outcome in one sentence (e.g., “Reduce tool-call errors in PDF workflows.”).
+
+Define measurable acceptance criteria:
+
+e.g., “Pass rate ≥ 95% on last 50 runs,” “0 critical policy violations,” “avg. retries ≤ 1.”
+
+Scope
+
+List what is in-scope (files, modules, prompts, edge cases).
+
+List explicit out-of-scope boundaries to prevent cross-cutting changes:
+
+e.g., “No changes to unrelated tools,” “No behavior change outside PDF flow,” “No new dependencies.”
+
+Inputs
+
+Include the evidence you’re responding to:
+
+Failure examples (IDs/links), frequency, severity, and failure taxonomy label.
+
+Exit Condition
+
+Define when you stop planning and move to change (e.g., “Top 1–2 failure modes identified + proposed guardrails drafted.”)
+
+2) Change (Apply Edits)
+
+Edit Principles
+
+Prefer clarity over cleverness.
+
+Keep changes small and isolated (one failure mode per change set when possible).
+
+Make edits auditable:
+
+Add a short “Why” comment or changelog entry.
+
+Use consistent naming for guardrails and workflows (e.g., GR-###, WF-###).
+
+Outputs
+
+Patch/diff summary:
+
+What changed
+
+Where changed
+
+Which failure mode it targets
+
+Expected behavior shift (before/after)
+
+Rollback
+
+Define how to revert (feature flag, revert commit, config toggle).
+
+3) Verify (Checks + Evidence)
+
+Verification Steps (must be reproducible)
+
+Unit checks (logic-level)
+
+Integration checks (tooling-level)
+
+Regression checks (previously passing cases)
+
+Negative tests (ensure boundaries are respected)
+
+Evidence (recorded)
+
+Test run IDs/log excerpts/screenshots as applicable
+
+Metrics snapshot:
+
+pass/fail counts
+
+top remaining failure categories
+
+any new failure introduced
+
+Decision Rule
+
+Promote / hold / rollback based on acceptance criteria:
+
+Promote if criteria met
+
+Hold if partial (define what’s missing)
+
+Rollback if any critical regressions or policy/validation failures
+
+4) Reflect (Improvements + Next Adjustments)
+
+What improved
+
+Which failure modes dropped, by how much (numbers, not vibes).
+
+What guardrail/workflow proved effective.
+
+Risks & Tradeoffs
+
+Any new complexity, false positives, coverage gaps.
+
+Next highest-impact refinement
+
+One prioritized next action:
+
+e.g., “Add targeted test set for X edge case,” “Split WF into two variants,” “Demote pattern Y.”
+
+Outcome
+
+Update the reinforcement backlog with the reflection outcome.
+
+## Step Gate (Required)
+
+After each of the four steps (Plan, Change, Verify, Reflect), the system must prompt: “continue?”
+
+The system must not proceed to the next step until it receives explicit confirmation: continue.
+
+While awaiting confirmation, the system must not apply further edits, run additional checks, or advance the loop.
+
+If the operator replies with anything other than continue, the system must:
+
+keep the loop at the current step, and
+
+re-prompt “continue?” without advancing.
+
+Confirmation token: `continue`.
 
 ## Design Layers (Use As Needed)
 
@@ -66,6 +242,8 @@ description: Create a project-specific Codex skill package (SKILL.md plus option
 - Project name and one-sentence purpose
 - Target users (role and context)
 - Primary outcomes or workflows
+- Delivery environment or distribution target (where the skill will live)
+- Acceptance owner (who signs off on the skill)
 
 ## Defaults (Use Unless User Specifies)
 
@@ -73,6 +251,7 @@ description: Create a project-specific Codex skill package (SKILL.md plus option
 - Skill placement: `skills/<skill-name>` unless a project path is specified.
 - Output tone: concise, action-oriented, no fluff.
 - References: add only when details are needed repeatedly.
+- Acceptance: require owner approval for high-risk or public-facing skills.
 
 ## Failure Modes to Avoid
 
@@ -100,25 +279,20 @@ description: Create a project-specific Codex skill package (SKILL.md plus option
 - **Fragility**: fragile operations favor scripts and low degrees of freedom.
 - **Audience**: external users require clearer constraints and examples.
 - **Regulatory**: regulated domains require explicit compliance hooks.
+- **Learning Value**: prefer workflows that create measurable feedback loops.
 
 ## Validation Hooks (Required for Strict)
 
 - Provide a minimal “how to verify” section.
 - Include a negative test or failure case when risk is non-trivial.
 - Require explicit “unknowns” where facts are missing.
+- Require a lightweight evidence note (what was checked, by whom, when).
 
 ## Audit Artifacts (Use When Risk Is High)
 
 - Decision log entries (what, why, when).
 - Verification notes or test vectors.
 - Risk register updates and mitigation status.
-
-## Iteration Loop (Required)
-
-- Run acceptance review using `references/acceptance-criteria.md`.
-- Capture gaps and improvement ideas.
-- Define a next-iteration checklist (what to refine and why).
-- Explicitly name the highest-risk gap and how it will be validated next.
 
 ## Minimal Closed-Loop Structure (Required)
 
@@ -129,26 +303,47 @@ description: Create a project-specific Codex skill package (SKILL.md plus option
 
 ## Minimal Metrics Set
 
-- First delivery usability rate.
-- Number of clarification rounds.
-- Acceptance pass rate.
-- Trigger a review if any metric drops below the agreed threshold.
+- First delivery usability rate:
+  - Formula: usable deliverables / total deliverables in first iteration.
+  - Source: machine-readable acceptance logs.
+- Number of clarification rounds:
+  - Formula: count of back-and-forth cycles before acceptance.
+  - Source: structured review events (status transitions).
+- Acceptance pass rate:
+  - Formula: accepted items / total reviewed items.
+  - Source: acceptance checklist records in JSON/YAML.
+- Thresholds:
+  - Set by owner at project start, reviewed per iteration or on high-risk trigger.
+  - Update when scope or risk profile changes.
+  - Trigger automatic review when thresholds are breached.
 
 ## Responsibility and Cadence
 
-- Initiate acceptance: human owner.
-- Record risks: skill author.
-- Execute cadence: per iteration or on high-risk trigger.
+- Initiate acceptance: automated checks + owner confirmation only when gating fails.
+- Record risks: automatic risk log updates from failed checks.
+- Execute cadence: per iteration or on automated threshold triggers.
+- Final approve/reject: owner only for high-risk or failed automation.
 
 ## Shortest Change Path
 
+- Entry gate: feedback must include machine-verifiable evidence (logs/tests/metrics).
 - Feedback → change queue → evaluation (impact/risk/cost) → merge criteria → acceptance.
 
 ## Minimal Closed-Loop Example (3–5 Lines)
 
-1. Feedback: onboarding unclear.
-2. Review: root cause is missing quickstart.
-3. Change: add quickstart + verify with first-time user path.
+1. Feedback: onboarding fails, detected by quickstart completion metric < threshold.
+2. Review: automated log shows missing checklist step.
+3. Change: add checklist + run scripted onboarding test.
+4. If test fails, auto-log gap and re-enter change queue.
+
+## Automation Requirements
+
+- Feedback ingestion: logs, tests, or metrics must be machine-readable.
+- Verification: prefer scripted tests or replayable scenarios.
+- Alerts: threshold breaches trigger automatic review.
+- Audit trail: auto-write evidence and decisions to a log file.
+- Rollback: define automated rollback if critical checks fail.
+- Reinforcement: incorporate failure patterns into the next workflow revision.
 
 ## Domain-Specific Variants (Optional)
 
@@ -169,6 +364,8 @@ description: Create a project-specific Codex skill package (SKILL.md plus option
 ## References
 
 - `references/acceptance-criteria.md`: acceptance standards and reviewer challenge checklist.
+- `references/reinforcement-audit.jsonl`: per-round audit records (one JSON object per line).
+- `scripts/validate_reinforcement_audit.py`: JSONL structure validator for audit records.
 
 ## Domain Workflow Library (Use as Reference Only)
 
