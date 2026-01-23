@@ -18,6 +18,8 @@ description: Define and improve Python backend logging standards; use when desig
 4. Inject request/trace IDs via middleware/contextvars.
 5. Define exception logging and stack handling.
 6. Validate sampling, log size, and redaction.
+7. Run verification hooks and record evidence.
+8. Complete reinforcement checkpoints before finishing.
 
 ## Required Fields
 
@@ -78,7 +80,26 @@ Example:
 ## Error Logging Rules
 ## Examples
 ## Checklist
+## Verification Notes
+## Reinforcement Mechanism
 ```
+
+## Verification Hooks
+
+- Provide at least one positive example and one negative example.
+- Confirm request/trace IDs are present on entry/exit logs.
+- Confirm redaction rules are stated for secrets/PII.
+- Note what was checked and where (files/services), or state unknowns.
+
+## Reinforcement Mechanism
+
+- Self-check loop:
+  - Validate required fields are all listed.
+  - Verify exception rule is stated once-at-boundary.
+  - Confirm sampling/size/redaction checks are explicit.
+- Checkpoints (must complete before finishing):
+  - Checklist includes field schema + correlation + error rules.
+  - Verification notes include evidence or explicit unknowns.
 
 ## Guardrails
 
