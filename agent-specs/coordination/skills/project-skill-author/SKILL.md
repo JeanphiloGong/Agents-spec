@@ -38,32 +38,34 @@ single-use task scripts.
 
 1. Clarify mission and audience.
    - Project purpose, primary users, and core outcomes.
-2. Identify domain scope.
+2. Add a reinforcement mechanism (second-highest priority).
+   - Require a recurring self-check loop and concrete checkpoints before completion.
+3. Identify domain scope.
    - Independently infer domains that materially affect usage.
    - If needed, search your internal knowledge for master-level practices in those domains.
    - Map each domain to a high-signal workflow and explicitly note why it fits.
-3. Define the skill name and placement.
+4. Define the skill name and placement.
    - Use lowercase hyphen name under 64 chars; default to `skills/<skill-name>`.
-4. Design the package structure.
+5. Design the package structure.
    - Keep SKILL.md lean; move detailed references into `references/`.
    - Add `assets/` only when reusable templates are required.
-5. Draft SKILL.md with explicit triggers and workflow.
+6. Draft SKILL.md with explicit triggers and workflow.
    - Use clear frontmatter and imperative steps.
-6. Provide defaults and guardrails.
+7. Provide defaults and guardrails.
    - Include sane defaults to reduce user input and prevent misuse.
-7. Validate and scope.
+8. Validate and scope.
    - Ensure no secrets, no fabricated facts, references are one level deep.
-8. Verify domain fitness.
+9. Verify domain fitness.
    - Confirm the workflow reflects expert practice in that domain.
-9. Produce a fit-for-purpose template.
+10. Produce a fit-for-purpose template.
    - Provide a short, standard, and strict output format.
-10. Add verification hooks.
+11. Add verification hooks.
    - Define how correctness and safety are validated for the skill.
-11. Add audit artifacts.
+12. Add audit artifacts.
    - Specify what evidence is stored and where.
-12. Add iteration loop.
+13. Add iteration loop.
    - Require acceptance review, feedback capture, and a next-iteration plan.
-13. Add reinforcement plan.
+14. Add reinforcement plan.
    - Define how the skill learns from repeated use and failures.
 ## Iteration Loop (Required)
 
