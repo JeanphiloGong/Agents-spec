@@ -77,148 +77,87 @@ single-use task scripts.
 
 ## Reinforcement Plan (Required)
 
-Goals
+### Goals
+- Reduce recurring failures by turning them into explicit, testable guardrails.
+- Improve success rate by promoting consistently high-performing workflows into defaults.
+- Maintain quality by retiring or demoting patterns that repeatedly fail validation.
 
-Reduce recurring failures by turning them into explicit, testable guardrails.
+### Operating Rules
+- Reinforcement runs in a repeatable four-step loop.
+- Changes are localized, reversible, and auditable (small diffs, clear rationale).
+- Each loop produces artifacts: plan note, change log, verification record, reflection entry.
 
-Improve success rate by promoting consistently high-performing workflows into defaults.
+### Reinforcement Mode Gate
+- Default: off. The four-step loop runs only when explicitly enabled by the operator.
+- Enable with a clear signal (e.g., "enter reinforcement cycle" or `reinforcement=on`).
+- Optional trigger: on critical or repeated failures, prompt to enable; do not auto-enable.
 
-Maintain quality by retiring/demoting patterns that repeatedly fail validation.
-
-Operating Rules
-
-Reinforcement runs in a repeatable four-step loop.
-
-Changes must be localized, reversible, and auditable (small diffs, clear rationale).
-
-Every loop produces artifacts: a plan note, a change log, a verification record, and a reflection entry.
-
-Audit baseline
-
+### Audit Baseline
 Each reinforcement round must produce:
-- A Git commit that contains only that round's changes.
+- A Git commit containing only that round's changes.
 - An audit record in `references/reinforcement-audit.jsonl`.
-- Validate the record with `scripts/validate_reinforcement_audit.py`.
+- Validation via `scripts/validate_reinforcement_audit.py`.
   - If you require this script, you must create it or explicitly reference an existing script.
 
-Four-step Reinforcement Cycle
+### Four-Step Reinforcement Cycle
 1) Plan (Objective + Scope)
-
-Objective
-
-State the user outcome in one sentence (e.g., “Reduce tool-call errors in PDF workflows.”).
-
-Define measurable acceptance criteria:
-
-e.g., “Pass rate ≥ 95% on last 50 runs,” “0 critical policy violations,” “avg. retries ≤ 1.”
-
-Scope
-
-List what is in-scope (files, modules, prompts, edge cases).
-
-List explicit out-of-scope boundaries to prevent cross-cutting changes:
-
-e.g., “No changes to unrelated tools,” “No behavior change outside PDF flow,” “No new dependencies.”
-
-Inputs
-
-Include the evidence you’re responding to:
-
-Failure examples (IDs/links), frequency, severity, and failure taxonomy label.
-
-Exit Condition
-
-Define when you stop planning and move to change (e.g., “Top 1–2 failure modes identified + proposed guardrails drafted.”)
-
+   - Objective: one-sentence user outcome (e.g., "Reduce tool-call errors in PDF workflows.").
+   - Acceptance criteria: measurable targets (e.g., "Pass rate >= 95% on last 50 runs," "0 critical policy violations," "avg. retries <= 1.").
+   - Scope: in-scope files/modules/prompts/edge cases and explicit out-of-scope boundaries (e.g., "No unrelated tools," "No behavior change outside PDF flow," "No new dependencies.").
+   - Inputs: evidence (failure examples with IDs/links, frequency, severity, taxonomy label).
+   - Exit condition: when to move to Change (e.g., "Top 1-2 failure modes identified + proposed guardrails drafted.").
+   - Plan template:
+     ```
+     Objective:
+     Acceptance criteria:
+     Scope in:
+     Scope out:
+     Inputs:
+     Exit condition:
+     ```
 2) Change (Apply Edits)
-
-Edit Principles
-
-Prefer clarity over cleverness.
-
-Keep changes small and isolated (one failure mode per change set when possible).
-
-Make edits auditable:
-
-Add a short “Why” comment or changelog entry.
-
-Use consistent naming for guardrails and workflows (e.g., GR-###, WF-###).
-
-Outputs
-
-Patch/diff summary:
-
-What changed
-
-Where changed
-
-Which failure mode it targets
-
-Expected behavior shift (before/after)
-
-Rollback
-
-Define how to revert (feature flag, revert commit, config toggle).
-
+   - Edit principles: clarity over cleverness; isolate to one failure mode when possible.
+   - Auditable edits: add a short "Why" comment or changelog entry; use consistent naming (GR-###, WF-###).
+   - Outputs: patch/diff summary (what/where/targeted failure mode/expected behavior shift).
+   - Rollback: define how to revert (feature flag, revert commit, config toggle).
+   - Change template:
+     ```
+     Failure mode targeted:
+     Edits:
+     Why:
+     Expected shift (before/after):
+     Rollback:
+     ```
 3) Verify (Checks + Evidence)
-
-Verification Steps (must be reproducible)
-
-Unit checks (logic-level)
-
-Integration checks (tooling-level)
-
-Regression checks (previously passing cases)
-
-Negative tests (ensure boundaries are respected)
-
-Evidence (recorded)
-
-Test run IDs/log excerpts/screenshots as applicable
-
-Metrics snapshot:
-
-pass/fail counts
-
-top remaining failure categories
-
-any new failure introduced
-
-Decision Rule
-
-Promote / hold / rollback based on acceptance criteria:
-
-Promote if criteria met
-
-Hold if partial (define what’s missing)
-
-Rollback if any critical regressions or policy/validation failures
-
+   - Verification steps: unit, integration, regression, and negative tests (must be reproducible).
+   - Evidence: test run IDs/log excerpts/screenshots as applicable.
+   - Metrics snapshot: pass/fail counts, top remaining failure categories, any new failure introduced.
+   - Decision rule: promote/hold/rollback based on acceptance criteria.
+   - Verify template:
+     ```
+     Checks run:
+     Evidence:
+     Metrics snapshot:
+     Decision:
+     ```
 4) Reflect (Improvements + Next Adjustments)
-
-What improved
-
-Which failure modes dropped, by how much (numbers, not vibes).
-
-What guardrail/workflow proved effective.
-
-Risks & Tradeoffs
-
-Any new complexity, false positives, coverage gaps.
-
-Next highest-impact refinement
-
-One prioritized next action:
-
-e.g., “Add targeted test set for X edge case,” “Split WF into two variants,” “Demote pattern Y.”
-
-Outcome
-
-Update the reinforcement backlog with the reflection outcome.
+   - What improved: failure modes reduced and by how much (numbers, not vibes).
+   - What worked: guardrail/workflow effectiveness.
+   - Risks and tradeoffs: new complexity, false positives, coverage gaps.
+   - Next highest-impact refinement: one prioritized action (e.g., "Add targeted test set for X edge case," "Split WF into two variants," "Demote pattern Y.").
+   - Outcome: update the reinforcement backlog with the reflection result.
+   - Reflect template:
+     ```
+     Improvements:
+     What worked:
+     Risks/tradeoffs:
+     Next action:
+     Outcome:
+     ```
 
 ## Step Gate (Required)
 
-After each of the four steps (Plan, Change, Verify, Reflect), the system must prompt: “continue?”
+After each of the four steps (Plan, Change, Verify, Reflect), when reinforcement mode is enabled, the system must prompt: “continue?”
 
 The system must not proceed to the next step until it receives explicit confirmation: continue.
 
