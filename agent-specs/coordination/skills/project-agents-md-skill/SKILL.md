@@ -5,16 +5,16 @@ description: Create a project-level AGENTS.md with master-grade constraints, bou
 
 # Project AGENTS.md Skill
 
-## Master Workflow (Decision-Grade)
+## Workflow
 
 1. Clarify mission and non-negotiables.
-   - Primary outcomes, risks, and what must never change.
+   - Capture primary outcomes, unacceptable failures, and the highest-risk path.
 2. Map authority and boundaries.
-   - Define scope boundaries and decision approvals without emphasizing permission flags.
+   - Define scope boundaries, approval requirements, and ownership.
 3. Lock the execution contract.
-   - Output format, confirmation gates, and mandatory checklists.
+   - Confirm output format, confirmation gates, and checklists.
 4. Define scope and exclusion zones.
-   - Allowed directories and immutable areas.
+   - Name allowed directories and immutable areas explicitly.
 5. Encode quality bars and evidence.
    - Required tests, verification notes, and rollback criteria.
 6. Add decision and accountability rules.
@@ -22,57 +22,42 @@ description: Create a project-level AGENTS.md with master-grade constraints, bou
 7. Integrate product and project standards.
    - Goals, success metrics, scope, milestones, acceptance criteria, and risks.
 8. Identify domain philosophies.
-   - Determine relevant domains (engineering, frontend, backend, data, science, medical, algorithmic, security).
-   - Include master-level philosophy sections for each relevant domain.
-9. Draft the AGENTS.md with measurable rules and golden rules.
-   - Use short, enforceable statements.
+   - Select only domains that materially apply; explain omissions.
+9. Draft AGENTS.md with measurable rules.
+   - Use short, enforceable statements; avoid ambiguity.
+10. Validate against guardrails.
+   - Ensure no invented policies or hidden coupling.
 
-## Master Workflow (Decision-Grade)
-
-1. Clarify mission and non-negotiables.
-   - Primary outcomes, risks, and what must never change.
-2. Map authority and boundaries.
-   - Define scope boundaries and decision approvals without emphasizing permission flags.
-3. Lock the execution contract.
-   - Output format, confirmation gates, and mandatory checklists.
-4. Define scope and exclusion zones.
-   - Allowed directories and immutable areas.
-5. Encode quality bars and evidence.
-   - Required tests, verification notes, and rollback criteria.
-6. Add decision and accountability rules.
-   - Where decisions are logged and who approves.
-7. Integrate product and project standards.
-   - Goals, success metrics, scope, milestones, acceptance criteria, and risks.
-8. Identify domain philosophies.
-   - Determine relevant domains (engineering, frontend, backend, data, science, medical, algorithmic, security).
-   - Include master-level philosophy sections for each relevant domain.
-9. Draft the AGENTS.md with measurable rules and golden rules.
-   - Use short, enforceable statements.
-
-## Required Inputs (Minimal)
+## Required Inputs
 
 - Project name and one-sentence purpose
 - Tech stack and key directories
+- Allowed vs forbidden directories
+- Approval model for code/config changes
+- Decision and risk log location
 
-## Defaults (Use Unless User Specifies)
+## Required Inputs Missing
 
-- Scope boundaries: permissive by default; allow doc/spec/code/config changes unless explicitly restricted.
+- List any missing items before drafting AGENTS.md
+- Ask concise questions to fill gaps
+
+## Defaults (Use Only If User Confirms)
+
 - High-risk areas: deployment configs, production data paths, CI/CD, auth, billing.
 - Strictly forbidden: secrets/keys/PII and irreversible history changes.
-- Proof before “done”: note tests run, or state “not run” with reason.
+- Proof before "done": note tests run, or state "not run" with reason.
 - Decisions/risks log: project root docs or `agent-collab/coordination/` if present.
-- Release/safety: avoid breaking changes; require rollback notes if risk is high.
 - Collaboration mode: single-agent unless explicitly enabled.
-- Domain philosophies: default to strict thinking; enumerate options, choose the relevant domains, and justify omissions.
+- Domain philosophies: enumerate options, choose relevant domains, justify omissions.
 - Language: English, ASCII unless the project already uses another language.
 
 ## Master Checklist (Must Answer)
 
-- What is the highest-risk failure mode?
-- Which files are strictly forbidden to change?
-- What approvals are required for code or config?
-- What proof is required before declaring "done"?
-- Where are decisions and risks recorded?
+- Highest-risk failure mode
+- Strictly forbidden files or directories
+- Required approvals for code or config
+- Proof required before declaring "done"
+- Decision and risk log location
 
 ## Output Format
 
@@ -95,11 +80,171 @@ description: Create a project-level AGENTS.md with master-grade constraints, bou
 
 - Do not invent project policies or infrastructure.
 - Keep rules short, enforceable, and measurable.
-```
+- Avoid cross-module coupling unless explicitly approved.
+- No secrets, tokens, or PII.
+
+## Iteration Loop (Required)
+
+- Run acceptance review using `references/acceptance-criteria.md` and record pass/fail evidence.
+- Capture gaps with scope impact and ownership (who resolves and by when).
+- Define a next-iteration checklist that targets the highest-impact gap first.
+- Explicitly name the highest-risk gap and the concrete verification step to close it.
+
+## Reinforcement Plan (Required)
+
+Goals
+
+Reduce recurring failures by turning them into explicit, testable guardrails.
+
+Improve success rate by promoting consistently high-performing workflows into defaults.
+
+Maintain quality by retiring or demoting patterns that repeatedly fail validation.
+
+Operating Rules
+
+Reinforcement runs in a repeatable four-step loop.
+
+Changes must be localized, reversible, and auditable (small diffs, clear rationale).
+
+Every loop produces artifacts: a plan note, a change log, a verification record, and a reflection entry.
+
+Audit baseline
+
+Each reinforcement round must produce:
+- A Git commit that contains only that round's changes.
+- An audit record in `references/reinforcement-audit.jsonl`.
+- Validate the record with `scripts/validate_reinforcement_audit.py`.
+
+Four-step Reinforcement Cycle
+1) Plan (Objective + Scope)
+
+Objective
+
+State the user outcome in one sentence (e.g., "Reduce policy violations in AGENTS.md generation.").
+
+Define measurable acceptance criteria:
+
+e.g., "Pass rate >= 95% on last 50 runs," "0 critical policy violations," "avg. retries <= 1."
+
+Scope
+
+List what is in-scope (files, modules, prompts, edge cases).
+
+List explicit out-of-scope boundaries to prevent cross-cutting changes:
+
+e.g., "No changes to unrelated skills," "No behavior change outside AGENTS.md flow," "No new dependencies."
+
+Inputs
+
+Include the evidence you are responding to:
+
+Failure examples (IDs or links), frequency, severity, and failure taxonomy label.
+
+Exit Condition
+
+Define when you stop planning and move to change (e.g., "Top 1-2 failure modes identified + proposed guardrails drafted.")
+
+2) Change (Apply Edits)
+
+Edit Principles
+
+Prefer clarity over cleverness.
+
+Keep changes small and isolated (one failure mode per change set when possible).
+
+Make edits auditable:
+
+Add a short "Why" comment or changelog entry.
+
+Use consistent naming for guardrails and workflows (e.g., GR-###, WF-###).
+
+Outputs
+
+Patch or diff summary:
+
+What changed
+
+Where changed
+
+Which failure mode it targets
+
+Expected behavior shift (before or after)
+
+Rollback
+
+Define how to revert (feature flag, revert commit, config toggle).
+
+3) Verify (Checks + Evidence)
+
+Verification Steps (must be reproducible)
+
+Unit checks (logic-level)
+
+Integration checks (tooling-level)
+
+Regression checks (previously passing cases)
+
+Negative tests (ensure boundaries are respected)
+
+Evidence (recorded)
+
+Test run IDs or log excerpts or screenshots as applicable
+
+Metrics snapshot:
+
+pass or fail counts
+
+top remaining failure categories
+
+any new failure introduced
+
+Decision Rule
+
+Promote or hold or rollback based on acceptance criteria:
+
+Promote if criteria met
+
+Hold if partial (define what is missing)
+
+Rollback if any critical regressions or policy or validation failures
+
+4) Reflect (Improvements + Next Adjustments)
+
+What improved
+
+Which failure modes dropped, by how much (numbers, not vibes).
+
+What guardrail or workflow proved effective.
+
+Risks and Tradeoffs
+
+Any new complexity, false positives, coverage gaps.
+
+Next highest-impact refinement
+
+One prioritized next action:
+
+e.g., "Add targeted test set for X edge case," "Split WF into two variants," "Demote pattern Y."
+
+Outcome
+
+Update the reinforcement backlog with the reflection outcome.
+
+## Step Gate (Required)
+
+After each of the four steps (Plan, Change, Verify, Reflect), prompt: "continue?"
+
+Do not proceed to the next step until explicit confirmation: continue.
+
+While awaiting confirmation, do not apply further edits, run additional checks, or advance the loop.
+
+If the operator replies with anything other than continue, keep the loop at the current step and re-prompt "continue?" without advancing.
+
+Confirmation token: `continue`.
 
 ## Domain Philosophy Guidance
 
-Select only domains that materially apply to the project, and include the following:
+Select only domains that materially apply to the project, and include the prompts below.
 
 ## Domain Identification Prompts
 
@@ -108,27 +253,6 @@ Select only domains that materially apply to the project, and include the follow
 - What evidence is required to trust decisions in that domain?
 - What constraints are non-negotiable?
 
-## Domain Philosophy Guidance
-
-Select only domains that materially apply to the project, and include the following:
-
-## Domain Identification Prompts
-
-- What domains materially shape success or risk in this project?
-- What is the highest cost of failure in each domain?
-- What evidence is required to trust decisions in that domain?
-- What constraints are non-negotiable?
-
-## Domain Philosophy Guidance
-
-Select only domains that materially apply to the project, and include the following:
-
-## Domain Identification Prompts
-
-- What domains materially shape success or risk in this project?
-- What is the highest cost of failure in each domain?
-- What evidence is required to trust decisions in that domain?
-- What constraints are non-negotiable?
 ## Standard Philosophy Template (Per Domain)
 
 - **Goal**: What success means in this domain.
