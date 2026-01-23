@@ -49,6 +49,7 @@ single-use task scripts.
 5. Design the package structure.
    - Keep SKILL.md lean; move detailed references into `references/`.
    - Add `assets/` only when reusable templates are required.
+   - If you mandate a validation script, add it in `scripts/` or reference an existing one.
 6. Draft SKILL.md with explicit triggers and workflow.
    - Use clear frontmatter and imperative steps.
 7. Provide defaults and guardrails.
@@ -98,6 +99,7 @@ Each reinforcement round must produce:
 - A Git commit that contains only that round's changes.
 - An audit record in `references/reinforcement-audit.jsonl`.
 - Validate the record with `scripts/validate_reinforcement_audit.py`.
+  - If you require this script, you must create it or explicitly reference an existing script.
 
 Four-step Reinforcement Cycle
 1) Plan (Objective + Scope)
