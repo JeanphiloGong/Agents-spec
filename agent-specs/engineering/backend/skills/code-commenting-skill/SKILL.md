@@ -34,6 +34,58 @@ description: Add master-level code comments for backend code; use when asked to 
 - Record security and privacy implications explicitly.
 - Use TODO only with ownership or decision context.
 
+## Recommended Comment Template (Standard)
+
+Use the standard form by default:
+
+```
+Purpose: <what this block/function is for>
+Why: <why this design or behavior exists>
+Tradeoff: <what is sacrificed or constrained>
+```
+
+## Comment Types and Templates
+
+### File-Level
+```
+Purpose: <module responsibility>
+Why: <why this module exists>
+Tradeoff: <constraints or boundaries>
+```
+
+### Class/Struct-Level
+```
+Purpose: <what this type models or manages>
+Why: <why this type encapsulates the behavior>
+Tradeoff: <limitations or chosen constraints>
+```
+
+### Function/Method-Level
+```
+Purpose: <what the function does>
+Why: <why this approach is used>
+Tradeoff: <what is sacrificed or constrained>
+```
+
+### Inline/Block-Level
+```
+Why: <why this line/block exists>
+Tradeoff: <what is accepted as a cost>
+```
+
+## Examples
+
+```
+// Purpose: Normalize filters to a canonical shape for ranking.
+// Why: Ranking assumes normalized input; inconsistent input causes silent misordering.
+// Tradeoff: Legacy inputs may be rejected to preserve correctness.
+```
+```
+// Purpose: Cache lookup with bounded staleness to protect the database.
+// Why: p95 latency is dominated by DB reads; staleness is acceptable here.
+// Tradeoff: Users may see slightly outdated data under load.
+```
+
 ## Required Inputs
 
 - Target language and framework
