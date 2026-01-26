@@ -18,11 +18,13 @@ description: Add master-level code comments for backend code; use when asked to 
    - Identify language, module, and the intended audience.
 2. Identify intent and decisions.
    - Find non-obvious rationale, tradeoffs, and invariants.
-3. Apply minimal, high-signal comments.
+3. Bias for newcomer clarity.
+   - Treat collaborators as newcomers; prioritize business intent at decision boundaries.
+4. Apply minimal, high-signal comments.
    - Avoid duplicating the code; emphasize why and risks.
-4. Standardize style.
+5. Standardize style.
    - Use consistent tense and comment placement.
-5. Verify no behavior change.
+6. Verify no behavior change.
    - Comment-only edits unless WRITE_CODE is granted.
 
 ## Commenting Standards (Master Level)
@@ -33,6 +35,27 @@ description: Add master-level code comments for backend code; use when asked to 
 - Note performance/latency tradeoffs with context.
 - Record security and privacy implications explicitly.
 - Use TODO only with ownership or decision context.
+- Use inline comments only when intent is not obvious from names or structure.
+
+## Business Intent Emphasis
+
+- Write comments that explain why a business rule exists or why a log/decision is emitted.
+- Avoid re-stating control flow; focus on intent, constraints, and downstream impact.
+- Keep comments stable and updated; remove if the intent no longer applies.
+
+Example:
+
+```
+// Why: Emit once so downstream retries can dedupe and avoid double-charging.
+log.warning("payment retry scheduled", order_id=oid, attempt=attempt)
+```
+
+Anti-example:
+
+```
+// Log a warning with order_id and attempt.
+log.warning("payment retry scheduled", order_id=oid, attempt=attempt)
+```
 
 ## Recommended Comment Template (Standard)
 
