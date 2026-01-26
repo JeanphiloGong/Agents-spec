@@ -43,13 +43,17 @@ description: Create standard, high-quality git commit messages and commit plans;
 
 Common types:
 - feat: new feature
-- fix: bug fix
-- bugfix: bug fix
-- hotfix: urgent fix
+- bugfix: bug fix (non-urgent; normal release cadence)
+- hotfix: urgent fix (production-impacting, expedited release)
 - docs: documentation
 - refactor: refactor without behavior change
 - test: add or update tests
 - chore: tooling or maintenance
+
+Selection rules:
+- Use bugfix for defects that can ship in the next normal release.
+- Use hotfix for production-impacting issues that require an expedited release.
+- If unsure, default to bugfix and note urgency in the Impact section.
 
 All commits must use the master template below with full Why/What/Impact/Tests/Refs sections.
 
@@ -74,7 +78,7 @@ Refs:
 - ISSUE-1423
 ```
 ```
-fix(auth): handle expired refresh tokens
+bugfix(auth): handle expired refresh tokens
 
 Why:
 - Sessions were failing silently after token expiry.
@@ -124,7 +128,7 @@ Tests:
 - unit: search_filter_spec
 ```
 ```
-fix(payments): handle timeout retries
+hotfix(payments): handle timeout retries
 
 Why:
 - External gateway timed out in peak hours.
