@@ -59,41 +59,41 @@ log.warning("payment retry scheduled", order_id=oid, attempt=attempt)
 
 ## Recommended Comment Template (Standard)
 
-Use the standard form by default:
+Use this structure when helpful. By default, do not add literal prefixes; only add them when explicitly required.
 
 ```
-Purpose: <what this block/function is for>
-Why: <why this design or behavior exists>
-Tradeoff: <what is sacrificed or constrained>
+<purpose> <what this block/function is for>
+<why> <why this design or behavior exists>
+<tradeoff> <what is sacrificed or constrained>
 ```
 
 ## Comment Types and Templates
 
 ### File-Level
 ```
-Purpose: <module responsibility>
-Why: <why this module exists>
-Tradeoff: <constraints or boundaries>
+<purpose> <module responsibility>
+<why> <why this module exists>
+<tradeoff> <constraints or boundaries>
 ```
 
 ### Class/Struct-Level
 ```
-Purpose: <what this type models or manages>
-Why: <why this type encapsulates the behavior>
-Tradeoff: <limitations or chosen constraints>
+<purpose> <what this type models or manages>
+<why> <why this type encapsulates the behavior>
+<tradeoff> <limitations or chosen constraints>
 ```
 
 ### Function/Method-Level
 ```
-Purpose: <what the function does>
-Why: <why this approach is used>
-Tradeoff: <what is sacrificed or constrained>
+<purpose> <what the function does>
+<why> <why this approach is used>
+<tradeoff> <what is sacrificed or constrained>
 ```
 
 ### Inline/Block-Level
 ```
-Why: <why this line/block exists>
-Tradeoff: <what is accepted as a cost>
+<why> <why this line/block exists>
+<tradeoff> <what is accepted as a cost>
 ```
 
 ## Examples
