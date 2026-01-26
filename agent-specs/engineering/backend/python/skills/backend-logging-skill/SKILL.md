@@ -14,12 +14,13 @@ description: Define and improve Python backend logging standards; use when desig
 
 1. Confirm framework and logging stack (stdlib logging, structlog).
 2. Define a unified config with handlers and formatters.
-3. Enforce schema fields for every log entry.
-4. Inject request/trace IDs via middleware/contextvars.
-5. Define exception logging and stack handling.
-6. Validate sampling, log size, and redaction.
-7. Run verification hooks and record evidence.
-8. Complete reinforcement checkpoints before finishing.
+3. Align log statements with business intent (prioritize newcomer clarity; add brief comments when intent is not obvious).
+4. Enforce schema fields for every log entry.
+5. Inject request/trace IDs via middleware/contextvars.
+6. Define exception logging and stack handling.
+7. Validate sampling, log size, and redaction.
+8. Run verification hooks and record evidence.
+9. Complete reinforcement checkpoints before finishing.
 
 ## Required Fields
 
@@ -68,6 +69,28 @@ Example:
 
 ```
 "[svc.content_process] 目录节点加载完成 请求id=%s 节点题目=%s 选择的内容=%s"
+```
+
+## Commenting Guidance (Business Logic)
+
+- Treat collaborators as newcomers; bias toward clarity of business intent at log points.
+- Prefer clear naming over comments; add comments only when intent is not obvious from the code.
+- Use short, intent-focused comments near boundary decisions (e.g., compliance gates, risk checks).
+- Avoid narrating control flow; explain why a rule exists or why a log is emitted.
+- Keep comments stable: update when logic changes or remove if stale.
+
+Example:
+
+```
+# Emit once: downstream retry logic relies on this marker.
+log.warning("payment retry scheduled", order_id=oid, attempt=attempt)
+```
+
+Anti-example:
+
+```
+# Log a warning with order_id and attempt.
+log.warning("payment retry scheduled", order_id=oid, attempt=attempt)
 ```
 
 ## Output Format
