@@ -41,6 +41,37 @@ description: Create standard, high-quality git commit messages and commit plans;
 <footer>
 ```
 
+## Subject Rules (by Type)
+
+Use concise, intent-first subjects. Prefer outcome + scope over implementation detail.
+
+- feat: deliver a user-visible capability.
+  - Pattern: `add <capability>` / `enable <capability>` / `support <capability>`
+  - Example: `feat(search): add date range filters`
+- bugfix: fix a specific defect with a clear cause or symptom.
+  - Pattern: `fix <symptom> caused by <root>` / `prevent <failure>` / `resolve <incorrect behavior>`
+  - Example: `bugfix(auth): fix token refresh failures caused by clock drift`
+- hotfix: urgent production-impacting fix; state impact.
+  - Pattern: `fix <prod impact>` / `restore <critical path>`
+  - Example: `hotfix(payments): restore checkout after gateway timeouts`
+- docs: update a defined documentation scope.
+  - Pattern: `update <doc area>` / `clarify <doc area>` / `add <doc section>`
+  - Example: `docs(onboarding): clarify required env vars`
+- refactor: restructure without behavior change; name the area.
+  - Pattern: `refactor <module/flow>` / `simplify <component>`
+  - Example: `refactor(api): simplify request validation pipeline`
+- test: add or adjust tests; name the coverage area.
+  - Pattern: `add tests for <area>` / `expand <area> coverage`
+  - Example: `test(search): add coverage for filter edge cases`
+- chore: maintenance tasks (tooling/config/deps); be specific.
+  - Pattern: `update <tool/config>` / `bump <dependency>`
+  - Example: `chore(ci): update build cache settings`
+
+Subject guardrails:
+- Avoid vague verbs (e.g., "update stuff", "misc").
+- Prefer measurable scope over internal implementation details.
+- Keep under 50 characters when possible; trim adjectives first.
+
 Common types:
 - feat: new feature
 - bugfix: bug fix (non-urgent; normal release cadence)
@@ -59,7 +90,7 @@ All commits must use the master template below with full Why/What/Impact/Tests/R
 
 Examples (full format):
 ```
-feat(search): add query filters
+feat(search): add date range filters
 
 Why:
 - Users need to narrow results by date and status.
@@ -78,7 +109,7 @@ Refs:
 - ISSUE-1423
 ```
 ```
-bugfix(auth): handle expired refresh tokens
+bugfix(auth): fix refresh failures caused by token expiry
 
 Why:
 - Sessions were failing silently after token expiry.
@@ -97,7 +128,7 @@ Refs:
 - AUTH-221
 ```
 ```
-docs: update onboarding steps
+docs(onboarding): clarify setup prerequisites
 
 Why:
 - New environment variables were added and not documented.
@@ -116,7 +147,7 @@ Refs:
 - DOCS-45
 ```
 ```
-feat(search): add query filters
+feat(search): add date range filters
 
 Why:
 - Users need to narrow results by date and status.
@@ -128,7 +159,7 @@ Tests:
 - unit: search_filter_spec
 ```
 ```
-hotfix(payments): handle timeout retries
+hotfix(payments): restore checkout after gateway timeouts
 
 Why:
 - External gateway timed out in peak hours.
