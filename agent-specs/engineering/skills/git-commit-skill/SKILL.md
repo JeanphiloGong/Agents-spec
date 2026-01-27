@@ -47,25 +47,32 @@ Use concise, intent-first subjects. Prefer outcome + scope over implementation d
 
 - feat: deliver a user-visible capability.
   - Pattern: `add <capability>` / `enable <capability>` / `support <capability>`
-  - Example: `feat(search): add date range filters`
+  - Example (EN): `feat(search): add date range filters`
+  - Example (ZH): `feat(search): 新增日期范围筛选功能`
 - bugfix: fix a specific defect with a clear cause or symptom.
   - Pattern: `fix <symptom> caused by <root>` / `prevent <failure>` / `resolve <incorrect behavior>`
-  - Example: `bugfix(auth): fix token refresh failures caused by clock drift`
+  - Example (EN): `bugfix(auth): fix token refresh failures caused by clock drift`
+  - Example (ZH): `bugfix(auth): 修复时钟漂移导致的刷新失败`
 - hotfix: urgent production-impacting fix; state impact.
   - Pattern: `fix <prod impact>` / `restore <critical path>`
-  - Example: `hotfix(payments): restore checkout after gateway timeouts`
+  - Example (EN): `hotfix(payments): restore checkout after gateway timeouts`
+  - Example (ZH): `hotfix(payments): 修复网关超时导致的结算失败`
 - docs: update a defined documentation scope.
   - Pattern: `update <doc area>` / `clarify <doc area>` / `add <doc section>`
-  - Example: `docs(onboarding): clarify required env vars`
+  - Example (EN): `docs(onboarding): clarify required env vars`
+  - Example (ZH): `docs(onboarding): 补充环境变量说明`
 - refactor: restructure without behavior change; name the area.
   - Pattern: `refactor <module/flow>` / `simplify <component>`
-  - Example: `refactor(api): simplify request validation pipeline`
+  - Example (EN): `refactor(api): simplify request validation pipeline`
+  - Example (ZH): `refactor(api): 简化请求参数校验流程`
 - test: add or adjust tests; name the coverage area.
   - Pattern: `add tests for <area>` / `expand <area> coverage`
-  - Example: `test(search): add coverage for filter edge cases`
+  - Example (EN): `test(search): add coverage for filter edge cases`
+  - Example (ZH): `test(search): 增加过滤边界场景测试`
 - chore: maintenance tasks (tooling/config/deps); be specific.
   - Pattern: `update <tool/config>` / `bump <dependency>`
-  - Example: `chore(ci): update build cache settings`
+  - Example (EN): `chore(ci): update build cache settings`
+  - Example (ZH): `chore(ci): 更新构建缓存配置`
 
 Subject guardrails:
 - Avoid vague verbs (e.g., "update stuff", "misc").
