@@ -75,6 +75,8 @@ Use concise, intent-first subjects. Prefer outcome + scope over implementation d
   - Example (ZH): `chore(ci): 更新构建缓存配置`
 
 Subject guardrails:
+- One sentence must explain exactly what changed, in context.
+- Include the affected capability or failure and the scope (module/feature) implied by the type/scope.
 - Avoid vague verbs (e.g., "update stuff", "misc").
 - Prefer measurable scope over internal implementation details.
 - Keep under 50 characters when possible; trim adjectives first.
