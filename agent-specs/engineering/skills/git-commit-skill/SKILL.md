@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.12.4 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.5 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -24,6 +24,9 @@ description: v0.12.4 - Create standard, high-quality git commit messages and com
    - Separate logically independent changes.
 4. Draft commit messages.
    - Use Conventional Commits unless another standard is specified.
+5. Apply the subject blueprint and checklist.
+   - Use the master subject blueprint and type-specific pattern.
+   - Verify the subject checklist passes before finalizing.
 5. Add validation notes.
    - Include relevant tests or verification steps if provided.
 6. Staging policy.
