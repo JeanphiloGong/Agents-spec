@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.12.9 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.10 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -233,24 +233,35 @@ Refs:
 
 ## Master Commit Template
 
+Why / What / Impact / Refs philosophy (must follow):
+- Why: necessity evidence (trigger signal + affected users/system + cost of not acting).
+- What: verifiable end-state outcomes (not implementation steps).
+- Impact: external consequences (user-visible behavior, compatibility, migration/rollback needs, risk level).
+- Refs: traceability chain (issue/spec/incident/PR); use `n/a` only if none exist.
+- Minimum bar: a reviewer can decide ship/hold/rollback from Why/What/Impact alone.
+
 ```
 <type>(optional-scope): <subject>
 
 Why:
-- <user or system problem being solved>
+- Trigger: <signal that forced the change>
+- Affected: <who/what is impacted>
+- Cost: <what happens if we do nothing>
 
 What:
-- <key change 1>
-- <key change 2>
+- <verifiable end-state change 1>
+- <verifiable end-state change 2>
 
 Impact:
-- <behavior impact, compatibility, or migration notes>
+- Behavior: <user-visible change or "no user-visible change">
+- Compatibility: <breaking/compatible, migrations>
+- Risk/Rollback: <risk level + rollback need>
 
 Tests:
 - <tests run, or "not run" with reason>
 
 Refs:
-- <issue/ticket/PR>
+- <issue/spec/incident/PR or n/a>
 ```
 
 ## Mandatory Format Rule
