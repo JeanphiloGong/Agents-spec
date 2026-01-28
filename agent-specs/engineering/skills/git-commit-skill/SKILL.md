@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.12.7 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.9 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -57,20 +57,21 @@ Subject output template (required):
 ```
 
 Master subject blueprint (one sentence, fill slots in order):
-- EN: `<action> <object> to <goal>, because <subject> <verb> causing <impact> (in <context>)`
-- ZH: `为<目标><动作><对象>，因为<主体><动作>导致<影响>（在<上下文>）`
+- EN: `<action> <object> to <goal>, because <subject> <verb> causing <impact>`
+- ZH: `为<目标><动作><对象>，因为<主体><动作>导致<影响>`
 
 Slot guidance:
 - action: add / fix / restore / clarify / refactor / test / update
 - object: capability, defect, doc area, module, tests, config/dependency
 - goal: measurable outcome (accuracy, stability, coverage, clarity)
 - cause/signal: why now; must be a full clause with impact target or measurable effect (subject + verb + impact)
-- context: user group, path, environment, or scope if not already in prefix
+Note: do not add context in the subject. Put context details in the Impact section instead.
 
 Subject checklist (required):
 - One sentence that states what changed + why (goal and cause when known).
 - Includes the affected capability or failure and the scope implied by type/scope.
 - If the root cause is known, include it explicitly (bugfix/hotfix must include cause).
+- Cause clauses must include an impact target or measurable effect.
 - Uses the type-specific pattern below.
 
 - feat: deliver a user-visible capability.
@@ -126,6 +127,7 @@ Subject guardrails:
 - If you cannot state the cause/goal clearly, clarify the context before writing the subject.
 - Cause clauses must be complete (subject + verb + impact); avoid fragments.
 - Prefer concrete impact targets or measurable effects over adjectives (e.g., "流程耗时增加", "p95 增加", "配置失败").
+- Do not add context clauses in the subject; capture context in the Impact section.
 - Avoid vague verbs (e.g., "update stuff", "misc").
 - Prefer measurable scope over internal implementation details.
 - Keep under 50 characters when possible; trim adjectives first.
