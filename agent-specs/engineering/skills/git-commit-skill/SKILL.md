@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.12.6 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.7 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -29,6 +29,7 @@ description: v0.12.6 - Create standard, high-quality git commit messages and com
    - Verify the subject checklist passes before finalizing.
 5. Add validation notes.
    - Include relevant tests or verification steps if provided.
+   - If tests are not run, use a concrete operational reason (avoid "not requested").
 6. Staging policy.
    - Do not run `git add` by default; the human reviews and stages changes.
    - If AI-authored changes are not staged, remind the user to stage them.
@@ -254,6 +255,16 @@ Refs:
 - Every commit must use the full template with Why/What/Impact/Tests/Refs.
 - Single-line commit messages are not allowed.
 - Prefer file-based commits (e.g., `git commit -F <file>`) to avoid newline escaping/garbling.
+
+## Tests Reason Defaults
+
+Use one of these default reasons when tests are not run:
+- `not run (manual run pending)`
+- `not run (docs-only change)`
+- `not run (config-only change)`
+- `not run (blocked: <reason>)`
+
+Avoid "not requested" as a reason; state the operational reason instead.
 
 ## Golden Rules (Top 10)
 
