@@ -64,7 +64,7 @@ Slot guidance:
 - action: add / fix / restore / clarify / refactor / test / update
 - object: capability, defect, doc area, module, tests, config/dependency
 - goal: measurable outcome (accuracy, stability, coverage, clarity)
-- cause/signal: why now; must be a full clause with impact (subject + verb + impact)
+- cause/signal: why now; must be a full clause with impact target or measurable effect (subject + verb + impact)
 - context: user group, path, environment, or scope if not already in prefix
 
 Subject checklist (required):
@@ -125,6 +125,7 @@ Subject guardrails:
 - Use the required pattern for the type; if the cause/goal is missing, rewrite.
 - If you cannot state the cause/goal clearly, clarify the context before writing the subject.
 - Cause clauses must be complete (subject + verb + impact); avoid fragments.
+- Prefer concrete impact targets or measurable effects over adjectives (e.g., "流程耗时增加", "p95 增加", "配置失败").
 - Avoid vague verbs (e.g., "update stuff", "misc").
 - Prefer measurable scope over internal implementation details.
 - Keep under 50 characters when possible; trim adjectives first.
