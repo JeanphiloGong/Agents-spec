@@ -44,39 +44,48 @@ description: Create standard, high-quality git commit messages and commit plans;
 ## Subject Rules (by Type)
 
 Use concise, intent-first subjects. Prefer outcome + scope over implementation detail.
+Each subject must explain the change in one sentence with clear context.
 
 - feat: deliver a user-visible capability.
-  - Pattern: `add <capability>` / `enable <capability>` / `support <capability>`
+  - Pattern (EN): `add <capability> to <goal>` / `enable <capability> for <goal>`
+  - Pattern (ZH): `为<目标>新增<能力>` / `为<目标>支持<能力>`
   - Example (EN): `feat(search): add date range filters`
-  - Example (ZH): `feat(search): 新增日期范围筛选功能`
+  - Example (ZH): `feat(search): 为结果筛选新增日期范围功能`
 - bugfix: fix a specific defect with a clear cause or symptom.
-  - Pattern: `fix <symptom> caused by <root>` / `prevent <failure>` / `resolve <incorrect behavior>`
-  - Example (EN): `bugfix(auth): fix token refresh failures caused by clock drift`
+  - Pattern (EN): `fix <bug> caused by <cause>` / `fix <symptom> triggered by <cause>`
+  - Pattern (ZH): `修复<原因>导致的<问题>` / `修复<原因>触发的<问题>`
+  - Example (EN): `bugfix(auth): fix refresh failures caused by clock drift`
   - Example (ZH): `bugfix(auth): 修复时钟漂移导致的刷新失败`
 - hotfix: urgent production-impacting fix; state impact.
-  - Pattern: `fix <prod impact>` / `restore <critical path>`
+  - Pattern (EN): `restore <critical path> after <cause>` / `fix <prod impact> caused by <cause>`
+  - Pattern (ZH): `修复<原因>导致的<线上影响>` / `恢复<关键路径>（因<原因>中断）`
   - Example (EN): `hotfix(payments): restore checkout after gateway timeouts`
   - Example (ZH): `hotfix(payments): 修复网关超时导致的结算失败`
 - docs: update a defined documentation scope.
-  - Pattern: `update <doc area>` / `clarify <doc area>` / `add <doc section>`
-  - Example (EN): `docs(onboarding): clarify required env vars`
-  - Example (ZH): `docs(onboarding): 补充环境变量说明`
+  - Pattern (EN): `clarify <doc area> for <audience>` / `add <doc section> for <goal>`
+  - Pattern (ZH): `为<目标/受众>补充<文档范围>` / `为<目标>明确<文档范围>`
+  - Example (EN): `docs(onboarding): clarify required env vars for new devs`
+  - Example (ZH): `docs(onboarding): 为新同事补充环境变量说明`
 - refactor: restructure without behavior change; name the area.
-  - Pattern: `refactor <module/flow>` / `simplify <component>`
-  - Example (EN): `refactor(api): simplify request validation pipeline`
-  - Example (ZH): `refactor(api): 简化请求参数校验流程`
+  - Pattern (EN): `refactor <module/flow> to <goal>` / `simplify <component> for <goal>`
+  - Pattern (ZH): `为<目标>重构<模块/流程>` / `为<目标>简化<组件>`
+  - Example (EN): `refactor(api): simplify request validation pipeline for clarity`
+  - Example (ZH): `refactor(api): 为提升可读性简化请求校验流程`
 - test: add or adjust tests; name the coverage area.
-  - Pattern: `add tests for <area>` / `expand <area> coverage`
-  - Example (EN): `test(search): add coverage for filter edge cases`
-  - Example (ZH): `test(search): 增加过滤边界场景测试`
+  - Pattern (EN): `add tests for <area> to cover <risk>` / `expand <area> coverage for <case>`
+  - Pattern (ZH): `为<风险/场景>补充<范围>测试` / `扩展<范围>覆盖以验证<场景>`
+  - Example (EN): `test(search): add tests for filter edge cases`
+  - Example (ZH): `test(search): 为过滤边界场景补充测试`
 - chore: maintenance tasks (tooling/config/deps); be specific.
-  - Pattern: `update <tool/config>` / `bump <dependency>`
-  - Example (EN): `chore(ci): update build cache settings`
-  - Example (ZH): `chore(ci): 更新构建缓存配置`
+  - Pattern (EN): `update <tool/config> for <goal>` / `bump <dependency> to <version>`
+  - Pattern (ZH): `为<目标>更新<工具/配置>` / `升级<依赖>至<版本>`
+  - Example (EN): `chore(ci): update build cache settings for stability`
+  - Example (ZH): `chore(ci): 为稳定性更新构建缓存配置`
 
 Subject guardrails:
 - One sentence must explain exactly what changed, in context.
 - Include the affected capability or failure and the scope (module/feature) implied by the type/scope.
+- If you cannot state the cause/goal clearly, clarify the context before writing the subject.
 - Avoid vague verbs (e.g., "update stuff", "misc").
 - Prefer measurable scope over internal implementation details.
 - Keep under 50 characters when possible; trim adjectives first.
