@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.12.5 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.6 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -56,14 +56,14 @@ Subject output template (required):
 ```
 
 Master subject blueprint (one sentence, fill slots in order):
-- EN: `<action> <object> to <goal>, because <cause>/<signal> (in <context>)`
-- ZH: `为<目标><动作><对象>，因<原因/信号>（在<上下文>）`
+- EN: `<action> <object> to <goal>, because <subject> <verb> causing <impact> (in <context>)`
+- ZH: `为<目标><动作><对象>，因为<主体><动作>导致<影响>（在<上下文>）`
 
 Slot guidance:
 - action: add / fix / restore / clarify / refactor / test / update
 - object: capability, defect, doc area, module, tests, config/dependency
 - goal: measurable outcome (accuracy, stability, coverage, clarity)
-- cause/signal: why now (bug root cause, incident, regression, feedback)
+- cause/signal: why now; must be a full clause with impact (subject + verb + impact)
 - context: user group, path, environment, or scope if not already in prefix
 
 Subject checklist (required):
@@ -74,11 +74,11 @@ Subject checklist (required):
 
 - feat: deliver a user-visible capability.
   - Required (EN): `add <capability> for <goal>` / `enable <capability> for <goal>`
-  - Optional cause (EN): append `because <cause>/<signal>`
+  - Optional cause (EN): append `because <subject> <verb> causing <impact>`
   - Required (ZH): `为<目标>新增<能力>` / `为<目标>支持<能力>`
-  - Optional cause (ZH): append `因<原因/信号>`
-  - Example (EN): `feat(search): add date range filters for accuracy after feedback`
-  - Example (ZH): `feat(search): 为提升搜索准确性新增日期范围筛选，因用户反馈`
+  - Optional cause (ZH): append `因为<主体><动作>导致<影响>`
+  - Example (EN): `feat(search): add date range filters for accuracy because users reported misses`
+  - Example (ZH): `feat(search): 为提升搜索准确性新增日期范围筛选，因为用户反馈结果遗漏`
 - bugfix: fix a specific defect with a clear cause or symptom.
   - Required (EN): `fix <cause> causing <bug>` / `fix <cause> triggering <symptom>`
   - Required (ZH): `修复<原因>导致的<问题>` / `修复<原因>触发的<问题>`
@@ -91,38 +91,39 @@ Subject checklist (required):
   - Example (ZH): `hotfix(payments): 修复网关超时导致的结算失败`
 - docs: update a defined documentation scope.
   - Required (EN): `clarify <doc area> for <audience>` / `add <doc section> for <goal>`
-  - Optional cause (EN): append `because <cause>/<signal>`
+  - Optional cause (EN): append `because <subject> <verb> causing <impact>`
   - Required (ZH): `为<目标/受众>补充<文档范围>` / `为<目标>明确<文档范围>`
-  - Optional cause (ZH): append `因<原因/信号>`
-  - Example (EN): `docs(onboarding): clarify required env vars after config changes`
-  - Example (ZH): `docs(onboarding): 为新同事补充环境变量说明，因配置变更`
+  - Optional cause (ZH): append `因为<主体><动作>导致<影响>`
+  - Example (EN): `docs(onboarding): clarify required env vars because config changes broke setup`
+  - Example (ZH): `docs(onboarding): 为新同事补充环境变量说明，因为配置变更导致配置失败`
 - refactor: restructure without behavior change; name the area.
   - Required (EN): `refactor <module/flow> to <goal>` / `simplify <component> for <goal>`
-  - Optional cause (EN): append `because <cause>/<signal>`
+  - Optional cause (EN): append `because <subject> <verb> causing <impact>`
   - Required (ZH): `为<目标>重构<模块/流程>` / `为<目标>简化<组件>`
-  - Optional cause (ZH): append `因<原因/信号>`
-  - Example (EN): `refactor(api): simplify validation pipeline for clarity after review`
-  - Example (ZH): `refactor(api): 为提升可读性简化请求校验流程，因评审意见`
+  - Optional cause (ZH): append `因为<主体><动作>导致<影响>`
+  - Example (EN): `refactor(api): simplify validation pipeline for clarity because reviews flagged confusion`
+  - Example (ZH): `refactor(api): 为提升可读性简化请求校验流程，因为评审指出理解困难`
 - test: add or adjust tests; name the coverage area.
   - Required (EN): `add tests for <area> to cover <risk>` / `expand <area> coverage for <case>`
-  - Optional cause (EN): append `because <cause>/<signal>`
+  - Optional cause (EN): append `because <subject> <verb> causing <impact>`
   - Required (ZH): `为<风险/场景>补充<范围>测试` / `扩展<范围>覆盖以验证<场景>`
-  - Optional cause (ZH): append `因<原因/信号>`
-  - Example (EN): `test(search): add tests for filter edge cases after regression`
-  - Example (ZH): `test(search): 为过滤边界场景补充测试，因回归问题`
+  - Optional cause (ZH): append `因为<主体><动作>导致<影响>`
+  - Example (EN): `test(search): add tests for filter edge cases because regressions recurred`
+  - Example (ZH): `test(search): 为过滤边界场景补充测试，因为回归问题反复出现`
 - chore: maintenance tasks (tooling/config/deps); be specific.
   - Required (EN): `update <tool/config> for <goal>` / `bump <dependency> to <version> for <goal>`
-  - Optional cause (EN): append `because <cause>/<signal>`
+  - Optional cause (EN): append `because <subject> <verb> causing <impact>`
   - Required (ZH): `为<目标>更新<工具/配置>` / `升级<依赖>至<版本>以<目标>`
-  - Optional cause (ZH): append `因<原因/信号>`
-  - Example (EN): `chore(ci): update build cache settings for stability after cache misses`
-  - Example (ZH): `chore(ci): 为稳定性更新构建缓存配置，因缓存命中率下降`
+  - Optional cause (ZH): append `因为<主体><动作>导致<影响>`
+  - Example (EN): `chore(ci): update build cache settings for stability because cache misses spiked`
+  - Example (ZH): `chore(ci): 为稳定性更新构建缓存配置，因为缓存命中率下降`
 
 Subject guardrails:
 - One sentence must explain exactly what changed, in context.
 - Include the affected capability or failure and the scope (module/feature) implied by the type/scope.
 - Use the required pattern for the type; if the cause/goal is missing, rewrite.
 - If you cannot state the cause/goal clearly, clarify the context before writing the subject.
+- Cause clauses must be complete (subject + verb + impact); avoid fragments.
 - Avoid vague verbs (e.g., "update stuff", "misc").
 - Prefer measurable scope over internal implementation details.
 - Keep under 50 characters when possible; trim adjectives first.
