@@ -49,7 +49,7 @@ single-use task scripts.
 5. Add versioning to the header description.
    - Prefix `description` with a semantic version (e.g., `v0.1.0 - ...`).
    - If no version exists yet, start at `v0.1.0`.
-   - On every upgrade, bump the patch version by +1.
+   - Bump the patch version by +1 per completed commit that updates the skill (one commit = one version bump).
 6. Design the package structure.
    - Keep SKILL.md lean; move detailed references into `references/`.
    - Add `assets/` only when reusable templates are required.
@@ -199,7 +199,7 @@ Confirmation token: `continue`.
 - Output tone: concise, action-oriented, no fluff.
 - References: add only when details are needed repeatedly.
 - Acceptance: require owner approval for high-risk or public-facing skills.
-- Versioning: prefix `description` with `v<major>.<minor>.<patch> - ...`; start at `v0.1.0` if absent; bump patch on each upgrade.
+- Versioning: prefix `description` with `v<major>.<minor>.<patch> - ...`; start at `v0.1.0` if absent; bump patch once per completed commit that updates the skill.
 
 ## Failure Modes to Avoid
 
