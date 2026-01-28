@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.12.10 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.15 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -231,38 +231,44 @@ Refs:
 - ISSUE-1423
 ```
 
-## Master Commit Template
+## Why / What / Impact / Tests / Refs Philosophy (Required)
 
-Why / What / Impact / Refs philosophy (must follow):
-- Why: necessity evidence (trigger signal + affected users/system + cost of not acting).
-- What: verifiable end-state outcomes (not implementation steps).
-- Impact: external consequences (user-visible behavior, compatibility, migration/rollback needs, risk level).
-- Refs: traceability chain (issue/spec/incident/PR); use `n/a` only if none exist.
-- Minimum bar: a reviewer can decide ship/hold/rollback from Why/What/Impact alone.
+Why：证明必要性，不是写动机
 
-```
-<type>(optional-scope): <subject>
+- 目标不是“我想做”，而是“为什么必须做”。
+- 一句必须包含：触发信号 + 受影响对象 + 代价（时间/风险/损失/阻塞）。
+- 语言像诊断，不像愿望：先事实，再结论。
+- 最低合格：能让陌生人读完立即判断“是否该做”。
 
-Why:
-- Trigger: <signal that forced the change>
-- Affected: <who/what is impacted>
-- Cost: <what happens if we do nothing>
+What：可验证事实，不是过程叙述
 
-What:
-- <verifiable end-state change 1>
-- <verifiable end-state change 2>
+- 描述的是“已改变的现实”，而非“改动过程”。
+- 列出来的每一条都应可被代码/文档/测试直接验证。
+- 刻意排除“手段”与“实现细节”，只保留“最终变更结果”。
+- 最低合格：读完能写出一个 check-list 来复查是否确实做到了。
 
-Impact:
-- Behavior: <user-visible change or "no user-visible change">
-- Compatibility: <breaking/compatible, migrations>
-- Risk/Rollback: <risk level + rollback need>
+Impact：外部世界怎么变，而不是内部系统怎么变
 
-Tests:
-- <tests run, or "not run" with reason>
+- 只讨论用户/接口/运行风险，不谈内部结构。
+- 必须回答三件事：
+  1. 对谁有影响
+  2. 影响什么行为/契约
+  3. 有无风险/迁移/回滚需求
+- 这是“可控性宣言”，让审阅者知道是否安全上线。
 
-Refs:
-- <issue/spec/incident/PR or n/a>
-```
+Refs：可追溯性不是装饰
+
+- 目的是“追溯决策和上下文”，不是附件列表。
+- 允许 n/a，但只有在没有任何外部关联时才成立。
+- 任何高风险变更必须可回溯到 Issue/Spec/Incident/PR 之一。
+
+## Why / What / Impact / Tests / Refs Requirements
+
+- Why: include trigger signal, affected users/system, and the cost of inaction.
+- What: list verifiable end-state outcomes (not implementation steps).
+- Impact: state user-visible behavior, compatibility/migration needs, and risk/rollback.
+- Tests: state what was run or a concrete operational reason for not running.
+- Refs: link to issue/spec/incident/PR; use `n/a` only when none exist.
 
 ## Mandatory Format Rule
 
