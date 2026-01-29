@@ -1,6 +1,6 @@
 ---
 name: backend-logging-skill
-description: v0.1.0 - Define and improve Python backend logging standards; use when designing log formats, levels, fields, correlation, error logging, or when auditing logging quality in Python services.
+description: Define and improve Python backend logging standards; use when designing log formats, levels, fields, correlation, error logging, or when auditing logging quality in Python services.
 ---
 
 # Backend Logging Skill (Python)
@@ -25,7 +25,6 @@ description: v0.1.0 - Define and improve Python backend logging standards; use w
 ## Required Fields
 
 - `timestamp`, `level`, `service`, `env`, `message`
-- `module`, `component`
 - `request_id`, `trace_id`
 - `user_id` (hashed/opaque when applicable)
 - `duration_ms` for requests/jobs
@@ -51,33 +50,26 @@ log.info("request completed",
 )
 ```
 
-## Chinese Log Standard (Module-Aware)
+## Chinese Log Format Standard (Module-Aware)
 
-Use structured fields for module location instead of a message prefix.
+Use a module-aware prefix based on location:
 
-Required fields:
-- `module`: svc / router / controller / domain
-- `component`: logical unit name (e.g., content_process)
+- `svc`: service layer (business services)
+- `router`: routing layer
+- `controller`: controller/handler layer
+- `domain`: domain layer
 
-Message format (no prefix):
-
-```
-<动作描述> 关键字段=%s 关键字段=%s
-```
-
-Example (structured):
+Format:
 
 ```
-log.info("目录节点加载完成",
-  module="svc",
-  component="content_process",
-  request_id=rid,
-  节点题目=title,
-  选择的内容=selection,
-)
+[<module>.<component>] <动作描述> 关键字段=%s 关键字段=%s
 ```
 
-If the system is plain-text only, prefixing is optional, but structured fields are preferred.
+Example:
+
+```
+"[svc.content_process] 目录节点加载完成 请求id=%s 节点题目=%s 选择的内容=%s"
+```
 
 ## Output Format
 
