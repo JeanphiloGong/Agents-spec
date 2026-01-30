@@ -1,6 +1,6 @@
 ---
 name: backend-logging-skill
-description: Define and improve Python backend logging standards; use when designing log formats, levels, fields, correlation, error logging, or when auditing logging quality in Python services.
+description: v0.1.1 - Define and improve Python backend logging standards; use when designing log formats, levels, fields, correlation, error logging, or when auditing logging quality in Python services.
 ---
 
 # Backend Logging Skill (Python)
@@ -19,8 +19,10 @@ description: Define and improve Python backend logging standards; use when desig
 5. Inject request/trace IDs via middleware/contextvars.
 6. Define exception logging and stack handling.
 7. Validate sampling, log size, and redaction.
-8. Run verification hooks and record evidence.
-9. Complete reinforcement checkpoints before finishing.
+8. Run critical-path logging coverage check and decision-coverage metrics.
+9. Run automated master-level logging review and record score/evidence.
+10. Run verification hooks and record evidence.
+11. Complete reinforcement checkpoints before finishing.
 
 ## Required Fields
 
@@ -81,6 +83,8 @@ Example:
 ## Error Logging Rules
 ## Examples
 ## Checklist
+## Coverage Check
+## Automated Master Review
 ## Verification Notes
 ## Reinforcement Mechanism
 ```
@@ -91,6 +95,82 @@ Example:
 - Confirm request/trace IDs are present on entry/exit logs.
 - Confirm redaction rules are stated for secrets/PII.
 - Note what was checked and where (files/services), or state unknowns.
+
+## Coverage Check (Required)
+
+Goal: prevent critical logic from being unlogged.
+
+Steps:
+1. List critical flows (requests, jobs, integrations) and their boundaries.
+2. For each flow, confirm logs exist for start, success, and failure.
+3. Identify decision points (conditionals, retries, fallbacks, state transitions).
+4. Apply decision logging policy (below) and record coverage metrics.
+5. Record missing logs as TODO with owner and target location.
+
+Decision logging policy (明确每个 if 是否需要日志):
+- Not every if needs a log. Only decision points that change external behavior or risk must be logged.
+- MUST log when the branch affects: security/permission, money/cost, data mutation, error handling, retries/backoff, fallbacks, external calls, or user-visible output.
+- SHOULD log when the branch affects: cache hit/miss that changes correctness, rate limits, feature flags, or workflow state transitions.
+- MAY skip logging for internal, low-risk, in-process optimizations if no external effect (but document the skip).
+- For MUST decisions, include fields: `decision`, `decision_outcome`, `decision_reason` (machine-parsable).
+
+Decision coverage metrics (must be reported):
+- Critical flow coverage: 100% of critical flows have entry/success/failure logs.
+- Tier-1 decision coverage: 100% of MUST decisions have a log that records the outcome.
+- Tier-2 decision coverage: >= 90% of SHOULD decisions logged, unless waived with reason.
+- Error-path coverage: 100% of non-2xx responses and raised exceptions have an error log at the boundary.
+
+Coverage checklist template:
+```
+Flow:
+- Entry log:
+- Success log:
+- Failure log:
+- Key decision/state log:
+- Evidence (file/function):
+- Gaps/TODO:
+```
+
+Decision checklist template:
+```
+Decision:
+- Type (MUST/SHOULD/MAY):
+- Branch outcome logged:
+- Required fields present:
+- Evidence (file/function):
+- Waiver reason (if skipped):
+```
+
+## Automated Master Review (Required)
+
+Goal: zero-human, scriptable assessment of master-level logging quality.
+
+Automated evaluation signals (score 0-2 each, must total >= 10 and no 0 in critical items):
+- Clarity (critical): >= 98% of logs have non-empty `message` and match the action-phrase pattern (verb + object).
+- Traceability (critical): 100% of request/response logs include `request_id` and `trace_id`.
+- Decision visibility (critical): 100% of MUST decisions include `decision`, `decision_outcome`, `decision_reason`.
+- Business alignment: >= 80% of decision logs include `impact` or `biz_metric` fields.
+- Signal-to-noise: avg. logs/request <= 50 and duplicate identical messages <= 3 per request (or document a waiver).
+- Actionability: 100% boundary error logs include `error.type`, `error.message`, and `error.action` (or `error.code`) for remediation.
+
+Master pass criteria (automated):
+- Total score >= 10/12.
+- No 0 in Clarity/Traceability/Decision visibility.
+- Coverage metrics meet thresholds defined in Coverage Check.
+
+Automated master review template:
+```
+Score:
+- Clarity:
+- Traceability:
+- Decision visibility:
+- Business alignment:
+- Signal-to-noise:
+- Actionability:
+Pass/Fail:
+Evidence (log examples + locations):
+Gaps/TODO:
+```
 
 ## Reinforcement Mechanism
 
