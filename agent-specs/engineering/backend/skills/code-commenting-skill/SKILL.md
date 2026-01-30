@@ -1,6 +1,6 @@
 ---
 name: code-commenting-master
-description: Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
+description: v0.1.1 - Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
 ---
 
 # Code Commenting Master (Backend)
@@ -36,6 +36,19 @@ description: Add master-level code comments for backend code; use when asked to 
 - Record security and privacy implications explicitly.
 - Use TODO only with ownership or decision context.
 - Use inline comments only when intent is not obvious from names or structure.
+
+## Master-Level Comment Coverage Map (Required)
+
+Comment these when present; list explicit omissions with reasons:
+
+- Decision points: non-obvious branching, policies, heuristics, thresholds.
+- Invariants/contracts: required ordering, idempotency, retry rules, consistency model.
+- Boundaries: external calls, timeouts, retries, fallbacks, error translation.
+- Data handling: PII/secret redaction, retention, masking, access limits.
+- Performance/cost: hot paths, caching, batching, backpressure, budgets.
+- Concurrency: locks, race avoidance, eventual consistency, async ordering.
+- Feature flags/migrations: rollout strategy and rollback risks.
+- Observability: why specific logs/metrics/traces exist.
 
 ## Business Intent Emphasis
 
@@ -96,6 +109,29 @@ Use this structure when helpful. By default, do not add literal prefixes; only a
 <tradeoff> <what is accepted as a cost>
 ```
 
+## Automation Mode (Required for Automatic Evaluation)
+
+When evaluation must be fully automatic, enable Automation Mode and require tags so checks are machine-verifiable.
+
+Tag format (single-line or multi-line comments):
+- `@purpose:` short purpose
+- `@why:` rationale/constraint
+- `@tradeoff:` cost/limitation
+- `@risk:` boundary/edge-case/rollback
+- `@data:` PII/retention/redaction note (if applicable)
+- `@perf:` performance/cost note (if applicable)
+
+Placement rule:
+- Tags must appear within 3 lines above the relevant block/function, or inline on the same block.
+
+If Automation Mode is enabled, tags are mandatory for any item in the Coverage Map that applies.
+
+## Non-Comment Zones (Avoid)
+
+- Obvious control flow or self-explanatory names.
+- Pure data plumbing with no business rules.
+- Comments that repeat variable names or syntax.
+
 ## Examples
 
 ```
@@ -114,6 +150,7 @@ Use this structure when helpful. By default, do not add literal prefixes; only a
 - Target language and framework
 - Commenting target (module/function/class)
 - Audience (team, external, future maintenance)
+- Risk level (low/medium/high) for required coverage depth
 
 ## Output Format
 
@@ -121,6 +158,8 @@ Use this structure when helpful. By default, do not add literal prefixes; only a
 ## Scope
 ## Comment Targets
 ## Proposed Comments
+## Evaluation Method
+## Quality Score
 ## Risks / Open Questions
 ```
 
@@ -129,3 +168,33 @@ Use this structure when helpful. By default, do not add literal prefixes; only a
 - Do not change code behavior.
 - Do not add redundant comments that restate code.
 - Do not invent requirements or behaviors.
+
+## Evaluation Method (Master-Level, Fully Automatic)
+
+1. Build a coverage checklist from the "Coverage Map" for the target area.
+2. Detect applicable items via static cues (AST/regex): branching, retries, timeouts, external calls, locks, cache, PII fields, feature flags.
+3. In Automation Mode, require tagged comments (`@why`, `@risk`, etc.) within the placement rule.
+4. Mark each item as: covered / not applicable / missing (with reason tag `@na:`).
+5. Score quality with the rubric below.
+6. Fail if any critical rule is violated.
+
+Critical fail conditions:
+- Comment contradicts code behavior.
+- Security/PII handling is misleading or missing in sensitive paths.
+- Retry/timeout semantics are unclear at boundaries.
+
+Rubric (0-2 each, total 12):
+- Intent clarity: explains why and constraints, not just what.
+- Correctness: matches code behavior and invariants.
+- Coverage: required items covered or explicitly N/A (>= 90%).
+- Risk/Boundary: external failures, retries, fallbacks documented.
+- Business alignment: domain rules translated to business intent.
+- Maintainability: minimal, stable, non-redundant.
+
+Pass criteria:
+- No critical fails.
+- Average >= 1.5 with no single category at 0.
+
+Evidence format (automatic):
+- Coverage checklist summary (machine-readable).
+- Tag presence report per item.
