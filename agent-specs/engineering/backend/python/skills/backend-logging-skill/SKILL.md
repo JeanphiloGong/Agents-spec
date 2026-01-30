@@ -1,6 +1,6 @@
 ---
 name: backend-logging-skill
-description: v0.1.1 - Define and improve Python backend logging standards; use when designing log formats, levels, fields, correlation, error logging, or when auditing logging quality in Python services.
+description: v0.1.2 - Define and improve Python backend logging standards; use when designing log formats, levels, fields, correlation, error logging, or when auditing logging quality in Python services.
 ---
 
 # Backend Logging Skill (Python)
@@ -35,6 +35,17 @@ description: v0.1.1 - Define and improve Python backend logging standards; use w
 ## Level Mapping (Python)
 
 - DEBUG/INFO/WARNING/ERROR/CRITICAL per `logging` module
+
+## Level Usage Rules (Required)
+
+- INFO: boundary events and outcomes (request/job start & end, external call result, data mutation result).
+- DEBUG: internal details for troubleshooting (branch detail, loop state, intermediate values).
+- WARNING: degraded but continuing (retry, fallback, partial failure, SLA risk).
+- ERROR/CRITICAL: failed boundary outcomes (request failed, job failed, unrecoverable external call).
+
+Rule of thumb:
+- If it helps operations decide "what to do next", it belongs in INFO/WARN/ERROR.
+- If it only helps developers trace code paths, it belongs in DEBUG.
 
 ## Exception Rules
 
@@ -73,6 +84,36 @@ Example:
 "[svc.content_process] 目录节点加载完成 请求id=%s 节点题目=%s 选择的内容=%s"
 ```
 
+## Boundary Logs (Required)
+
+Every request/job must have logs at entry and exit with consistent IDs.
+
+Required boundaries:
+- router/controller: request_received, request_completed (include status, duration_ms).
+- service/domain: operation_start, operation_success, operation_failure.
+- db/repo: query_start, query_success, query_failure (use query_name, avoid raw SQL).
+- external integration: call_start, call_success, call_failure (include provider, status).
+
+Minimum fields at boundaries:
+- `request_id`, `trace_id`, `duration_ms` (where applicable)
+- `status` or `result`
+- `error.*` on failures
+
+## Module Responsibility Matrix
+
+- router/controller:
+  - MUST log: request_received, request_completed.
+  - SHOULD log: request_rejected (auth/validation failures).
+- service/domain:
+  - MUST log: operation_start/success/failure for critical flows.
+  - SHOULD log: key state transitions.
+- db/repo:
+  - MUST log: query_start/success/failure with query_name.
+  - SHOULD log: rows_affected, cache_hit (if affects correctness).
+- integration/adapter:
+  - MUST log: call_start/success/failure with provider + latency.
+  - SHOULD log: retry/backoff decisions.
+
 ## Output Format
 
 ```
@@ -81,6 +122,9 @@ Example:
 ## Logger Setup
 ## Context/Correlation
 ## Error Logging Rules
+## Level Usage Rules
+## Boundary Logs
+## Module Responsibility Matrix
 ## Examples
 ## Checklist
 ## Coverage Check
