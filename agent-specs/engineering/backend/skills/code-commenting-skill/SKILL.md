@@ -1,6 +1,6 @@
 ---
 name: code-commenting-master
-description: v0.1.4 - Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
+description: v0.1.6 - Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
 ---
 
 # Code Commenting Master (Backend)
@@ -40,7 +40,8 @@ description: v0.1.4 - Add master-level code comments for backend code; use when 
 ## Mandatory Comment Rule (Required)
 
 Every function/method must have a comment written in one natural-language sentence.
-No fixed template; the sentence must still cover: function name, why it exists, inputs, and outputs/side effects.
+The sentence must use the function/method name as the grammatical subject, and cover: why it exists, inputs/constraints, and outputs/side effects.
+In Automation Mode, keep the one-sentence summary as the first line; tags may follow on subsequent lines.
 No exceptions unless explicitly approved by the owner.
 
 ## Master-Level Comment Coverage Map (Required)
@@ -96,11 +97,18 @@ Use this structure when helpful. By default, do not add literal prefixes; only a
 ```
 
 ### Class/Struct-Level
-```
-<purpose> <what this type models or manages>
-<why> <why this type encapsulates the behavior>
-<tradeoff> <limitations or chosen constraints>
-```
+Write one natural-language sentence that uses the class/struct name as the grammatical subject and includes:
+- class/struct name
+- responsibility (what it owns/models)
+- why it exists (constraint/tradeoff/why not elsewhere)
+- key dependencies/config it accepts
+- what it provides (capability + side effects if any)
+
+Recommended phrasing (write naturally; order may vary):
+- `<ClassName>` 负责 `<职责>`，因为 `<约束/原因>` 而封装 `<关键行为>`，接收 `<依赖/配置>`，对外提供 `<能力/副作用>`。
+
+Examples (one sentence each):
+- `RetryScheduler` 负责订单重试编排，因为要避免重复扣费而封装重试策略，接收订单ID与上限配置，对外提供下次执行时间并写入重试队列。
 
 ### Function/Method-Level
 Write a single natural-language sentence that includes:
@@ -108,6 +116,13 @@ Write a single natural-language sentence that includes:
 - why it exists / why this behavior is needed
 - what it accepts (key constraints)
 - what it returns or emits (including side effects)
+
+Recommended phrasing (write naturally; order may vary):
+- `<FunctionName>` 因为 `<业务/系统原因>` 而执行 `<关键动作>`，接收 `<关键输入/约束>`，返回/产生 `<关键输出/副作用>`。
+
+Examples (one sentence each):
+- `parse_bid_doc` 因为要统一标书字段结构而解析原始文档，接收文件流与格式约束，返回规范化内容并记录解析失败指标。
+- `schedule_retry` 因为要避免重复扣费而只在失败后触发重试，接收订单ID与重试上限，返回下次执行时间并写入重试队列。
 
 ### Inline/Block-Level
 ```
@@ -131,6 +146,7 @@ Placement rule:
 - Tags must appear within 3 lines above the relevant block/function, or inline on the same block.
 
 If Automation Mode is enabled, tags are mandatory for any item in the Coverage Map that applies.
+Keep a one-sentence summary comment/docstring as the first line for each function/method; tags may follow.
 Use `@na:` only for coverage-map items that truly do not apply (not for the function comment itself).
 
 ## Non-Comment Zones (Avoid)
@@ -178,6 +194,7 @@ Use `@na:` only for coverage-map items that truly do not apply (not for the func
 
 ## Evaluation Method (Master-Level, Fully Automatic)
 
+0. Function summary check: every function/method has a one-sentence summary where the subject is the function name, and it states why, inputs, and outputs/side effects.
 1. Build a coverage checklist from the "Coverage Map" for the target area.
 2. Detect applicable items via static cues (AST/regex): branching, retries, timeouts, external calls, locks, cache, PII fields, feature flags.
 3. In Automation Mode, require tagged comments (`@why`, `@risk`, etc.) within the placement rule.
