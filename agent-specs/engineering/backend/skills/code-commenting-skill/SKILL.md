@@ -1,6 +1,6 @@
 ---
 name: code-commenting-master
-description: v0.1.1 - Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
+description: v0.1.4 - Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
 ---
 
 # Code Commenting Master (Backend)
@@ -36,6 +36,12 @@ description: v0.1.1 - Add master-level code comments for backend code; use when 
 - Record security and privacy implications explicitly.
 - Use TODO only with ownership or decision context.
 - Use inline comments only when intent is not obvious from names or structure.
+
+## Mandatory Comment Rule (Required)
+
+Every function/method must have a comment written in one natural-language sentence.
+No fixed template; the sentence must still cover: function name, why it exists, inputs, and outputs/side effects.
+No exceptions unless explicitly approved by the owner.
 
 ## Master-Level Comment Coverage Map (Required)
 
@@ -97,11 +103,11 @@ Use this structure when helpful. By default, do not add literal prefixes; only a
 ```
 
 ### Function/Method-Level
-```
-<purpose> <what the function does>
-<why> <why this approach is used>
-<tradeoff> <what is sacrificed or constrained>
-```
+Write a single natural-language sentence that includes:
+- function name
+- why it exists / why this behavior is needed
+- what it accepts (key constraints)
+- what it returns or emits (including side effects)
 
 ### Inline/Block-Level
 ```
@@ -125,6 +131,7 @@ Placement rule:
 - Tags must appear within 3 lines above the relevant block/function, or inline on the same block.
 
 If Automation Mode is enabled, tags are mandatory for any item in the Coverage Map that applies.
+Use `@na:` only for coverage-map items that truly do not apply (not for the function comment itself).
 
 ## Non-Comment Zones (Avoid)
 
