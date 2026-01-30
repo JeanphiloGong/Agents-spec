@@ -1,6 +1,6 @@
 ---
 name: code-commenting-master
-description: v0.1.6 - Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
+description: v0.1.7 - Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
 ---
 
 # Code Commenting Master (Backend)
@@ -39,10 +39,23 @@ description: v0.1.6 - Add master-level code comments for backend code; use when 
 
 ## Mandatory Comment Rule (Required)
 
-Every function/method must have a comment written in one natural-language sentence.
-The sentence must use the function/method name as the grammatical subject, and cover: why it exists, inputs/constraints, and outputs/side effects.
+Every function/method must have a one-sentence *line comment* directly above the definition (use the language's line-comment token like `//` or `#`; in Python, do not use a `\"\"\"` docstring for this rule).
+The sentence must use the function/method name as the grammatical subject and start with `<Name> <verb...>` (do not write `<Name> 因为...` as the opening).
+It must cover: why it exists, inputs/constraints, and outputs/side effects.
 In Automation Mode, keep the one-sentence summary as the first line; tags may follow on subsequent lines.
 No exceptions unless explicitly approved by the owner.
+
+Placement examples:
+
+```python
+# parse_bid_doc 解析原始标书文档以统一字段结构，接收文件流与格式约束，返回规范化内容并记录解析失败指标。
+def parse_bid_doc(stream, fmt): ...
+```
+
+```go
+// BindEvidence 将证据绑定到实体以支持可追溯性，接收实体ID与证据ID并要求幂等，返回是否成功并写入绑定表。
+func BindEvidence(entityID, evidenceID string) (bool, error) { ... }
+```
 
 ## Master-Level Comment Coverage Map (Required)
 
@@ -97,6 +110,8 @@ Use this structure when helpful. By default, do not add literal prefixes; only a
 ```
 
 ### Class/Struct-Level
+Place this as a one-sentence line comment directly above the definition (in Python, use `#` above `class`, not a `\"\"\"` docstring).
+
 Write one natural-language sentence that uses the class/struct name as the grammatical subject and includes:
 - class/struct name
 - responsibility (what it owns/models)
@@ -118,11 +133,11 @@ Write a single natural-language sentence that includes:
 - what it returns or emits (including side effects)
 
 Recommended phrasing (write naturally; order may vary):
-- `<FunctionName>` 因为 `<业务/系统原因>` 而执行 `<关键动作>`，接收 `<关键输入/约束>`，返回/产生 `<关键输出/副作用>`。
+- `<FunctionName>` `<动作谓语 + 对象>`（为/以/因为 `<业务/系统原因>`），接收 `<关键输入/约束>`，返回/产生 `<关键输出/副作用>`。
 
 Examples (one sentence each):
-- `parse_bid_doc` 因为要统一标书字段结构而解析原始文档，接收文件流与格式约束，返回规范化内容并记录解析失败指标。
-- `schedule_retry` 因为要避免重复扣费而只在失败后触发重试，接收订单ID与重试上限，返回下次执行时间并写入重试队列。
+- `parse_bid_doc` 解析原始标书文档以统一字段结构，接收文件流与格式约束，返回规范化内容并记录解析失败指标。
+- `schedule_retry` 在失败后安排重试以避免重复扣费，接收订单ID与重试上限，返回下次执行时间并写入重试队列。
 
 ### Inline/Block-Level
 ```
@@ -134,20 +149,24 @@ Examples (one sentence each):
 
 When evaluation must be fully automatic, enable Automation Mode and require tags so checks are machine-verifiable.
 
-Tag format (single-line or multi-line comments):
-- `@purpose:` short purpose
-- `@why:` rationale/constraint
-- `@tradeoff:` cost/limitation
-- `@risk:` boundary/edge-case/rollback
-- `@data:` PII/retention/redaction note (if applicable)
-- `@perf:` performance/cost note (if applicable)
+Tag format (line comments; prefix with the language's line-comment token):
+- `<comment> @purpose:` short purpose
+- `<comment> @why:` rationale/constraint
+- `<comment> @tradeoff:` cost/limitation
+- `<comment> @risk:` boundary/edge-case/rollback
+- `<comment> @data:` PII/retention/redaction note (if applicable)
+- `<comment> @perf:` performance/cost note (if applicable)
+
+Examples:
+- Python: `# @why: ...`
+- Go/JS/TS/Java/C#: `// @why: ...`
 
 Placement rule:
 - Tags must appear within 3 lines above the relevant block/function, or inline on the same block.
 
 If Automation Mode is enabled, tags are mandatory for any item in the Coverage Map that applies.
-Keep a one-sentence summary comment/docstring as the first line for each function/method; tags may follow.
-Use `@na:` only for coverage-map items that truly do not apply (not for the function comment itself).
+Keep a one-sentence summary line comment immediately above each function/method; tags may follow (also as line comments above the definition).
+Use `<comment> @na:` only for coverage-map items that truly do not apply (not for the function comment itself).
 
 ## Non-Comment Zones (Avoid)
 
@@ -194,7 +213,7 @@ Use `@na:` only for coverage-map items that truly do not apply (not for the func
 
 ## Evaluation Method (Master-Level, Fully Automatic)
 
-0. Function summary check: every function/method has a one-sentence summary where the subject is the function name, and it states why, inputs, and outputs/side effects.
+0. Summary check: every function/method has a one-sentence line comment immediately above the definition, where the first token after the comment marker is the function/method name, and the summary does not start with `<Name> 因为...` (must be `<Name> <verb...>`), and it states why, inputs, and outputs/side effects.
 1. Build a coverage checklist from the "Coverage Map" for the target area.
 2. Detect applicable items via static cues (AST/regex): branching, retries, timeouts, external calls, locks, cache, PII fields, feature flags.
 3. In Automation Mode, require tagged comments (`@why`, `@risk`, etc.) within the placement rule.
