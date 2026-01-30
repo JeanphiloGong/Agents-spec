@@ -18,7 +18,7 @@ description: Create a project-level AGENTS.md with master-grade constraints, bou
 5. Encode quality bars and evidence.
    - Required tests, verification notes, and rollback criteria.
 6. Add decision and accountability rules.
-   - Where decisions are logged and who approves.
+   - Who approves AGENTS.md changes; git history is the source of truth for change tracking.
 7. Integrate product and project standards.
    - Goals, success metrics, scope, milestones, acceptance criteria, and risks.
 8. Identify domain philosophies.
@@ -34,7 +34,6 @@ description: Create a project-level AGENTS.md with master-grade constraints, bou
 - Tech stack and key directories
 - Allowed vs forbidden directories
 - Approval model for code/config changes
-- Decision and risk log location
 
 ## Required Inputs Missing
 
@@ -46,7 +45,7 @@ description: Create a project-level AGENTS.md with master-grade constraints, bou
 - High-risk areas: deployment configs, production data paths, CI/CD, auth, billing.
 - Strictly forbidden: secrets/keys/PII and irreversible history changes.
 - Proof before "done": note tests run, or state "not run" with reason.
-- Decisions/risks log: project root docs or `agent-collab/coordination/` if present.
+- AGENTS.md changes are recorded in git history; no separate decision/risk log.
 - Collaboration mode: single-agent unless explicitly enabled.
 - Domain philosophies: enumerate options, choose relevant domains, justify omissions.
 - Language: English, ASCII unless the project already uses another language.
@@ -57,7 +56,6 @@ description: Create a project-level AGENTS.md with master-grade constraints, bou
 - Strictly forbidden files or directories
 - Required approvals for code or config
 - Proof required before declaring "done"
-- Decision and risk log location
 
 ## Output Format
 

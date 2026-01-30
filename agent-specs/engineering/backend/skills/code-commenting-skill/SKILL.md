@@ -1,6 +1,6 @@
 ---
 name: code-commenting-master
-description: Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
+description: v0.1.7 - Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
 ---
 
 # Code Commenting Master (Backend)
@@ -18,11 +18,13 @@ description: Add master-level code comments for backend code; use when asked to 
    - Identify language, module, and the intended audience.
 2. Identify intent and decisions.
    - Find non-obvious rationale, tradeoffs, and invariants.
-3. Apply minimal, high-signal comments.
+3. Bias for newcomer clarity.
+   - Treat collaborators as newcomers; prioritize business intent at decision boundaries.
+4. Apply minimal, high-signal comments.
    - Avoid duplicating the code; emphasize why and risks.
-4. Standardize style.
+5. Standardize style.
    - Use consistent tense and comment placement.
-5. Verify no behavior change.
+6. Verify no behavior change.
    - Comment-only edits unless WRITE_CODE is granted.
 
 ## Commenting Standards (Master Level)
@@ -33,45 +35,144 @@ description: Add master-level code comments for backend code; use when asked to 
 - Note performance/latency tradeoffs with context.
 - Record security and privacy implications explicitly.
 - Use TODO only with ownership or decision context.
+- Use inline comments only when intent is not obvious from names or structure.
+
+## Mandatory Comment Rule (Required)
+
+Every function/method must have a one-sentence *line comment* directly above the definition (use the language's line-comment token like `//` or `#`; in Python, do not use a `\"\"\"` docstring for this rule).
+The sentence must use the function/method name as the grammatical subject and start with `<Name> <verb...>` (do not write `<Name> 因为...` as the opening).
+It must cover: why it exists, inputs/constraints, and outputs/side effects.
+In Automation Mode, keep the one-sentence summary as the first line; tags may follow on subsequent lines.
+No exceptions unless explicitly approved by the owner.
+
+Placement examples:
+
+```python
+# parse_bid_doc 解析原始标书文档以统一字段结构，接收文件流与格式约束，返回规范化内容并记录解析失败指标。
+def parse_bid_doc(stream, fmt): ...
+```
+
+```go
+// BindEvidence 将证据绑定到实体以支持可追溯性，接收实体ID与证据ID并要求幂等，返回是否成功并写入绑定表。
+func BindEvidence(entityID, evidenceID string) (bool, error) { ... }
+```
+
+## Master-Level Comment Coverage Map (Required)
+
+Comment these when present; list explicit omissions with reasons:
+
+- Decision points: non-obvious branching, policies, heuristics, thresholds.
+- Invariants/contracts: required ordering, idempotency, retry rules, consistency model.
+- Boundaries: external calls, timeouts, retries, fallbacks, error translation.
+- Data handling: PII/secret redaction, retention, masking, access limits.
+- Performance/cost: hot paths, caching, batching, backpressure, budgets.
+- Concurrency: locks, race avoidance, eventual consistency, async ordering.
+- Feature flags/migrations: rollout strategy and rollback risks.
+- Observability: why specific logs/metrics/traces exist.
+
+## Business Intent Emphasis
+
+- Write comments that explain why a business rule exists or why a log/decision is emitted.
+- Avoid re-stating control flow; focus on intent, constraints, and downstream impact.
+- Keep comments stable and updated; remove if the intent no longer applies.
+
+Example:
+
+```
+// Why: Emit once so downstream retries can dedupe and avoid double-charging.
+log.warning("payment retry scheduled", order_id=oid, attempt=attempt)
+```
+
+Anti-example:
+
+```
+// Log a warning with order_id and attempt.
+log.warning("payment retry scheduled", order_id=oid, attempt=attempt)
+```
 
 ## Recommended Comment Template (Standard)
 
-Use the standard form by default:
+Use this structure when helpful. By default, do not add literal prefixes; only add them when explicitly required.
 
 ```
-Purpose: <what this block/function is for>
-Why: <why this design or behavior exists>
-Tradeoff: <what is sacrificed or constrained>
+<purpose> <what this block/function is for>
+<why> <why this design or behavior exists>
+<tradeoff> <what is sacrificed or constrained>
 ```
 
 ## Comment Types and Templates
 
 ### File-Level
 ```
-Purpose: <module responsibility>
-Why: <why this module exists>
-Tradeoff: <constraints or boundaries>
+<purpose> <module responsibility>
+<why> <why this module exists>
+<tradeoff> <constraints or boundaries>
 ```
 
 ### Class/Struct-Level
-```
-Purpose: <what this type models or manages>
-Why: <why this type encapsulates the behavior>
-Tradeoff: <limitations or chosen constraints>
-```
+Place this as a one-sentence line comment directly above the definition (in Python, use `#` above `class`, not a `\"\"\"` docstring).
+
+Write one natural-language sentence that uses the class/struct name as the grammatical subject and includes:
+- class/struct name
+- responsibility (what it owns/models)
+- why it exists (constraint/tradeoff/why not elsewhere)
+- key dependencies/config it accepts
+- what it provides (capability + side effects if any)
+
+Recommended phrasing (write naturally; order may vary):
+- `<ClassName>` 负责 `<职责>`，因为 `<约束/原因>` 而封装 `<关键行为>`，接收 `<依赖/配置>`，对外提供 `<能力/副作用>`。
+
+Examples (one sentence each):
+- `RetryScheduler` 负责订单重试编排，因为要避免重复扣费而封装重试策略，接收订单ID与上限配置，对外提供下次执行时间并写入重试队列。
 
 ### Function/Method-Level
-```
-Purpose: <what the function does>
-Why: <why this approach is used>
-Tradeoff: <what is sacrificed or constrained>
-```
+Write a single natural-language sentence that includes:
+- function name
+- why it exists / why this behavior is needed
+- what it accepts (key constraints)
+- what it returns or emits (including side effects)
+
+Recommended phrasing (write naturally; order may vary):
+- `<FunctionName>` `<动作谓语 + 对象>`（为/以/因为 `<业务/系统原因>`），接收 `<关键输入/约束>`，返回/产生 `<关键输出/副作用>`。
+
+Examples (one sentence each):
+- `parse_bid_doc` 解析原始标书文档以统一字段结构，接收文件流与格式约束，返回规范化内容并记录解析失败指标。
+- `schedule_retry` 在失败后安排重试以避免重复扣费，接收订单ID与重试上限，返回下次执行时间并写入重试队列。
 
 ### Inline/Block-Level
 ```
-Why: <why this line/block exists>
-Tradeoff: <what is accepted as a cost>
+<why> <why this line/block exists>
+<tradeoff> <what is accepted as a cost>
 ```
+
+## Automation Mode (Required for Automatic Evaluation)
+
+When evaluation must be fully automatic, enable Automation Mode and require tags so checks are machine-verifiable.
+
+Tag format (line comments; prefix with the language's line-comment token):
+- `<comment> @purpose:` short purpose
+- `<comment> @why:` rationale/constraint
+- `<comment> @tradeoff:` cost/limitation
+- `<comment> @risk:` boundary/edge-case/rollback
+- `<comment> @data:` PII/retention/redaction note (if applicable)
+- `<comment> @perf:` performance/cost note (if applicable)
+
+Examples:
+- Python: `# @why: ...`
+- Go/JS/TS/Java/C#: `// @why: ...`
+
+Placement rule:
+- Tags must appear within 3 lines above the relevant block/function, or inline on the same block.
+
+If Automation Mode is enabled, tags are mandatory for any item in the Coverage Map that applies.
+Keep a one-sentence summary line comment immediately above each function/method; tags may follow (also as line comments above the definition).
+Use `<comment> @na:` only for coverage-map items that truly do not apply (not for the function comment itself).
+
+## Non-Comment Zones (Avoid)
+
+- Obvious control flow or self-explanatory names.
+- Pure data plumbing with no business rules.
+- Comments that repeat variable names or syntax.
 
 ## Examples
 
@@ -91,6 +192,7 @@ Tradeoff: <what is accepted as a cost>
 - Target language and framework
 - Commenting target (module/function/class)
 - Audience (team, external, future maintenance)
+- Risk level (low/medium/high) for required coverage depth
 
 ## Output Format
 
@@ -98,6 +200,8 @@ Tradeoff: <what is accepted as a cost>
 ## Scope
 ## Comment Targets
 ## Proposed Comments
+## Evaluation Method
+## Quality Score
 ## Risks / Open Questions
 ```
 
@@ -106,3 +210,34 @@ Tradeoff: <what is accepted as a cost>
 - Do not change code behavior.
 - Do not add redundant comments that restate code.
 - Do not invent requirements or behaviors.
+
+## Evaluation Method (Master-Level, Fully Automatic)
+
+0. Summary check: every function/method has a one-sentence line comment immediately above the definition, where the first token after the comment marker is the function/method name, and the summary does not start with `<Name> 因为...` (must be `<Name> <verb...>`), and it states why, inputs, and outputs/side effects.
+1. Build a coverage checklist from the "Coverage Map" for the target area.
+2. Detect applicable items via static cues (AST/regex): branching, retries, timeouts, external calls, locks, cache, PII fields, feature flags.
+3. In Automation Mode, require tagged comments (`@why`, `@risk`, etc.) within the placement rule.
+4. Mark each item as: covered / not applicable / missing (with reason tag `@na:`).
+5. Score quality with the rubric below.
+6. Fail if any critical rule is violated.
+
+Critical fail conditions:
+- Comment contradicts code behavior.
+- Security/PII handling is misleading or missing in sensitive paths.
+- Retry/timeout semantics are unclear at boundaries.
+
+Rubric (0-2 each, total 12):
+- Intent clarity: explains why and constraints, not just what.
+- Correctness: matches code behavior and invariants.
+- Coverage: required items covered or explicitly N/A (>= 90%).
+- Risk/Boundary: external failures, retries, fallbacks documented.
+- Business alignment: domain rules translated to business intent.
+- Maintainability: minimal, stable, non-redundant.
+
+Pass criteria:
+- No critical fails.
+- Average >= 1.5 with no single category at 0.
+
+Evidence format (automatic):
+- Coverage checklist summary (machine-readable).
+- Tag presence report per item.

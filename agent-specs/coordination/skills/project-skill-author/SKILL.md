@@ -1,6 +1,6 @@
 ---
 name: project-skill-author
-description: Create a project-specific Codex skill package (SKILL.md plus optional references/assets) with master-grade structure and defaults; use when building reusable skill folders, onboarding skills, or general project skills (not API-only).
+description: v0.1.0 - Create a project-specific Codex skill package (SKILL.md plus optional references/assets) with master-grade structure and defaults; use when building reusable skill folders, onboarding skills, or general project skills (not API-only).
 ---
 
 # Project Skill Author
@@ -46,27 +46,31 @@ single-use task scripts.
    - Map each domain to a high-signal workflow and explicitly note why it fits.
 4. Define the skill name and placement.
    - Use lowercase hyphen name under 64 chars; default to `skills/<skill-name>`.
-5. Design the package structure.
+5. Add versioning to the header description.
+   - Prefix `description` with a semantic version (e.g., `v0.1.0 - ...`).
+   - If no version exists yet, start at `v0.1.0`.
+   - Bump the patch version by +1 per completed commit that updates the skill (one commit = one version bump).
+6. Design the package structure.
    - Keep SKILL.md lean; move detailed references into `references/`.
    - Add `assets/` only when reusable templates are required.
    - If you mandate a validation script, add it in `scripts/` or reference an existing one.
-6. Draft SKILL.md with explicit triggers and workflow.
+7. Draft SKILL.md with explicit triggers and workflow.
    - Use clear frontmatter and imperative steps.
-7. Provide defaults and guardrails.
+8. Provide defaults and guardrails.
    - Include sane defaults to reduce user input and prevent misuse.
-8. Validate and scope.
+9. Validate and scope.
    - Ensure no secrets, no fabricated facts, references are one level deep.
-9. Verify domain fitness.
+10. Verify domain fitness.
    - Confirm the workflow reflects expert practice in that domain.
-10. Produce a fit-for-purpose template.
+11. Produce a fit-for-purpose template.
    - Provide a short, standard, and strict output format.
-11. Add verification hooks.
+12. Add verification hooks.
    - Define how correctness and safety are validated for the skill.
-12. Add audit artifacts.
+13. Add audit artifacts.
    - Specify what evidence is stored and where.
-13. Add iteration loop.
+14. Add iteration loop.
    - Require acceptance review, feedback capture, and a next-iteration plan.
-14. Add reinforcement plan.
+15. Add reinforcement plan.
    - Define how the skill learns from repeated use and failures.
 ## Iteration Loop (Required)
 
@@ -195,6 +199,7 @@ Confirmation token: `continue`.
 - Output tone: concise, action-oriented, no fluff.
 - References: add only when details are needed repeatedly.
 - Acceptance: require owner approval for high-risk or public-facing skills.
+- Versioning: prefix `description` with `v<major>.<minor>.<patch> - ...`; start at `v0.1.0` if absent; bump patch once per completed commit that updates the skill.
 
 ## Failure Modes to Avoid
 

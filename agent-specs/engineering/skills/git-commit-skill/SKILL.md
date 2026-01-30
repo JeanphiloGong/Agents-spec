@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.16 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -24,38 +24,148 @@ description: Create standard, high-quality git commit messages and commit plans;
    - Separate logically independent changes.
 4. Draft commit messages.
    - Use Conventional Commits unless another standard is specified.
-5. Add validation notes.
+5. Apply the subject blueprint and checklist.
+   - Use the master subject blueprint and type-specific pattern.
+   - Verify the subject checklist passes before finalizing.
+6. Build the commit body.
+   - Follow the Why/What/Impact/Tests/Refs rules below.
+7. Add validation notes.
    - Include relevant tests or verification steps if provided.
-6. Staging policy.
+   - If tests are not run, use a concrete operational reason (avoid "not requested").
+8. Staging policy.
    - Do not run `git add` by default; the human reviews and stages changes.
    - If AI-authored changes are not staged, remind the user to stage them.
    - If only unrelated changes are unstaged, do not prompt.
 
 ## Commit Message Standard
 
+Use this exact structure:
+
 ```
 <type>(optional-scope): <subject>
 
-<body>
+Why:
+- ...
 
-<footer>
+What:
+- ...
+
+Impact:
+- ...
+
+Tests:
+- ...
+
+Refs:
+- ...
 ```
+
+This structure is mandatory. The intent and quality bar for each section are defined in "Commit Body: Why / What / Impact / Tests / Refs" below.
+
+## Subject Rules (by Type)
+
+Structured subject output is required.
+Use concise, intent-first subjects. Prefer outcome + scope over implementation detail.
+Each subject must explain the change in one sentence with clear context (goal or cause).
+
+Subject output template (required):
+```
+<type>(optional-scope): <one-sentence subject>
+```
+
+Master subject blueprint (one sentence, fill slots in order):
+- EN: `<action> <object> to <goal>, because <subject> <verb> causing <impact>`
+- ZH: `为<目标><动作><对象>，因为<主体><动作>导致<影响>`
+
+Slot guidance:
+- action: add / fix / restore / clarify / refactor / test / update
+- object: capability, defect, doc area, module, tests, config/dependency
+- goal: measurable outcome (accuracy, stability, coverage, clarity)
+- cause/signal: why now; must be a full clause with impact target or measurable effect (subject + verb + impact)
+Note: do not add context in the subject. Put context details in the Impact section instead.
+
+Subject checklist (required):
+- One sentence that states what changed + why (goal and cause when known).
+- Includes the affected capability or failure and the scope implied by type/scope.
+- If the root cause is known, include it explicitly (bugfix/hotfix must include cause).
+- Cause clauses must include an impact target or measurable effect.
+- Uses the type-specific pattern below.
+
+- feat: deliver a user-visible capability.
+  - Required (EN): `add <capability> for <goal>` / `enable <capability> for <goal>`
+  - Optional cause (EN): append `because <subject> <verb> causing <impact>`
+  - Required (ZH): `为<目标>新增<能力>` / `为<目标>支持<能力>`
+  - Optional cause (ZH): append `因为<主体><动作>导致<影响>`
+  - Example (EN): `feat(search): add date range filters for accuracy because users reported misses`
+  - Example (ZH): `feat(search): 为提升搜索准确性新增日期范围筛选，因为用户反馈结果遗漏`
+- bugfix: fix a specific defect with a clear cause or symptom.
+  - Required (EN): `fix <cause> causing <bug>` / `fix <cause> triggering <symptom>`
+  - Required (ZH): `修复<原因>导致的<问题>` / `修复<原因>触发的<问题>`
+  - Example (EN): `bugfix(auth): fix clock drift causing refresh failures`
+  - Example (ZH): `bugfix(auth): 修复时钟漂移导致的刷新失败`
+- hotfix: urgent production-impacting fix; state impact.
+  - Required (EN): `fix <cause> causing <prod impact>` / `restore <critical path> after <cause>`
+  - Required (ZH): `修复<原因>导致的<线上影响>` / `恢复<关键路径>（因<原因>中断）`
+  - Example (EN): `hotfix(payments): fix gateway timeouts causing checkout failures`
+  - Example (ZH): `hotfix(payments): 修复网关超时导致的结算失败`
+- docs: update a defined documentation scope.
+  - Required (EN): `clarify <doc area> for <audience>` / `add <doc section> for <goal>`
+  - Optional cause (EN): append `because <subject> <verb> causing <impact>`
+  - Required (ZH): `为<目标/受众>补充<文档范围>` / `为<目标>明确<文档范围>`
+  - Optional cause (ZH): append `因为<主体><动作>导致<影响>`
+  - Example (EN): `docs(onboarding): clarify required env vars because config changes broke setup`
+  - Example (ZH): `docs(onboarding): 为新同事补充环境变量说明，因为配置变更导致配置失败`
+- refactor: restructure without behavior change; name the area.
+  - Required (EN): `refactor <module/flow> to <goal>` / `simplify <component> for <goal>`
+  - Optional cause (EN): append `because <subject> <verb> causing <impact>`
+  - Required (ZH): `为<目标>重构<模块/流程>` / `为<目标>简化<组件>`
+  - Optional cause (ZH): append `因为<主体><动作>导致<影响>`
+  - Example (EN): `refactor(api): simplify validation pipeline for clarity because reviews flagged confusion`
+  - Example (ZH): `refactor(api): 为提升可读性简化请求校验流程，因为评审指出理解困难`
+- test: add or adjust tests; name the coverage area.
+  - Required (EN): `add tests for <area> to cover <risk>` / `expand <area> coverage for <case>`
+  - Optional cause (EN): append `because <subject> <verb> causing <impact>`
+  - Required (ZH): `为<风险/场景>补充<范围>测试` / `扩展<范围>覆盖以验证<场景>`
+  - Optional cause (ZH): append `因为<主体><动作>导致<影响>`
+  - Example (EN): `test(search): add tests for filter edge cases because regressions recurred`
+  - Example (ZH): `test(search): 为过滤边界场景补充测试，因为回归问题反复出现`
+- chore: maintenance tasks (tooling/config/deps); be specific.
+  - Required (EN): `update <tool/config> for <goal>` / `bump <dependency> to <version> for <goal>`
+  - Optional cause (EN): append `because <subject> <verb> causing <impact>`
+  - Required (ZH): `为<目标>更新<工具/配置>` / `升级<依赖>至<版本>以<目标>`
+  - Optional cause (ZH): append `因为<主体><动作>导致<影响>`
+  - Example (EN): `chore(ci): update build cache settings for stability because cache misses spiked`
+  - Example (ZH): `chore(ci): 为稳定性更新构建缓存配置，因为缓存命中率下降`
+
+Subject guardrails:
+- One sentence must explain exactly what changed, in context.
+- Include the affected capability or failure and the scope (module/feature) implied by the type/scope.
+- Use the required pattern for the type; if the cause/goal is missing, rewrite.
+- If you cannot state the cause/goal clearly, clarify the context before writing the subject.
+- Cause clauses must be complete (subject + verb + impact); avoid fragments.
+- Prefer concrete impact targets or measurable effects over adjectives (e.g., "流程耗时增加", "p95 增加", "配置失败").
+- Do not add context clauses in the subject; capture context in the Impact section.
+- Avoid vague verbs (e.g., "update stuff", "misc").
+- Prefer measurable scope over internal implementation details.
+- Keep under 50 characters when possible; trim adjectives first.
 
 Common types:
 - feat: new feature
-- fix: bug fix
-- bugfix: bug fix
-- hotfix: urgent fix
+- bugfix: bug fix (non-urgent; normal release cadence)
+- hotfix: urgent fix (production-impacting, expedited release)
 - docs: documentation
 - refactor: refactor without behavior change
 - test: add or update tests
 - chore: tooling or maintenance
 
-All commits must use the master template below with full Why/What/Impact/Tests/Refs sections.
+Selection rules:
+- Use bugfix for defects that can ship in the next normal release.
+- Use hotfix for production-impacting issues that require an expedited release.
+- If unsure, default to bugfix and note urgency in the Impact section.
 
 Examples (full format):
 ```
-feat(search): add query filters
+feat(search): add date range filters
 
 Why:
 - Users need to narrow results by date and status.
@@ -74,7 +184,7 @@ Refs:
 - ISSUE-1423
 ```
 ```
-fix(auth): handle expired refresh tokens
+bugfix(auth): fix refresh failures caused by token expiry
 
 Why:
 - Sessions were failing silently after token expiry.
@@ -93,7 +203,7 @@ Refs:
 - AUTH-221
 ```
 ```
-docs: update onboarding steps
+docs(onboarding): clarify setup prerequisites
 
 Why:
 - New environment variables were added and not documented.
@@ -111,56 +221,50 @@ Tests:
 Refs:
 - DOCS-45
 ```
-```
-feat(search): add query filters
 
-Why:
-- Users need to narrow results by date and status.
+## Commit Body: Why / What / Impact / Tests / Refs (Required)
 
-How:
-- Add filter params to query builder.
+Purpose: make rationale, scope, risk, and verification auditable. This section explains the rationale behind the required structure above; do not add/remove sections.
 
-Tests:
-- unit: search_filter_spec
-```
-```
-fix(payments): handle timeout retries
+Why（必要性，诊断式表达）
 
-Why:
-- External gateway timed out in peak hours.
+- 目标不是“我想做”，而是“为什么必须做”。
+- 一句必须包含：触发信号 + 受影响对象 + 代价（时间/风险/损失/阻塞）。
+- 语言像诊断，不像愿望：先事实，再结论。
+- 最低合格：能让陌生人读完立即判断“是否该做”。
 
-Notes:
-- Retry is capped at 2 attempts.
+What（结果，非过程）
 
-Refs:
-- ISSUE-1423
-```
+- 描述的是“已改变的现实”，而非“改动过程”。
+- 列出来的每一条都应可被代码/文档/测试直接验证。
+- 刻意排除“手段”与“实现细节”，只保留“最终变更结果”。
+- 最低合格：读完能写出一个 check-list 来复查是否确实做到了。
 
-## Master Commit Template
+Impact（外部影响）
 
-```
-<type>(optional-scope): <subject>
+- 只讨论用户/接口/运行风险，不谈内部结构。
+- 必须回答三件事：
+  1. 对谁有影响
+  2. 影响什么行为/契约
+  3. 有无风险/迁移/回滚需求
+- 这是“可控性宣言”，让审阅者知道是否安全上线。
 
-Why:
-- <user or system problem being solved>
+Tests
+- State what was run (suite or command).
+- If not run, use one of these default reasons:
+- `not run (manual run pending)`
+- `not run (docs-only change)`
+- `not run (config-only change)`
+- `not run (blocked: <reason>)`
+- Avoid "not requested" as a reason; state the operational reason instead.
 
-What:
-- <key change 1>
-- <key change 2>
+Refs
+- 目的是“追溯决策和上下文”，不是附件列表。
+- 允许 n/a，但只有在没有任何外部关联时才成立。
+- 任何高风险变更必须可回溯到 Issue/Spec/Incident/PR 之一。
 
-Impact:
-- <behavior impact, compatibility, or migration notes>
-
-Tests:
-- <tests run, or "not run" with reason>
-
-Refs:
-- <issue/ticket/PR>
-```
-
-## Mandatory Format Rule
-
-- Every commit must use the full template with Why/What/Impact/Tests/Refs.
+Format rules:
+- Follow the "Commit Message Standard" structure exactly; do not add extra sections.
 - Single-line commit messages are not allowed.
 - Prefer file-based commits (e.g., `git commit -F <file>`) to avoid newline escaping/garbling.
 
