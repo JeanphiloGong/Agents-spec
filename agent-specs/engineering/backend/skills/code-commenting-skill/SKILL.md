@@ -1,6 +1,6 @@
 ---
 name: code-commenting-master
-description: v0.1.7 - Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
+description: v0.1.9 - Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
 ---
 
 # Code Commenting Master (Backend)
@@ -37,6 +37,16 @@ description: v0.1.7 - Add master-level code comments for backend code; use when 
 - Use TODO only with ownership or decision context.
 - Use inline comments only when intent is not obvious from names or structure.
 
+## Master Comment Philosophy (Required)
+
+A good comment is a record of decisions and boundaries, not a translation of code.
+It should answer:
+- Why this behavior exists (not just what it does).
+- What constraints/contract it must satisfy.
+- What risks or tradeoffs are accepted.
+
+If a comment does not improve future decisions, it is noise.
+
 ## Mandatory Comment Rule (Required)
 
 Every function/method must have a one-sentence *line comment* directly above the definition (use the language's line-comment token like `//` or `#`; in Python, do not use a `\"\"\"` docstring for this rule).
@@ -44,6 +54,35 @@ The sentence must use the function/method name as the grammatical subject and st
 It must cover: why it exists, inputs/constraints, and outputs/side effects.
 In Automation Mode, keep the one-sentence summary as the first line; tags may follow on subsequent lines.
 No exceptions unless explicitly approved by the owner.
+
+## Natural Language Quality Rules (Required)
+
+Keep the sentence natural and verb-driven; avoid template-sounding phrases.
+
+- Prefer concrete verbs: 记录/写入/计算/校验/生成/更新/发送/触发/归档/删除/同步/合并.
+- Avoid vague verb-nouns like “输出/产生/进行/执行” when a concrete verb exists.
+- Purpose phrasing: use “以/用于/为” after the action (not at the start).
+- Inputs: say what it accepts (objects/IDs/streams), avoid only “字段” without context.
+- Outputs/side effects: state concrete effects (写入日志/更新表/发送事件/返回结果), do not say “产生…副作用”.
+
+Lintable replacements (use these in rewrites):
+- “输出耗时” → “统计/计算/记录耗时”
+- “产生日志副作用” → “写入/记录日志”
+- “输出失败” → “返回失败/抛出错误”
+
+## Soft Templates (Pick by Context; Not Mandatory)
+
+1) Intent-first:
+- `<Name>` `<动词…>` 以/用于 `<目的>`，接收 `<输入>`，返回/影响 `<输出/副作用>`。
+
+2) Boundary/Failure:
+- `<Name>` `<动词…>` 并处理 `<外部边界/失败模式>`，接收 `<输入>`，返回/影响 `<输出/副作用>`。
+
+3) Contract/Invariants:
+- `<Name>` `<动词…>` 且遵守 `<不变量/顺序/幂等>`，接收 `<输入>`，返回/影响 `<输出/副作用>`。
+
+4) Tradeoff:
+- `<Name>` `<动词…>` 以换取 `<收益>`（代价为 `<tradeoff>`），接收 `<输入>`，返回/影响 `<输出/副作用>`。
 
 Placement examples:
 
@@ -220,6 +259,7 @@ Use `<comment> @na:` only for coverage-map items that truly do not apply (not fo
 4. Mark each item as: covered / not applicable / missing (with reason tag `@na:`).
 5. Score quality with the rubric below.
 6. Fail if any critical rule is violated.
+7. Lint checks: flag banned phrases and suggest replacements from the lintable list above.
 
 Critical fail conditions:
 - Comment contradicts code behavior.
