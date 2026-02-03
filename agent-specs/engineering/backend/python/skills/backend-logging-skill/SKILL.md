@@ -1,6 +1,6 @@
 ---
 name: backend-logging-skill
-description: v0.1.2 - Define and improve Python backend logging standards; use when designing log formats, levels, fields, correlation, error logging, or when auditing logging quality in Python services.
+description: v0.1.3 - Define and improve Python backend logging standards; use when designing log formats, levels, fields, correlation, error logging, or when auditing logging quality in Python services.
 ---
 
 # Backend Logging Skill (Python)
@@ -27,10 +27,13 @@ description: v0.1.2 - Define and improve Python backend logging standards; use w
 ## Required Fields
 
 - `timestamp`, `level`, `service`, `env`, `message`
-- `request_id`, `trace_id`
-- `user_id` (hashed/opaque when applicable)
 - `duration_ms` for requests/jobs
 - `error.type`, `error.message`, `error.stack`
+
+## Optional Context Fields (Injected When Available)
+
+- `request_id`, `trace_id` (middleware/contextvars injected)
+- `user_id` (hashed/opaque when applicable)
 
 ## Level Mapping (Python)
 
@@ -57,9 +60,9 @@ Rule of thumb:
 
 ```
 log.info("request completed",
-  request_id=rid,
-  trace_id=tid,
   duration_ms=dur_ms,
+  request_id=rid,  # if available
+  trace_id=tid,    # if available
 )
 ```
 
@@ -86,7 +89,7 @@ Example:
 
 ## Boundary Logs (Required)
 
-Every request/job must have logs at entry and exit with consistent IDs.
+Every request/job must have logs at entry and exit with consistent IDs when available.
 
 Required boundaries:
 - router/controller: request_received, request_completed (include status, duration_ms).
@@ -95,9 +98,11 @@ Required boundaries:
 - external integration: call_start, call_success, call_failure (include provider, status).
 
 Minimum fields at boundaries:
-- `request_id`, `trace_id`, `duration_ms` (where applicable)
+- `duration_ms` (where applicable)
 - `status` or `result`
 - `error.*` on failures
+
+Include `request_id` / `trace_id` when injected by middleware/contextvars.
 
 ## Module Responsibility Matrix
 
