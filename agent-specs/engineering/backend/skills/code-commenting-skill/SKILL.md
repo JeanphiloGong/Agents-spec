@@ -1,6 +1,6 @@
 ---
 name: code-commenting-master
-description: v0.1.9 - Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
+description: v0.1.10 - Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
 ---
 
 # Code Commenting Master (Backend)
@@ -54,6 +54,12 @@ The sentence must use the function/method name as the grammatical subject and st
 It must cover: why it exists, inputs/constraints, and outputs/side effects.
 In Automation Mode, keep the one-sentence summary as the first line; tags may follow on subsequent lines.
 No exceptions unless explicitly approved by the owner.
+
+## Inline-Only Mode (Optional)
+
+When `mode=inline-only`, skip the function/method summary requirement and focus only on inline/block comments.
+Use this mode when adding inline notes without touching function comments.
+Automation Mode may still be enabled; apply tags to inline/block comments only.
 
 ## Natural Language Quality Rules (Required)
 
@@ -232,6 +238,7 @@ Use `<comment> @na:` only for coverage-map items that truly do not apply (not fo
 - Commenting target (module/function/class)
 - Audience (team, external, future maintenance)
 - Risk level (low/medium/high) for required coverage depth
+- Mode (default: full; optional: inline-only)
 
 ## Output Format
 
@@ -253,6 +260,7 @@ Use `<comment> @na:` only for coverage-map items that truly do not apply (not fo
 ## Evaluation Method (Master-Level, Fully Automatic)
 
 0. Summary check: every function/method has a one-sentence line comment immediately above the definition, where the first token after the comment marker is the function/method name, and the summary does not start with `<Name> 因为...` (must be `<Name> <verb...>`), and it states why, inputs, and outputs/side effects.
+   - If `mode=inline-only`, skip this step.
 1. Build a coverage checklist from the "Coverage Map" for the target area.
 2. Detect applicable items via static cues (AST/regex): branching, retries, timeouts, external calls, locks, cache, PII fields, feature flags.
 3. In Automation Mode, require tagged comments (`@why`, `@risk`, etc.) within the placement rule.
