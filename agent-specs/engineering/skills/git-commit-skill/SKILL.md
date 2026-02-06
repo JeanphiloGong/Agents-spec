@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.12.19 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.20 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -19,8 +19,8 @@ description: v0.12.19 - Create standard, high-quality git commit messages and co
    - Default to this skill's template and do not ask about other conventions unless the user explicitly mentions one.
    - Ignore unrelated changes by default; do not add them unless explicitly requested.
 2. Set AI trace requirement (high priority).
-   - For AI-authored commits, enable local trace mode by default.
-   - Pre-check that `~/.agents/commit-session-index.jsonl` is the target sink and will be updated after commit success.
+   - For AI-authored commits, require `session_id` in commit `Refs`.
+   - Confirm `session_id` is available before finalizing commit content.
 3. Review change intent.
    - Summarize what changed and why, not how.
 4. Propose commit splits.
@@ -39,10 +39,10 @@ description: v0.12.19 - Create standard, high-quality git commit messages and co
    - Do not run `git add` by default; the human reviews and stages changes.
    - If AI-authored changes are not staged, remind the user to stage them.
    - If only unrelated changes are unstaged, do not prompt.
-10. Record AI session trace locally.
-   - For AI-authored commits, write a local JSONL record to `~/.agents/commit-session-index.jsonl` after commit success.
-   - Keep raw `session_id` in local index only; do not place it in commit subject/body by default.
-   - If local index write fails, keep commit flow unblocked but do not mark the task done until retry succeeds or an explicit waiver is recorded in `Risks & Notes`.
+10. Record AI session trace in commit.
+   - For AI-authored commits, add raw `session_id` directly to `Refs`.
+   - Use `AI-SESSION: <session_id>` as the default trace line.
+   - If `session_id` is missing, pause and request it before completing commit output.
 
 ## Commit Message Standard
 
@@ -215,7 +215,7 @@ Refs
 - 目的是“追溯决策和上下文”，不是附件列表。
 - 允许 n/a，但只有在没有任何外部关联时才成立。
 - 任何高风险变更必须可回溯到 Issue/Spec/Incident/PR 之一。
-- AI 生成的提交可添加 `AI-TRACE: local-index` 标记，但默认不暴露原始 `session_id`。
+- AI 生成的提交默认添加 `AI-SESSION: <session_id>`。
 
 Format rules:
 - Follow the "Commit Message Standard" structure exactly; do not add extra sections.
@@ -240,49 +240,27 @@ Format rules:
 - Base commit messages only on the AI's own changes.
 - If unrelated or user-made changes are present, ask once before including them, then proceed.
 
-## AI Session Trace Policy (Local Index)
+## AI Session Trace Policy (Commit-Embedded)
 
 Goal:
-- Keep AI commit traceability without exposing sensitive or local-only identifiers in public history.
+- Keep AI commit traceability visible in commit history for collaboration handoff.
 
 Priority:
 - P1 (default on) for AI-authored commits.
-- Treat trace write result as required delivery evidence in the final response.
+- Treat `Refs` trace line as required delivery evidence in the final response.
 
-Local index path:
-- `~/.agents/commit-session-index.jsonl` (one JSON object per line).
-- This file is local runtime state and must never be tracked into the repository.
-
-Write timing:
-- Only write after commit success and commit hash is available.
-- If the operation is "suggest message only" and no commit is created, do not write an index entry.
-- Prefer writing the index before final handoff message so trace status is explicit at delivery time.
-
-Minimal JSON schema:
-- `ts` (ISO-8601 UTC timestamp)
-- `repo_root` (absolute repo path)
-- `branch` (current branch name)
-- `commit` (full commit hash)
-- `session_id` (local session identifier)
-- `agent` (e.g., `codex`)
-- `subject` (final commit subject line)
-
-Example entry:
-```json
-{"ts":"2026-02-06T10:00:00Z","repo_root":"/home/gong/date/2025/dec/week2/9,Tue/Agents","branch":"main","commit":"abc123...","session_id":"sess_local_001","agent":"codex","subject":"docs(git-commit-skill): add local session trace policy"}
-```
+Required Refs line:
+- `AI-SESSION: <session_id>`
 
 Operational workflow:
 1. Prepare commit message using this skill.
-2. Complete commit and capture commit hash.
-3. Ensure `~/.agents` exists, then append one JSON line to `~/.agents/commit-session-index.jsonl`.
-4. Add `AI-TRACE: local-index` in `Refs` when the commit is AI-authored.
-5. Never include raw `session_id` in `Refs` for public/shared repositories unless explicitly approved.
+2. Ensure `session_id` is available and append `AI-SESSION: <session_id>` in `Refs`.
+3. Complete commit and capture commit hash.
+4. Report commit hash + session trace line in final output.
 
 Failure handling:
-- If local index write fails, do not block commit completion.
-- Record `not run (blocked: local index write failed: <reason>)` or equivalent note in `Risks & Notes`.
-- Retry index write once environment is stable; keep the task in `to-verify` state until resolved or waived.
+- If `session_id` is missing, block final output and ask for it.
+- Record `not run (blocked: missing session_id)` in `Tests` or note the blocker in `Risks & Notes`.
 
 ## Output Format
 
@@ -290,7 +268,7 @@ Failure handling:
 ## Suggested Commit Messages
 ## Split Recommendations
 ## Validation Steps
-## AI Trace Status
+## AI Session Trace
 ## Risks & Notes
 ```
 
@@ -298,6 +276,5 @@ Failure handling:
 
 - Do not run git commands or modify history unless explicitly authorized.
 - Do not include secrets or sensitive data in commit messages.
-- Do not include raw AI `session_id` in public commit history by default.
-- Do not commit `~/.agents/commit-session-index.jsonl` or mirrors of its content into any repository.
+- For AI-authored commits, include `AI-SESSION: <session_id>` in `Refs` by default.
 - If a repo has its own convention, follow it first.
