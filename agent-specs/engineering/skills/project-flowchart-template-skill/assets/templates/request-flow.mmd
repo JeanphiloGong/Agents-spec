@@ -1,0 +1,16 @@
+%% Generic request handling template
+flowchart TD
+    REQUEST_ENTRY["REQUEST_ENTRY\n(e.g., POST /api/xxx)"] --> AUTH_GUARD{"AUTH_GUARD\n(pass?)"}
+    AUTH_GUARD -->|no| RESP_DENY["Response: unauthorized/forbidden"]
+    AUTH_GUARD -->|yes| VALIDATE{"Input validate pass?"}
+
+    VALIDATE -->|no| RESP_BADREQ["Response: bad request"]
+    VALIDATE -->|yes| HANDLER["Core handler\n(router/controller)"]
+    HANDLER --> SERVICE["Service/usecase"]
+    SERVICE --> REPO["Repository/adapter"]
+    REPO --> STORE[("DB/Cache/Queue")]
+
+    STORE --> RESP_OK["Response: success"]
+    SERVICE --> RESP_FAIL["Response: failure branch"]
+
+    %% TODO(verify): replace placeholders with real file/function names

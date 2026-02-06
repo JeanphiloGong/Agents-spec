@@ -1,0 +1,16 @@
+%% Generic processing pipeline template
+flowchart TD
+    PIPELINE_START["PIPELINE_START\n(job/task trigger)"] --> STAGE1["Stage 1: ingest"]
+    STAGE1 --> STAGE2["Stage 2: normalize/transform"]
+    STAGE2 --> STAGE3["Stage 3: persist/index"]
+    STAGE3 --> PIPELINE_DONE["Pipeline done"]
+
+    STAGE1 --> FAILURE_BRANCH["Failure branch\n(log + status update)"]
+    STAGE2 --> RETRY{"Retry needed?"}
+    RETRY -->|yes| STAGE2
+    RETRY -->|no| FAILURE_BRANCH
+
+    CANCEL["Cancel signal (optional)"] --> CLEANUP["Cleanup/rollback"]
+    CLEANUP --> FAILURE_BRANCH
+
+    %% TODO(verify): map each stage to concrete modules

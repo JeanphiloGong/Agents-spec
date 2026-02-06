@@ -1,0 +1,18 @@
+%% Generic data read/write flow template
+flowchart TD
+    CALLER["Caller\n(API/service)"] --> DATA_READ["DATA_READ\n(read path)"]
+    DATA_READ --> CACHE{"Cache hit?"}
+    CACHE -->|yes| RETURN_READ["Return cached data"]
+    CACHE -->|no| DB_READ["Read from primary store"]
+
+    DB_READ --> MAP_READ["Map/serialize"]
+    MAP_READ --> RETURN_READ
+
+    CALLER --> DATA_WRITE["DATA_WRITE\n(write path)"]
+    DATA_WRITE --> VALIDATE_WRITE{"Write validation pass?"}
+    VALIDATE_WRITE -->|no| WRITE_FAIL["Reject write + error"]
+    VALIDATE_WRITE -->|yes| DB_WRITE["Write to primary store"]
+    DB_WRITE --> EVENT["Emit event/index update (optional)"]
+    EVENT --> WRITE_OK["Write success"]
+
+    %% TODO(verify): bind read/write nodes to real repositories/tables

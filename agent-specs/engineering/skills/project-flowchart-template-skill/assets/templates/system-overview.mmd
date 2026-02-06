@@ -1,0 +1,11 @@
+%% Generic system overview template
+flowchart TD
+    ENTRYPOINT["ENTRYPOINT\n(e.g., main app, worker bootstrap)"] --> L1["Layer 1\n(e.g., router/controller)"]
+    L1 --> L2["Layer 2\n(e.g., service/usecase)"]
+    L2 --> L3["Layer 3\n(e.g., repository/adapter)"]
+    L3 --> STORE[("Data Store\n(DB/Queue/Vector/etc)")]
+
+    L2 --> EXT["External Integration\n(optional)"]
+    EXT --> STORE2[("External system")]
+
+    %% TODO(verify): add concrete modules/functions from current project
