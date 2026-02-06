@@ -1,6 +1,6 @@
 ---
 name: code-commenting-master
-description: v0.1.10 - Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
+description: v0.1.12 - Add master-level code comments for backend code; use when asked to improve comment quality, explain intent and tradeoffs, or standardize commenting practices without changing logic.
 ---
 
 # Code Commenting Master (Backend)
@@ -24,7 +24,10 @@ description: v0.1.10 - Add master-level code comments for backend code; use when
    - Avoid duplicating the code; emphasize why and risks.
 5. Standardize style.
    - Use consistent tense and comment placement.
-6. Verify no behavior change.
+6. Select execution mode (`agent_mode=single` or `agent_mode=multi`).
+7. If multi mode is enabled, assign reviewer scopes by theme and collect findings.
+8. Resolve reviewer conflicts and record arbitration decisions.
+9. Verify no behavior change.
    - Comment-only edits unless WRITE_CODE is granted.
 
 ## Commenting Standards (Master Level)
@@ -60,6 +63,79 @@ No exceptions unless explicitly approved by the owner.
 When `mode=inline-only`, skip the function/method summary requirement and focus only on inline/block comments.
 Use this mode when adding inline notes without touching function comments.
 Automation Mode may still be enabled; apply tags to inline/block comments only.
+
+## Multi-Agent Strategy (Default)
+
+Use multi-agent as the default execution mode for comment policy and standards work. Do not parallelize by file count alone.
+
+Mode switch:
+- `agent_mode=multi` (default): one main agent edits, reviewer sub-agents audit and confirm.
+- `agent_mode=single`: one agent edits and self-verifies (only for explicitly low-risk/simple scopes).
+
+Minimum staffing when multi mode is enabled:
+- main agent: 1
+- reviewer agents: >= 1
+
+## Role Contract
+
+- Main agent:
+  - Owns scope planning, edits, synthesis, and conflict arbitration.
+  - Must resolve every `critical/high` finding before final pass.
+- Reviewer agent:
+  - Owns review only by default (no direct edits unless explicitly assigned).
+  - Must provide evidence-backed structured findings.
+- Optional specialist reviewer:
+  - Focuses on automation-checkability, rubric consistency, and false-positive control.
+
+## Trigger Matrix
+
+Keep `agent_mode=multi` by default.
+
+Downgrade to `agent_mode=single` only when all conditions are true:
+- Affected files <= 1.
+- No changes to: `Mandatory Comment Rule`, `Inline-Only Mode`, `Evaluation Method`.
+- No rubric threshold, critical-fail, or automation tag rule changes.
+
+Reviewer parallelism guidance:
+- 1 reviewer: small scope.
+- 2 reviewers: medium scope or cross-section policy edits.
+- 3 reviewers max: high-risk policy/threshold changes.
+
+Not recommended:
+- Fixed one-reviewer-per-file policy.
+
+## Review Protocol
+
+Each reviewer must output:
+- `id`
+- `severity` (`critical`/`high`/`medium`/`low`)
+- `location`
+- `risk`
+- `suggested_fix`
+- `evidence`
+
+Main agent must output arbitration for each `critical/high` finding:
+- `decision` (`accept` / `reject` / `defer`)
+- `reason`
+- `owner` + `exit_condition` when deferred
+
+## Merge/Conflict Policy
+
+- Resolve reviewer disagreement using priority:
+  1. correctness and consistency
+  2. automation/auditability
+  3. style/readability
+- If conflict affects pass criteria or thresholds, log it as a decision gate.
+- Do not finalize with unresolved `critical` findings.
+
+## Evidence and Audit
+
+For `agent_mode=multi`, produce:
+- agent assignment table
+- reviewer findings list
+- arbitration log
+- final accepted change summary
+- unresolved/deferred item list with owner
 
 ## Natural Language Quality Rules (Required)
 
@@ -239,6 +315,7 @@ Use `<comment> @na:` only for coverage-map items that truly do not apply (not fo
 - Audience (team, external, future maintenance)
 - Risk level (low/medium/high) for required coverage depth
 - Mode (default: full; optional: inline-only)
+- Agent mode (default: multi; optional: single)
 
 ## Output Format
 
@@ -246,9 +323,13 @@ Use `<comment> @na:` only for coverage-map items that truly do not apply (not fo
 ## Scope
 ## Comment Targets
 ## Proposed Comments
+## Agent Plan
+## Review Findings
+## Arbitration Decision
 ## Evaluation Method
 ## Quality Score
 ## Risks / Open Questions
+## Audit Evidence
 ```
 
 ## Guardrails
@@ -256,6 +337,10 @@ Use `<comment> @na:` only for coverage-map items that truly do not apply (not fo
 - Do not change code behavior.
 - Do not add redundant comments that restate code.
 - Do not invent requirements or behaviors.
+- Do not use fixed one-reviewer-per-file fan-out.
+- Do not accept reviewer findings without evidence.
+- Do not finalize multi mode output with unresolved `critical` findings.
+- Do not switch to single mode unless downgrade conditions are explicitly met.
 
 ## Evaluation Method (Master-Level, Fully Automatic)
 
@@ -268,6 +353,8 @@ Use `<comment> @na:` only for coverage-map items that truly do not apply (not fo
 5. Score quality with the rubric below.
 6. Fail if any critical rule is violated.
 7. Lint checks: flag banned phrases and suggest replacements from the lintable list above.
+8. If `agent_mode=multi`, require review evidence and arbitration records before pass/fail.
+   - If `agent_mode=single`, require explicit self-review evidence in `Audit Evidence`.
 
 Critical fail conditions:
 - Comment contradicts code behavior.
@@ -285,6 +372,7 @@ Rubric (0-2 each, total 12):
 Pass criteria:
 - No critical fails.
 - Average >= 1.5 with no single category at 0.
+- If `agent_mode=multi`: unresolved `critical` findings = 0, all `high` findings have arbitration decisions.
 
 Evidence format (automatic):
 - Coverage checklist summary (machine-readable).
