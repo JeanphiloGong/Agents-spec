@@ -7,6 +7,10 @@
 - Every chain includes success and failure/alternative branch.
 - Every chain references real project evidence (files/functions).
 - Unknowns are explicitly labeled as `TODO(verify)`.
+- Every node ID follows `<type>_<action>_<object>[_<context>][_n]`.
+- Branch decision nodes use `branch_*`.
+- Result/terminal nodes use `result_*`.
+- No non-semantic IDs (for example: `Q1`, `B1`, `C1`).
 
 ## Template-Level Criteria
 
@@ -36,3 +40,4 @@ For each diagram, provide:
 - Which branch is likely missing?
 - Which node name is too generic to debug with?
 - Can a new engineer locate code from this chart in under 5 minutes?
+- Does each node ID clearly expose role (`type`) and intent (`action`)?

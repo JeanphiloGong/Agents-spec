@@ -1,11 +1,14 @@
 %% Generic system overview template
 flowchart TD
-    ENTRYPOINT["ENTRYPOINT\n(e.g., main app, worker bootstrap)"] --> L1["Layer 1\n(e.g., router/controller)"]
-    L1 --> L2["Layer 2\n(e.g., service/usecase)"]
-    L2 --> L3["Layer 3\n(e.g., repository/adapter)"]
-    L3 --> STORE[("Data Store\n(DB/Queue/Vector/etc)")]
+    entry_receive_system_bootstrap["ENTRYPOINT\n(e.g., main app, worker bootstrap)"] --> route_parse_system_request["Layer 1\n(e.g., router/controller)"]
+    route_parse_system_request --> usecase_assemble_system_flow["Layer 2\n(e.g., service/usecase)"]
+    usecase_assemble_system_flow --> repo_get_system_dependency["Layer 3\n(e.g., repository/adapter)"]
+    repo_get_system_dependency --> store_get_system_primary[("Data Store\n(DB/Queue/Vector/etc)")]
 
-    L2 --> EXT["External Integration\n(optional)"]
-    EXT --> STORE2[("External system")]
+    usecase_assemble_system_flow --> branch_verify_integration_required{"External integration required?"}
+    branch_verify_integration_required -->|yes| service_emit_system_integration["External Integration\n(optional)"]
+    service_emit_system_integration --> store_get_system_external[("External system")]
+    branch_verify_integration_required -->|no| result_return_system_ready["System ready"]
+    store_get_system_external --> result_return_system_ready
 
     %% TODO(verify): add concrete modules/functions from current project

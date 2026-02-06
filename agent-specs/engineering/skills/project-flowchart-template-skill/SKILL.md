@@ -1,6 +1,6 @@
 ---
 name: project-flowchart-template-skill
-description: v0.1.0 - Generate reusable Mermaid flowchart templates for any project from code evidence, so operators only tune business logic details.
+description: v0.1.1 - Generate reusable Mermaid flowchart templates for any project from code evidence, so operators only tune business logic details.
 ---
 
 # Project Flowchart Template Skill
@@ -33,15 +33,17 @@ Out of scope:
    - List high-value chains (default: 4 chains).
 3. Trace each chain with evidence.
    - Map function/module edges only when backed by source files.
-4. Generate Mermaid templates.
+4. Normalize node IDs.
+   - Enforce the required node ID naming convention before rendering final templates.
+5. Generate Mermaid templates.
    - Create/update files under target flow directory.
-5. Add tune markers.
+6. Add tune markers.
    - Mark uncertain or optional nodes as `TODO(verify)`.
-6. Validate templates.
-   - Run syntax/completeness checks.
-7. Run acceptance review.
+7. Validate templates.
+   - Run syntax/completeness checks and naming validation.
+8. Run acceptance review.
    - Use `references/acceptance-criteria.md` and record pass/fail evidence.
-8. Return strict output.
+9. Return strict output.
 
 ## Required Inputs
 
@@ -59,8 +61,35 @@ Out of scope:
   - `processing-pipeline.mmd`
   - `data-flow.mmd`
 - Labeling rule: use real file/function names where known.
+- Node ID rule: use the required naming convention for all node IDs.
 - Unknown mapping rule: keep placeholder + `TODO(verify)`.
 - Keep SKILL.md concise; details go to `references/` and `assets/`.
+
+## Node ID Naming Convention (Required)
+
+Formula:
+- `<type>_<action>_<object>[_<context>][_n]`
+
+Fixed dictionaries:
+- `type`: `entry|gate|route|usecase|service|repo|store|branch|event|result`
+- `action`: `receive|verify|parse|map|list|get|create|update|delete|upsert|assemble|emit|return`
+- `object`: business noun in singular form, lower-case.
+
+Hard rules:
+- Use lower-case `snake_case` only (`a-z`, `0-9`, `_`).
+- Do not use non-semantic IDs such as `Q1`, `B1`, `C1`.
+- Use numeric suffix (`_2`, `_3`) only when a real naming collision exists.
+- Branch nodes must use `branch_*`.
+- Result nodes must use `result_*`.
+
+Examples:
+- `entry_receive_order_create_request`
+- `gate_verify_user_permission`
+- `service_assemble_order_payload`
+- `repo_upsert_order`
+- `store_mysql_orders`
+- `branch_inventory_is_sufficient`
+- `result_return_http_200_order_created`
 
 ## Output Format (Strict)
 
@@ -69,6 +98,7 @@ Out of scope:
 ## Files Created or Updated
 ## Evidence Map
 ## Validation
+## Naming Validation
 ## Manual Tune Points
 ## Unknowns
 ```
@@ -80,6 +110,7 @@ Out of scope:
 - Do not mutate runtime data directories.
 - If evidence is missing, explicitly mark unknowns.
 - Keep diagrams maintainable: stable node IDs, clear branch labels.
+- Reject outputs with non-semantic node IDs (for example `Q1`, `B1`, `C1`).
 
 ## Verification Hooks
 

@@ -1,16 +1,15 @@
 %% Generic processing pipeline template
 flowchart TD
-    PIPELINE_START["PIPELINE_START\n(job/task trigger)"] --> STAGE1["Stage 1: ingest"]
-    STAGE1 --> STAGE2["Stage 2: normalize/transform"]
-    STAGE2 --> STAGE3["Stage 3: persist/index"]
-    STAGE3 --> PIPELINE_DONE["Pipeline done"]
+    entry_receive_task_pipeline["PIPELINE_START\n(job/task trigger)"] --> usecase_parse_task_ingest["Stage 1: ingest"]
+    usecase_parse_task_ingest --> branch_verify_ingest_failed{"Ingest failed?"}
+    branch_verify_ingest_failed -->|yes| result_return_pipeline_failed["Failure branch\n(log + status update)"]
+    branch_verify_ingest_failed -->|no| service_map_task_normalized["Stage 2: normalize/transform"]
+    service_map_task_normalized --> branch_verify_retry_required{"Retry needed?"}
+    branch_verify_retry_required -->|yes| service_map_task_normalized
+    branch_verify_retry_required -->|no| repo_upsert_task_persist["Stage 3: persist/index"]
+    repo_upsert_task_persist --> result_return_pipeline_done["Pipeline done"]
 
-    STAGE1 --> FAILURE_BRANCH["Failure branch\n(log + status update)"]
-    STAGE2 --> RETRY{"Retry needed?"}
-    RETRY -->|yes| STAGE2
-    RETRY -->|no| FAILURE_BRANCH
-
-    CANCEL["Cancel signal (optional)"] --> CLEANUP["Cleanup/rollback"]
-    CLEANUP --> FAILURE_BRANCH
+    event_emit_task_cancel["Cancel signal (optional)"] --> service_assemble_task_cleanup["Cleanup/rollback"]
+    service_assemble_task_cleanup --> result_return_pipeline_failed
 
     %% TODO(verify): map each stage to concrete modules

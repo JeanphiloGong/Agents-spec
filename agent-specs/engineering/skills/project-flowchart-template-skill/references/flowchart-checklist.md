@@ -16,5 +16,9 @@
 ## Maintainability
 
 - [ ] Stable node IDs for future diffs.
+- [ ] Every node ID follows `<type>_<action>_<object>[_<context>][_n]`.
+- [ ] Branch decision nodes use `branch_*`.
+- [ ] Result/terminal nodes use `result_*`.
+- [ ] No non-semantic IDs (for example: `Q1`, `B1`, `C1`).
 - [ ] Diagram is readable without zoom hacks.
 - [ ] Comments explain optional branches when needed.
