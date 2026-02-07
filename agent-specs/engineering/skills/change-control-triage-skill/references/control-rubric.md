@@ -79,3 +79,6 @@ If a GREEN change is still confusing, mark it YELLOW and require a brief explana
 
 For fast reference across stacks, see:
 - `references/examples/control-example-map.md`
+
+For complex diffs, use:
+- `references/multi-agent-protocol.md`

@@ -1,6 +1,6 @@
 ---
 name: change-control-triage-skill
-description: v0.1.1 - Classify project changes by required human control and generate strict mastery checklists + verification gates.
+description: v0.1.2 - Classify project changes by required human control and generate strict mastery checklists + verification gates.
 ---
 
 # Change Control Triage Skill
@@ -46,6 +46,19 @@ If inputs are missing, do not guess; label as `UNKNOWN` and ask.
 - Diff target: **working tree**
 - AI trace policy: **minimize** (do not require AI session IDs; treat AI as a proposal generator, not the author of `main`).
 
+## Execution Mode (agent_mode)
+
+The skill supports either single-agent or multi-agent execution. Default behavior uses multi-agent **only when the analysis is complex**.
+
+- `agent_mode=auto` (default)
+  - Use multi-agent when complexity triggers are met (see `references/multi-agent-protocol.md`).
+  - Otherwise, run as single-agent.
+- `agent_mode=single`
+  - Run the full workflow with one agent (no reviewer roles).
+- `agent_mode=multi`
+  - Main agent produces the final triage output.
+  - Reviewer agents focus on specific risk surfaces and only report findings (see `references/multi-agent-protocol.md`).
+
 ## Control Tiers (Required)
 
 - **RED — Must-Control**
@@ -74,19 +87,26 @@ Use `references/mastery-checklist-template.md` for the required structure.
      - changed file list, status, and a minimal diff view for high-signal files.
 2. Build an Evidence Map.
    - Group changed files by layer and risk surface (domain rules, auth, pricing, persistence, contracts, concurrency, infra, UI/docs).
-3. Classify into RED/YELLOW/GREEN.
+3. Decide execution mode (agent_mode).
+   - If `agent_mode=auto`, apply the complexity triggers in `references/multi-agent-protocol.md` to choose `single` or `multi`.
+4. Draft initial classification (main agent).
+   - Classify into RED/YELLOW/GREEN using `references/control-rubric.md`.
+5. If `agent_mode=multi`, run reviewer protocol.
+   - Assign reviewers by risk surface and collect findings (see `references/multi-agent-protocol.md`).
+   - Main agent arbitrates and finalizes the Control Map.
+6. Finalize classification into RED/YELLOW/GREEN.
    - Apply `references/control-rubric.md` deterministically.
    - If an **auto-RED** category is touched, it must not be GREEN.
-4. For every RED item, output a Mastery Checklist.
+7. For every RED item, output a Mastery Checklist.
    - Fill the template and mark missing facts as `UNKNOWN` (blocking).
-5. Produce a Verification Plan.
+8. Produce a Verification Plan.
    - RED: must include negative cases + rollback check.
    - YELLOW: must include boundary/contract checks.
-6. Emit a decision gate.
+9. Emit a decision gate.
    - `BLOCK`: any RED item missing mastery checklist, or missing negative tests / rollback notes for irreversible or high-impact changes.
    - `CONDITIONAL`: only YELLOW items have verification gaps.
    - `OK`: all required mastery + verification items are present.
-7. Run acceptance review and propose next iteration.
+10. Run acceptance review and propose next iteration.
    - Use `references/acceptance-criteria.md`.
 
 ## Output Format (Strict)
@@ -125,6 +145,8 @@ Use `references/mastery-checklist-template.md` for the required structure.
 
 ## Notes
 - AI trace policy: minimized
+- agent_mode: auto|single|multi
+- reviewers (when multi): <scope list>
 ```
 
 ## Guardrails
@@ -177,6 +199,7 @@ Step gate (when enabled):
 - `references/mastery-checklist-template.md`
 - `references/git-evidence-commands.md`
 - `references/ai-draft-branch-policy.md`
+- `references/multi-agent-protocol.md`
 - `references/examples/control-example-map.md`
 - `references/examples/order-pricing.md`
 - `references/reinforcement-audit.jsonl`

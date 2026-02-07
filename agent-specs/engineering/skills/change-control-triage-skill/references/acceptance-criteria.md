@@ -25,6 +25,8 @@
   - Missing RED mastery → `BLOCK`
   - Missing rollback notes for irreversible changes → `BLOCK`
   - Missing negative tests for auth/pricing/migrations/contracts → `BLOCK`
+- Output includes `agent_mode`.
+- If `agent_mode=multi`, the output lists reviewers by scope and includes at least one `critical/high` finding summary or explicitly states “none found”.
 
 ## Reviewer Challenge Checklist
 
