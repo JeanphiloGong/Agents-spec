@@ -26,6 +26,8 @@
   - Missing rollback notes for irreversible changes → `BLOCK`
   - Missing negative tests for auth/pricing/migrations/contracts → `BLOCK`
 - Output includes `agent_mode`.
+- Output includes `Start Here (Ordered)` with >= 3 concrete next actions.
+- Output includes `Top Findings (Critical/High)` (may be empty, but must be present).
 - If `agent_mode=multi`, the output lists reviewers by scope and includes at least one `critical/high` finding summary or explicitly states “none found”.
 
 ## Reviewer Challenge Checklist

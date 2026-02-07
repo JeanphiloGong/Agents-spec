@@ -1,6 +1,6 @@
 ---
 name: change-control-triage-skill
-description: v0.1.2 - Classify project changes by required human control and generate strict mastery checklists + verification gates.
+description: v0.1.3 - Classify project changes by required human control and generate strict mastery checklists + verification gates.
 ---
 
 # Change Control Triage Skill
@@ -27,6 +27,18 @@ Out of scope:
 
 - Mission: prevent “black-box core logic” from shipping by forcing explicit ownership, mastery criteria, and verification for high-risk changes.
 - Audience: engineers using AI for delivery speed while preserving personal responsibility for correctness and risk.
+
+## Operator Quickstart (How to Use the Output)
+
+This skill output is a **triage report**, not an implementation guide. Use it in this order:
+
+1. Read `Decision` (`BLOCK|CONDITIONAL|OK`) and the **Top Findings** section.
+2. If `BLOCK`, fix blockers first (usually in `Unknowns / Blocking Questions` and Top Findings).
+3. Only then read RED mastery checklists for the specific RED items you are touching.
+4. Run the Verification Plan, starting from the “minimal pass” tests/checks.
+5. Re-run triage after changes to confirm the gate moves to `OK`.
+
+For a longer walkthrough, see `references/operator-playbook.md`.
 
 ## Required Inputs
 
@@ -117,6 +129,15 @@ Use `references/mastery-checklist-template.md` for the required structure.
 - Diff target:
 - Decision: BLOCK|CONDITIONAL|OK
 
+## Start Here (Ordered)
+- 1) ...
+- 2) ...
+- 3) ...
+
+## Top Findings (Critical/High)
+- critical: ...
+- high: ...
+
 ## Evidence Map
 - Commands:
 - Changed files (grouped):
@@ -163,6 +184,7 @@ Use `references/mastery-checklist-template.md` for the required structure.
 - Evidence completeness: every classification cites concrete file paths from the diff.
 - RED completeness: every RED item has a filled mastery checklist with no `UNKNOWN`.
 - Gate correctness: `BLOCK|CONDITIONAL|OK` matches the rubric rules.
+- Actionability: output includes `Start Here (Ordered)` and at least 3 concrete next actions.
 
 ## Iteration Loop (Required)
 
@@ -199,6 +221,7 @@ Step gate (when enabled):
 - `references/mastery-checklist-template.md`
 - `references/git-evidence-commands.md`
 - `references/ai-draft-branch-policy.md`
+- `references/operator-playbook.md`
 - `references/multi-agent-protocol.md`
 - `references/examples/control-example-map.md`
 - `references/examples/order-pricing.md`
