@@ -74,3 +74,8 @@ GREEN is usually:
 - boilerplate adapters where the contract does not change
 
 If a GREEN change is still confusing, mark it YELLOW and require a brief explanation.
+
+## Quick examples (non-exhaustive)
+
+For fast reference across stacks, see:
+- `references/examples/control-example-map.md`

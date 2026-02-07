@@ -1,6 +1,6 @@
 ---
 name: change-control-triage-skill
-description: v0.1.0 - Classify project changes by required human control and generate strict mastery checklists + verification gates.
+description: v0.1.1 - Classify project changes by required human control and generate strict mastery checklists + verification gates.
 ---
 
 # Change Control Triage Skill
@@ -177,5 +177,6 @@ Step gate (when enabled):
 - `references/mastery-checklist-template.md`
 - `references/git-evidence-commands.md`
 - `references/ai-draft-branch-policy.md`
+- `references/examples/control-example-map.md`
 - `references/examples/order-pricing.md`
 - `references/reinforcement-audit.jsonl`
