@@ -1,6 +1,6 @@
 ---
 name: backend-logging-skill
-description: v0.1.2 - Define and improve Python backend logging standards; use when designing log formats, levels, fields, correlation, error logging, or when auditing logging quality in Python services.
+description: v0.1.4 - Define and improve Python backend logging standards; use when designing log formats, levels, fields, correlation, error logging, or when auditing logging quality in Python services.
 ---
 
 # Backend Logging Skill (Python)
@@ -19,18 +19,24 @@ description: v0.1.2 - Define and improve Python backend logging standards; use w
 5. Inject request/trace IDs via middleware/contextvars.
 6. Define exception logging and stack handling.
 7. Validate sampling, log size, and redaction.
-8. Run critical-path logging coverage check and decision-coverage metrics.
-9. Run automated master-level logging review and record score/evidence.
-10. Run verification hooks and record evidence.
-11. Complete reinforcement checkpoints before finishing.
+8. Select execution mode: single-agent or multi-agent review.
+9. If multi-agent mode is enabled, assign main-agent edits and reviewer-agent scopes by topic.
+10. Collect reviewer findings, resolve conflicts, and record arbitration decisions.
+11. Run critical-path logging coverage check and decision-coverage metrics.
+12. Run automated master-level logging review and record score/evidence.
+13. Run verification hooks and record evidence.
+14. Complete reinforcement checkpoints before finishing.
 
 ## Required Fields
 
 - `timestamp`, `level`, `service`, `env`, `message`
-- `request_id`, `trace_id`
-- `user_id` (hashed/opaque when applicable)
 - `duration_ms` for requests/jobs
 - `error.type`, `error.message`, `error.stack`
+
+## Optional Context Fields (Injected When Available)
+
+- `request_id`, `trace_id` (middleware/contextvars injected)
+- `user_id` (hashed/opaque when applicable)
 
 ## Level Mapping (Python)
 
@@ -57,9 +63,9 @@ Rule of thumb:
 
 ```
 log.info("request completed",
-  request_id=rid,
-  trace_id=tid,
   duration_ms=dur_ms,
+  request_id=rid,  # if available
+  trace_id=tid,    # if available
 )
 ```
 
@@ -86,7 +92,7 @@ Example:
 
 ## Boundary Logs (Required)
 
-Every request/job must have logs at entry and exit with consistent IDs.
+Every request/job must have logs at entry and exit with consistent IDs when available.
 
 Required boundaries:
 - router/controller: request_received, request_completed (include status, duration_ms).
@@ -95,9 +101,11 @@ Required boundaries:
 - external integration: call_start, call_success, call_failure (include provider, status).
 
 Minimum fields at boundaries:
-- `request_id`, `trace_id`, `duration_ms` (where applicable)
+- `duration_ms` (where applicable)
 - `status` or `result`
 - `error.*` on failures
+
+Include `request_id` / `trace_id` when injected by middleware/contextvars.
 
 ## Module Responsibility Matrix
 
@@ -114,6 +122,82 @@ Minimum fields at boundaries:
   - MUST log: call_start/success/failure with provider + latency.
   - SHOULD log: retry/backoff decisions.
 
+## Multi-Agent Strategy (Optional, Recommended for Medium+ Changes)
+
+Use this only when explicit review parallelism is needed. Do not parallelize by file count alone.
+
+Mode switch:
+- `agent_mode=multi` (default): one main agent edits, reviewer sub-agents audit and confirm.
+- `agent_mode=single`: one agent edits and self-verifies.
+
+Minimum staffing when multi mode is enabled:
+- main agent: 1
+- reviewer agents: >= 1
+
+## Role Contract
+
+- Main agent:
+  - Owns scope planning, editing, final synthesis, and decision arbitration.
+  - Must not skip unresolved critical/high findings.
+- Reviewer agent:
+  - Owns review only (no direct edits to target file unless explicitly assigned).
+  - Must output evidence-backed findings with severity and fix suggestions.
+- Optional specialist reviewer:
+  - Used for coverage metrics, threshold consistency, and false-positive control.
+
+## Trigger Matrix
+
+Scale reviewer count when any condition is true:
+- Affected files >= 3.
+- Changes touch at least 2 of: Boundary Logs, Coverage Check, Automated Master Review.
+- Pass criteria, scoring thresholds, or required field rules are modified.
+
+Downgrade to `agent_mode=single` only when all conditions are true:
+- Affected files = 1.
+- No scoring/threshold/required-field rule changes.
+- No critical/high findings expected from prior similar edits.
+
+Reviewer parallelism guidance:
+- 1 reviewer: small scope, low risk.
+- 2 reviewers: medium scope or cross-section policy edits.
+- 3-4 reviewers max: high-risk policy/threshold changes.
+
+Not recommended:
+- One reviewer per file as a fixed rule. Prefer thematic review lanes.
+
+## Review Protocol
+
+Each reviewer must output structured findings:
+- `id`
+- `severity` (`critical`/`high`/`medium`/`low`)
+- `location` (section + line or subsection)
+- `risk`
+- `suggested_fix`
+- `evidence`
+
+Main agent must return arbitration for every `critical/high` finding:
+- `decision`: `accept` / `reject` / `defer`
+- `reason`
+- `owner` + `exit_condition` for deferred items
+
+## Merge/Conflict Policy
+
+- Reviewer disagreement is resolved by main agent using this priority:
+  1. correctness and consistency
+  2. operability and auditability
+  3. style/readability preferences
+- If conflicts affect pass criteria or thresholds, mark as decision gate and require explicit arbitration notes.
+- Do not finalize while unresolved `critical` findings exist.
+
+## Evidence and Audit
+
+For `agent_mode=multi`, produce:
+- agent assignment table
+- reviewer findings list
+- arbitration log
+- final accepted changes summary
+- unresolved/deferred items (if any) with owner
+
 ## Output Format
 
 ```
@@ -125,18 +209,22 @@ Minimum fields at boundaries:
 ## Level Usage Rules
 ## Boundary Logs
 ## Module Responsibility Matrix
+## Agent Plan
+## Review Findings
+## Arbitration Decision
 ## Examples
 ## Checklist
 ## Coverage Check
 ## Automated Master Review
 ## Verification Notes
 ## Reinforcement Mechanism
+## Audit Evidence
 ```
 
 ## Verification Hooks
 
 - Provide at least one positive example and one negative example.
-- Confirm request/trace IDs are present on entry/exit logs.
+- Confirm request/trace IDs are present on entry/exit logs when available.
 - Confirm redaction rules are stated for secrets/PII.
 - Note what was checked and where (files/services), or state unknowns.
 
@@ -191,7 +279,7 @@ Goal: zero-human, scriptable assessment of master-level logging quality.
 
 Automated evaluation signals (score 0-2 each, must total >= 10 and no 0 in critical items):
 - Clarity (critical): >= 98% of logs have non-empty `message` and match the action-phrase pattern (verb + object).
-- Traceability (critical): 100% of request/response logs include `request_id` and `trace_id`.
+- Traceability (critical): 100% of request/response logs include `request_id` and `trace_id` when context is available; otherwise include explicit `traceability_reason`.
 - Decision visibility (critical): 100% of MUST decisions include `decision`, `decision_outcome`, `decision_reason`.
 - Business alignment: >= 80% of decision logs include `impact` or `biz_metric` fields.
 - Signal-to-noise: avg. logs/request <= 50 and duplicate identical messages <= 3 per request (or document a waiver).
@@ -230,3 +318,6 @@ Gaps/TODO:
 
 - Do not log secrets or raw PII.
 - Avoid logging large payloads in production.
+- Do not keep multi-agent mode for trivial one-file edits after downgrade criteria are met.
+- Do not use one-reviewer-per-file as a fixed policy.
+- Do not merge with unresolved critical findings in multi-agent mode.

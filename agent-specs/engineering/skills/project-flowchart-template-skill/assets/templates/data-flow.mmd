@@ -1,0 +1,19 @@
+%% Generic data read/write flow template
+flowchart TD
+    entry_receive_data_request["Caller\n(API/service)"] --> repo_get_data_read["DATA_READ\n(read path)"]
+    repo_get_data_read --> branch_verify_cache_hit{"Cache hit?"}
+    branch_verify_cache_hit -->|yes| result_return_data_cached["Return cached data"]
+    branch_verify_cache_hit -->|no| store_get_data_primary["Read from primary store"]
+
+    store_get_data_primary --> service_map_data_read["Map/serialize"]
+    service_map_data_read --> result_return_data_read_ok["Return read data"]
+
+    entry_receive_data_request --> repo_upsert_data_write["DATA_WRITE\n(write path)"]
+    repo_upsert_data_write --> gate_verify_data_write["Write validation"]
+    gate_verify_data_write --> branch_verify_write_valid{"Write validation pass?"}
+    branch_verify_write_valid -->|no| result_return_data_write_rejected["Reject write + error"]
+    branch_verify_write_valid -->|yes| store_upsert_data_primary["Write to primary store"]
+    store_upsert_data_primary --> event_emit_data_index_update["Emit event/index update (optional)"]
+    event_emit_data_index_update --> result_return_data_write_ok["Write success"]
+
+    %% TODO(verify): bind read/write nodes to real repositories/tables

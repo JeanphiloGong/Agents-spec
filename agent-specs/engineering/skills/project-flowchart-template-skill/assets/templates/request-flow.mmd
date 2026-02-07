@@ -1,0 +1,18 @@
+%% Generic request handling template
+flowchart TD
+    entry_receive_request_create["REQUEST_ENTRY\n(e.g., POST /api/xxx)"] --> gate_verify_user_permission["Permission check"]
+    gate_verify_user_permission --> branch_verify_permission_granted{"Permission granted?"}
+    branch_verify_permission_granted -->|no| result_return_http_403_forbidden["Response: unauthorized/forbidden"]
+    branch_verify_permission_granted -->|yes| gate_verify_request_payload["Payload validation"]
+
+    gate_verify_request_payload --> branch_verify_payload_valid{"Input validate pass?"}
+    branch_verify_payload_valid -->|no| result_return_http_400_bad_request["Response: bad request"]
+    branch_verify_payload_valid -->|yes| route_parse_request_handler["Core handler\n(router/controller)"]
+    route_parse_request_handler --> service_assemble_request_payload["Service/usecase"]
+    service_assemble_request_payload --> repo_upsert_request["Repository/adapter"]
+    repo_upsert_request --> store_upsert_request_primary[("DB/Cache/Queue")]
+
+    store_upsert_request_primary --> result_return_http_200_success["Response: success"]
+    service_assemble_request_payload --> result_return_http_500_failure["Response: failure branch"]
+
+    %% TODO(verify): replace placeholders with real file/function names
