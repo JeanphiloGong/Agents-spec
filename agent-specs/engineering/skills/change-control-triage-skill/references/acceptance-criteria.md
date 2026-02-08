@@ -1,38 +1,24 @@
-# Acceptance Criteria (Change Control Triage Skill)
+# Acceptance Criteria (Lean)
 
-## Universal (Always)
+## Must Pass
 
-- Outcome is defined (what the operator gets).
-- Inputs are explicit; missing inputs are labeled `UNKNOWN`.
-- Workflow steps are actionable and sequenced.
-- Guardrails prevent unsafe/ambiguous behavior.
-- Verification describes how to validate correctness.
-- Unknowns are explicitly listed as blockers when relevant.
+- Output is directly executable by an engineer.
+- Output includes `Decision` and `Triggered Gates`.
+- Output starts with `Start Here (Top 3)` and concrete actions.
+- Output includes phase-by-phase modifications in master order.
+- Output includes minimal verification and rollback.
+- Output includes only blocking questions.
+- If blocking gates exist, `Decision=BLOCK`.
 
-## Skill-Specific (Must Pass)
+## Mode Rules
 
-- Evidence Map includes a real diff-based file inventory.
-- Every changed file/group is classified as RED/YELLOW/GREEN (or explicitly excluded with justification).
-- No auto-RED category is classified as GREEN.
-- Every RED item has a complete mastery checklist:
-  - >= 3 invariants
-  - explicit preconditions/state boundaries
-  - explicit state transitions
-  - >= 3 failure modes + handling
-  - at least 1 negative test per policy gate
-  - a rollback/stop-the-bleeding step
-- Decision gate is emitted and is consistent with the rubric:
-  - Missing RED mastery → `BLOCK`
-  - Missing rollback notes for irreversible changes → `BLOCK`
-  - Missing negative tests for auth/pricing/migrations/contracts → `BLOCK`
-- Output includes `agent_mode`.
-- Output includes `Start Here (Ordered)` with >= 3 concrete next actions.
-- Output includes `Top Findings (Critical/High)` (may be empty, but must be present).
-- If `agent_mode=multi`, the output lists reviewers by scope and includes at least one `critical/high` finding summary or explicitly states “none found”.
+- `fast`: no heavy evidence or long checklists.
+- `deep`: adds concise risk/tradeoff notes.
+- `audit`: adds full evidence/classification details.
 
-## Reviewer Challenge Checklist
+## Quick Review Questions
 
-- What would make this triage output misleading or unsafe?
-- Which assumption is weakest, and how would you verify it quickly?
-- What failure signal would appear first if a RED item is wrong?
-- Is the suggested verification plan minimal but sufficient?
+- Can a developer start implementing within 30 seconds?
+- Is the phase order correct?
+- Are gate blockers explicit?
+- Is rollback actionable?
