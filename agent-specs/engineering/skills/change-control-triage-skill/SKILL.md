@@ -1,44 +1,26 @@
 ---
 name: change-control-triage-skill
-description: v0.1.8 - Generate lean, master-flow-first modification plans with strict gate prechecks and explicit source anchors.
+description: v0.1.11 - Generate fast 1->7 migration plans from AI diff to main with per-step gates and optional multi-agent planning.
 ---
 
 # Change Control Triage Skill
 
-## Trigger and Scope
+## Trigger
 
-Use this skill when you need an implementation plan for project changes that follows real development order.
+Use this skill when you need a fast, executable plan to migrate AI-branch changes into `main`.
 
-In scope:
-- backend, frontend, data, infra, AI workflow, release
-- concise modification plan output
-- strict gate prechecks before phase progression
+## Fixed Defaults
 
-Out of scope:
-- auto-writing production code
-- verbose audit reports by default
-- assumptions unsupported by repository evidence
+- `mode=fast` (only mode)
+- `diff_target=working tree` (or `<base>..<head>`)
+- `main_target=main`
+- `migration_strategy=existing-files-first`
+- `new_file_policy=deny-by-default`
+- `agent_mode=auto|single|multi`
 
-## Defaults
+## Fixed Master Flow (1->7)
 
-- `mode=fast`
-- `development_flow=master` (fixed)
-- `gate_policy=strict` (fixed)
-- `agent_mode=auto`
-- `diff_target=working tree`
-
-## Required Inputs
-
-- `repo_root` (default: current workspace)
-- `diff_target` (working tree or `<base>..<head>`)
-- `mode` (optional: `fast|deep|audit`)
-- `agent_mode` (optional: `auto|single|multi`)
-
-If required facts are missing, ask only blocking questions.
-
-## Master Flow (Fixed Order)
-
-1. Requirements and Invariants
+1. Rules and Invariants
 2. Domain and Model Design
 3. Contract and Interface Design
 4. Core Implementation
@@ -46,117 +28,71 @@ If required facts are missing, ask only blocking questions.
 6. Verification
 7. Release and Observability
 
-## Source Anchors (Master-Level)
+## Core Habits
 
-This flow is a composite of proven practices, not a single author:
-- Domain and invariants: Eric Evans, Vaughn Vernon
-- Refactoring and contract evolution: Martin Fowler
-- TDD and fast feedback: Kent Beck
-- Delivery and release engineering: Jez Humble, David Farley
-- Distributed systems and data correctness: Martin Kleppmann
-- Reliability operations: Google SRE practice
+- Define invariants/contracts before implementation.
+- Build one smallest verifiable closed loop first.
+- Require rollback and observability before release.
 
-## Gates (Strict)
+## Gate Rule
 
-Before normal phase progression, check:
-- `Security Gate`
-- `Data Gate`
-- `Contract Gate`
-- `Reliability Gate`
+Gate set: `Security`, `Data`, `Contract`, `Reliability`.
 
-If any blocking gate is unresolved, set `Decision=BLOCK` and place gate fixes first.
-
-Security and reliability gates are grounded in:
-- OWASP ASVS (application security verification)
-- Threat modeling practice (Adam Shostack-style methodology)
-- SRE reliability and rollback discipline
+- gates block progression at current phase
+- gates do not reorder phase order
+- unresolved blocking gate => `Decision=BLOCK`
 
 ## Workflow
 
-1. Read `diff_target` and identify changed components.
-2. Map changes to the fixed master flow phases.
-3. Evaluate gate triggers.
-4. Build `Start Here (Top 3)` with gate fixes first.
-5. Build phase-by-phase file modifications.
-6. Define execution order.
-7. Define minimal verification and rollback.
-8. Output only blocking questions.
-9. If `mode=deep`, append concise risk/tradeoff notes.
-10. If `mode=audit`, append full evidence/classification sections.
+1. Read AI diff and split meaningful change units.
+2. Map each unit to `main_target` (existing files first).
+3. Assign each mapped unit to phase 1->7.
+4. Generate `Main Mapping Plan` by phase.
+5. Generate `Per-Step Gate` for each phase.
+6. Generate `Minimal Landing Batch (Top 3)` for one closed loop.
+7. Add minimal verification and rollback (when high-risk).
+8. Emit blocking questions only.
+9. Plan multi-agent reviewers when `agent_mode=multi` or `auto` triggers multi.
 
-## Output Format (`mode=fast`)
+## Multi-Agent Planning
 
-```
-## Change Plan Summary
-- Goal:
-- Decision: BLOCK|CONDITIONAL|OK
-- Applied Flow: master
-- Triggered Gates: none|Security|Data|Contract|Reliability
+`auto` switches to `multi` if any:
+- changed files >= 15
+- cross-layer change (e.g. domain + infra/frontend)
+- any blocking gate is triggered
 
-## Start Here (Top 3)
-- 1) ...
-- 2) ...
-- 3) ...
+Reviewer scopes:
+- security/auth
+- data/migration
+- contract/api
+- infra/runtime
+- testing/rollback
 
-## Phase-by-Phase Modifications
-- Phase 1 (Requirements and Invariants):
-  - `path`:
-    - change:
-    - reason:
-    - done when:
-- Phase 2 (Domain and Model Design):
-  - ...
-- Phase 3 (Contract and Interface Design):
-  - ...
-- Phase 4 (Core Implementation):
-  - ...
-- Phase 5 (Integration and Infrastructure):
-  - ...
-- Phase 6 (Verification):
-  - ...
-- Phase 7 (Release and Observability):
-  - ...
+## Output Contract (`fast`)
 
-## Execution Order
-- 1) ...
-- 2) ...
-- 3) ...
+Use `references/edit-plan-template.md` exactly.
 
-## Minimal Verification
-- command/check:
-- expected result:
-
-## Rollback
-- immediate stop-the-bleeding:
-- rollback step:
-
-## Open Questions (Blocking Only)
-- ...
-
-## Notes
-- mode: fast|deep|audit
-- agent_mode: auto|single|multi
-- reviewers (when multi): ...
-```
+Required sections:
+- `Change Plan Summary`
+- `Main Mapping Plan (1->7)`
+- `Per-Step Gate`
+- `Minimal Landing Batch (Top 3)`
+- `Minimal Verification`
+- `Rollback (If High Risk)`
+- `Multi-Agent Plan (When multi)`
+- `Blocking Questions (Only If Blocking)`
 
 ## Guardrails
 
 - Keep output implementation-first and concise.
-- Do not jump to entry wiring before upstream phases are ready.
-- Do not omit rollback for irreversible or high-impact changes.
-- Do not hide unresolved gate issues.
+- No Evidence Map and no long checklist sections.
+- Keep phase order fixed at 1->7.
+- Do not propose new files unless unavoidable.
 - Do not output secrets, tokens, or PII.
-
-## Verification Hooks
-
-- Includes: `Start Here`, phase modifications, execution order, verification, rollback.
-- Phase order follows fixed master flow unless blocked by gates.
-- `mode=fast` avoids heavy audit sections.
 
 ## References
 
-- `references/master-development-flow.md`
-- `references/gate-definitions.md`
 - `references/edit-plan-template.md`
-- `references/operator-playbook.md`
 - `references/acceptance-criteria.md`
+- `references/operator-playbook.md`
+- `references/multi-agent-protocol.md`

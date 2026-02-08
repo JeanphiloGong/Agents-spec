@@ -1,21 +1,13 @@
 # Gate Definitions
 
-Gates are preemption conditions applied before normal phase progression.
-
-Source anchors:
-- OWASP ASVS (security verification baseline)
-- Threat modeling practice (Adam Shostack)
-- Martin Kleppmann style data integrity and irreversibility concerns
-- SRE rollback and reliability discipline
+Gates are blocking checks before moving to the next phase.
 
 ## Gate Policy
 
 - `strict`:
-  - unresolved blocking gates force `Decision=BLOCK`
-  - gate fixes are placed first in `Start Here`
-- `advisory`:
-  - gates are listed as warnings
-  - phase flow may continue with explicit caution
+  - unresolved gate => `Decision=BLOCK`
+  - gates block current phase only
+  - gates never reorder phase order
 
 ## Security Gate
 
@@ -25,18 +17,12 @@ Trigger examples:
 - token/signature checks bypassed
 - unsafe secret handling
 
-Placement:
-- preempt to top priority before other phase tasks
-
 ## Data Gate
 
 Trigger examples:
 - irreversible migration without rollback
 - destructive data operation without recovery path
 - schema changes that can corrupt reads/writes
-
-Placement:
-- preempt before persistence or integration execution
 
 ## Contract Gate
 
@@ -45,18 +31,12 @@ Trigger examples:
 - interface rename/removal without migration notes
 - client-facing payload shape break
 
-Placement:
-- preempt before interface and release tasks
-
 ## Reliability Gate
 
 Trigger examples:
 - no minimal verification path for critical flows
 - no rollback/stop-the-bleeding strategy
 - changes with high blast radius and no failure handling
-
-Placement:
-- preempt before release progression
 
 ## Gate Resolution Requirement
 
