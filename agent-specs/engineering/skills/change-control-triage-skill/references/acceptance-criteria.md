@@ -1,31 +1,33 @@
-# Acceptance Criteria (Lean, One-Wave)
+# Acceptance Criteria (Lean)
 
 ## Must Pass
 
-- Input can be resolved from exactly two branches: `base_branch` and `head_branch`.
-- Output is tutorial-first and limited to current wave only.
+- Output is directly executable by an engineer.
 - Output includes `Decision` and `Triggered Gates`.
-- Output includes `Control Map` (`Human-Owned`, `AI-Assist`, `AI-Auto`).
-- Output includes `Current Wave Plan (1->7)` in fixed order.
-- Each phase includes `action`, `human_control`, `ai_accelerate`, `forbidden_for_ai`, `commit_when`, `done_when`.
-- Output includes `Per-Step Gate` and gate blockers are explicit.
-- Output includes `Wave Commit Plan` with small, reviewable change slices.
-- Multi-agent review is default; single mode is fallback for trivial waves only.
+- Output includes `Migration Strategy` and `New File Policy`.
+- Output includes `Main Mapping Plan (1->7)`.
+- Output includes `Per-Step Gate`.
+- Output includes `Minimal Landing Batch (Top 3)`.
+- Output includes `Multi-Agent Plan` when mode resolves to multi.
+- Main mapping entries include `ai_diff`, `main_target`, `change`, and `done_when`.
 - Output includes minimal verification and rollback for high-risk changes.
 - Output includes only blocking questions.
-- Output includes only one-line next wave entry condition (no future-wave expansion).
+- Phase order is fixed at 1->7 (gates may block but must not reorder phases).
 - If blocking gates exist, `Decision=BLOCK`.
-- Phase 2 does not execute DDL/migration/backfill.
+- New files are denied by default or explicitly justified with rollback notes.
 
 ## Mode Rule
 
-- Only `fast-one-wave` mode is allowed.
+- Only `fast` mode is allowed.
 - No evidence map and no heavy checklist sections.
 
 ## Quick Review Questions
 
-- Can a developer start current wave implementation within 30 seconds?
-- Is ownership clear between human control and AI acceleration?
-- Is every commit trigger tied to a concrete `done_when` state?
-- Are blockers explicit and actionable?
-- Does current wave form one verifiable loop?
+- Can a developer start implementing within 30 seconds?
+- Is the phase order correct?
+- Are gate blockers explicit?
+- Does each phase include a clear gate (`must_pass` / `block_when`)?
+- Does `Minimal Landing Batch (Top 3)` form one verifiable closed loop?
+- If `multi`, are reviewer scopes and focus explicit?
+- Is rollback actionable?
+- Is every meaningful AI diff item mapped to a main-branch action in phase order?

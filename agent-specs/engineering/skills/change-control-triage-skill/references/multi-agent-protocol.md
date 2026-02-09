@@ -1,21 +1,19 @@
-# Multi-Agent Protocol (Fast One-Wave)
+# Multi-Agent Protocol (Fast)
 
 Main pattern:
-- one main agent owns final output
-- reviewer agents provide scoped checks for current wave only
+- one main agent owns final plan
+- reviewer agents provide scoped checks
 
 ## Mode Resolution
 
-- default: `agent_mode=multi`
+- `agent_mode=single`: main agent only
 - `agent_mode=multi`: main agent + reviewers
-- `agent_mode=single`: explicit fallback for trivial waves only
-- `agent_mode=auto`: compatibility alias; treat as multi unless trivial criteria all pass
+- `agent_mode=auto`: switch to multi when any trigger is true
 
-Trivial fallback criteria (all must pass):
-- changed files <= 5
-- single-layer change in current wave
-- no blocking gate triggered
-- no unresolved Human-Owned decision items
+Auto triggers:
+- changed files >= 15
+- cross-layer change (domain + infra/frontend/data)
+- any blocking gate triggered (`Security|Data|Contract|Reliability`)
 
 ## Reviewer Scopes
 
@@ -25,7 +23,7 @@ Trivial fallback criteria (all must pass):
 - infra/runtime
 - testing/rollback
 
-Assign only scopes touched by current wave.
+Assign only scopes touched by the diff.
 
 ## Reviewer Output (Minimal)
 
@@ -37,6 +35,6 @@ Each reviewer returns:
 
 ## Main Agent Merge Rule
 
-- merge reviewer findings into current-wave gates
+- merge reviewer findings into phase gates
 - unresolved `critical` => `Decision=BLOCK`
-- keep final output in the same one-wave template
+- keep final output in the same fast template

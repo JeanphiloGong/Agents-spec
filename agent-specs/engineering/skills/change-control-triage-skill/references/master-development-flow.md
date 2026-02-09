@@ -1,14 +1,14 @@
-# Master Development Flow (One-Wave)
+# Master Development Flow
 
-Use this fixed phase order for the current wave:
+Use this fixed phase order:
 
 1. Rules and Invariants
-2. Loop Semantics and Domain Logic (no DDL execution)
-3. Contract and Compatibility
-4. Minimal Executable Slice
-5. Data/Infra Landing (if required)
-6. Verification and Rollback Drill
-7. Release and Observability Handoff
+2. Domain and Model Design
+3. Contract and Interface Design
+4. Core Implementation
+5. Integration and Infrastructure
+6. Verification
+7. Release and Observability
 
 ## Ordering Rule
 
