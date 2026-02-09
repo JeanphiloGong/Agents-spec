@@ -1,25 +1,31 @@
-# Operator Playbook (Lean)
+# Operator Playbook (One-Wave)
 
 ## Default Usage
 
-Use `fast` mode only.
-Use this skill primarily to transplant AI-branch changes into `main`.
+Use `fast-one-wave` mode only.
+Use this skill to compare two branches and plan current wave execution.
+
+## Inputs
+
+- `base_branch`
+- `head_branch`
 
 ## Execute in this order
 
-1. Build `Main Mapping Plan (1->7)` from AI diff to main targets.
-2. Define `Per-Step Gate` for all seven phases.
-3. Build `Minimal Landing Batch (Top 3)` as one closed loop.
-4. Execute changes in fixed 1->7 phase order.
-5. Run minimal verification.
-6. If failure occurs, run rollback first, then patch and retry.
+1. Compare `base_branch..head_branch` and extract change units.
+2. Build `Control Map` first (human vs AI responsibilities).
+3. Select current wave scope (max 1-2 loops).
+4. Build `Current Wave Plan (1->7)` with `commit_when` and `done_when`.
+5. Add `Per-Step Gate` and blocking questions.
+6. Run minimal verification and rollback readiness check.
+7. Stop after current wave output; only provide one-line next-wave entry condition.
 
 ## Output Focus
 
-- Default output is implementation-first.
-- Do not output Evidence Map or long checklist sections in `mode=fast`.
+- Tutorial-first and implementation-ready.
+- Keep content concise.
 - Keep blocking questions only.
-- Include multi-agent plan only when mode resolves to `multi`.
+- Multi-agent is default; use single mode only for trivial fallback.
 
 ## File Policy
 

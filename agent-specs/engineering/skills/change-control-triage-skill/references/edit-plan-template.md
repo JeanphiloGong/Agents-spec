@@ -1,49 +1,69 @@
-# Output Template (`fast`)
+# Output Template (`fast-one-wave`)
 
 ```
-## Change Plan Summary
+## Wave Tutorial Summary
 - Goal:
 - Decision: BLOCK|CONDITIONAL|OK
-- Applied Flow: 1->7 master
+- Branch Compare: <base_branch>..<head_branch>
+- Selected Workflow: loop-first|risk-first|contract-first|delivery-first
 - Triggered Gates: none|Security|Data|Contract|Reliability
-- Migration Strategy: existing-files-first
-- New File Policy: deny-by-default
+- Scope: current-wave-only
+- AI Reference Policy: integrate-not-copy
 
-## Main Mapping Plan (1->7)
+## Control Map
+- Human-Owned:
+- AI-Assist:
+- AI-Auto:
+
+## Current Wave Plan (1->7)
 - Phase 1 (Rules and Invariants):
-  - ai_diff:
-  - main_target:
-  - change:
+  - action:
+  - human_control:
+  - ai_accelerate:
+  - forbidden_for_ai:
+  - commit_when:
   - done_when:
-- Phase 2 (Domain and Model Design):
-  - ai_diff:
-  - main_target:
-  - change:
+- Phase 2 (Loop Semantics and Domain Logic):
+  - action:
+  - human_control:
+  - ai_accelerate:
+  - forbidden_for_ai:
+  - commit_when:
   - done_when:
-- Phase 3 (Contract and Interface Design):
-  - ai_diff:
-  - main_target:
-  - change:
+- Phase 3 (Contract and Compatibility):
+  - action:
+  - human_control:
+  - ai_accelerate:
+  - forbidden_for_ai:
+  - commit_when:
   - done_when:
-- Phase 4 (Core Implementation):
-  - ai_diff:
-  - main_target:
-  - change:
+- Phase 4 (Minimal Executable Slice):
+  - action:
+  - human_control:
+  - ai_accelerate:
+  - forbidden_for_ai:
+  - commit_when:
   - done_when:
-- Phase 5 (Integration and Infrastructure):
-  - ai_diff:
-  - main_target:
-  - change:
+- Phase 5 (Data/Infra Landing):
+  - action:
+  - human_control:
+  - ai_accelerate:
+  - forbidden_for_ai:
+  - commit_when:
   - done_when:
-- Phase 6 (Verification):
-  - ai_diff:
-  - main_target:
-  - change:
+- Phase 6 (Verification and Rollback Drill):
+  - action:
+  - human_control:
+  - ai_accelerate:
+  - forbidden_for_ai:
+  - commit_when:
   - done_when:
-- Phase 7 (Release and Observability):
-  - ai_diff:
-  - main_target:
-  - change:
+- Phase 7 (Release and Observability Handoff):
+  - action:
+  - human_control:
+  - ai_accelerate:
+  - forbidden_for_ai:
+  - commit_when:
   - done_when:
 
 ## Per-Step Gate
@@ -69,10 +89,12 @@
   - must_pass:
   - block_when:
 
-## Minimal Landing Batch (Top 3)
-- 1) ...
-- 2) ...
-- 3) ...
+## Wave Commit Plan
+- Commit N (repeat as needed):
+  - type_scope_subject: feat|fix|refactor|test|docs|chore
+  - change_slice:
+  - commit_when:
+  - verify:
 
 ## Minimal Verification
 - check:
@@ -83,10 +105,13 @@
 - rollback step:
 
 ## Multi-Agent Plan (When multi)
-- mode: single|multi
+- mode: multi(default)|single(fallback)
 - reviewers:
 - reviewer_focus:
 
 ## Blocking Questions (Only If Blocking)
+- ...
+
+## Next Wave Entry Condition (One Line)
 - ...
 ```
