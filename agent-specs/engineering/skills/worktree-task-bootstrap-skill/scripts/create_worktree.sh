@@ -180,6 +180,8 @@ fork_status="disabled"
 fork_session_source=""
 fork_command=""
 fork_started="false"
+parent_should_stop="false"
+parent_stop_reason=""
 
 if [[ "$fork_codex" == "1" ]]; then
   fork_enabled="true"
@@ -220,6 +222,9 @@ if [[ "$fork_codex" == "1" ]]; then
         if tmux send-keys -t "$target_pane" "$fork_shell_cmd" C-m; then
           fork_status="started-main-window"
           fork_started="true"
+          parent_should_stop="true"
+          parent_stop_reason="fork-started-main-window"
+          echo "INFO: fork started in main tmux window; parent agent should stop and report handoff." >&2
         else
           fork_status="failed-send-keys"
         fi
@@ -279,6 +284,8 @@ fork_enabled=$fork_enabled
 fork_status=$fork_status
 fork_session_source=$fork_session_source
 fork_command=$fork_command
+parent_should_stop=$parent_should_stop
+parent_stop_reason=$parent_stop_reason
 task_context_present=$task_context_present
 subagent_status=$subagent_status
 subagent_window_name=$subagent_window_name

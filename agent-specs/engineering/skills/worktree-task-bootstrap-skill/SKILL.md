@@ -1,6 +1,6 @@
 ---
 name: worktree-task-bootstrap-skill
-description: v0.1.7 - Create a dedicated git worktree for every code task before implementation, auto-open tmux windows, optionally fork current Codex session into the new window, optionally start a child agent asynchronously, provide a portable launcher, and block unsafe/in-ws worktree paths with actionable hints.
+description: v0.1.8 - Create a dedicated git worktree for every code task before implementation, auto-open tmux windows, optionally fork current Codex session into the new window, optionally start a child agent asynchronously, provide a portable launcher, block unsafe/in-ws worktree paths, and enforce parent-agent stop-after-fork handoff.
 ---
 
 # Worktree Task Bootstrap Skill
@@ -63,6 +63,7 @@ Do not use it for discussion-only or docs-only work unless a branch workspace is
 - Do not rewrite history.
 - Child-agent auto-start requires explicit task context (`WORKTREE_CURRENT_TASK`).
 - Do not auto-modify shell `PATH` on each run.
+- If `fork_status=started-main-window`, parent agent must stop this turn after reporting handoff.
 
 ## Workflow
 
@@ -89,7 +90,10 @@ Do not use it for discussion-only or docs-only work unless a branch workspace is
 8. Print handoff commands:
    - `cd <worktree_path>` (non-tmux fallback)
    - `tmux select-window -t <window_name>` (tmux main window)
-9. Keep worktree after delivery; cleanup is manual.
+9. If fork started in main window:
+   - parent agent reports "fork done" and stops immediately
+   - parent agent must not continue implementation in this turn
+10. Keep worktree after delivery; cleanup is manual.
 
 ## Recommended Script
 
@@ -167,6 +171,8 @@ wt-bootstrap feat user-login
 - fork_status:
 - fork_session_source:
 - fork_command:
+- parent_should_stop:
+- parent_stop_reason:
 
 ## Execution Commands
 - git worktree add ...
