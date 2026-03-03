@@ -1,6 +1,6 @@
 ---
 name: proposal-review-wave-skill
-description: v0.1.2 - Evaluate new feature ideas with named multi-master domain councils and produce one-wave conclusions with human-owned final decisions.
+description: v0.1.3 - Evaluate new feature ideas with parallel multi-agent master councils and produce one-wave conclusions with human-owned final decisions.
 ---
 
 # Proposal Review Wave Skill
@@ -23,7 +23,7 @@ Out of scope:
 ## Core Purpose
 
 - Keep attention on business direction and system integrity.
-- Use multi-master domain critique to surface hidden risks early.
+- Use parallel multi-agent domain critique to surface hidden risks early.
 - Close each run as one smallest discussion loop.
 - Keep final decision human-owned.
 
@@ -41,6 +41,8 @@ Out of scope:
 - `decision_mode=human-final`
 - `role_pack_strategy=layered-domain-councils`
 - `masters_per_domain=3`
+- `agent_mode=parallel`
+- `max_parallel_agents=6`
 - `evaluation_model=fixed-six-dimension-score`
 - `artifact_mode=session-only`
 
@@ -83,19 +85,35 @@ Classify first, then discuss:
 - If a master lens conflicts with project constraints, keep the dissent and let
   human decide.
 
+## Multi-Agent Parallel Protocol
+
+- Spawn one sub-agent per selected master lens.
+- Run selected master agents in parallel; do not serialize by default.
+- Each sub-agent returns exactly:
+  - `position` (support/oppose/conditional)
+  - `key_risks` (top 3)
+  - `required_conditions` (must-have preconditions)
+  - `control_map_flags` (`Human-Owned|AI-Assist|AI-Auto`)
+- Aggregate with a synthesis step:
+  - majority consensus
+  - minority dissent
+  - unresolved conflicts
+- If any high-risk `Human-Owned` item is unresolved, output `Decision=BLOCK`.
+
 ## Workflow (Single Wave)
 
 1. Parse inputs and classify scope (`frontend|backend|system`).
 2. Define `Wave Goal` and explicit non-goals for this round.
-3. Select the primary domain council and run all masters in that council.
-4. Run cross-domain add-on masters only when risk or coupling requires them.
-5. Build `Council Consensus` and keep `Dissent Notes` (do not hide disagreements).
-6. Build `Conflict Matrix` from non-trivial disagreements.
-7. Score fixed six dimensions.
-8. Draft recommendation (primary direction + fallback).
-9. List mandatory human decision points.
-10. List minimal next-wave input checklist.
-11. Apply closure gate.
+3. Select the primary domain council and spawn one sub-agent per master.
+4. Trigger cross-domain add-on master agents only when risk or coupling requires them.
+5. Run all selected agents in parallel and collect structured outputs.
+6. Build `Council Consensus` and keep `Dissent Notes` (do not hide disagreements).
+7. Build `Conflict Matrix` from non-trivial disagreements.
+8. Score fixed six dimensions.
+9. Draft recommendation (primary direction + fallback).
+10. List mandatory human decision points.
+11. List minimal next-wave input checklist.
+12. Apply closure gate.
 
 ## Fixed Six-Dimension Score
 
@@ -140,6 +158,12 @@ Always default to `Human-Owned` when discussion touches:
 ## Scope Classification
 - ...
 
+## Agent Execution
+- mode: parallel
+- selected_councils:
+- spawned_agents:
+- completed_agents:
+
 ## Domain Master Deliberation
 - primary_council:
 - master_views: (must include named masters)
@@ -150,6 +174,8 @@ Always default to `Human-Owned` when discussion touches:
 
 ## Council Consensus
 - ...
+- unresolved_conflicts:
+- decision: GO | GO-WITH-CONDITIONS | BLOCK
 
 ## Conflict Matrix
 - ...
@@ -179,6 +205,7 @@ Always default to `Human-Owned` when discussion touches:
 - Keep output to one wave; do not output full roadmap by default.
 - Do not force all councils when scope is local.
 - Do not allow a single master view to become the final decision.
+- Do not skip dissent capture when agents disagree.
 - Do not provide implementation/migration steps unless explicitly requested.
 - Do not fabricate unknown facts; mark unknowns directly.
 - Keep discussion concise and decision-oriented.
