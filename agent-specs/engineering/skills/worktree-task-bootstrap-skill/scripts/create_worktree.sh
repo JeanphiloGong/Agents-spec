@@ -16,11 +16,27 @@ Arguments:
 Env:
   WORKTREE_AUTO_TMUX_WINDOW   1/0, default: 1
   WORKTREE_TMUX_WINDOW_NAME   Optional override for tmux main window name
+  WORKTREE_FORK_CODEX         1/0, default: 0 (fork current Codex session in main tmux window)
+  WORKTREE_FORK_PROMPT        Optional fork prompt override
   WORKTREE_CURRENT_TASK       Optional task context; enables child-agent behavior
   WORKTREE_AUTO_SUBAGENT      1/0, default: 1
   WORKTREE_SUBAGENT_PROMPT    Optional child-agent prompt override
   WORKTREE_SUBAGENT_WINDOW_NAME Optional override for child-agent tmux window name
 USAGE
+}
+
+resolve_path() {
+  local input_path="$1"
+
+  if command -v realpath >/dev/null 2>&1; then
+    realpath -m "$input_path" 2>/dev/null && return 0
+  fi
+
+  if command -v readlink >/dev/null 2>&1; then
+    readlink -m "$input_path" 2>/dev/null && return 0
+  fi
+
+  return 1
 }
 
 if [[ $# -lt 3 || $# -gt 5 ]]; then
@@ -33,8 +49,15 @@ task_kind="$2"
 task_slug="$3"
 base_branch="${4:-main}"
 worktree_root="${5:-}"
+worktree_root_explicit="false"
+
+if [[ -n "$worktree_root" ]]; then
+  worktree_root_explicit="true"
+fi
 
 auto_tmux_window="${WORKTREE_AUTO_TMUX_WINDOW:-1}"
+fork_codex="${WORKTREE_FORK_CODEX:-0}"
+fork_prompt_override="${WORKTREE_FORK_PROMPT:-}"
 auto_subagent="${WORKTREE_AUTO_SUBAGENT:-1}"
 current_task="${WORKTREE_CURRENT_TASK:-}"
 subagent_prompt_override="${WORKTREE_SUBAGENT_PROMPT:-}"
@@ -67,6 +90,26 @@ if [[ -z "$worktree_root" ]]; then
   worktree_root="$parent_dir/_worktrees"
 fi
 
+repo_root_resolved="$(resolve_path "$repo_root" || true)"
+if [[ -z "$repo_root_resolved" ]]; then
+  repo_root_resolved="$(cd "$repo_root" && pwd -P)"
+fi
+
+worktree_root_resolved="$(resolve_path "$worktree_root" || true)"
+if [[ -z "$worktree_root_resolved" ]]; then
+  worktree_root_resolved="$worktree_root"
+fi
+
+case "${worktree_root_resolved%/}/" in
+  "${repo_root_resolved%/}/"*)
+    echo "ERROR: worktree_root must be outside repo_root to avoid workspace pollution" >&2
+    echo "repo_root=$repo_root_resolved" >&2
+    echo "worktree_root=$worktree_root_resolved" >&2
+    echo "HINT: use an external path, for example: \"$repo_root_resolved/../_worktrees\" or \"/tmp/_worktrees\"" >&2
+    exit 1
+    ;;
+esac
+
 stamp="$(date +%Y%m%d)"
 branch="task/$task_kind/$stamp-$task_slug"
 worktree_path="$worktree_root/$task_kind-$task_slug"
@@ -92,7 +135,25 @@ if [[ -e "$worktree_path" ]]; then
   exit 1
 fi
 
-mkdir -p "$worktree_root"
+if ! mkdir -p "$worktree_root" 2>/dev/null; then
+  if [[ "$worktree_root_explicit" == "false" ]]; then
+    echo "ERROR: default worktree root not writable: $worktree_root" >&2
+    echo "HINT: grant write permission to this path, or rerun with an explicit writable worktree_root." >&2
+    echo "HINT: example:" >&2
+    echo "  bash scripts/create_worktree.sh \"$repo_root\" $task_kind $task_slug \"$base_branch\" \"<writable_path>\"" >&2
+    echo "HINT: in sandbox-like environments, try: /tmp/_worktrees" >&2
+  else
+    echo "ERROR: worktree_root is not writable: $worktree_root" >&2
+    echo "HINT: grant write permission for this path or pass another writable worktree_root." >&2
+    echo "HINT: example writable fallback: /tmp/_worktrees" >&2
+  fi
+  exit 1
+fi
+
+if [[ -e "$worktree_path" ]]; then
+  echo "ERROR: target worktree path already exists: $worktree_path" >&2
+  exit 1
+fi
 
 git -C "$repo_root" worktree add -b "$branch" "$worktree_path" "$base_branch"
 
@@ -114,6 +175,64 @@ if [[ -n "${TMUX:-}" ]] && command -v tmux >/dev/null 2>&1; then
   fi
 fi
 
+fork_enabled="false"
+fork_status="disabled"
+fork_session_source=""
+fork_command=""
+fork_started="false"
+parent_should_stop="false"
+parent_stop_reason=""
+
+if [[ "$fork_codex" == "1" ]]; then
+  fork_enabled="true"
+
+  if [[ "$tmux_env" != "detected" ]]; then
+    fork_status="skipped-no-tmux"
+  elif [[ "$tmux_window_opened" != "true" ]]; then
+    fork_status="skipped-main-window-not-opened"
+  elif ! command -v codex >/dev/null 2>&1; then
+    fork_status="skipped-codex-missing"
+  else
+    fork_session_id=""
+    if [[ -n "${CODEX_SESSION_ID:-}" ]]; then
+      fork_session_id="${CODEX_SESSION_ID}"
+      fork_session_source="CODEX_SESSION_ID"
+    elif [[ -n "${CODEX_THREAD_ID:-}" ]]; then
+      fork_session_id="${CODEX_THREAD_ID}"
+      fork_session_source="CODEX_THREAD_ID"
+    fi
+
+    if [[ -z "$fork_session_id" ]]; then
+      fork_status="skipped-missing-session-id"
+    else
+      if [[ -n "$fork_prompt_override" ]]; then
+        fork_prompt="$fork_prompt_override"
+      elif [[ -n "$current_task" ]]; then
+        fork_prompt="Continue task: $current_task. Work only in this worktree and report changed files, verification, and commit suggestions."
+      else
+        fork_prompt="Continue implementation in this worktree and keep changes scoped to this task."
+      fi
+
+      target_pane="$(tmux list-panes -t "$tmux_window_name" -F '#{pane_id}' 2>/dev/null | head -n 1 || true)"
+      if [[ -z "$target_pane" ]]; then
+        fork_status="failed-target-pane-not-found"
+      else
+        fork_shell_cmd="codex fork $(printf '%q' "$fork_session_id") $(printf '%q' "$fork_prompt") --cd $(printf '%q' "$worktree_path")"
+        fork_command="$fork_shell_cmd"
+        if tmux send-keys -t "$target_pane" "$fork_shell_cmd" C-m; then
+          fork_status="started-main-window"
+          fork_started="true"
+          parent_should_stop="true"
+          parent_stop_reason="fork-started-main-window"
+          echo "INFO: fork started in main tmux window; parent agent should stop and report handoff." >&2
+        else
+          fork_status="failed-send-keys"
+        fi
+      fi
+    fi
+  fi
+fi
+
 task_context_present="false"
 subagent_status="skipped-no-task-context"
 subagent_window_name=""
@@ -122,7 +241,9 @@ subagent_command=""
 if [[ -n "$current_task" ]]; then
   task_context_present="true"
 
-  if [[ "$auto_subagent" != "1" ]]; then
+  if [[ "$fork_started" == "true" ]]; then
+    subagent_status="skipped-forked-in-main-window"
+  elif [[ "$auto_subagent" != "1" ]]; then
     subagent_status="skipped-disabled"
   elif ! command -v codex >/dev/null 2>&1; then
     subagent_status="skipped-codex-missing"
@@ -159,6 +280,12 @@ worktree_path=$worktree_path
 tmux_env=$tmux_env
 tmux_window_opened=$tmux_window_opened
 tmux_window_name=$tmux_window_name
+fork_enabled=$fork_enabled
+fork_status=$fork_status
+fork_session_source=$fork_session_source
+fork_command=$fork_command
+parent_should_stop=$parent_should_stop
+parent_stop_reason=$parent_stop_reason
 task_context_present=$task_context_present
 subagent_status=$subagent_status
 subagent_window_name=$subagent_window_name

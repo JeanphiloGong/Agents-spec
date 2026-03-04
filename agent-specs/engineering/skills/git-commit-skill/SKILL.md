@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.12.20 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.21 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -18,28 +18,33 @@ description: v0.12.20 - Create standard, high-quality git commit messages and co
 1. Clarify scope and repository policy.
    - Default to this skill's template and do not ask about other conventions unless the user explicitly mentions one.
    - Ignore unrelated changes by default; do not add them unless explicitly requested.
-2. Set AI trace requirement (high priority).
+2. Run pre-commit issue gate when repo policy requires issue tracking.
+   - Use `issue-gate-skill` as the pre-step.
+   - `issue-gate-skill` should run with `input_mode=auto-infer-first`.
+   - If gate result is `BLOCK`, stop commit output and report blocker.
+   - If gate returns `refs_line` (for example `ISSUE: #123`), include it in `Refs`.
+3. Set AI trace requirement (high priority).
    - For AI-authored commits, require `session_id` in commit `Refs`.
    - Confirm `session_id` is available before finalizing commit content.
-3. Review change intent.
+4. Review change intent.
    - Summarize what changed and why, not how.
-4. Propose commit splits.
+5. Propose commit splits.
    - Separate logically independent changes.
-5. Draft commit messages.
+6. Draft commit messages.
    - Use Conventional Commits unless another standard is specified.
-6. Apply the subject rules and checklist.
+7. Apply the subject rules and checklist.
    - Use the simple one-sentence subject standard.
    - Verify the subject checklist passes before finalizing.
-7. Build the commit body.
+8. Build the commit body.
    - Follow the Why/What/Impact/Tests/Refs rules below.
-8. Add validation notes.
+9. Add validation notes.
    - Include relevant tests or verification steps if provided.
    - If tests are not run, use a concrete operational reason (avoid "not requested").
-9. Staging policy.
+10. Staging policy.
    - Do not run `git add` by default; the human reviews and stages changes.
    - If AI-authored changes are not staged, remind the user to stage them.
    - If only unrelated changes are unstaged, do not prompt.
-10. Record AI session trace in commit.
+11. Record AI session trace in commit.
    - For AI-authored commits, add raw `session_id` directly to `Refs`.
    - Use `AI-SESSION: <session_id>` as the default trace line.
    - If `session_id` is missing, pause and request it before completing commit output.
@@ -215,6 +220,7 @@ Refs
 - 目的是“追溯决策和上下文”，不是附件列表。
 - 允许 n/a，但只有在没有任何外部关联时才成立。
 - 任何高风险变更必须可回溯到 Issue/Spec/Incident/PR 之一。
+- 若前置 `issue-gate-skill` 返回 `refs_line`，应优先加入该 issue 引用行（如 `ISSUE: #123`）。
 - AI 生成的提交默认添加 `AI-SESSION: <session_id>`。
 
 Format rules:
