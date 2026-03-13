@@ -16,6 +16,7 @@ agents-spec-repo 用于管理 AI Agents 在不同工程/产品角色下的行为
 参考： [OpenAI Codex Skills](https://developers.openai.com/codex/skills)
 技能推荐按角色放置在 `agent-specs/<role>/skills/` 目录中，便于与角色规范绑定；如需本机使用，可同步到 `~/.codex/skills`。
 多 agent 协作规范已迁移为可选技能 `agent-collab-skill`，需要时再启用。
+显式外部记忆体系可使用 `project-memory-skill`，默认将项目记忆沉淀到 `~/.agents/memories/projects/<project-slug>/`。
 
 ## 🤝 协作方式
 - 先阅读 `AGENTS.md` 与 `AGENTS.template.md`，理解权限与协作边界
