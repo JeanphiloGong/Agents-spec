@@ -47,6 +47,7 @@ Do not use it for discussion-only or docs-only work unless a branch workspace is
 
 - `isolation_policy=always-new-worktree`
 - `cleanup_policy=manual-retain`
+- `bootstrap_method=manual-commands`
 - `tmux_auto_window=enabled`
 - `codex_fork_mode=optional-main-window`
 - `subagent_mode=optional-async`
@@ -65,6 +66,74 @@ Do not use it for discussion-only or docs-only work unless a branch workspace is
 - Do not auto-modify shell `PATH` on each run.
 - If `fork_status=started-main-window`, parent agent must stop this turn after reporting handoff.
 
+## Common Failure Modes and Fixes
+
+### 1. tmux window was created but "disappears"
+
+Cause:
+- Using `tmux new-window ... "<one-shot command>"` will close the window as soon as that command exits.
+- This is easy to hit when running `codex fork ...` directly as the window command.
+
+Fix:
+- Prefer opening a plain shell window first, then inject the fork command with `tmux send-keys`.
+- If a one-shot command must be used, keep the shell alive afterward with `; exec bash`.
+
+Recommended pattern:
+
+```bash
+tmux new-window -d -t <session> -n <window_name> -c <worktree_path>
+tmux send-keys -t <session>:<window_name> \
+  "codex fork <session_id> \"<prompt>\" --cd \"<worktree_path>\" --full-auto --no-alt-screen" C-m
+```
+
+Fallback one-shot pattern:
+
+```bash
+tmux new-window -d -t <session> -n <window_name> -c <worktree_path> \
+  "bash -lc 'codex fork <session_id> \"<prompt>\" --cd \"<worktree_path>\" --full-auto --no-alt-screen; exec bash'"
+```
+
+### 2. Nested shell quoting breaks the fork command
+
+Cause:
+- Deeply nested quoting such as `bash -lc "tmux new-window ... 'codex fork ...'"` is brittle.
+- Prompts with spaces, quotes, or punctuation can produce `unexpected EOF while looking for matching` errors.
+
+Fix:
+- Avoid composing the entire bootstrap in one nested shell string when tmux + prompt text are both involved.
+- Prefer the two-step `new-window` + `send-keys` flow.
+- If a single command is unavoidable, store prompt and paths in variables first and expand them in one shell layer only.
+
+Best practice:
+- Treat `tmux new-window` as window creation only.
+- Treat `tmux send-keys` as command dispatch only.
+- Do not mix multiple quoting layers unless you have no alternative.
+
+### 3. Sandboxed tmux inspection fails
+
+Cause:
+- In restricted environments, tmux socket access may fail with errors such as `Operation not permitted`.
+
+Fix:
+- If available, rerun tmux inspection with the required escalation/approval path.
+- If escalation is not appropriate, report that window creation could not be verified from the sandbox and provide manual verification commands.
+
+Manual verification commands:
+
+```bash
+tmux list-windows -a
+tmux capture-pane -pt <session>:<window_index> -S -30
+```
+
+## Best Practices
+
+- Prefer `new-window` + `send-keys` over a one-shot window command for any interactive tool.
+- Verify success explicitly after bootstrap with `tmux list-windows -a` and confirm the pane path matches `<worktree_path>`.
+- Use stable, predictable tmux window names so retries can detect and replace stale windows safely.
+- When re-running bootstrap, kill or rename conflicting windows before recreating them.
+- If the forked session is expected to continue unattended, use `--no-alt-screen` so scrollback and captured output remain visible.
+- Report both the worktree path and the exact `tmux select-window` fallback command in the handoff.
+
 ## Workflow
 
 1. Validate inputs (`repo_root`, `task_kind`, `task_slug`).
@@ -79,10 +148,11 @@ Do not use it for discussion-only or docs-only work unless a branch workspace is
 4. Create the worktree branch:
    - `git -C <repo_root> worktree add -b <branch> <worktree_path> <base_branch>`
 5. Detect tmux environment:
-   - if `TMUX` is set and `tmux` exists, auto-open a main window at `<worktree_path>`
+   - if `TMUX` is set and `tmux` exists, open a persistent shell window at `<worktree_path>`
 6. Optional codex fork into main tmux window:
    - if `WORKTREE_FORK_CODEX=1` and codex session id is available (`CODEX_SESSION_ID` or `CODEX_THREAD_ID`):
-     - run `codex fork <session_id> <prompt> --cd <worktree_path>` in the new main window
+     - dispatch `codex fork <session_id> <prompt> --cd <worktree_path> --no-alt-screen` into the new main window with `tmux send-keys`
+     - verify the target window exists before reporting handoff
 7. Optional child-agent launch:
    - if `WORKTREE_CURRENT_TASK` exists and `WORKTREE_AUTO_SUBAGENT=1`:
      - in tmux: open a second window and run `codex <prompt>` asynchronously
@@ -95,49 +165,55 @@ Do not use it for discussion-only or docs-only work unless a branch workspace is
    - parent agent must not continue implementation in this turn
 10. Keep worktree after delivery; cleanup is manual.
 
-## Recommended Script
+## Standard Manual Flow (Recommended)
 
-Use `scripts/create_worktree.sh` for deterministic execution.
+This skill's source of truth is a manual command flow.
+Do not rely on repository-local helper scripts as the default path.
+This skill no longer provides helper bootstrap scripts; remove or ignore any old local copies.
 
-Example:
+Recommended sequence:
 
 ```bash
-WORKTREE_CURRENT_TASK='Implement login happy path' \
-  bash scripts/create_worktree.sh /repo feat user-login
+repo_root="/repo"
+task_kind="refactor"
+task_slug="kg-enum-types"
+base_branch="main"
+worktree_root="$(dirname "$repo_root")/_worktrees"
+branch="task/${task_kind}/$(date +%Y%m%d)-${task_slug}"
+worktree_path="${worktree_root}/${task_kind}-${task_slug}"
+
+git -C "$repo_root" worktree add -b "$branch" "$worktree_path" "$base_branch"
 ```
 
-With custom child-agent prompt:
+If tmux is available, create a persistent window first:
 
 ```bash
-WORKTREE_CURRENT_TASK='Implement login happy path' \
-WORKTREE_SUBAGENT_PROMPT='Implement login happy path in this worktree and report changed files + tests.' \
-  bash scripts/create_worktree.sh /repo feat user-login
+session_name="$(tmux display-message -p '#S')"
+window_name="wt-${task_slug}"
+
+tmux new-window -d -t "$session_name" -n "$window_name" -c "$worktree_path"
 ```
 
-## Portable Launcher (Recommended)
-
-Use `scripts/wt-bootstrap` when you want path-independent usage.
-
-- It auto-detects repo root (`git rev-parse --show-toplevel`).
-- It forwards arguments to `create_worktree.sh`.
-- It avoids requiring hard-coded repository paths on different devices.
-
-Example:
+If Codex fork is required, inject it into that window instead of using a one-shot tmux command:
 
 ```bash
-bash scripts/wt-bootstrap feat user-login
+session_id="${CODEX_SESSION_ID:-${CODEX_THREAD_ID}}"
+prompt='Continue in this new worktree and complete the assigned task. First inspect repo state, respect existing user changes, run focused verification, and report changed files and remaining risks.'
+
+tmux send-keys -t "${session_name}:${window_name}" \
+  "codex fork ${session_id} \"${prompt}\" --cd \"${worktree_path}\" --full-auto --no-alt-screen" C-m
 ```
 
-Optional one-time install helper:
+Verify the window exists before reporting success:
 
 ```bash
-bash scripts/install-wt-bootstrap.sh
+tmux list-windows -t "$session_name" -F '#S:#I:#W:#{pane_current_path}'
 ```
 
-After install (if `~/.local/bin` is in `PATH`):
+Optional pane output check:
 
 ```bash
-wt-bootstrap feat user-login
+tmux capture-pane -pt "${session_name}:${window_name}" -S -30
 ```
 
 ## Output Format
@@ -177,6 +253,7 @@ wt-bootstrap feat user-login
 ## Execution Commands
 - git worktree add ...
 - tmux new-window ... (when tmux)
+- tmux send-keys ... (when forking codex)
 - cd ... (fallback)
 
 ## Task Handoff
