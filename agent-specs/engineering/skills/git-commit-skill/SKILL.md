@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.12.21 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.22 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -23,9 +23,9 @@ description: v0.12.21 - Create standard, high-quality git commit messages and co
    - `issue-gate-skill` should run with `input_mode=auto-infer-first`.
    - If gate result is `BLOCK`, stop commit output and report blocker.
    - If gate returns `refs_line` (for example `ISSUE: #123`), include it in `Refs`.
-3. Set AI trace requirement (high priority).
-   - For AI-authored commits, require `session_id` in commit `Refs`.
-   - Confirm `session_id` is available before finalizing commit content.
+3. Set traceability requirement (high priority).
+   - Prefer issue/spec/incident/PR references in commit `Refs` when available.
+   - Do not require an AI session identifier before finalizing commit content.
 4. Review change intent.
    - Summarize what changed and why, not how.
 5. Propose commit splits.
@@ -44,10 +44,10 @@ description: v0.12.21 - Create standard, high-quality git commit messages and co
    - Do not run `git add` by default; the human reviews and stages changes.
    - If AI-authored changes are not staged, remind the user to stage them.
    - If only unrelated changes are unstaged, do not prompt.
-11. Record AI session trace in commit.
-   - For AI-authored commits, add raw `session_id` directly to `Refs`.
-   - Use `AI-SESSION: <session_id>` as the default trace line.
-   - If `session_id` is missing, pause and request it before completing commit output.
+11. Finalize commit traceability.
+   - Add available issue/spec/incident/PR references directly to `Refs`.
+   - If no external reference exists and the change is low-risk, use `n/a`.
+   - If the change is high-risk and lacks a reference, pause and request the missing traceability input.
 
 ## Commit Message Standard
 
@@ -221,7 +221,6 @@ Refs
 - 允许 n/a，但只有在没有任何外部关联时才成立。
 - 任何高风险变更必须可回溯到 Issue/Spec/Incident/PR 之一。
 - 若前置 `issue-gate-skill` 返回 `refs_line`，应优先加入该 issue 引用行（如 `ISSUE: #123`）。
-- AI 生成的提交默认添加 `AI-SESSION: <session_id>`。
 
 Format rules:
 - Follow the "Commit Message Standard" structure exactly; do not add extra sections.
@@ -246,27 +245,30 @@ Format rules:
 - Base commit messages only on the AI's own changes.
 - If unrelated or user-made changes are present, ask once before including them, then proceed.
 
-## AI Session Trace Policy (Commit-Embedded)
+## Commit Traceability Policy
 
 Goal:
-- Keep AI commit traceability visible in commit history for collaboration handoff.
+- Keep commit traceability visible in commit history for collaboration handoff.
 
 Priority:
-- P1 (default on) for AI-authored commits.
-- Treat `Refs` trace line as required delivery evidence in the final response.
+- P1 for changes that already map to issue/spec/incident/PR records.
+- Do not require an AI-session-specific trace line.
 
-Required Refs line:
-- `AI-SESSION: <session_id>`
+Preferred Refs lines:
+- `ISSUE: #123`
+- `SPEC: path/to/spec.md`
+- `INCIDENT: INC-123`
+- `PR: #456`
 
 Operational workflow:
 1. Prepare commit message using this skill.
-2. Ensure `session_id` is available and append `AI-SESSION: <session_id>` in `Refs`.
-3. Complete commit and capture commit hash.
-4. Report commit hash + session trace line in final output.
+2. Append available issue/spec/incident/PR references in `Refs`.
+3. Complete commit and capture commit hash if a commit is created.
+4. Report commit hash + `Refs` lines in final output when applicable.
 
 Failure handling:
-- If `session_id` is missing, block final output and ask for it.
-- Record `not run (blocked: missing session_id)` in `Tests` or note the blocker in `Risks & Notes`.
+- If a high-risk change lacks any issue/spec/incident/PR reference, block final output and ask for one.
+- If no external reference exists for a low-risk change, use `n/a`.
 
 ## Output Format
 
@@ -274,7 +276,7 @@ Failure handling:
 ## Suggested Commit Messages
 ## Split Recommendations
 ## Validation Steps
-## AI Session Trace
+## Refs Summary
 ## Risks & Notes
 ```
 
@@ -282,5 +284,5 @@ Failure handling:
 
 - Do not run git commands or modify history unless explicitly authorized.
 - Do not include secrets or sensitive data in commit messages.
-- For AI-authored commits, include `AI-SESSION: <session_id>` in `Refs` by default.
+- Do not fabricate issue/spec/incident/PR references; use `n/a` only when appropriate.
 - If a repo has its own convention, follow it first.
