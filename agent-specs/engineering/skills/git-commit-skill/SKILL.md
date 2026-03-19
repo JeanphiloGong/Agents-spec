@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.12.24 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.25 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -261,6 +261,8 @@ Priority:
 - Treat the issue as the default purpose carrier for normal engineering work when issue tracking is enabled.
 - Allow one issue to cover multiple related commits from the same tracked task.
 - Do not assume each commit requires a newly created issue.
+- If the commit is authored in a fork for upstream work, prefer referencing the canonical upstream issue rather than a fork-local issue.
+- Treat linked issues as purpose records by default; a referenced issue may remain open after the commit.
 
 Preferred Refs lines:
 - `ISSUE: #123`
@@ -268,14 +270,20 @@ Preferred Refs lines:
 - `INCIDENT: INC-123`
 - `PR: #456`
 
+Reference semantics:
+- Use `Refs` or `ISSUE: #123` by default for informational linkage, partial progress, preparatory work, investigation, or multi-commit delivery.
+- Do not imply issue closure just because a commit references the issue.
+- Reserve closing semantics such as `Fixes` or `Closes` for commits that truly resolve the issue and only when the repository convention and the human both intend automatic closure.
+
 Operational workflow:
 1. Ensure the task already has a valid worktree boundary and issue context.
 2. Run `issue-gate-skill` to verify or repair final traceability before commit drafting.
 3. Reuse the current task issue in `Refs` when multiple commits belong to the same tracked work.
-4. Prepare commit message using this skill.
-5. Append available issue/spec/incident/PR references in `Refs`.
-6. Complete commit and capture commit hash if a commit is created.
-7. Report commit hash + `Refs` lines in final output when applicable.
+4. If the commit is developed in a fork for upstream delivery, reference the canonical issue unless the work is explicitly fork-only.
+5. Prepare commit message using this skill.
+6. Append available issue/spec/incident/PR references in `Refs`.
+7. Complete commit and capture commit hash if a commit is created.
+8. Report commit hash + `Refs` lines in final output when applicable.
 
 Failure handling:
 - If a high-risk change lacks any issue/spec/incident/PR reference, block final output and ask for one.
@@ -299,3 +307,4 @@ Failure handling:
 - If a repo has its own convention, follow it first.
 - Do not normalize "implement first, create issue later" as the default workflow for meaningful tracked changes.
 - Do not force one new issue per commit when several commits belong to the same tracked task.
+- Do not imply issue closure for partial progress or merely linked commits.

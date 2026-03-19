@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.5 - Enforce pre-commit issue gate with auto-inferred and auto-drafted issue content, gh/glab check/create/link flow, and dry-run plus human confirmation.
+description: v0.1.6 - Enforce pre-commit issue gate with auto-inferred and auto-drafted issue content, gh/glab check/create/link flow, and dry-run plus human confirmation.
 ---
 
 # Issue Gate Skill
@@ -29,6 +29,7 @@ Out of scope:
 - Ensure every meaningful change is traceable to an issue.
 - Prefer issue creation close to planning and scope definition, not as a default post-implementation repair step.
 - Use task-level traceability by default: one issue may cover multiple related commits for the same tracked work.
+- Keep the business purpose in the issue even when a linked commit only advances, investigates, or partially implements the work.
 - Keep commit flow human-controlled with automation guardrails.
 - Provide a deterministic bridge from issue lifecycle to commit metadata.
 
@@ -68,6 +69,8 @@ One of:
 - `timing_policy=prefer-pre-implementation-confirmation`
 - `verification_gate=pre-commit-final-check`
 - `traceability_granularity=one-issue-to-many-commits-allowed`
+- `issue_repo_policy=canonical-repo-preferred`
+- `closure_policy=reference-by-default`
 
 ## Traceability Granularity
 
@@ -75,6 +78,16 @@ One of:
 - The default unit of intent is the task or requirement, not the individual commit.
 - One issue may cover multiple related commits when they belong to the same task, fix, or delivery slice.
 - Do not create a new issue per commit unless repository-specific policy explicitly requires that behavior.
+
+## Canonical Issue Location and Lifecycle
+
+- When work is intended to land in an upstream or shared repository, prefer creating or reusing the issue in that canonical repository rather than in a personal fork.
+- Commits may be authored in a fork or worktree before code is synchronized upstream; they should still reference the canonical task issue when that is the true source of purpose.
+- Fork-local issues are a fallback for fork-only work, private-only work, or cases where canonical issue creation is unavailable or inappropriate.
+- Linking a commit to an issue does not mean that the commit resolves the issue.
+- Default to a reference bridge such as `ISSUE: #123` or equivalent `Refs` semantics.
+- Only use issue-closing semantics when the change truly resolves the issue and the operator explicitly intends closure.
+- An issue may remain open, blocked, deferred, or partially implemented after one or more linked commits.
 
 ## Platform Selection
 
@@ -217,6 +230,7 @@ Template:
 3. Auto-infer `repo_root/change_type/platform_hint/gate_mode`.
 4. Resolve platform (`gh` or `glab`) and verify CLI availability.
 5. Resolve issue target:
+   - prefer the canonical repository issue when the work is intended for upstream or shared history
    - prefer reusing the existing task issue when the current commit belongs to an already tracked task
    - verify `existing_issue_id`, or
    - auto-draft create payload (`issue_title` + `issue_body`) from context.
@@ -507,6 +521,7 @@ This example demonstrates the intended happy path:
 
 ## Issue Action
 - action: reuse | create | failed
+- repo_target: canonical | fork | explicit_override
 - issue_id:
 - issue_url:
 - title_source: user_input | auto_draft
@@ -541,3 +556,5 @@ This example demonstrates the intended happy path:
 - Do not ask for inputs that can be inferred reliably.
 - Do not treat retroactive issue creation after implementation as the standard path for meaningful tracked work.
 - Do not force one new issue per commit when multiple commits belong to the same tracked task.
+- Do not default to creating the task issue in a fork when the work is meant for the canonical upstream repository.
+- Do not treat issue linkage as issue resolution by default.
