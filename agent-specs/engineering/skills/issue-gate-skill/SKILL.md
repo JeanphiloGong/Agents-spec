@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.2 - Enforce pre-commit issue gate with auto-inferred and auto-drafted issue content, gh/glab check/create/link flow, and dry-run plus human confirmation.
+description: v0.1.4 - Enforce pre-commit issue gate with auto-inferred and auto-drafted issue content, gh/glab check/create/link flow, and dry-run plus human confirmation.
 ---
 
 # Issue Gate Skill
@@ -9,6 +9,10 @@ description: v0.1.2 - Enforce pre-commit issue gate with auto-inferred and auto-
 
 Use this skill before preparing commit messages when a repo requires each
 feature/bug change to be tracked by an issue.
+
+For meaningful tracked work, prefer confirming or creating the issue before
+implementation starts, then run this skill again before commit preparation as
+the final verification gate.
 
 In scope:
 - pre-commit issue existence check
@@ -23,6 +27,7 @@ Out of scope:
 ## Core Purpose
 
 - Ensure every meaningful change is traceable to an issue.
+- Prefer issue creation close to planning and scope definition, not as a default post-implementation repair step.
 - Keep commit flow human-controlled with automation guardrails.
 - Provide a deterministic bridge from issue lifecycle to commit metadata.
 
@@ -59,6 +64,8 @@ One of:
 - `input_mode=auto-infer-first`
 - `auto_draft=on`
 - `confirm_before_create=on`
+- `timing_policy=prefer-pre-implementation-confirmation`
+- `verification_gate=pre-commit-final-check`
 
 ## Platform Selection
 
@@ -193,22 +200,26 @@ Template:
 
 ## Workflow
 
-1. Validate required inputs and gate mode.
-2. Auto-infer `repo_root/change_type/platform_hint/gate_mode`.
-3. Resolve platform (`gh` or `glab`) and verify CLI availability.
-4. Resolve issue target:
+1. Determine operating point:
+   - recommended default for `feat|bugfix|hotfix|non-trivial refactor`: run once before implementation to confirm or create the issue
+   - mandatory final pass: run again before commit preparation to verify traceability and emit `refs_line`
+   - small `docs|chore|test` work and approved spikes may skip the early pass only when repository policy allows it
+2. Validate required inputs and gate mode.
+3. Auto-infer `repo_root/change_type/platform_hint/gate_mode`.
+4. Resolve platform (`gh` or `glab`) and verify CLI availability.
+5. Resolve issue target:
    - verify `existing_issue_id`, or
    - auto-draft create payload (`issue_title` + `issue_body`) from context.
-5. Emit dry-run plan:
+6. Emit dry-run plan:
    - exact check/create/link command plan
    - expected artifact (`issue_id`, `issue_url`, `refs_line`)
    - drafted issue preview (`title/body`)
-6. Wait for human confirmation.
-7. Execute selected actions:
+7. Wait for human confirmation.
+8. Execute selected actions:
    - `check` issue
    - `create` only when missing
    - `link` by generating commit `Refs` line
-8. Emit gate result:
+9. Emit gate result:
    - `required` + failure => `BLOCK`
    - `recommended` + failure => `PASS_WITH_WARNING`
 
@@ -380,6 +391,98 @@ gh issue comment <issue_number> --body "Linking commit: <sha>"
 glab issue note <issue_number> -m "Linking commit: <sha>"
 ```
 
+## Worked Example: Successful Required GitLab Flow (Sanitized)
+
+Use this example when:
+- the repository is hosted on a self-managed GitLab instance
+- `change_type=feat`
+- `gate_mode=required`
+- no matching open issue exists yet
+
+This example is intentionally sanitized:
+- use placeholder hosts such as `<gitlab-host>`
+- use placeholder repositories such as `<group>/<repo>`
+- do not include local filesystem paths, tokens, or user-specific identifiers
+
+### 1. Auto-Inferred Inputs
+
+The gate may infer:
+- `repo_root`: current git root
+- `change_type`: `feat` from branch naming such as `task/feat/<date>-<slug>`
+- `platform_hint`: `glab`
+- `gate_mode`: `required`
+
+### 2. Dry-Run Plan
+
+```bash
+export GITLAB_HOST=<gitlab-host>
+glab issue list -R <group>/<repo> --search "Cypher retriever" --per-page 20
+glab issue create -R <group>/<repo> \
+  --title "feat: 完成 Cypher retriever 首版实现" \
+  --description "<auto-drafted feature template body>"
+```
+
+Expected dry-run outcome:
+- no matching open issue is found
+- a feature-template issue draft is ready for confirmation
+- the future commit bridge will be `ISSUE: #<issue_number>`
+
+### 3. Human Confirmation
+
+Before create:
+- show the drafted title/body
+- wait for explicit human confirmation
+
+### 4. Executed Result
+
+Successful execution should look like:
+
+```text
+== CHECK EXISTING ==
+No open issues match your search in <group>/<repo>
+
+== CREATE ISSUE ==
+<issue_url>
+```
+
+Where:
+- `<issue_url>` is the created issue URL on `<gitlab-host>`
+- `<issue_number>` is parsed from that created issue
+
+### 5. Gate Output Bridge
+
+Successful gate output should include:
+
+```text
+## Gate Result
+- gate_mode: required
+- result: PASS
+- reason: existing open issue not found; new issue created successfully
+
+## Platform
+- selected: glab
+- cli_ready: yes
+
+## Issue Action
+- action: create
+- issue_id: <issue_number>
+- issue_url: <issue_url>
+- title_source: auto_draft
+
+## Commit Bridge
+- refs_line: ISSUE: #<issue_number>
+- next_for_commit_skill: include this line under Refs
+```
+
+### 6. Why This Example Matters
+
+This example demonstrates the intended happy path:
+- infer first
+- dry-run before create
+- preserve human confirmation
+- create only when missing
+- emit a deterministic `Refs` bridge for commit tooling
+
 ## Output Contract
 
 ```
@@ -426,3 +529,4 @@ glab issue note <issue_number> -m "Linking commit: <sha>"
 - Keep automation reversible and auditable.
 - Do not modify commit message directly; only provide `refs_line`.
 - Do not ask for inputs that can be inferred reliably.
+- Do not treat retroactive issue creation after implementation as the standard path for meaningful tracked work.

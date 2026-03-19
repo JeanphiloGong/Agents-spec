@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.12.22 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.23 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -18,33 +18,37 @@ description: v0.12.22 - Create standard, high-quality git commit messages and co
 1. Clarify scope and repository policy.
    - Default to this skill's template and do not ask about other conventions unless the user explicitly mentions one.
    - Ignore unrelated changes by default; do not add them unless explicitly requested.
-2. Run pre-commit issue gate when repo policy requires issue tracking.
+2. Confirm upstream workflow state before drafting the commit.
+   - Recommended task order is: `worktree -> issue -> implement -> issue-gate -> commit`.
+   - Treat this skill as the final commit-stage closer, not the place where task scope is first defined.
+   - If implementation materially drifted from the issue, update the issue before drafting the commit.
+3. Run pre-commit issue gate when repo policy requires issue tracking.
    - Use `issue-gate-skill` as the pre-step.
    - `issue-gate-skill` should run with `input_mode=auto-infer-first`.
    - If gate result is `BLOCK`, stop commit output and report blocker.
    - If gate returns `refs_line` (for example `ISSUE: #123`), include it in `Refs`.
-3. Set traceability requirement (high priority).
+4. Set traceability requirement (high priority).
    - Prefer issue/spec/incident/PR references in commit `Refs` when available.
    - Do not require an AI session identifier before finalizing commit content.
-4. Review change intent.
+5. Review change intent.
    - Summarize what changed and why, not how.
-5. Propose commit splits.
+6. Propose commit splits.
    - Separate logically independent changes.
-6. Draft commit messages.
+7. Draft commit messages.
    - Use Conventional Commits unless another standard is specified.
-7. Apply the subject rules and checklist.
+8. Apply the subject rules and checklist.
    - Use the simple one-sentence subject standard.
    - Verify the subject checklist passes before finalizing.
-8. Build the commit body.
+9. Build the commit body.
    - Follow the Why/What/Impact/Tests/Refs rules below.
-9. Add validation notes.
+10. Add validation notes.
    - Include relevant tests or verification steps if provided.
    - If tests are not run, use a concrete operational reason (avoid "not requested").
-10. Staging policy.
+11. Staging policy.
    - Do not run `git add` by default; the human reviews and stages changes.
    - If AI-authored changes are not staged, remind the user to stage them.
    - If only unrelated changes are unstaged, do not prompt.
-11. Finalize commit traceability.
+12. Finalize commit traceability.
    - Add available issue/spec/incident/PR references directly to `Refs`.
    - If no external reference exists and the change is low-risk, use `n/a`.
    - If the change is high-risk and lacks a reference, pause and request the missing traceability input.
@@ -261,10 +265,12 @@ Preferred Refs lines:
 - `PR: #456`
 
 Operational workflow:
-1. Prepare commit message using this skill.
-2. Append available issue/spec/incident/PR references in `Refs`.
-3. Complete commit and capture commit hash if a commit is created.
-4. Report commit hash + `Refs` lines in final output when applicable.
+1. Ensure the task already has a valid worktree boundary and issue context.
+2. Run `issue-gate-skill` to verify or repair final traceability before commit drafting.
+3. Prepare commit message using this skill.
+4. Append available issue/spec/incident/PR references in `Refs`.
+5. Complete commit and capture commit hash if a commit is created.
+6. Report commit hash + `Refs` lines in final output when applicable.
 
 Failure handling:
 - If a high-risk change lacks any issue/spec/incident/PR reference, block final output and ask for one.
@@ -286,3 +292,4 @@ Failure handling:
 - Do not include secrets or sensitive data in commit messages.
 - Do not fabricate issue/spec/incident/PR references; use `n/a` only when appropriate.
 - If a repo has its own convention, follow it first.
+- Do not normalize "implement first, create issue later" as the default workflow for meaningful tracked changes.
