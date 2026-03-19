@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.4 - Enforce pre-commit issue gate with auto-inferred and auto-drafted issue content, gh/glab check/create/link flow, and dry-run plus human confirmation.
+description: v0.1.5 - Enforce pre-commit issue gate with auto-inferred and auto-drafted issue content, gh/glab check/create/link flow, and dry-run plus human confirmation.
 ---
 
 # Issue Gate Skill
@@ -28,6 +28,7 @@ Out of scope:
 
 - Ensure every meaningful change is traceable to an issue.
 - Prefer issue creation close to planning and scope definition, not as a default post-implementation repair step.
+- Use task-level traceability by default: one issue may cover multiple related commits for the same tracked work.
 - Keep commit flow human-controlled with automation guardrails.
 - Provide a deterministic bridge from issue lifecycle to commit metadata.
 
@@ -66,6 +67,14 @@ One of:
 - `confirm_before_create=on`
 - `timing_policy=prefer-pre-implementation-confirmation`
 - `verification_gate=pre-commit-final-check`
+- `traceability_granularity=one-issue-to-many-commits-allowed`
+
+## Traceability Granularity
+
+- Each meaningful tracked commit should point to an issue-backed purpose when repository policy requires issue tracking.
+- The default unit of intent is the task or requirement, not the individual commit.
+- One issue may cover multiple related commits when they belong to the same task, fix, or delivery slice.
+- Do not create a new issue per commit unless repository-specific policy explicitly requires that behavior.
 
 ## Platform Selection
 
@@ -208,6 +217,7 @@ Template:
 3. Auto-infer `repo_root/change_type/platform_hint/gate_mode`.
 4. Resolve platform (`gh` or `glab`) and verify CLI availability.
 5. Resolve issue target:
+   - prefer reusing the existing task issue when the current commit belongs to an already tracked task
    - verify `existing_issue_id`, or
    - auto-draft create payload (`issue_title` + `issue_body`) from context.
 6. Emit dry-run plan:
@@ -530,3 +540,4 @@ This example demonstrates the intended happy path:
 - Do not modify commit message directly; only provide `refs_line`.
 - Do not ask for inputs that can be inferred reliably.
 - Do not treat retroactive issue creation after implementation as the standard path for meaningful tracked work.
+- Do not force one new issue per commit when multiple commits belong to the same tracked task.

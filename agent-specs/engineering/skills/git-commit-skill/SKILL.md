@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.12.23 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.24 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -253,10 +253,14 @@ Format rules:
 
 Goal:
 - Keep commit traceability visible in commit history for collaboration handoff.
+- Ensure each commit has a clear purpose, usually carried by an issue for tracked work.
 
 Priority:
 - P1 for changes that already map to issue/spec/incident/PR records.
 - Do not require an AI-session-specific trace line.
+- Treat the issue as the default purpose carrier for normal engineering work when issue tracking is enabled.
+- Allow one issue to cover multiple related commits from the same tracked task.
+- Do not assume each commit requires a newly created issue.
 
 Preferred Refs lines:
 - `ISSUE: #123`
@@ -267,10 +271,11 @@ Preferred Refs lines:
 Operational workflow:
 1. Ensure the task already has a valid worktree boundary and issue context.
 2. Run `issue-gate-skill` to verify or repair final traceability before commit drafting.
-3. Prepare commit message using this skill.
-4. Append available issue/spec/incident/PR references in `Refs`.
-5. Complete commit and capture commit hash if a commit is created.
-6. Report commit hash + `Refs` lines in final output when applicable.
+3. Reuse the current task issue in `Refs` when multiple commits belong to the same tracked work.
+4. Prepare commit message using this skill.
+5. Append available issue/spec/incident/PR references in `Refs`.
+6. Complete commit and capture commit hash if a commit is created.
+7. Report commit hash + `Refs` lines in final output when applicable.
 
 Failure handling:
 - If a high-risk change lacks any issue/spec/incident/PR reference, block final output and ask for one.
@@ -293,3 +298,4 @@ Failure handling:
 - Do not fabricate issue/spec/incident/PR references; use `n/a` only when appropriate.
 - If a repo has its own convention, follow it first.
 - Do not normalize "implement first, create issue later" as the default workflow for meaningful tracked changes.
+- Do not force one new issue per commit when several commits belong to the same tracked task.
