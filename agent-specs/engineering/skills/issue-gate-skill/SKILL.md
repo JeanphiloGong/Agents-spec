@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.6 - Enforce pre-commit issue gate with auto-inferred and auto-drafted issue content, gh/glab check/create/link flow, and dry-run plus human confirmation.
+description: v0.1.7 - Enforce pre-commit issue gate with auto-inferred and auto-drafted issue content, gh/glab check/create/link flow, cleaner issue templates, and dry-run plus human confirmation.
 ---
 
 # Issue Gate Skill
@@ -134,6 +134,12 @@ Use template by `change_type`:
 - `chore|docs|refactor|test` => optional lightweight task template (no forced
   create when repo policy allows skip)
 
+### Template Style Rule
+
+- Prefer clean section headings without `（必填）` or `（可选）` in the rendered issue body.
+- Keep requiredness in skill validation rules and repository templates, not in user-facing heading text.
+- When a repository already provides canonical issue templates, mirror their field names and heading structure unless there is a strong reason not to.
+
 ### Bug Template
 
 Required fields:
@@ -142,32 +148,47 @@ Required fields:
 - `预期结果`
 - `实际结果`
 
+Recommended fields:
+- `影响范围 / 严重程度`
+- `修复验收`
+
 Optional fields:
 - `日志`
 - `截图`
-- `环境信息（浏览器/OS/后端版本等）`
+- `环境信息（浏览器 / OS / 后端版本 / 模型版本等）`
+- `输入样例 / 文件类型 / 任务 ID`
 
 Template:
 
 ```
-## 🐛 问题概述（必填）
+## 🐛 问题概述
 ...
 
-## 🔁 复现步骤（必填）
+## 🔁 复现步骤
 1. ...
 2. ...
 3. ...
 
-## ✅ 预期结果（必填）
+## ✅ 预期结果
 ...
 
-## ❌ 实际结果（必填）
+## ❌ 实际结果
 ...
 
-## 📎 其他信息（可选）
-- 日志：
-- 截图：
-- 环境信息：
+## 🎯 影响范围 / 严重程度
+- 影响范围：...
+- 严重程度：...
+- 是否可绕过：...
+
+## 🧪 修复验收
+- 修复完成的判断标准：...
+- 需要回归的场景：...
+
+## 📎 其他信息
+- 日志：...
+- 截图：...
+- 环境信息：...
+- 输入样例 / 文件类型 / 任务 ID：...
 ```
 
 ### Feature Template
@@ -175,42 +196,66 @@ Template:
 Required fields:
 - `影响模块`
 - `背景 / 场景`
-- `需求描述（用户视角）`
+- `需求描述`
+- `范围边界`
 - `验收标准`
 
-Recommended field:
-- `非目标（Out of scope）`
+Recommended fields:
+- `技术约束`
+- `验证方式`
 
 Optional fields:
 - `接口文档`
 - `设计稿`
 - `关联 Issue / 需求编号`
+- `风险说明`
 
 Template:
 
 ```
-## 📦 影响模块（必填）
-...
+## 📦 影响模块
+- 涉及的服务 / 模块 / 仓库：...
+- 涉及的接口 / 数据结构：...
+- 是否影响现有兼容性：...
 
-## 🧩 背景 / 场景（必填）
-- 为什么要做这个需求：
-- 当前遇到什么问题：
-- 现有替代方案：
+## 🧩 背景 / 场景
+- 为什么要做这个需求：...
+- 当前遇到什么问题：...
+- 现有替代方案：...
+- 不做的影响：...
 
-## ✨ 需求描述（必填）
-...
+## ✨ 需求描述
+1. 当 ...
+2. 系统应 ...
+3. 若出现异常或依赖不可用，系统应 ...
 
-## ✅ 验收标准（必填）
-- [ ] 场景一：...
-- [ ] 场景二：...
+## 🎯 范围边界
+- 本次要做：...
+- 本次不做：...
 
-## 🚫 非目标（建议）
-...
+## ⚙️ 技术约束
+- 依赖限制：...
+- 性能 / 时延要求：...
+- 数据来源 / 外部服务约束：...
+- 回滚或降级要求：...
 
-## 📎 其他信息（可选）
-- 接口文档：
-- 设计稿：
-- 关联 Issue / 需求编号：
+## ✅ 验收标准
+- [ ] 功能场景一：...
+- [ ] 功能场景二：...
+- [ ] 兼容性要求：...
+- [ ] 回归范围：...
+- [ ] 异常 / 降级行为：...
+
+## 🧪 验证方式
+- 手工验证：...
+- 自动化测试：...
+- 日志 / 指标 / 观测点：...
+
+## 📎 其他信息
+- 接口文档：...
+- 设计稿：...
+- 关联 Issue / 需求编号：...
+- 风险说明：...
 ```
 
 ## Template Validation Rule
@@ -218,6 +263,8 @@ Template:
 - If template-required fields are missing:
   - `gate_mode=required` => `BLOCK`
   - `gate_mode=recommended` => `PASS_WITH_WARNING`
+- Validation output must distinguish `missing_required_fields` and `missing_recommended_fields`.
+- For `feat` work that is clearly backend-, AI-, workflow-, or integration-heavy, missing `技术约束` or `验证方式` should emit an explicit warning even when the gate does not block.
 - Validation output must list missing fields explicitly.
 
 ## Workflow
@@ -303,23 +350,49 @@ Use `change_type` to select template and command payload automatically.
 gh issue create \
   --title "feat: <short feature title>" \
   --body "$(cat <<'EOF'
-## 📦 影响模块（必填）
-<module>
+## 📦 影响模块
+- 涉及的服务 / 模块 / 仓库：<module>
+- 涉及的接口 / 数据结构：<contract or n/a>
+- 是否影响现有兼容性：<yes/no + note>
 
-## 🧩 背景 / 场景（必填）
+## 🧩 背景 / 场景
 - 为什么要做这个需求：<reason>
 - 当前遇到什么问题：<problem>
 - 现有替代方案：<alternative or n/a>
+- 不做的影响：<impact>
 
-## ✨ 需求描述（必填）
-<user-facing requirement>
+## ✨ 需求描述
+1. 当 <trigger> 时，系统应 <behavior>
+2. 系统应 <expected behavior>
+3. 若出现异常或依赖不可用，系统应 <fallback>
 
-## ✅ 验收标准（必填）
-- [ ] 场景一：<scenario 1>
-- [ ] 场景二：<scenario 2>
+## 🎯 范围边界
+- 本次要做：<in scope>
+- 本次不做：<out of scope>
 
-## 🚫 非目标（建议）
-<out of scope>
+## ⚙️ 技术约束
+- 依赖限制：<constraints or n/a>
+- 性能 / 时延要求：<requirements or n/a>
+- 数据来源 / 外部服务约束：<dependencies or n/a>
+- 回滚或降级要求：<rollback plan or n/a>
+
+## ✅ 验收标准
+- [ ] 功能场景一：<scenario 1>
+- [ ] 功能场景二：<scenario 2>
+- [ ] 兼容性要求：<compatibility>
+- [ ] 回归范围：<regression scope>
+- [ ] 异常 / 降级行为：<failure handling>
+
+## 🧪 验证方式
+- 手工验证：<manual check>
+- 自动化测试：<tests or n/a>
+- 日志 / 指标 / 观测点：<signals or n/a>
+
+## 📎 其他信息
+- 接口文档：<link or n/a>
+- 设计稿：<link or n/a>
+- 关联 Issue / 需求编号：<id or n/a>
+- 风险说明：<risk or n/a>
 EOF
 )"
 ```
@@ -328,23 +401,49 @@ EOF
 glab issue create \
   --title "feat: <short feature title>" \
   --description "$(cat <<'EOF'
-## 📦 影响模块（必填）
-<module>
+## 📦 影响模块
+- 涉及的服务 / 模块 / 仓库：<module>
+- 涉及的接口 / 数据结构：<contract or n/a>
+- 是否影响现有兼容性：<yes/no + note>
 
-## 🧩 背景 / 场景（必填）
+## 🧩 背景 / 场景
 - 为什么要做这个需求：<reason>
 - 当前遇到什么问题：<problem>
 - 现有替代方案：<alternative or n/a>
+- 不做的影响：<impact>
 
-## ✨ 需求描述（必填）
-<user-facing requirement>
+## ✨ 需求描述
+1. 当 <trigger> 时，系统应 <behavior>
+2. 系统应 <expected behavior>
+3. 若出现异常或依赖不可用，系统应 <fallback>
 
-## ✅ 验收标准（必填）
-- [ ] 场景一：<scenario 1>
-- [ ] 场景二：<scenario 2>
+## 🎯 范围边界
+- 本次要做：<in scope>
+- 本次不做：<out of scope>
 
-## 🚫 非目标（建议）
-<out of scope>
+## ⚙️ 技术约束
+- 依赖限制：<constraints or n/a>
+- 性能 / 时延要求：<requirements or n/a>
+- 数据来源 / 外部服务约束：<dependencies or n/a>
+- 回滚或降级要求：<rollback plan or n/a>
+
+## ✅ 验收标准
+- [ ] 功能场景一：<scenario 1>
+- [ ] 功能场景二：<scenario 2>
+- [ ] 兼容性要求：<compatibility>
+- [ ] 回归范围：<regression scope>
+- [ ] 异常 / 降级行为：<failure handling>
+
+## 🧪 验证方式
+- 手工验证：<manual check>
+- 自动化测试：<tests or n/a>
+- 日志 / 指标 / 观测点：<signals or n/a>
+
+## 📎 其他信息
+- 接口文档：<link or n/a>
+- 设计稿：<link or n/a>
+- 关联 Issue / 需求编号：<id or n/a>
+- 风险说明：<risk or n/a>
 EOF
 )"
 ```
@@ -355,24 +454,34 @@ EOF
 gh issue create \
   --title "bugfix: <short bug title>" \
   --body "$(cat <<'EOF'
-## 🐛 问题概述（必填）
+## 🐛 问题概述
 <problem summary>
 
-## 🔁 复现步骤（必填）
+## 🔁 复现步骤
 1. <step 1>
 2. <step 2>
 3. <step 3>
 
-## ✅ 预期结果（必填）
+## ✅ 预期结果
 <expected>
 
-## ❌ 实际结果（必填）
+## ❌ 实际结果
 <actual>
 
-## 📎 其他信息（可选）
+## 🎯 影响范围 / 严重程度
+- 影响范围：<scope>
+- 严重程度：<severity>
+- 是否可绕过：<yes/no + workaround>
+
+## 🧪 修复验收
+- 修复完成的判断标准：<done criteria>
+- 需要回归的场景：<regression scope>
+
+## 📎 其他信息
 - 日志：<log or n/a>
 - 截图：<link or n/a>
 - 环境信息：<env>
+- 输入样例 / 文件类型 / 任务 ID：<sample or n/a>
 EOF
 )"
 ```
@@ -381,24 +490,34 @@ EOF
 glab issue create \
   --title "bugfix: <short bug title>" \
   --description "$(cat <<'EOF'
-## 🐛 问题概述（必填）
+## 🐛 问题概述
 <problem summary>
 
-## 🔁 复现步骤（必填）
+## 🔁 复现步骤
 1. <step 1>
 2. <step 2>
 3. <step 3>
 
-## ✅ 预期结果（必填）
+## ✅ 预期结果
 <expected>
 
-## ❌ 实际结果（必填）
+## ❌ 实际结果
 <actual>
 
-## 📎 其他信息（可选）
+## 🎯 影响范围 / 严重程度
+- 影响范围：<scope>
+- 严重程度：<severity>
+- 是否可绕过：<yes/no + workaround>
+
+## 🧪 修复验收
+- 修复完成的判断标准：<done criteria>
+- 需要回归的场景：<regression scope>
+
+## 📎 其他信息
 - 日志：<log or n/a>
 - 截图：<link or n/a>
 - 环境信息：<env>
+- 输入样例 / 文件类型 / 任务 ID：<sample or n/a>
 EOF
 )"
 ```
