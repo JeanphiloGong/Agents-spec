@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.12.21 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.25 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -18,36 +18,40 @@ description: v0.12.21 - Create standard, high-quality git commit messages and co
 1. Clarify scope and repository policy.
    - Default to this skill's template and do not ask about other conventions unless the user explicitly mentions one.
    - Ignore unrelated changes by default; do not add them unless explicitly requested.
-2. Run pre-commit issue gate when repo policy requires issue tracking.
+2. Confirm upstream workflow state before drafting the commit.
+   - Recommended task order is: `worktree -> issue -> implement -> issue-gate -> commit`.
+   - Treat this skill as the final commit-stage closer, not the place where task scope is first defined.
+   - If implementation materially drifted from the issue, update the issue before drafting the commit.
+3. Run pre-commit issue gate when repo policy requires issue tracking.
    - Use `issue-gate-skill` as the pre-step.
    - `issue-gate-skill` should run with `input_mode=auto-infer-first`.
    - If gate result is `BLOCK`, stop commit output and report blocker.
    - If gate returns `refs_line` (for example `ISSUE: #123`), include it in `Refs`.
-3. Set AI trace requirement (high priority).
-   - For AI-authored commits, require `session_id` in commit `Refs`.
-   - Confirm `session_id` is available before finalizing commit content.
-4. Review change intent.
+4. Set traceability requirement (high priority).
+   - Prefer issue/spec/incident/PR references in commit `Refs` when available.
+   - Do not require an AI session identifier before finalizing commit content.
+5. Review change intent.
    - Summarize what changed and why, not how.
-5. Propose commit splits.
+6. Propose commit splits.
    - Separate logically independent changes.
-6. Draft commit messages.
+7. Draft commit messages.
    - Use Conventional Commits unless another standard is specified.
-7. Apply the subject rules and checklist.
+8. Apply the subject rules and checklist.
    - Use the simple one-sentence subject standard.
    - Verify the subject checklist passes before finalizing.
-8. Build the commit body.
+9. Build the commit body.
    - Follow the Why/What/Impact/Tests/Refs rules below.
-9. Add validation notes.
+10. Add validation notes.
    - Include relevant tests or verification steps if provided.
    - If tests are not run, use a concrete operational reason (avoid "not requested").
-10. Staging policy.
+11. Staging policy.
    - Do not run `git add` by default; the human reviews and stages changes.
    - If AI-authored changes are not staged, remind the user to stage them.
    - If only unrelated changes are unstaged, do not prompt.
-11. Record AI session trace in commit.
-   - For AI-authored commits, add raw `session_id` directly to `Refs`.
-   - Use `AI-SESSION: <session_id>` as the default trace line.
-   - If `session_id` is missing, pause and request it before completing commit output.
+12. Finalize commit traceability.
+   - Add available issue/spec/incident/PR references directly to `Refs`.
+   - If no external reference exists and the change is low-risk, use `n/a`.
+   - If the change is high-risk and lacks a reference, pause and request the missing traceability input.
 
 ## Commit Message Standard
 
@@ -221,7 +225,6 @@ Refs
 - 允许 n/a，但只有在没有任何外部关联时才成立。
 - 任何高风险变更必须可回溯到 Issue/Spec/Incident/PR 之一。
 - 若前置 `issue-gate-skill` 返回 `refs_line`，应优先加入该 issue 引用行（如 `ISSUE: #123`）。
-- AI 生成的提交默认添加 `AI-SESSION: <session_id>`。
 
 Format rules:
 - Follow the "Commit Message Standard" structure exactly; do not add extra sections.
@@ -246,27 +249,45 @@ Format rules:
 - Base commit messages only on the AI's own changes.
 - If unrelated or user-made changes are present, ask once before including them, then proceed.
 
-## AI Session Trace Policy (Commit-Embedded)
+## Commit Traceability Policy
 
 Goal:
-- Keep AI commit traceability visible in commit history for collaboration handoff.
+- Keep commit traceability visible in commit history for collaboration handoff.
+- Ensure each commit has a clear purpose, usually carried by an issue for tracked work.
 
 Priority:
-- P1 (default on) for AI-authored commits.
-- Treat `Refs` trace line as required delivery evidence in the final response.
+- P1 for changes that already map to issue/spec/incident/PR records.
+- Do not require an AI-session-specific trace line.
+- Treat the issue as the default purpose carrier for normal engineering work when issue tracking is enabled.
+- Allow one issue to cover multiple related commits from the same tracked task.
+- Do not assume each commit requires a newly created issue.
+- If the commit is authored in a fork for upstream work, prefer referencing the canonical upstream issue rather than a fork-local issue.
+- Treat linked issues as purpose records by default; a referenced issue may remain open after the commit.
 
-Required Refs line:
-- `AI-SESSION: <session_id>`
+Preferred Refs lines:
+- `ISSUE: #123`
+- `SPEC: path/to/spec.md`
+- `INCIDENT: INC-123`
+- `PR: #456`
+
+Reference semantics:
+- Use `Refs` or `ISSUE: #123` by default for informational linkage, partial progress, preparatory work, investigation, or multi-commit delivery.
+- Do not imply issue closure just because a commit references the issue.
+- Reserve closing semantics such as `Fixes` or `Closes` for commits that truly resolve the issue and only when the repository convention and the human both intend automatic closure.
 
 Operational workflow:
-1. Prepare commit message using this skill.
-2. Ensure `session_id` is available and append `AI-SESSION: <session_id>` in `Refs`.
-3. Complete commit and capture commit hash.
-4. Report commit hash + session trace line in final output.
+1. Ensure the task already has a valid worktree boundary and issue context.
+2. Run `issue-gate-skill` to verify or repair final traceability before commit drafting.
+3. Reuse the current task issue in `Refs` when multiple commits belong to the same tracked work.
+4. If the commit is developed in a fork for upstream delivery, reference the canonical issue unless the work is explicitly fork-only.
+5. Prepare commit message using this skill.
+6. Append available issue/spec/incident/PR references in `Refs`.
+7. Complete commit and capture commit hash if a commit is created.
+8. Report commit hash + `Refs` lines in final output when applicable.
 
 Failure handling:
-- If `session_id` is missing, block final output and ask for it.
-- Record `not run (blocked: missing session_id)` in `Tests` or note the blocker in `Risks & Notes`.
+- If a high-risk change lacks any issue/spec/incident/PR reference, block final output and ask for one.
+- If no external reference exists for a low-risk change, use `n/a`.
 
 ## Output Format
 
@@ -274,7 +295,7 @@ Failure handling:
 ## Suggested Commit Messages
 ## Split Recommendations
 ## Validation Steps
-## AI Session Trace
+## Refs Summary
 ## Risks & Notes
 ```
 
@@ -282,5 +303,8 @@ Failure handling:
 
 - Do not run git commands or modify history unless explicitly authorized.
 - Do not include secrets or sensitive data in commit messages.
-- For AI-authored commits, include `AI-SESSION: <session_id>` in `Refs` by default.
+- Do not fabricate issue/spec/incident/PR references; use `n/a` only when appropriate.
 - If a repo has its own convention, follow it first.
+- Do not normalize "implement first, create issue later" as the default workflow for meaningful tracked changes.
+- Do not force one new issue per commit when several commits belong to the same tracked task.
+- Do not imply issue closure for partial progress or merely linked commits.
