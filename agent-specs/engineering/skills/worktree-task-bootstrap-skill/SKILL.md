@@ -1,6 +1,6 @@
 ---
 name: worktree-task-bootstrap-skill
-description: v0.1.8 - Create a dedicated git worktree for every code task before implementation, auto-open tmux windows, optionally fork current Codex session into the new window, optionally start a child agent asynchronously, provide a portable launcher, block unsafe/in-ws worktree paths, and enforce parent-agent stop-after-fork handoff.
+description: v0.1.9 - Create a dedicated git worktree for every code task before implementation, auto-open tmux windows, optionally fork current Codex session into the new window, optionally start a child agent asynchronously, provide a portable launcher, block unsafe/in-ws worktree paths, and enforce parent-agent stop-after-fork handoff.
 ---
 
 # Worktree Task Bootstrap Skill
@@ -16,10 +16,10 @@ Do not use it for discussion-only or docs-only work unless a branch workspace is
 
 - Force isolation: every code task starts in a new worktree.
 - Keep current workspace clean for review and integration.
-- Keep `main` as the human-controlled source of truth.
+- Use the operator's current branch as the default baseline unless `base_branch` is explicitly overridden.
 - Reduce accidental cross-task contamination.
 - If inside tmux, open a new tmux window in the new worktree path.
-- If task context exists, optionally launch a child agent in a separate tmux window so main flow stays unblocked.
+- If task context exists, optionally launch a child agent in a separate tmux window so the primary flow stays unblocked.
 
 ## Required Inputs
 
@@ -29,14 +29,14 @@ Do not use it for discussion-only or docs-only work unless a branch workspace is
 
 ## Optional Inputs
 
-- `base_branch`: default `main`.
+- `base_branch`: default current checked out branch at `repo_root`; if `HEAD` is detached, require an explicit value.
 - `worktree_root`: default `<repo_root>/../_worktrees`.
 
 ## Optional Environment Inputs
 
 - `WORKTREE_AUTO_TMUX_WINDOW`: `1|0`, default `1`.
-- `WORKTREE_TMUX_WINDOW_NAME`: optional main worktree window name.
-- `WORKTREE_FORK_CODEX`: `1|0`, default `0`; fork current Codex session into the new main tmux window.
+- `WORKTREE_TMUX_WINDOW_NAME`: optional primary worktree window name.
+- `WORKTREE_FORK_CODEX`: `1|0`, default `0`; fork current Codex session into the new primary tmux window.
 - `WORKTREE_FORK_PROMPT`: optional fork prompt override.
 - `WORKTREE_CURRENT_TASK`: task context text; when present, enables child-agent preparation.
 - `WORKTREE_AUTO_SUBAGENT`: `1|0`, default `1`.
@@ -46,10 +46,11 @@ Do not use it for discussion-only or docs-only work unless a branch workspace is
 ## Fixed Defaults
 
 - `isolation_policy=always-new-worktree`
+- `base_branch_policy=current-branch-unless-overridden`
 - `cleanup_policy=manual-retain`
 - `bootstrap_method=manual-commands`
 - `tmux_auto_window=enabled`
-- `codex_fork_mode=optional-main-window`
+- `codex_fork_mode=optional-primary-window`
 - `subagent_mode=optional-async`
 - `branch_pattern=task/<task_kind>/<yyyymmdd>-<task_slug>`
 - `path_pattern=<worktree_root>/<task_kind>-<task_slug>`
@@ -64,7 +65,7 @@ Do not use it for discussion-only or docs-only work unless a branch workspace is
 - Do not rewrite history.
 - Child-agent auto-start requires explicit task context (`WORKTREE_CURRENT_TASK`).
 - Do not auto-modify shell `PATH` on each run.
-- If `fork_status=started-main-window`, parent agent must stop this turn after reporting handoff.
+- If `fork_status=started-primary-window`, parent agent must stop this turn after reporting handoff.
 
 ## Common Failure Modes and Fixes
 
@@ -137,10 +138,12 @@ tmux capture-pane -pt <session>:<window_index> -S -30
 ## Workflow
 
 1. Validate inputs (`repo_root`, `task_kind`, `task_slug`).
-2. Compute branch name and worktree path from fixed patterns.
+2. Resolve `base_branch`, then compute branch name and worktree path from fixed patterns.
 3. Run preflight checks:
    - repo exists and is a git worktree
-   - base branch exists locally or on `origin`
+   - if `base_branch` is omitted, the current branch resolves from `repo_root`
+   - if `HEAD` is detached and `base_branch` is omitted, block and require an explicit `base_branch`
+   - resolved base branch exists locally or on `origin`
    - target branch does not exist
    - target path does not exist
    - `worktree_root` is outside `repo_root`
@@ -149,9 +152,9 @@ tmux capture-pane -pt <session>:<window_index> -S -30
    - `git -C <repo_root> worktree add -b <branch> <worktree_path> <base_branch>`
 5. Detect tmux environment:
    - if `TMUX` is set and `tmux` exists, open a persistent shell window at `<worktree_path>`
-6. Optional codex fork into main tmux window:
+6. Optional codex fork into the primary tmux window:
    - if `WORKTREE_FORK_CODEX=1` and codex session id is available (`CODEX_SESSION_ID` or `CODEX_THREAD_ID`):
-     - dispatch `codex fork <session_id> <prompt> --cd <worktree_path> --no-alt-screen` into the new main window with `tmux send-keys`
+     - dispatch `codex fork <session_id> <prompt> --cd <worktree_path> --no-alt-screen` into the new primary window with `tmux send-keys`
      - verify the target window exists before reporting handoff
 7. Optional child-agent launch:
    - if `WORKTREE_CURRENT_TASK` exists and `WORKTREE_AUTO_SUBAGENT=1`:
@@ -159,8 +162,8 @@ tmux capture-pane -pt <session>:<window_index> -S -30
      - outside tmux: output a ready-to-run child-agent command (manual)
 8. Print handoff commands:
    - `cd <worktree_path>` (non-tmux fallback)
-   - `tmux select-window -t <window_name>` (tmux main window)
-9. If fork started in main window:
+   - `tmux select-window -t <window_name>` (tmux primary window)
+9. If fork started in the primary window:
    - parent agent reports "fork done" and stops immediately
    - parent agent must not continue implementation in this turn
 10. Keep worktree after delivery; cleanup is manual.
@@ -177,7 +180,11 @@ Recommended sequence:
 repo_root="/repo"
 task_kind="refactor"
 task_slug="kg-enum-types"
-base_branch="main"
+base_branch="${BASE_BRANCH_OVERRIDE:-$(git -C "$repo_root" symbolic-ref --quiet --short HEAD)}"
+if [ -z "$base_branch" ]; then
+  echo "error: detached HEAD; set BASE_BRANCH_OVERRIDE explicitly" >&2
+  exit 1
+fi
 worktree_root="$(dirname "$repo_root")/_worktrees"
 branch="task/${task_kind}/$(date +%Y%m%d)-${task_slug}"
 worktree_path="${worktree_root}/${task_kind}-${task_slug}"
@@ -216,12 +223,51 @@ Optional pane output check:
 tmux capture-pane -pt "${session_name}:${window_name}" -S -30
 ```
 
+### Worked Example: Successful Sibling Worktree Bootstrap
+
+Use this pattern when the current repository already lives under a `_worktrees/` directory and you want the new worktree as a sibling of the current one instead of nesting another `_worktrees` directory under it.
+
+```bash
+repo_root="/repo-parent/_worktrees/feat-current-task"
+base_branch="feature/current-base-branch"
+task_kind="refactor"
+task_slug="sample-task"
+worktree_root="$(dirname "$repo_root")"
+branch="task/${task_kind}/$(date +%Y%m%d)-${task_slug}"
+worktree_path="${worktree_root}/${task_kind}-${task_slug}"
+session_name="$(tmux display-message -p '#S')"
+window_name="wt-${task_slug}"
+session_id="${CODEX_SESSION_ID:-${CODEX_THREAD_ID}}"
+prompt='Continue in this new worktree and complete the assigned task. First inspect repo state, respect existing user changes, run focused verification, and report changed files plus remaining risks.'
+
+if git -C "$repo_root" show-ref --verify --quiet "refs/heads/$branch"; then
+  echo "error: target branch already exists: $branch" >&2
+  exit 1
+fi
+
+if [ -e "$worktree_path" ]; then
+  echo "error: target worktree path already exists: $worktree_path" >&2
+  exit 1
+fi
+
+git -C "$repo_root" worktree add -b "$branch" "$worktree_path" "$base_branch"
+tmux new-window -d -t "$session_name" -n "$window_name" -c "$worktree_path"
+printf -v fork_cmd 'codex fork %q %q --cd %q --full-auto --no-alt-screen' "$session_id" "$prompt" "$worktree_path"
+tmux send-keys -t "${session_name}:${window_name}" "$fork_cmd" C-m
+sleep 2
+tmux list-windows -t "$session_name" -F '#S:#I:#W:#{pane_current_path}'
+tmux capture-pane -pt "${session_name}:${window_name}" -S -30
+```
+
+This pattern works because it keeps tmux window creation and command dispatch separate, uses `printf -v ... %q` to avoid prompt quoting breakage, and verifies both the window path and pane output after the fork command is injected.
+
 ## Output Format
 
 ```
 ## Worktree Plan
 - repo_root:
 - base_branch:
+- base_branch_source:
 - branch:
 - worktree_path:
 
