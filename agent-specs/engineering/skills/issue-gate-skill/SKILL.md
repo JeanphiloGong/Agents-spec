@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.9 - Enforce pre-commit issue gate with auto-inferred and auto-drafted issue content, gh/glab check/create/link flow, cleaner issue templates, and dry-run plus human confirmation.
+description: v0.1.12 - Enforce issue traceability with master-grade standard issue drafts, audience-fit templates, gh/glab check/create/link flow, and dry-run plus human confirmation.
 ---
 
 # Issue Gate Skill
@@ -56,6 +56,8 @@ One of:
 - `labels`: comma-separated labels.
 - `assignee`: issue assignee.
 - `milestone`: milestone name.
+- `audience_profile`: `leadership|cross_functional|engineering_only`.
+- `issue_level`: `parent_requirement|delivery_task|implementation_task`.
 
 ## Fixed Defaults
 
@@ -71,6 +73,10 @@ One of:
 - `traceability_granularity=one-issue-to-many-commits-allowed`
 - `issue_repo_policy=canonical-repo-preferred`
 - `closure_policy=reference-by-default`
+- `audience_profile=cross_functional`
+- `issue_level=parent_requirement`
+- `quality_bar=master_grade`
+- `implementation_detail_mode=defer-unless-explicitly-requested`
 
 ## Traceability Granularity
 
@@ -120,10 +126,36 @@ One of:
   1) current task prompt/context
   2) branch and commit intent
   3) changed-file scope and inferred module
-- Draft must respect template-required fields by the resolved `template_family`.
+- Before drafting, resolve three framing decisions:
+  - `audience_profile`: default `cross_functional`; use `engineering_only` only when the operator clearly wants implementation-facing detail.
+  - `issue_level`: default `parent_requirement`; upgrade to `delivery_task` or `implementation_task` only when scope is execution-ready or the operator explicitly wants technical breakdown.
+  - `quality_bar`: default `master_grade`; optimize for decision quality, traceability, and execution clarity before optimizing for length.
+- Default auto-drafts must be decision-ready first: enough context to justify the work, enough scope to bound it, and enough acceptance detail to test it. Brevity is secondary unless the operator explicitly asks for compression.
+- Draft must respect template-required fields by the resolved `template_family` and `issue_level`.
 - If any required field cannot be inferred:
   - insert explicit TODO placeholder
   - keep `confirm_before_create=on` and require human confirmation.
+- If the generated draft reads like a design doc, implementation plan, or speculative architecture proposal, rewrite it before presentation.
+
+## Master-Grade Issue Standard
+
+A master-grade issue is not defined by length. It is defined by decision quality. The draft should be:
+
+- clear on `why now`, not just `what to build`
+- scoped so readers know what is in and out
+- audience-correct: leadership/cross-functional issues explain problem, outcome, scope, and success; engineering-only issues may add deeper execution detail
+- traceable to adjacent work, risks, or dependencies when they materially affect planning
+- testable through acceptance criteria that another person could use to judge completion
+- solution-aware but not solution-locked unless implementation detail is already approved and necessary
+
+## Framing Guardrails
+
+- `parent_requirement`: explain why the work matters, what outcome is expected, what is in/out of scope, and how success is judged.
+- `delivery_task`: may mention affected modules or contracts, but should still optimize for shared understanding over internal implementation detail.
+- `implementation_task`: technical detail is allowed only when the operator explicitly asks for an engineering-facing issue or when a design has already been approved.
+- For leadership, PM, frontend, or mixed-audience issues, prefer business/problem language over internal architecture nouns.
+- Do not lock parent issues to speculative classes, files, routes, tables, workers, or module splits unless those details are already approved and necessary for disambiguation.
+- When tightening a draft, remove repetition before removing decision-critical context; never trade away problem clarity, scope clarity, or acceptance clarity just to save lines.
 
 ## Issue Template Families (Required)
 
@@ -200,23 +232,23 @@ Template:
 ### Feature / Change Template
 
 Required fields:
-- `影响模块`
-- `背景 / 场景`
-- `需求描述`
+- `背景 / 问题`
+- `目标 / 需求`
 - `范围边界`
 - `验收标准`
 
 Recommended fields:
+- `影响模块`
 - `技术约束`
 - `验证方式`
+- `风险说明`
 
 Optional fields:
 - `接口文档`
 - `设计稿`
 - `关联 Issue / 需求编号`
-- `风险说明`
 
-Template:
+Standard template:
 
 ```
 ## 📦 影响模块
@@ -225,15 +257,12 @@ Template:
 - 是否影响现有兼容性：...
 
 ## 🧩 背景 / 场景
-- 为什么要做这个需求：...
-- 当前遇到什么问题：...
-- 现有替代方案：...
-- 不做的影响：...
+- 为什么现在要做：...
+- 当前主要问题：...
 
 ## ✨ 需求描述
-1. 当 ...
-2. 系统应 ...
-3. 若出现异常或依赖不可用，系统应 ...
+1. ...
+2. ...
 
 ## 🎯 范围边界
 - 本次要做：...
@@ -241,38 +270,30 @@ Template:
 
 ## ⚙️ 技术约束
 - 依赖限制：...
-- 性能 / 时延要求：...
-- 数据来源 / 外部服务约束：...
 - 回滚或降级要求：...
 
 ## ✅ 验收标准
-- [ ] 功能场景一：...
-- [ ] 功能场景二：...
-- [ ] 兼容性要求：...
-- [ ] 回归范围：...
-- [ ] 异常 / 降级行为：...
+- [ ] ...
+- [ ] ...
 
 ## 🧪 验证方式
 - 手工验证：...
 - 自动化测试：...
-- 日志 / 指标 / 观测点：...
 
 ## 📎 其他信息
 - 接口文档：...
-- 设计稿：...
-- 关联 Issue / 需求编号：...
 - 风险说明：...
 ```
 
 ### Task / Maintenance Template
 
 Required fields:
-- `影响模块`
 - `背景 / 目的`
 - `本次范围`
 - `完成标准`
 
 Recommended fields:
+- `影响模块`
 - `风险 / 注意事项`
 - `验证方式`
 
@@ -281,13 +302,12 @@ Optional fields:
 - `回滚说明`
 - `关联 Issue / 需求编号`
 
-Template:
+Standard template:
 
 ```
 ## 📦 影响模块
 - 涉及的服务 / 模块 / 仓库：...
 - 涉及的文件 / 流程 / 工具：...
-- 是否影响现有兼容性：...
 
 ## 🎯 背景 / 目的
 - 为什么现在要做：...
@@ -304,13 +324,10 @@ Template:
 ## 🧪 验证方式
 - 手工验证：...
 - 自动化测试：...
-- 日志 / 指标 / 观测点：...
 
 ## 📎 其他信息
 - 风险 / 注意事项：...
-- 兼容性说明：...
 - 回滚说明：...
-- 关联 Issue / 需求编号：...
 ```
 
 ### Investigation / Spike Template
@@ -360,14 +377,17 @@ Template:
 
 ## Template Validation Rule
 
-- Resolve `template_family` first, then validate against that family instead of raw `change_type`.
+- Resolve `template_family` and `issue_level` first.
+- Validate semantic required fields against the selected template family, not against a single fixed heading set.
+- Validate issue quality as well as field presence: clear problem statement, explicit target outcome, bounded scope, testable acceptance, and audience-appropriate detail.
 - If template-required fields are missing:
   - `gate_mode=required` => `BLOCK`
   - `gate_mode=recommended` => `PASS_WITH_WARNING`
-- Validation output must include the resolved `template_family`.
-- Validation output must distinguish `missing_required_fields` and `missing_recommended_fields`.
-- For `feat|integration|workflow|api` work that is clearly backend-, AI-, workflow-, or integration-heavy, missing `技术约束` or `验证方式` should emit an explicit warning even when the gate does not block.
+- Validation output must include the resolved `template_family` and `issue_level`.
+- Validation output must distinguish `missing_required_fields`, `missing_recommended_fields`, and `overspecification_warnings`.
+- For `feat|integration|workflow|api` work that is clearly backend-, AI-, workflow-, or integration-heavy, missing `技术约束` or `验证方式` should emit an explicit warning.
 - For `spike|research|proposal|investigation` work, missing a concrete `预期产出` or `退出条件 / 范围边界` must be treated as a required-field failure, not a soft omission.
+- If a `parent_requirement` draft contains speculative classes, files, routes, tables, workers, or unapproved architecture splits, emit an `overspecification_warning` and rewrite before presentation.
 - Validation output must list missing fields explicitly.
 
 ## Workflow
@@ -377,23 +397,26 @@ Template:
    - mandatory final pass: run again before commit preparation to verify traceability and emit `refs_line`
    - small `docs|chore|test` work and approved spikes may skip the early pass only when repository policy allows it
 2. Validate required inputs and gate mode.
-3. Auto-infer `repo_root/change_type/template_family/platform_hint/gate_mode`.
+3. Auto-infer `repo_root/change_type/template_family/platform_hint/gate_mode/audience_profile/issue_level`.
 4. Resolve platform (`gh` or `glab`) and verify CLI availability.
 5. Resolve issue target:
    - prefer the canonical repository issue when the work is intended for upstream or shared history
    - prefer reusing the existing task issue when the current commit belongs to an already tracked task
-   - verify `existing_issue_id`, or
-   - auto-draft create payload (`issue_title` + `issue_body`) from context.
-6. Emit dry-run plan:
+   - verify `existing_issue_id`, or prepare a new draft from context.
+6. Draft or verify issue content:
+   - run a quality pass: ensure the draft explains why now, what outcome is expected, what is in/out of scope, how success is judged, and whether any material dependency or risk must be named
+   - strip unapproved implementation details from parent issues unless the operator explicitly wants an implementation-facing task
+   - ensure the draft still covers required fields for the selected template family
+7. Emit dry-run plan:
    - exact check/create/link command plan
    - expected artifact (`issue_id`, `issue_url`, `refs_line`)
    - drafted issue preview (`title/body`)
-7. Wait for human confirmation.
-8. Execute selected actions:
+8. Wait for human confirmation.
+9. Execute selected actions:
    - `check` issue
    - `create` only when missing
    - `link` by generating commit `Refs` line
-9. Emit gate result:
+10. Emit gate result:
    - `required` + failure => `BLOCK`
    - `recommended` + failure => `PASS_WITH_WARNING`
 
@@ -427,10 +450,10 @@ gh issue comment <issue_number> --body "Linked commit: <sha>"
 
 ```bash
 # list open issues in current repo
-glab issue list --state opened --per-page 20
+glab issue list --per-page 20
 
 # search open issues in an explicit repo
-glab issue list -R <group>/<repo> --state opened --search "<keyword>" --per-page 20
+glab issue list -R <group>/<repo> --search "<keyword>" --per-page 20
 
 # view a single issue
 glab issue view <issue_number>
@@ -461,12 +484,15 @@ glab issue list -R <owner/repo>
 ### Automation Notes
 
 - Prefer `gh issue view <issue_number> --json number,title,state,url` in automation instead of the default formatted output.
-- For self-managed GitLab, set `GITLAB_HOST=<gitlab-host>` before running `glab issue ... -R <group>/<repo>`.
+- For self-managed GitLab, set `GITLAB_HOST=<gitlab-host[:port]>` before running `glab issue ... -R <group>/<repo>` and prefer the host/protocol already proven by `glab auth status`.
+- `glab` flags vary by version; if `--state` is unsupported, rely on the default open-issue listing or use `--closed` / `--all` as supported by the installed client.
 - If `gh` or `glab` fails because of sandboxed network restrictions, request escalation and rerun the same command.
 
 ## Template-to-Command Mapping Examples
 
 Use the resolved `template_family` to select template and command payload automatically.
+
+The examples below are valid reference payloads and should be treated as the standard drafting shape unless a repository-specific template overrides them.
 
 ### `feat|integration|workflow|api` => Feature / Change Template => create
 
@@ -905,6 +931,11 @@ This example demonstrates the intended happy path:
 - issue_url:
 - title_source: user_input | auto_draft
 
+## Draft Decision
+- audience_profile:
+- issue_level: parent_requirement | delivery_task | implementation_task
+- quality_pass: yes | no
+
 ## Commit Bridge
 - refs_line: ISSUE: #<id>
 - next_for_commit_skill:
@@ -937,3 +968,7 @@ This example demonstrates the intended happy path:
 - Do not force one new issue per commit when multiple commits belong to the same tracked task.
 - Do not default to creating the task issue in a fork when the work is meant for the canonical upstream repository.
 - Do not treat issue linkage as issue resolution by default.
+- Default to master-grade standard drafts.
+- Do not turn a parent requirement issue into a design doc or implementation plan.
+- Do not name speculative classes, files, routes, tables, workers, or architecture splits in leadership- or cross-functional-facing issues.
+- If the operator says a draft is too long, too technical, or too shallow, rewrite it to better fit the requested audience and quality bar before asking for confirmation.
