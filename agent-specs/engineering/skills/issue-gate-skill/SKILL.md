@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.8 - Enforce pre-commit issue gate with auto-inferred and auto-drafted issue content, gh/glab check/create/link flow, cleaner issue templates, and dry-run plus human confirmation.
+description: v0.1.9 - Enforce pre-commit issue gate with auto-inferred and auto-drafted issue content, gh/glab check/create/link flow, cleaner issue templates, and dry-run plus human confirmation.
 ---
 
 # Issue Gate Skill
@@ -120,19 +120,25 @@ One of:
   1) current task prompt/context
   2) branch and commit intent
   3) changed-file scope and inferred module
-- Draft must respect template-required fields by `change_type`.
+- Draft must respect template-required fields by the resolved `template_family`.
 - If any required field cannot be inferred:
   - insert explicit TODO placeholder
   - keep `confirm_before_create=on` and require human confirmation.
 
-## Issue Templates (Required)
+## Issue Template Families (Required)
 
-Use template by `change_type`:
+Resolve `template_family` from `change_type` and intent:
 
-- `bugfix|hotfix` => Bug Template
-- `feat` => Feature Template
-- `chore|docs|refactor|test` => optional lightweight task template (no forced
-  create when repo policy allows skip)
+- `bugfix|hotfix|incident` => Bug / Incident Template
+- `feat|integration|workflow|api` => Feature / Change Template
+- `chore|docs|refactor|test|tooling|config` => Task / Maintenance Template
+- `spike|research|proposal|investigation` => Investigation / Spike Template
+
+If `change_type` is ambiguous:
+- use Bug / Incident when the primary goal is to restore expected behavior
+- use Feature / Change when the primary goal is to add or change capability or contract
+- use Task / Maintenance when the work is mainly docs, cleanup, tests, tooling, or internal maintenance
+- use Investigation / Spike when the main output is knowledge, decision support, or a proposal rather than shipped behavior
 
 ### Template Style Rule
 
@@ -140,7 +146,7 @@ Use template by `change_type`:
 - Keep requiredness in skill validation rules and repository templates, not in user-facing heading text.
 - When a repository already provides canonical issue templates, mirror their field names and heading structure unless there is a strong reason not to.
 
-### Bug Template
+### Bug / Incident Template
 
 Required fields:
 - `问题概述`
@@ -191,7 +197,7 @@ Template:
 - 输入样例 / 文件类型 / 任务 ID：...
 ```
 
-### Feature Template
+### Feature / Change Template
 
 Required fields:
 - `影响模块`
@@ -258,13 +264,110 @@ Template:
 - 风险说明：...
 ```
 
+### Task / Maintenance Template
+
+Required fields:
+- `影响模块`
+- `背景 / 目的`
+- `本次范围`
+- `完成标准`
+
+Recommended fields:
+- `风险 / 注意事项`
+- `验证方式`
+
+Optional fields:
+- `兼容性说明`
+- `回滚说明`
+- `关联 Issue / 需求编号`
+
+Template:
+
+```
+## 📦 影响模块
+- 涉及的服务 / 模块 / 仓库：...
+- 涉及的文件 / 流程 / 工具：...
+- 是否影响现有兼容性：...
+
+## 🎯 背景 / 目的
+- 为什么现在要做：...
+- 当前阻塞 / 低效 / 技术债：...
+
+## 🛠 本次范围
+- 本次要做：...
+- 本次不做：...
+
+## ✅ 完成标准
+- [ ] ...
+- [ ] ...
+
+## 🧪 验证方式
+- 手工验证：...
+- 自动化测试：...
+- 日志 / 指标 / 观测点：...
+
+## 📎 其他信息
+- 风险 / 注意事项：...
+- 兼容性说明：...
+- 回滚说明：...
+- 关联 Issue / 需求编号：...
+```
+
+### Investigation / Spike Template
+
+Required fields:
+- `研究问题`
+- `背景 / 动机`
+- `预期产出`
+- `退出条件 / 范围边界`
+
+Recommended fields:
+- `备选方案 / 假设`
+- `验证方式`
+
+Optional fields:
+- `相关链接`
+- `风险说明`
+- `下阶段建议`
+
+Template:
+
+```
+## ❓ 研究问题
+- 本次要回答什么问题：...
+- 当前最大不确定性：...
+
+## 🧩 背景 / 动机
+- 为什么现在要做这次研究 / 预研：...
+- 当前已知限制或前提：...
+
+## 🧪 预期产出
+- 需要形成的结论：...
+- 需要交付的产物：...
+
+## 🎯 退出条件 / 范围边界
+- 本次要确认：...
+- 本次不做：...
+- 什么情况下可以结束本次研究：...
+
+## 📎 其他信息
+- 备选方案 / 假设：...
+- 验证方式：...
+- 相关链接：...
+- 风险说明：...
+- 下阶段建议：...
+```
+
 ## Template Validation Rule
 
+- Resolve `template_family` first, then validate against that family instead of raw `change_type`.
 - If template-required fields are missing:
   - `gate_mode=required` => `BLOCK`
   - `gate_mode=recommended` => `PASS_WITH_WARNING`
+- Validation output must include the resolved `template_family`.
 - Validation output must distinguish `missing_required_fields` and `missing_recommended_fields`.
-- For `feat` work that is clearly backend-, AI-, workflow-, or integration-heavy, missing `技术约束` or `验证方式` should emit an explicit warning even when the gate does not block.
+- For `feat|integration|workflow|api` work that is clearly backend-, AI-, workflow-, or integration-heavy, missing `技术约束` or `验证方式` should emit an explicit warning even when the gate does not block.
+- For `spike|research|proposal|investigation` work, missing a concrete `预期产出` or `退出条件 / 范围边界` must be treated as a required-field failure, not a soft omission.
 - Validation output must list missing fields explicitly.
 
 ## Workflow
@@ -274,7 +377,7 @@ Template:
    - mandatory final pass: run again before commit preparation to verify traceability and emit `refs_line`
    - small `docs|chore|test` work and approved spikes may skip the early pass only when repository policy allows it
 2. Validate required inputs and gate mode.
-3. Auto-infer `repo_root/change_type/platform_hint/gate_mode`.
+3. Auto-infer `repo_root/change_type/template_family/platform_hint/gate_mode`.
 4. Resolve platform (`gh` or `glab`) and verify CLI availability.
 5. Resolve issue target:
    - prefer the canonical repository issue when the work is intended for upstream or shared history
@@ -363,9 +466,9 @@ glab issue list -R <owner/repo>
 
 ## Template-to-Command Mapping Examples
 
-Use `change_type` to select template and command payload automatically.
+Use the resolved `template_family` to select template and command payload automatically.
 
-### `feat` => Feature Template => create
+### `feat|integration|workflow|api` => Feature / Change Template => create
 
 ```bash
 gh issue create \
@@ -469,7 +572,7 @@ EOF
 )"
 ```
 
-### `bugfix|hotfix` => Bug Template => create
+### `bugfix|hotfix|incident` => Bug / Incident Template => create
 
 ```bash
 gh issue create \
@@ -503,6 +606,142 @@ gh issue create \
 - 截图：<link or n/a>
 - 环境信息：<env>
 - 输入样例 / 文件类型 / 任务 ID：<sample or n/a>
+EOF
+)"
+```
+
+### `chore|docs|refactor|test|tooling|config` => Task / Maintenance Template => create
+
+```bash
+gh issue create \
+  --title "chore: <short task title>" \
+  --body "$(cat <<'EOF'
+## 📦 影响模块
+- 涉及的服务 / 模块 / 仓库：<module>
+- 涉及的文件 / 流程 / 工具：<scope>
+- 是否影响现有兼容性：<yes/no + note>
+
+## 🎯 背景 / 目的
+- 为什么现在要做：<reason>
+- 当前阻塞 / 低效 / 技术债：<problem>
+
+## 🛠 本次范围
+- 本次要做：<in scope>
+- 本次不做：<out of scope>
+
+## ✅ 完成标准
+- [ ] <done criteria 1>
+- [ ] <done criteria 2>
+
+## 🧪 验证方式
+- 手工验证：<manual check or n/a>
+- 自动化测试：<tests or n/a>
+- 日志 / 指标 / 观测点：<signals or n/a>
+
+## 📎 其他信息
+- 风险 / 注意事项：<risk or n/a>
+- 兼容性说明：<compat note or n/a>
+- 回滚说明：<rollback or n/a>
+- 关联 Issue / 需求编号：<id or n/a>
+EOF
+)"
+```
+
+```bash
+glab issue create \
+  --title "chore: <short task title>" \
+  --description "$(cat <<'EOF'
+## 📦 影响模块
+- 涉及的服务 / 模块 / 仓库：<module>
+- 涉及的文件 / 流程 / 工具：<scope>
+- 是否影响现有兼容性：<yes/no + note>
+
+## 🎯 背景 / 目的
+- 为什么现在要做：<reason>
+- 当前阻塞 / 低效 / 技术债：<problem>
+
+## 🛠 本次范围
+- 本次要做：<in scope>
+- 本次不做：<out of scope>
+
+## ✅ 完成标准
+- [ ] <done criteria 1>
+- [ ] <done criteria 2>
+
+## 🧪 验证方式
+- 手工验证：<manual check or n/a>
+- 自动化测试：<tests or n/a>
+- 日志 / 指标 / 观测点：<signals or n/a>
+
+## 📎 其他信息
+- 风险 / 注意事项：<risk or n/a>
+- 兼容性说明：<compat note or n/a>
+- 回滚说明：<rollback or n/a>
+- 关联 Issue / 需求编号：<id or n/a>
+EOF
+)"
+```
+
+### `spike|research|proposal|investigation` => Investigation / Spike Template => create
+
+```bash
+gh issue create \
+  --title "proposal: <short investigation title>" \
+  --body "$(cat <<'EOF'
+## ❓ 研究问题
+- 本次要回答什么问题：<question>
+- 当前最大不确定性：<unknown>
+
+## 🧩 背景 / 动机
+- 为什么现在要做这次研究 / 预研：<reason>
+- 当前已知限制或前提：<constraints>
+
+## 🧪 预期产出
+- 需要形成的结论：<expected conclusion>
+- 需要交付的产物：<artifact>
+
+## 🎯 退出条件 / 范围边界
+- 本次要确认：<in scope>
+- 本次不做：<out of scope>
+- 什么情况下可以结束本次研究：<exit condition>
+
+## 📎 其他信息
+- 备选方案 / 假设：<alternatives or hypotheses>
+- 验证方式：<validation>
+- 相关链接：<links or n/a>
+- 风险说明：<risk or n/a>
+- 下阶段建议：<next step or n/a>
+EOF
+)"
+```
+
+```bash
+glab issue create \
+  --title "proposal: <short investigation title>" \
+  --description "$(cat <<'EOF'
+## ❓ 研究问题
+- 本次要回答什么问题：<question>
+- 当前最大不确定性：<unknown>
+
+## 🧩 背景 / 动机
+- 为什么现在要做这次研究 / 预研：<reason>
+- 当前已知限制或前提：<constraints>
+
+## 🧪 预期产出
+- 需要形成的结论：<expected conclusion>
+- 需要交付的产物：<artifact>
+
+## 🎯 退出条件 / 范围边界
+- 本次要确认：<in scope>
+- 本次不做：<out of scope>
+- 什么情况下可以结束本次研究：<exit condition>
+
+## 📎 其他信息
+- 备选方案 / 假设：<alternatives or hypotheses>
+- 验证方式：<validation>
+- 相关链接：<links or n/a>
+- 风险说明：<risk or n/a>
+- 下阶段建议：<next step or n/a>
 EOF
 )"
 ```
