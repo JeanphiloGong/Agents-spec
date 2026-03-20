@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.12.27 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.28 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -67,6 +67,20 @@ description: v0.12.27 - Create standard, high-quality git commit messages and co
 - Do not stage unrelated changes by default.
 - If the user explicitly asks only for commit wording, split advice, or message review, the skill may stop before execution.
 - If sandbox/worktree restrictions block `git add` or `git commit`, request the required escalation and continue the flow after approval.
+
+## Worked Example
+
+Example execution flow:
+- run `issue-gate-skill`
+- selectively `git add` only the AI-authored files in scope
+- write the final message to a file and run `git commit -F <file>`
+- report the commit hash and `Refs`
+
+## Sandbox and Worktree Notes
+
+- In git worktree environments, `git add` may require escalation because Git needs to update metadata under `.git/worktrees/...`.
+- Treat this as a normal execution path, not an exceptional failure mode.
+- If that restriction appears, request the required escalation and continue the staged commit flow.
 
 ## Commit Message Standard
 
