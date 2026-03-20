@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.7 - Enforce pre-commit issue gate with auto-inferred and auto-drafted issue content, gh/glab check/create/link flow, cleaner issue templates, and dry-run plus human confirmation.
+description: v0.1.8 - Enforce pre-commit issue gate with auto-inferred and auto-drafted issue content, gh/glab check/create/link flow, cleaner issue templates, and dry-run plus human confirmation.
 ---
 
 # Issue Gate Skill
@@ -301,32 +301,47 @@ Use these commands as reference snippets for check/create/link flows.
 ### GitHub CLI (`gh`)
 
 ```bash
-# list issues
-gh issue list --limit 20
+# list open issues in current repo
+gh issue list --state open --limit 20
 
-# view issue
-gh issue view <issue_number>
+# search open issues in an explicit repo
+gh issue list -R <owner>/<repo> --state open --search "<keyword>" --limit 20
 
-# create issue
+# view a single issue with stable JSON fields
+gh issue view <issue_number> --json number,title,state,url
+
+# create issue in current repo
 gh issue create --title "<title>" --body "<body>" --label "<label>"
 
-# add comment (link commit/branch context)
+# create issue in an explicit repo
+gh issue create -R <owner>/<repo> --title "<title>" --body "<body>" --label "<label>"
+
+# add comment for commit/branch linkage
 gh issue comment <issue_number> --body "Linked commit: <sha>"
 ```
 
 ### GitLab CLI (`glab`)
 
 ```bash
-# list issues
-glab issue list
+# list open issues in current repo
+glab issue list --state opened --per-page 20
 
-# view issue
+# search open issues in an explicit repo
+glab issue list -R <group>/<repo> --state opened --search "<keyword>" --per-page 20
+
+# view a single issue
 glab issue view <issue_number>
 
-# create issue
+# view a single issue in an explicit repo
+glab issue view <issue_number> -R <group>/<repo>
+
+# create issue in current repo
 glab issue create --title "<title>" --description "<body>" --label "<label>"
 
-# add comment (link commit/branch context)
+# create issue in an explicit repo
+glab issue create -R <group>/<repo> --title "<title>" --description "<body>" --label "<label>"
+
+# add comment for commit/branch linkage
 glab issue note <issue_number> -m "Linked commit: <sha>"
 ```
 
@@ -339,6 +354,12 @@ gh issue list -R <host/owner/repo>
 # glab target repository
 glab issue list -R <owner/repo>
 ```
+
+### Automation Notes
+
+- Prefer `gh issue view <issue_number> --json number,title,state,url` in automation instead of the default formatted output.
+- For self-managed GitLab, set `GITLAB_HOST=<gitlab-host>` before running `glab issue ... -R <group>/<repo>`.
+- If `gh` or `glab` fails because of sandboxed network restrictions, request escalation and rerun the same command.
 
 ## Template-to-Command Mapping Examples
 
