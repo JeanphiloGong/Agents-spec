@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.12.25 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
+description: v0.12.28 - Create standard, high-quality git commit messages and commit plans; use when asked to suggest commit wording, split commits, or enforce commit message conventions.
 ---
 
 # Git Commit Skill
@@ -44,14 +44,43 @@ description: v0.12.25 - Create standard, high-quality git commit messages and co
 10. Add validation notes.
    - Include relevant tests or verification steps if provided.
    - If tests are not run, use a concrete operational reason (avoid "not requested").
-11. Staging policy.
-   - Do not run `git add` by default; the human reviews and stages changes.
-   - If AI-authored changes are not staged, remind the user to stage them.
-   - If only unrelated changes are unstaged, do not prompt.
+11. Staging and execution policy.
+   - When this skill is invoked for commit-stage work, default to staging the AI-authored files in scope and executing the commit in the same turn.
+   - Only fall back to draft-only output when the user explicitly limits the request to wording, split planning, or message review without execution.
+   - Ignore unrelated unstaged changes by default.
+   - If a file mixes AI-authored changes with unrelated user changes, ask once before staging that file.
 12. Finalize commit traceability.
    - Add available issue/spec/incident/PR references directly to `Refs`.
    - If no external reference exists and the change is low-risk, use `n/a`.
    - If the change is high-risk and lacks a reference, pause and request the missing traceability input.
+
+## Commit Execution Mode
+
+- When `git-commit-skill` is triggered for normal commit-stage work, treat full commit execution as the default outcome rather than a separate opt-in mode.
+- The default execution flow is:
+  1. run `issue-gate-skill` when required by repository policy
+  2. stage only the AI-authored files in the approved scope
+  3. write the commit message to a file
+  4. run `git commit -F <file>`
+  5. report commit hash, staged file scope, and `Refs`
+- Do not require the human to manually run `git add`.
+- Do not stage unrelated changes by default.
+- If the user explicitly asks only for commit wording, split advice, or message review, the skill may stop before execution.
+- If sandbox/worktree restrictions block `git add` or `git commit`, request the required escalation and continue the flow after approval.
+
+## Worked Example
+
+Example execution flow:
+- run `issue-gate-skill`
+- selectively `git add` only the AI-authored files in scope
+- write the final message to a file and run `git commit -F <file>`
+- report the commit hash and `Refs`
+
+## Sandbox and Worktree Notes
+
+- In git worktree environments, `git add` may require escalation because Git needs to update metadata under `.git/worktrees/...`.
+- Treat this as a normal execution path, not an exceptional failure mode.
+- If that restriction appears, request the required escalation and continue the staged commit flow.
 
 ## Commit Message Standard
 
@@ -301,7 +330,7 @@ Failure handling:
 
 ## Guardrails
 
-- Do not run git commands or modify history unless explicitly authorized.
+- `git add` and `git commit` are allowed when this skill is invoked for commit-stage work; do not run destructive history commands such as amend, reset, rebase, or force-push unless explicitly authorized.
 - Do not include secrets or sensitive data in commit messages.
 - Do not fabricate issue/spec/incident/PR references; use `n/a` only when appropriate.
 - If a repo has its own convention, follow it first.
