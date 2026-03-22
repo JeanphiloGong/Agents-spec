@@ -62,6 +62,12 @@ automatic external memory setup, or repo-internal role scaffolding by default.
    - Use `worktree-task-bootstrap-skill` before any engineer code task.
    - Use `project-memory-skill` only if the operator explicitly wants external
      memory outside the hub.
+11. If the operator wants to use the scaffolded roles inside OpenClaw, explain
+    the extra runtime setup.
+   - Clarify that role folders created by this skill are not automatically
+     registered as OpenClaw agents.
+   - Map each desired role workspace to an OpenClaw `agentId` explicitly.
+   - Point the operator to the OpenClaw agent CLI and multi-agent docs.
 
 ## Required Inputs
 
@@ -146,6 +152,45 @@ python3 scripts/bootstrap_project_roles.py \
 - Confirm engineer workspace includes `repos/` and `worktrees/`.
 - Confirm dry-run mode writes nothing.
 - Confirm reruns are idempotent and surface conflicts instead of overwriting.
+
+## OpenClaw Integration Notes
+
+Use this section only when the operator wants the scaffolded role workspaces to
+become real OpenClaw runtime agents.
+
+- Role folders created by this skill are companion workspaces only. They do not
+  automatically appear in OpenClaw WebChat, Control UI, or channel routing.
+- To use them in OpenClaw, register each role workspace under
+  `agents.list[].workspace` or create them with the OpenClaw agent CLI.
+- A practical mapping is one OpenClaw agent per role, for example
+  `coordinator`, `engineer`, and `advisor`.
+
+Typical OpenClaw commands:
+
+```bash
+openclaw agents add coordinator --workspace /path/to/project-hub/roles/coordinator
+openclaw agents add engineer --workspace /path/to/project-hub/roles/engineer
+openclaw agents add advisor --workspace /path/to/project-hub/roles/advisor
+openclaw agents list --bindings
+```
+
+If inbound channel routing is needed, add bindings explicitly:
+
+```bash
+openclaw agents bind --agent coordinator --bind telegram:default
+openclaw agents bind --agent engineer --bind discord:dev
+openclaw agents bindings --agent coordinator
+```
+
+Useful official docs:
+
+- Agents CLI: `https://docs.openclaw.ai/cli/agents`
+- Multi-agent routing: `https://docs.openclaw.ai/concepts/multi-agent`
+- Agent workspace: `https://docs.openclaw.ai/concepts/agent-workspace`
+
+When applying this skill to an OpenClaw-managed project, mention these docs in
+the handoff so the operator knows how to wire the scaffold into the running
+Gateway after bootstrap.
 
 ## References
 
