@@ -2,6 +2,12 @@
 
 Use this after the minimal-complete sample is understood and validated.
 
+## 0. Confirm placement hygiene
+
+- Is the sample stored in an isolated path such as `examples/reference-core/<feature-slug>/`?
+- Does it have a colocated `README.md` that states what is included and deferred?
+- Is production code prevented from importing or depending on the sample by default?
+
 ## 1. Confirm the real core matches the sample
 
 - Identify the production invariant/state transition that the sample proved.
@@ -31,4 +37,3 @@ Use this after the minimal-complete sample is understood and validated.
 - use the sample as reference, not merge target
 - land one smallest closed loop on `main`
 - keep `Human-Owned` logic rederived from the sample and requirements
-

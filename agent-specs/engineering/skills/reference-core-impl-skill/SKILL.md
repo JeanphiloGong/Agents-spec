@@ -1,6 +1,6 @@
 ---
 name: reference-core-impl-skill
-description: v0.1.0 - Produce a runnable minimal-complete reference implementation for a feature or system core before main-project integration; use it to learn the core, reimplement it yourself, and map constraints back into production.
+description: v0.1.1 - Produce a runnable minimal-complete reference implementation for a feature or system core before main-project integration; place it in an isolated project-repo reference area, use it to learn the core, and map constraints back into production.
 ---
 
 # Reference Core Implementation Skill
@@ -51,6 +51,10 @@ Out of scope:
 - `runtime_policy=in-memory-first`
 - `validation_policy=example-first`
 - `mapping_back_to_main=required`
+- `sample_repository_policy=target-project-repo-preferred`
+- `sample_path_policy=examples/reference-core/<feature-slug>`
+- `sample_readme=required`
+- `production_import_barrier=required`
 - `output_style=tutorial-plus-code`
 - `agent_mode=single|multi(optional)`
 
@@ -82,18 +86,20 @@ If any of these are missing, the sample is either incomplete or too abstract.
    - in-memory state
    - fake adapters
    - synchronous loop unless async behavior is itself core
-5. Define the sample structure:
+5. Resolve the sample placement strategy in the target project repo.
+6. Define the sample structure:
    - essential types/state
    - core loop or public entrypoints
    - essential helper contracts
-6. Produce a runnable minimal-complete sample within the line/file budget.
-7. Validate it with one happy path and one important failure or edge case.
-8. List deferred constraints, adapters, and production-only policies.
-9. Map the sample back to the real codebase:
+7. Produce a runnable minimal-complete sample within the line/file budget.
+8. Add a colocated `README.md` using the reference template when the sample is meant to persist in the project repo.
+9. Validate it with one happy path and one important failure or edge case.
+10. List deferred constraints, adapters, and production-only policies.
+11. Map the sample back to the real codebase:
    - which modules own the equivalent behavior
    - which abstractions must be reintroduced
    - which tests should be ported first
-10. Recommend the next step:
+12. Recommend the next step:
    - use `human-core-feature-wave-skill` to land the learned core on `main`, or
    - iterate once more if the sample still hides the real invariant.
 
@@ -105,6 +111,32 @@ If any of these are missing, the sample is either incomplete or too abstract.
 - Use real names for the real concepts; do not rename away the domain just to make the sample feel generic.
 - Replace non-core dependencies with the smallest faithful substitute.
 - Preserve failure modes that define the design.
+
+## Project Placement Policy (Required)
+
+By default, persist the reference sample in the target project repository, not in the skill repository and not inside the main production runtime tree.
+
+Default placement:
+- `examples/reference-core/<feature-slug>/`
+
+Allowed alternatives when they fit better:
+- `docs/reference-core/<feature-slug>/` for documentation-first samples that are still useful to read and lightly run
+- `playground/reference-core/<feature-slug>/` for operator-owned or intentionally non-supported experiments
+
+Avoid by default:
+- `app/`
+- `src/`
+- `pkg/`
+- `internal/`
+- any directory that production code imports by default
+
+Every persisted sample must include:
+- the sample code
+- a colocated `README.md`
+- a short note on what is included vs deferred
+- a mapping back to the production modules
+
+If the sample is intentionally ephemeral and should not live in the project repo, state that explicitly and explain why.
 
 ## Reference-vs-Production Split (Required)
 
@@ -133,6 +165,7 @@ The skill must require:
 - one boundary or failure example
 - one sentence explaining what the sample proves
 - one sentence explaining what the sample does **not** prove
+- one sentence explaining where the sample should live in the target project repo
 
 ## Daily Workflow Position
 
@@ -149,6 +182,7 @@ Recommended sequence:
 - one-sentence core behavior goal
 - non-negotiable invariants or constraints
 - optional current AI draft path or production file paths
+- optional target project repository path or project root
 - optional preferred size budget
 - optional preferred language/runtime for the sample
 
@@ -158,6 +192,7 @@ Recommended sequence:
 - language: same as production language when practical
 - runtime: local in-memory sample
 - validation: inline example or tiny tests
+- placement: `examples/reference-core/<feature-slug>/` inside the target project repo
 - sample location in response: code first, mapping second
 - reference style: complete enough to run, small enough to rewrite manually
 
@@ -166,7 +201,9 @@ Recommended sequence:
 ```
 ## Core Goal
 ## Minimal Boundary
+## Suggested Project Placement
 ## Minimal Complete Sample
+## Reference README Outline
 ## Included Invariants
 ## Deferred Constraints
 ## Validation
@@ -178,10 +215,12 @@ Recommended sequence:
 ## Worked Example References
 
 - `references/what-counts-as-minimal-complete.md`
+- `references/project-placement-policy.md`
 - `references/worked-example-mini-langgraph.md`
 - `references/worked-example-mini-viim.md`
 - `references/mapping-back-to-main-checklist.md`
 - `references/acceptance-criteria.md`
+- `assets/reference-core-readme-template.md`
 
 ## Iteration Loop (Required)
 
@@ -250,4 +289,5 @@ Each reinforcement round must produce:
 - Do not hide deferred constraints; list them explicitly.
 - Do not claim the sample is the source of truth for `main`.
 - Do not skip the mapping back to production modules.
-
+- Do not place persisted samples under production runtime directories by default.
+- Do not leave a persisted sample without a colocated `README.md`.

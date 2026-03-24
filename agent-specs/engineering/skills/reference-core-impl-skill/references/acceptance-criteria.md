@@ -7,6 +7,7 @@
 - The sample is meaningfully smaller and cleaner than the production module or AI draft it abstracts from.
 - Deferred production constraints are listed explicitly.
 - The output includes a mapping back to the real codebase.
+- The output proposes an isolated project-repo placement for the sample or explicitly states why it should remain ephemeral.
 - The next human rewrite step is concrete and actionable.
 
 ## Quality Criteria
@@ -16,6 +17,7 @@
 - **Faithfulness**: the sample still behaves like the real core, not a toy with different rules.
 - **Teachability**: a human could plausibly rederive the sample in one focused sitting.
 - **Transferability**: the mapping back to `main` identifies the real modules/boundaries to reintroduce next.
+- **Isolation**: the persisted sample location avoids production runtime directories and includes a colocated README plan.
 
 ## Failure Conditions
 
@@ -23,6 +25,7 @@
 - The sample drops the very invariant that makes the feature hard or interesting.
 - The sample keeps too much production ceremony and is no longer minimal.
 - The sample has no explicit deferred-constraints list.
+- The sample is placed into a production runtime directory without an explicit exception reason.
 - The mapping-back section is vague enough that another engineer could not continue safely.
 
 ## Reviewer Challenge Checklist
@@ -32,4 +35,4 @@
 - Could a human reimplement this sample without opening the original production module?
 - Does the sample prove the real core, or only mimic the happy path?
 - Is the mapping back to `main` specific enough to prevent drift?
-
+- Is the placement safe enough that production code will not accidentally depend on the sample?
