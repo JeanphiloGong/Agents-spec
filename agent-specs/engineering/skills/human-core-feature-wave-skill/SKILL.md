@@ -1,6 +1,6 @@
 ---
 name: human-core-feature-wave-skill
-description: v0.1.17 - Guide human-led AI feature landing where AI drafts first and humans reimplement core logic on main; use reference-core samples when the core is noisy, tutorial-first coaching inside Human-Owned steps, and migration triage only as an on-demand fallback.
+description: v0.1.18 - Guide human-led AI feature landing inside a dedicated worktree where AI drafts first, reference-core samples clarify noisy cores, and humans reimplement the production logic on main.
 ---
 
 # Human-Core Feature Wave Skill (Worktree-First)
@@ -62,6 +62,7 @@ This skill does **not** assume the AI branch is the source of truth.
 ## Mode Selection (Required)
 
 - Choose `feature-wave` by default when AI has already drafted code and the goal is to land one smallest useful closed loop on `main`.
+- Run `worktree-task-bootstrap-skill` first whenever this flow will produce or modify real code.
 - Run `reference-core-impl-skill` first when the core is novel, architecture-heavy, or too noisy to learn safely from the production code or AI draft directly.
 - Inside `feature-wave`, switch into `implementation-coach` only for `Human-Owned` steps where the user needs the reasoning path for reimplementing the core logic.
 - Choose standalone `implementation-coach` only when there is no landing/integration context yet and the user mainly wants to learn or derive the design.
@@ -71,7 +72,7 @@ This skill does **not** assume the AI branch is the source of truth.
 
 Default operating pattern:
 
-1. AI drafts the feature in a sandbox worktree.
+1. Start from a dedicated worktree boundary for the task.
 2. Human reviews the draft and identifies the `Human-Owned` core path.
 3. If the core is still too noisy to reason about safely, run `reference-core-impl-skill` to distill a runnable minimal-complete sample first.
 4. Human reimplements that core path on `main` from requirements, invariants, and the learned sample, not by trust-copying the AI diff.
@@ -79,6 +80,12 @@ Default operating pattern:
 6. The wave closes only when `main` has the minimal verified business result.
 
 This is the default path the skill should optimize for.
+
+Recommended upstream/downstream chain:
+1. `worktree-task-bootstrap-skill`
+2. `reference-core-impl-skill` when needed
+3. `human-core-feature-wave-skill`
+4. `git-commit-skill`
 
 ## What Counts as "One Wave"
 

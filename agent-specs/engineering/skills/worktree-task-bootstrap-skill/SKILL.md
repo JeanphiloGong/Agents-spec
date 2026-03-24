@@ -1,6 +1,6 @@
 ---
 name: worktree-task-bootstrap-skill
-description: v0.1.10 - Create a dedicated git worktree for every code task before implementation, auto-open tmux windows, optionally fork current Codex session into the new window, optionally start a child agent asynchronously, provide a portable launcher, block unsafe/in-ws worktree paths, and enforce parent-agent stop-after-fork handoff.
+description: v0.1.11 - Create a dedicated git worktree for every code task before implementation, then hand off to downstream skills such as reference-core distillation, human-core landing, and commit-stage traceability.
 ---
 
 # Worktree Task Bootstrap Skill
@@ -141,12 +141,14 @@ For tracked engineering work, the default sequence is:
 
 1. bootstrap worktree
 2. confirm or create the issue before meaningful implementation starts
-3. implement in the new worktree
-4. rerun `issue-gate-skill` before commit preparation to verify traceability and emit `refs_line`
-5. finalize the commit with `git-commit-skill`
+3. if the core is novel or noisy, run `reference-core-impl-skill` in the new worktree
+4. use `human-core-feature-wave-skill` to land the learned core back into production code
+5. rerun `issue-gate-skill` before commit preparation to verify traceability and emit `refs_line`
+6. finalize the commit with `git-commit-skill`
 
 Interpretation:
 - This skill owns the first boundary only: no code edits before the new worktree exists.
+- `reference-core-impl-skill` and `human-core-feature-wave-skill` assume this isolation boundary already exists when they will produce or modify code.
 - Issue creation is not meant to be deferred by default until after implementation.
 - Retroactive issue creation is a recovery path for missing traceability, not the preferred operating mode.
 - Small `docs|chore|test` tasks or short exploratory spikes may follow repository policy exceptions, but they still must pass the final commit gate.

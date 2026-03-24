@@ -1,6 +1,6 @@
 ---
 name: reference-core-impl-skill
-description: v0.1.1 - Produce a runnable minimal-complete reference implementation for a feature or system core before main-project integration; place it in an isolated project-repo reference area, use it to learn the core, and map constraints back into production.
+description: v0.1.2 - Produce a runnable minimal-complete reference implementation for a feature or system core inside a dedicated worktree before main-project integration; use it to learn the core, then hand off to human-core landing.
 ---
 
 # Reference Core Implementation Skill
@@ -40,6 +40,7 @@ Out of scope:
 - The real codebase remains the integration target.
 - The human should be able to run or test the sample without the production environment.
 - The sample should be simple enough to rebuild by hand, but strict enough to fail if a core invariant is broken.
+- If the sample will be persisted or used to drive production edits, the task should already be inside a dedicated worktree.
 
 ## Fixed Defaults
 
@@ -169,12 +170,18 @@ The skill must require:
 
 ## Daily Workflow Position
 
-Use this skill before `human-core-feature-wave-skill` when the feature's core is novel, architecture-heavy, or difficult to learn from the production code directly.
+Use this skill after `worktree-task-bootstrap-skill` and before `human-core-feature-wave-skill` when the feature's core is novel, architecture-heavy, or difficult to learn from the production code directly.
 
 Recommended sequence:
-1. `reference-core-impl-skill`
-2. `human-core-feature-wave-skill`
-3. `git-commit-skill`
+1. `worktree-task-bootstrap-skill`
+2. `reference-core-impl-skill`
+3. `human-core-feature-wave-skill`
+4. `git-commit-skill`
+
+Interpretation:
+- `reference-core-impl-skill` is a distillation and learning stage, not the final production edit stage.
+- If the reference sample reveals a production mismatch, use `human-core-feature-wave-skill` to decide and land the real production change.
+- Do not patch production code directly from the sample without the landing/invariant review step.
 
 ## Required Inputs (Minimal)
 
