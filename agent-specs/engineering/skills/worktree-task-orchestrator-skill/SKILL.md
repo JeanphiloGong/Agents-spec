@@ -1,6 +1,6 @@
 ---
 name: worktree-task-orchestrator-skill
-description: v0.1.5 - Orchestrate pane layout, role ownership, and phased execution after a bootstrapped worktree session is forked into tmux.
+description: v0.1.6 - Orchestrate pane layout, role ownership, and phased execution after a bootstrapped worktree session is forked into tmux.
 ---
 
 # Worktree Task Orchestrator Skill
@@ -42,6 +42,8 @@ Out of scope:
 - Allow traceability and review work to stay near the coding lane without
   turning every task into a full committee.
 - Preserve operator control with explicit pane titles and role ownership.
+- Use tmux `pane_id` as the canonical machine routing target for inter-pane dispatch.
+- Use pane-local `@user_pane_title` for human-visible lane labels where the tmux config supports it.
 - Reflect the default tracked-work expectation that issue existence is checked
   before meaningful implementation proceeds.
 
@@ -109,6 +111,38 @@ Out of scope:
 
 Pane-to-pane communication must be treated as Codex TUI input, not shell
 command injection.
+
+### Canonical Pane Identity Rule
+
+Use tmux `pane_id` as the canonical target for any machine-routed pane
+communication or lane startup.
+
+Use pane titles only for human traceability, never as the sole routing key.
+
+Preferred storage model:
+- store the orchestrator's pane map as window-scoped tmux options
+- store one user-visible role label per pane via `@user_pane_title`
+
+Recommended routing keys:
+1. tmux `pane_id` for message targeting
+2. window-scoped pane map for lane lookup
+3. `@user_pane_title` for display only
+
+Recommended pattern:
+
+```bash
+orch_pane="$(tmux display-message -p '#{pane_id}')"
+coder_pane="$(tmux split-window -P -F '#{pane_id}' -h -c "$worktree_path")"
+issue_pane="$(tmux split-window -P -F '#{pane_id}' -v -t "$coder_pane" -c "$worktree_path")"
+
+tmux set -wq @pane_orchestrator "$orch_pane"
+tmux set -wq @pane_coder "$coder_pane"
+tmux set -wq @pane_issue_gate "$issue_pane"
+
+tmux set -pt "$orch_pane" @user_pane_title "orchestrator"
+tmux set -pt "$coder_pane" @user_pane_title "coder"
+tmux set -pt "$issue_pane" @user_pane_title "issue-gate"
+```
 
 ### Role-First Prompt Rule
 
@@ -258,6 +292,10 @@ You are the reviewer lane for this task window. Review the coder's output agains
 - Do not claim independent review when all panes inherit the same starting
   context unless the reviewer lane is tightly constrained.
 - Pane titles are mandatory.
+- In environments that expose pane labels through `@user_pane_title`, prefer
+  that field over tmux built-in `pane_title` for human-visible lane names.
+- All machine-targeted inter-pane messaging must target tmux `pane_id`, not a
+  pane title string.
 - Inter-pane Codex messages must use `tmux send-keys -l ...` followed by a
   separate `Enter`.
 
@@ -295,22 +333,24 @@ Interpretation:
    - `dual-pane`: `orchestrator` + `coder`
    - `three-pane`: `orchestrator` + `coder` + one phase-bound secondary pane
    - default layout is `three-pane` with `issue-gate` as the secondary role
-5. Set pane titles immediately after creation.
-6. Immediately send a role-first prompt to each newly created non-orchestrator
+5. Capture each newly created pane's tmux `pane_id` immediately.
+6. Store a canonical pane map as window-scoped tmux options.
+7. Set pane titles immediately after creation.
+8. Immediately send a role-first prompt to each newly created non-orchestrator
    pane.
-7. Establish one canonical pane map and role plan:
+9. Establish one canonical pane map and role plan:
    - the current session is already the orchestrator
    - assign roles conservatively and avoid multi-writer overlap
-8. Optional secondary lane startup:
+10. Optional secondary lane startup:
    - `issue-gate` starts by default and may run only before coding begins
    - `reviewer` may start only after a plan or diff exists unless explicitly
      overridden
-9. When panes need to communicate, send messages with literal-text plus
-    separate-Enter protocol.
-10. Print handoff commands:
+11. When panes need to communicate, send messages with literal-text plus
+    separate-Enter protocol, always targeting a resolved `pane_id`.
+12. Print handoff commands:
    - `tmux select-window -t <window_name>`
    - pane titles and current role plan
-11. Dispatch downstream roles and monitor phase changes.
+13. Dispatch downstream roles and monitor phase changes.
 
 ## Standard Manual Flow (Recommended)
 
@@ -318,58 +358,65 @@ Interpretation:
 session_name="$(tmux display-message -p '#S')"
 window_name="$(tmux display-message -p '#W')"
 worktree_path="$(pwd)"
+orch_pane="$(tmux display-message -p '#{pane_id}')"
+coder_pane="$(tmux split-window -P -F '#{pane_id}' -h -t "${session_name}:${window_name}.0" -c "$worktree_path")"
+issue_pane="$(tmux split-window -P -F '#{pane_id}' -v -t "$coder_pane" -c "$worktree_path")"
 
-tmux split-window -h -t "${session_name}:${window_name}" -c "$worktree_path"
-tmux select-pane -t "${session_name}:${window_name}.0" -T "orchestrator"
-tmux select-pane -t "${session_name}:${window_name}.1" -T "coder"
-tmux split-window -v -t "${session_name}:${window_name}.1" -c "$worktree_path"
-tmux select-pane -t "${session_name}:${window_name}.2" -T "issue-gate"
+tmux set -wq @pane_orchestrator "$orch_pane"
+tmux set -wq @pane_coder "$coder_pane"
+tmux set -wq @pane_issue_gate "$issue_pane"
+
+tmux set -pt "$orch_pane" @user_pane_title "orchestrator"
+tmux set -pt "$coder_pane" @user_pane_title "coder"
+tmux set -pt "$issue_pane" @user_pane_title "issue-gate"
 ```
 
 Default third pane for the issue lane:
 
 ```bash
-tmux select-pane -t "${session_name}:${window_name}.2" -T "issue-gate"
+tmux set -pt "$issue_pane" @user_pane_title "issue-gate"
 ```
 
 Suggested issue-gate lane startup message:
 
 ```bash
-tmux send-keys -t "${session_name}:${window_name}.2" -l "You are the issue-gate lane for this task window. Do not plan the task and do not write production code. Check whether the canonical tracking issue already exists for the agreed task. If it exists, return the issue reference. If it does not exist, create it using `issue-gate-skill` with a concise, execution-ready task framing. After issue status is clear, report the result and commit bridge back to the orchestrator, then go idle."
-tmux send-keys -t "${session_name}:${window_name}.2" Enter
+tmux send-keys -t "$issue_pane" -l "You are the issue-gate lane for this task window. Do not plan the task and do not write production code. Check whether the canonical tracking issue already exists for the agreed task. If it exists, return the issue reference. If it does not exist, create it using `issue-gate-skill` with a concise, execution-ready task framing. After issue status is clear, report the result and commit bridge back to the orchestrator, then go idle."
+tmux send-keys -t "$issue_pane" Enter
 ```
 
 Suggested coder lane startup message:
 
 ```bash
-tmux send-keys -t "${session_name}:${window_name}.1" -l "You are the coder lane for this task window. The task plan is already decided; do not redesign scope. Execute the assigned changes conservatively, respect existing user edits, and keep to the agreed file scope. Report changed files, checks run, and remaining risks back to the orchestrator. When a reviewable diff exists, send a handoff message to the orchestrator instead of self-approving."
-tmux send-keys -t "${session_name}:${window_name}.1" Enter
+tmux send-keys -t "$coder_pane" -l "You are the coder lane for this task window. The task plan is already decided; do not redesign scope. Execute the assigned changes conservatively, respect existing user edits, and keep to the agreed file scope. Report changed files, checks run, and remaining risks back to the orchestrator. When a reviewable diff exists, send a handoff message to the orchestrator instead of self-approving."
+tmux send-keys -t "$coder_pane" Enter
 ```
 
 Suggested reviewer lane startup message:
 
 ```bash
-tmux send-keys -t "${session_name}:${window_name}.2" -l "You are the reviewer lane for this task window. Review the coder's output against the already-agreed task plan. Focus on correctness, regressions, missing validation, and scope drift. Do not rewrite the plan and do not become an implementation lane. Return findings-first feedback to the orchestrator."
-tmux send-keys -t "${session_name}:${window_name}.2" Enter
+reviewer_pane="$(tmux show -wgv @pane_issue_gate)"
+tmux send-keys -t "$reviewer_pane" -l "You are the reviewer lane for this task window. Review the coder's output against the already-agreed task plan. Focus on correctness, regressions, missing validation, and scope drift. Do not rewrite the plan and do not become an implementation lane. Return findings-first feedback to the orchestrator."
+tmux send-keys -t "$reviewer_pane" Enter
 ```
 
 Recommended pane-message pattern after forks are live:
 
 ```bash
-tmux send-keys -t "${session_name}:${window_name}.0" -l "[handoff][coder->orchestrator]
+orch_pane="$(tmux show -wgv @pane_orchestrator)"
+tmux send-keys -t "$orch_pane" -l "[handoff][coder->orchestrator]
 status: review-ready
 changed_files: app/service.py tests/test_service.py
 checks_run: pytest tests/test_service.py -q
 risks: none
 request: dispatch reviewer"
-tmux send-keys -t "${session_name}:${window_name}.0" Enter
+tmux send-keys -t "$orch_pane" Enter
 ```
 
 Verify window and pane titles:
 
 ```bash
-tmux list-panes -t "${session_name}:${window_name}" -F '#S:#I.#P #{pane_title} #{pane_current_path}'
-tmux capture-pane -pt "${session_name}:${window_name}.0" -S -30
+tmux list-panes -t "${session_name}:${window_name}" -F '#S:#I.#P #{?@user_pane_title,#{@user_pane_title},-} #{pane_current_path}'
+tmux capture-pane -pt "$orch_pane" -S -30
 ```
 
 ## Output Format
@@ -405,9 +452,10 @@ tmux capture-pane -pt "${session_name}:${window_name}.0" -S -30
 - review_trigger:
 
 ## Execution Commands
-- tmux split-window ...
-- tmux select-pane -T ...
-- tmux send-keys ...
+- tmux split-window -P -F '#{pane_id}' ...
+- tmux set -wq @pane_<role> ...
+- tmux set -pt <pane_id> @user_pane_title ...
+- tmux send-keys -t <pane_id> ...
 
 ## Task Handoff
 - task_window:
