@@ -1,6 +1,6 @@
 ---
 name: worktree-task-orchestrator-skill
-description: v0.1.1 - Create a dedicated git worktree and bootstrap a tmux task window where a forked orchestrator agent manages coder, issue, and review lanes.
+description: v0.1.2 - Create a dedicated git worktree and bootstrap a tmux task window where a forked orchestrator agent manages coder, issue, and review lanes.
 ---
 
 # Worktree Task Orchestrator Skill
@@ -36,6 +36,8 @@ Out of scope:
 - Allow traceability and review work to stay near the coding lane without
   turning every task into a full committee.
 - Preserve operator control with explicit pane titles and role ownership.
+- Reflect the default tracked-work expectation that issue framing exists before
+  meaningful implementation proceeds.
 
 ## Required Inputs
 
@@ -53,10 +55,10 @@ Out of scope:
 ## Optional Environment Inputs
 
 - `WORKTREE_AUTO_TMUX_WINDOW`: `1|0`, default `1`.
-- `WORKTREE_ORCH_LAYOUT`: `dual-pane|three-pane`, default `dual-pane`.
+- `WORKTREE_ORCH_LAYOUT`: `dual-pane|three-pane`, default `three-pane`.
 - `WORKTREE_ORCH_INITIAL_ROLES`: comma-separated roles, default
   `orchestrator,coder`.
-- `WORKTREE_ORCH_SECONDARY_ROLE`: `issue-draft|reviewer|none`, default `none`.
+- `WORKTREE_ORCH_SECONDARY_ROLE`: `issue-draft|reviewer|none`, default `issue-draft`.
 - `WORKTREE_ORCH_REVIEW_START`: `post-plan|post-diff`, default `post-diff`.
 - `WORKTREE_PANE_TITLE_ORCH`: default `orchestrator`.
 - `WORKTREE_PANE_TITLE_CODER`: default `coder`.
@@ -73,6 +75,7 @@ Out of scope:
 - `primary_role=orchestrator`
 - `writer_policy=single-writer-by-default`
 - `secondary_role_policy=phase-bound`
+- `default_issue_lane=enabled`
 - `tmux_layout_policy=explicit-pane-titles`
 - `cleanup_policy=manual-retain`
 - `branch_pattern=task/<task_kind>/<yyyymmdd>-<task_slug>`
@@ -204,7 +207,8 @@ recommendation: <fix-now | acceptable-with-risk | needs-human-decision>
 4. fork the current Codex session into the `orchestrator` pane
 5. let the orchestrator inspect task context and choose minimal active roles
 6. if needed, dispatch the `coder` lane
-7. if needed, run `issue-draft` before implementation starts
+7. run `issue-draft` before implementation starts unless the operator explicitly
+   selects `secondary_role=none`
 8. if needed, run `reviewer` only after a plan or diff exists
 9. finalize with issue traceability checks and commit preparation
 
@@ -212,7 +216,8 @@ Interpretation:
 - This skill owns both the isolation boundary and the initial execution
   topology.
 - The orchestrator chooses the smallest useful role set for the task.
-- `issue-draft` is a phase, not a permanent companion pane.
+- `issue-draft` is enabled by default because tracked work should confirm issue
+  framing before implementation.
 - `reviewer` is late-bound by default.
 
 ## Workflow
@@ -233,12 +238,13 @@ Interpretation:
 6. Build the pane layout:
    - `dual-pane`: `orchestrator` + `coder`
    - `three-pane`: `orchestrator` + `coder` + one phase-bound secondary pane
+   - default layout is `three-pane` with `issue-draft` as the secondary role
 7. Set pane titles immediately after creation.
 8. Fork the current Codex session into the `orchestrator` pane:
    - the fork prompt must instruct the agent to act as a task orchestrator,
      assign roles conservatively, and keep one canonical pane map
 9. Optional secondary lane startup:
-   - `issue-draft` may start only before coding begins
+   - `issue-draft` starts by default and may run only before coding begins
    - `reviewer` may start only after a plan or diff exists unless explicitly
      overridden
 10. When panes need to communicate, send messages with literal-text plus
@@ -273,6 +279,8 @@ tmux new-window -d -t "$session_name" -n "$window_name" -c "$worktree_path"
 tmux split-window -h -t "${session_name}:${window_name}" -c "$worktree_path"
 tmux select-pane -t "${session_name}:${window_name}.0" -T "orchestrator"
 tmux select-pane -t "${session_name}:${window_name}.1" -T "coder"
+tmux split-window -v -t "${session_name}:${window_name}.1" -c "$worktree_path"
+tmux select-pane -t "${session_name}:${window_name}.2" -T "issue-draft"
 ```
 
 Fork the current session into the orchestrator pane:
@@ -286,10 +294,9 @@ printf -v fork_cmd 'codex fork %q %q --cd %q --full-auto --no-alt-screen' \
 tmux send-keys -t "${session_name}:${window_name}.0" "$fork_cmd" C-m
 ```
 
-Optional third pane for a phase-bound secondary role:
+Default third pane for the issue lane:
 
 ```bash
-tmux split-window -v -t "${session_name}:${window_name}.1" -c "$worktree_path"
 tmux select-pane -t "${session_name}:${window_name}.2" -T "issue-draft"
 ```
 
