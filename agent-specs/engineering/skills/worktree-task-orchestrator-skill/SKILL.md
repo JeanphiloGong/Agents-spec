@@ -1,6 +1,6 @@
 ---
 name: worktree-task-orchestrator-skill
-description: v0.1.7 - Orchestrate pane layout, role ownership, and phased execution after a bootstrapped worktree session is forked into tmux, using real-newline plus double-Enter pane messaging by default.
+description: v0.1.8 - Orchestrate pane layout, role ownership, and phased execution after a bootstrapped worktree session is forked into tmux, using pane_id routing, real-newline plus double-Enter pane messaging by default, and a dedicated reviewer pane whenever code review is required.
 ---
 
 # Worktree Task Orchestrator Skill
@@ -44,6 +44,9 @@ Out of scope:
 - Preserve operator control with explicit pane titles and role ownership.
 - Use tmux `pane_id` as the canonical machine routing target for inter-pane dispatch.
 - Use pane-local `@user_pane_title` for human-visible lane labels where the tmux config supports it.
+- Keep the orchestrator in a control-plane role rather than making it the default code reviewer.
+- Require a dedicated `reviewer` pane whenever formal code review is needed.
+- Allow the orchestrator to dispatch lane-specific skills without silently replacing lane ownership.
 - Reflect the default tracked-work expectation that issue existence is checked
   before meaningful implementation proceeds.
 
@@ -89,6 +92,9 @@ Out of scope:
 - Decides whether `issue-gate` or `reviewer` is needed.
 - Keeps the agreed task plan, role boundaries, and handoff state visible.
 - Does not become the default long-running code writer.
+- Does not become the default code reviewer.
+- May perform lightweight sanity checks, but formal code review belongs to the `reviewer` lane.
+- May instruct other lanes to use specific skills, but should not silently execute lane-specific skill work on their behalf unless role ownership is explicitly reassigned.
 
 ### Coder
 - Default implementation lane.
@@ -100,13 +106,26 @@ Out of scope:
 - Checks whether the canonical issue already exists.
 - Creates the issue only when missing, preferably by invoking `issue-gate-skill`.
 - Must not re-plan the task or drift into implementation.
+- Must not review code.
 - Should exit or go idle after issue status and commit bridge are clear.
 
 ### Reviewer
 - Post-plan or post-diff lane only.
+- Must run in a dedicated `reviewer` pane when formal code review is required.
 - Reviews for correctness, risk, regressions, and missing validation.
 - Must not be presented as independent audit unless its prompt and scope are
   explicitly review-only.
+
+## Skill Dispatch Policy
+
+- The orchestrator may require `coder`, `issue-gate`, or `reviewer` lanes to use
+  specific skills when doing so clarifies execution boundaries.
+- Skill dispatch does not change role ownership by itself.
+- If a lane-specific skill is needed, prefer dispatching that skill to the
+  appropriate lane instead of having the orchestrator perform the work.
+- The orchestrator should only execute lane-specific skill work after an
+  explicit role reassignment, and that reassignment should be visible in the
+  pane map and handoff state.
 
 ## Pane Communication Protocol
 
@@ -302,6 +321,10 @@ You are the reviewer lane for this task window. Review the coder's output agains
   pane role.
 - Do not use the issue lane for planning; the plan should already be decided
   before this skill starts execution.
+- Do not let the orchestrator act as the default code reviewer.
+- If code review is required, create or repurpose a dedicated `reviewer` pane
+  before review begins instead of routing review through the orchestrator or
+  the `issue-gate` lane.
 - Every newly created non-orchestrator pane must receive a role-first prompt as
   its first message.
 - Do not claim independent review when all panes inherit the same starting
@@ -334,7 +357,8 @@ Interpretation:
   treating the task plan as already decided.
 - `issue-gate` is enabled by default because tracked work should confirm issue
   existence before implementation.
-- `reviewer` is late-bound by default.
+- `reviewer` is late-bound by default, but once formal code review is needed it
+  should run in a dedicated reviewer pane rather than through the orchestrator.
 - This skill should be entered by the forked bootstrap session before any
   implementation-heavy lane starts.
 
@@ -361,6 +385,9 @@ Interpretation:
    - `issue-gate` starts by default and may run only before coding begins
    - `reviewer` may start only after a plan or diff exists unless explicitly
      overridden
+   - when review starts, use a dedicated reviewer pane by repurposing the
+     phase-bound secondary pane or creating a separate reviewer pane before any
+     review dispatch occurs
 11. When panes need to communicate, send messages with real-newline text plus
     separate-Enter protocol, always targeting a resolved `pane_id`.
 12. Default to a second delayed `Enter` for inter-pane submission unless the
@@ -419,6 +446,8 @@ Suggested reviewer lane startup message:
 
 ```bash
 reviewer_pane="$(tmux show -wgv @pane_issue_gate)"
+tmux set -wq @pane_reviewer "$reviewer_pane"
+tmux set -pt "$reviewer_pane" @user_pane_title "reviewer"
 message="$(printf 'You are the reviewer lane for this task window. Review the coder'\''s output against the already-agreed task plan. Focus on correctness, regressions, missing validation, and scope drift. Do not rewrite the plan and do not become an implementation lane. Return findings-first feedback to the orchestrator.')"
 tmux send-keys -t "$reviewer_pane" -l "$message"
 tmux send-keys -t "$reviewer_pane" Enter
