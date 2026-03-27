@@ -1,6 +1,6 @@
 ---
 name: worktree-task-bootstrap-skill
-description: v0.1.11 - Create a dedicated git worktree for every code task before implementation, then hand off to downstream skills such as reference-core distillation, human-core landing, and commit-stage traceability.
+description: v0.1.12 - Create a dedicated git worktree for every code task, fork the current session into the new workspace, and hand off immediately to downstream execution skills.
 ---
 
 # Worktree Task Bootstrap Skill
@@ -19,7 +19,8 @@ Do not use it for discussion-only or docs-only work unless a branch workspace is
 - Use the operator's current branch as the default baseline unless `base_branch` is explicitly overridden.
 - Reduce accidental cross-task contamination.
 - If inside tmux, open a new tmux window in the new worktree path.
-- If task context exists, optionally launch a child agent in a separate tmux window so the primary flow stays unblocked.
+- Treat a successful fork into the new worktree as the normal completion state.
+- Hand off execution in the new worktree before any implementation begins.
 
 ## Required Inputs
 
@@ -36,8 +37,8 @@ Do not use it for discussion-only or docs-only work unless a branch workspace is
 
 - `WORKTREE_AUTO_TMUX_WINDOW`: `1|0`, default `1`.
 - `WORKTREE_TMUX_WINDOW_NAME`: optional primary worktree window name.
-- `WORKTREE_FORK_CODEX`: `1|0`, default `0`; fork current Codex session into the new primary tmux window.
-- `WORKTREE_FORK_PROMPT`: optional fork prompt override.
+- `WORKTREE_FORK_CODEX`: `1|0`, default `1`; fork current Codex session into the new primary tmux window.
+- `WORKTREE_FORK_PROMPT`: optional fork prompt override; default must instruct the forked session to start with `worktree-task-orchestrator-skill` rather than direct implementation.
 - `WORKTREE_CURRENT_TASK`: task context text; when present, enables child-agent preparation.
 - `WORKTREE_AUTO_SUBAGENT`: `1|0`, default `1`.
 - `WORKTREE_SUBAGENT_PROMPT`: optional child-agent prompt override.
@@ -50,7 +51,7 @@ Do not use it for discussion-only or docs-only work unless a branch workspace is
 - `cleanup_policy=manual-retain`
 - `bootstrap_method=manual-commands`
 - `tmux_auto_window=enabled`
-- `codex_fork_mode=optional-primary-window`
+- `codex_fork_mode=required-primary-window`
 - `subagent_mode=optional-async`
 - `branch_pattern=task/<task_kind>/<yyyymmdd>-<task_slug>`
 - `path_pattern=<worktree_root>/<task_kind>-<task_slug>`
@@ -63,6 +64,7 @@ Do not use it for discussion-only or docs-only work unless a branch workspace is
 - Block if target worktree path already exists.
 - Do not auto-delete worktrees after completion.
 - Do not rewrite history.
+- Do not start direct implementation in the forked session before the handoff prompt is processed.
 - Child-agent auto-start requires explicit task context (`WORKTREE_CURRENT_TASK`).
 - Do not auto-modify shell `PATH` on each run.
 - If `fork_status=started-primary-window`, parent agent must stop this turn after reporting handoff.
@@ -140,17 +142,18 @@ tmux capture-pane -pt <session>:<window_index> -S -30
 For tracked engineering work, the default sequence is:
 
 1. bootstrap worktree
-2. confirm or create the issue before meaningful implementation starts
-3. if the core is novel or noisy, run `reference-core-impl-skill` in the new worktree
-4. use `human-core-feature-wave-skill` to land the learned core back into production code
-5. rerun `issue-gate-skill` before commit preparation to verify traceability and emit `refs_line`
-6. finalize the commit with `git-commit-skill`
+2. fork the current session into the new worktree window
+3. start `worktree-task-orchestrator-skill` in the forked session
+4. let the orchestrator establish pane layout and execution roles before meaningful implementation starts
+5. if the core is novel or noisy, run `reference-core-impl-skill` in the new worktree
+6. use `human-core-feature-wave-skill` to land the learned core back into production code
+7. finalize with downstream execution and commit-stage skills as needed
 
 Interpretation:
 - This skill owns the first boundary only: no code edits before the new worktree exists.
+- The normal end state is a successful fork into the new worktree window.
+- The forked session should begin by invoking `worktree-task-orchestrator-skill`, not by writing code directly.
 - `reference-core-impl-skill` and `human-core-feature-wave-skill` assume this isolation boundary already exists when they will produce or modify code.
-- Issue creation is not meant to be deferred by default until after implementation.
-- Retroactive issue creation is a recovery path for missing traceability, not the preferred operating mode.
 - Small `docs|chore|test` tasks or short exploratory spikes may follow repository policy exceptions, but they still must pass the final commit gate.
 
 ## Workflow
@@ -170,20 +173,24 @@ Interpretation:
    - `git -C <repo_root> worktree add -b <branch> <worktree_path> <base_branch>`
 5. Detect tmux environment:
    - if `TMUX` is set and `tmux` exists, open a persistent shell window at `<worktree_path>`
-6. Optional codex fork into the primary tmux window:
-   - if `WORKTREE_FORK_CODEX=1` and codex session id is available (`CODEX_SESSION_ID` or `CODEX_THREAD_ID`):
+6. Fork codex into the primary tmux window:
+   - use `WORKTREE_FORK_CODEX=1` by default
+   - if codex session id is available (`CODEX_SESSION_ID` or `CODEX_THREAD_ID`):
      - dispatch `codex fork <session_id> <prompt> --cd <worktree_path> --no-alt-screen` into the new primary window with `tmux send-keys`
+     - the default prompt must explicitly instruct the forked session to start with `worktree-task-orchestrator-skill`
      - verify the target window exists before reporting handoff
-7. Optional child-agent launch:
+   - if codex session id is unavailable, block and report the missing session context instead of silently downgrading the workflow
+7. Optional child-agent launch after handoff:
    - if `WORKTREE_CURRENT_TASK` exists and `WORKTREE_AUTO_SUBAGENT=1`:
-     - in tmux: open a second window and run `codex <prompt>` asynchronously
+     - in tmux: open a second window and run `codex <prompt>` asynchronously only when the downstream orchestrator plan explicitly needs it
      - outside tmux: output a ready-to-run child-agent command (manual)
 8. Print handoff commands:
    - `cd <worktree_path>` (non-tmux fallback)
    - `tmux select-window -t <window_name>` (tmux primary window)
+   - `next_skill_hint: worktree-task-orchestrator-skill`
 9. If fork started in the primary window:
    - parent agent reports "fork done" and stops immediately
-   - parent agent must not continue implementation in this turn
+   - parent agent must not continue implementation or orchestration in this turn
 10. Keep worktree after delivery; cleanup is manual.
 
 ## Standard Manual Flow (Recommended)
@@ -223,7 +230,7 @@ If Codex fork is required, inject it into that window instead of using a one-sho
 
 ```bash
 session_id="${CODEX_SESSION_ID:-${CODEX_THREAD_ID}}"
-prompt='Continue in this new worktree and complete the assigned task. First inspect repo state, respect existing user changes, run focused verification, and report changed files and remaining risks.'
+prompt='Continue in this new worktree as the bootstrap handoff agent. Do not start implementation directly. First inspect repo state, confirm task context, and then run `worktree-task-orchestrator-skill` to decide pane layout, role ownership, and execution order. After the orchestrated task window is established, stop acting as the bootstrap agent.'
 
 tmux send-keys -t "${session_name}:${window_name}" \
   "codex fork ${session_id} \"${prompt}\" --cd \"${worktree_path}\" --full-auto --no-alt-screen" C-m
@@ -256,7 +263,6 @@ worktree_path="${worktree_root}/${task_kind}-${task_slug}"
 session_name="$(tmux display-message -p '#S')"
 window_name="wt-${task_slug}"
 session_id="${CODEX_SESSION_ID:-${CODEX_THREAD_ID}}"
-prompt='Continue in this new worktree and complete the assigned task. First inspect repo state, respect existing user changes, run focused verification, and report changed files plus remaining risks.'
 
 if git -C "$repo_root" show-ref --verify --quiet "refs/heads/$branch"; then
   echo "error: target branch already exists: $branch" >&2
@@ -270,6 +276,7 @@ fi
 
 git -C "$repo_root" worktree add -b "$branch" "$worktree_path" "$base_branch"
 tmux new-window -d -t "$session_name" -n "$window_name" -c "$worktree_path"
+prompt='Continue in this new worktree as the bootstrap handoff agent. Do not start implementation directly. First inspect repo state, confirm task context, and then run `worktree-task-orchestrator-skill` to decide pane layout, role ownership, and execution order. After the orchestrated task window is established, stop acting as the bootstrap agent.'
 printf -v fork_cmd 'codex fork %q %q --cd %q --full-auto --no-alt-screen' "$session_id" "$prompt" "$worktree_path"
 tmux send-keys -t "${session_name}:${window_name}" "$fork_cmd" C-m
 sleep 2
