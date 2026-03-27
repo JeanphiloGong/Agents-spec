@@ -1,6 +1,6 @@
 ---
 name: worktree-task-orchestrator-skill
-description: v0.1.6 - Orchestrate pane layout, role ownership, and phased execution after a bootstrapped worktree session is forked into tmux.
+description: v0.1.7 - Orchestrate pane layout, role ownership, and phased execution after a bootstrapped worktree session is forked into tmux, using real-newline plus double-Enter pane messaging by default.
 ---
 
 # Worktree Task Orchestrator Skill
@@ -67,7 +67,8 @@ Out of scope:
 - `WORKTREE_PANE_TITLE_ORCH`: default `orchestrator`.
 - `WORKTREE_PANE_TITLE_CODER`: default `coder`.
 - `WORKTREE_PANE_TITLE_SECONDARY`: default derived from secondary role.
-- `WORKTREE_PANE_MESSAGE_MODE`: `literal-enter`, default `literal-enter`.
+- `WORKTREE_PANE_MESSAGE_MODE`: `literal-enter|literal-double-enter`, default
+  `literal-double-enter`.
 
 ## Fixed Defaults
 
@@ -167,14 +168,26 @@ Purpose:
 
 Required pattern:
 
-1. send literal text
-2. send `Enter` separately
+1. build the message with real newline characters
+2. send literal text
+3. send `Enter` separately
+4. by default, send a second `Enter` after a short delay
 
 Use:
 
 ```bash
-tmux send-keys -t "<pane_target>" -l "<message>"
+message="$(printf 'line1\nline2\nline3')"
+tmux send-keys -t "<pane_target>" -l "$message"
 tmux send-keys -t "<pane_target>" Enter
+sleep 0.2
+tmux send-keys -t "<pane_target>" Enter
+```
+
+Do not use:
+
+```bash
+message='line1\nline2\nline3'
+tmux send-keys -t "<pane_target>" -l "$message"
 ```
 
 Do not use:
@@ -186,8 +199,10 @@ tmux send-keys -t "<pane_target>" "<message>" C-m
 Reason:
 - `-l` sends raw text without tmux key-name interpretation
 - a separate `Enter` is closer to human interaction with the Codex TUI
-- this reduces cases where the input is interpreted as plain inserted text
-  instead of a submitted message
+- a second delayed `Enter` is more reliable in panes where a single `Enter`
+  may be interpreted as newline insertion before submit
+- `printf` produces real newline characters; a quoted `\n` string will often
+  be rendered literally instead of as multiple lines
 
 ### Required Status Messages
 
@@ -296,8 +311,9 @@ You are the reviewer lane for this task window. Review the coder's output agains
   that field over tmux built-in `pane_title` for human-visible lane names.
 - All machine-targeted inter-pane messaging must target tmux `pane_id`, not a
   pane title string.
+- Do not encode multiline inter-pane messages with a literal `\n` string.
 - Inter-pane Codex messages must use `tmux send-keys -l ...` followed by a
-  separate `Enter`.
+  separate `Enter`, and the default mode should send a second delayed `Enter`.
 
 ## Recommended Task Sequence
 
@@ -345,12 +361,14 @@ Interpretation:
    - `issue-gate` starts by default and may run only before coding begins
    - `reviewer` may start only after a plan or diff exists unless explicitly
      overridden
-11. When panes need to communicate, send messages with literal-text plus
+11. When panes need to communicate, send messages with real-newline text plus
     separate-Enter protocol, always targeting a resolved `pane_id`.
-12. Print handoff commands:
+12. Default to a second delayed `Enter` for inter-pane submission unless the
+    current terminal interaction has already proven single-Enter reliable.
+13. Print handoff commands:
    - `tmux select-window -t <window_name>`
    - pane titles and current role plan
-13. Dispatch downstream roles and monitor phase changes.
+14. Dispatch downstream roles and monitor phase changes.
 
 ## Standard Manual Flow (Recommended)
 
@@ -380,14 +398,20 @@ tmux set -pt "$issue_pane" @user_pane_title "issue-gate"
 Suggested issue-gate lane startup message:
 
 ```bash
-tmux send-keys -t "$issue_pane" -l "You are the issue-gate lane for this task window. Do not plan the task and do not write production code. Check whether the canonical tracking issue already exists for the agreed task. If it exists, return the issue reference. If it does not exist, create it using `issue-gate-skill` with a concise, execution-ready task framing. After issue status is clear, report the result and commit bridge back to the orchestrator, then go idle."
+message="$(printf 'You are the issue-gate lane for this task window. Do not plan the task and do not write production code. Check whether the canonical tracking issue already exists for the agreed task. If it exists, return the issue reference. If it does not exist, create it using `issue-gate-skill` with a concise, execution-ready task framing. After issue status is clear, report the result and commit bridge back to the orchestrator, then go idle.')"
+tmux send-keys -t "$issue_pane" -l "$message"
+tmux send-keys -t "$issue_pane" Enter
+sleep 0.2
 tmux send-keys -t "$issue_pane" Enter
 ```
 
 Suggested coder lane startup message:
 
 ```bash
-tmux send-keys -t "$coder_pane" -l "You are the coder lane for this task window. The task plan is already decided; do not redesign scope. Execute the assigned changes conservatively, respect existing user edits, and keep to the agreed file scope. Report changed files, checks run, and remaining risks back to the orchestrator. When a reviewable diff exists, send a handoff message to the orchestrator instead of self-approving."
+message="$(printf 'You are the coder lane for this task window. The task plan is already decided; do not redesign scope. Execute the assigned changes conservatively, respect existing user edits, and keep to the agreed file scope. Report changed files, checks run, and remaining risks back to the orchestrator. When a reviewable diff exists, send a handoff message to the orchestrator instead of self-approving.')"
+tmux send-keys -t "$coder_pane" -l "$message"
+tmux send-keys -t "$coder_pane" Enter
+sleep 0.2
 tmux send-keys -t "$coder_pane" Enter
 ```
 
@@ -395,7 +419,10 @@ Suggested reviewer lane startup message:
 
 ```bash
 reviewer_pane="$(tmux show -wgv @pane_issue_gate)"
-tmux send-keys -t "$reviewer_pane" -l "You are the reviewer lane for this task window. Review the coder's output against the already-agreed task plan. Focus on correctness, regressions, missing validation, and scope drift. Do not rewrite the plan and do not become an implementation lane. Return findings-first feedback to the orchestrator."
+message="$(printf 'You are the reviewer lane for this task window. Review the coder'\''s output against the already-agreed task plan. Focus on correctness, regressions, missing validation, and scope drift. Do not rewrite the plan and do not become an implementation lane. Return findings-first feedback to the orchestrator.')"
+tmux send-keys -t "$reviewer_pane" -l "$message"
+tmux send-keys -t "$reviewer_pane" Enter
+sleep 0.2
 tmux send-keys -t "$reviewer_pane" Enter
 ```
 
@@ -403,12 +430,20 @@ Recommended pane-message pattern after forks are live:
 
 ```bash
 orch_pane="$(tmux show -wgv @pane_orchestrator)"
-tmux send-keys -t "$orch_pane" -l "[handoff][coder->orchestrator]
-status: review-ready
-changed_files: app/service.py tests/test_service.py
-checks_run: pytest tests/test_service.py -q
-risks: none
-request: dispatch reviewer"
+message="$(printf '[handoff][coder->orchestrator]\nstatus: review-ready\nchanged_files: app/service.py tests/test_service.py\nchecks_run: pytest tests/test_service.py -q\nrisks: none\nrequest: dispatch reviewer')"
+tmux send-keys -t "$orch_pane" -l "$message"
+tmux send-keys -t "$orch_pane" Enter
+sleep 0.2
+tmux send-keys -t "$orch_pane" Enter
+```
+
+Single-Enter fallback, only after the current pane pair has already proven
+reliable submission behavior:
+
+```bash
+orch_pane="$(tmux show -wgv @pane_orchestrator)"
+message="$(printf '[handoff][coder->orchestrator]\nstatus: review-ready\nchanged_files: app/service.py tests/test_service.py\nchecks_run: pytest tests/test_service.py -q\nrisks: none\nrequest: dispatch reviewer')"
+tmux send-keys -t "$orch_pane" -l "$message"
 tmux send-keys -t "$orch_pane" Enter
 ```
 
