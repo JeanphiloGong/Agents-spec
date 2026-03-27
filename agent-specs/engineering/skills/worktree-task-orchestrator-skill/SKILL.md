@@ -1,6 +1,6 @@
 ---
 name: worktree-task-orchestrator-skill
-description: v0.1.10 - Orchestrate pane layout, role ownership, and phased execution after a bootstrapped worktree session is forked into tmux, using pane_id routing, real-newline plus double-Enter pane messaging by default, requiring newly created reviewer panes for code review and lane startup by forking from the orchestrator session.
+description: v0.1.11 - Orchestrate pane layout, role ownership, and phased execution after a bootstrapped worktree session is forked into tmux, using pane_id routing, real-newline plus double-Enter pane messaging by default, requiring newly created reviewer panes for code review, lane startup by forking from the orchestrator session, and phase-scoped non-orchestrator panes.
 ---
 
 # Worktree Task Orchestrator Skill
@@ -44,6 +44,9 @@ Out of scope:
 - Preserve operator control with explicit pane titles and role ownership.
 - Use tmux `pane_id` as the canonical machine routing target for inter-pane dispatch.
 - Use pane-local `@user_pane_title` for human-visible lane labels where the tmux config supports it.
+- Keep the `orchestrator` pane as the window-scoped long-lived control lane.
+- Treat `coder`, `issue-gate`, and `reviewer` panes as phase-scoped lanes that
+  should be recreated for each new phase.
 - Keep the orchestrator in a control-plane role rather than making it the default code reviewer.
 - Require a newly created dedicated `reviewer` pane whenever formal code review is needed.
 - Require every newly created non-orchestrator pane to start by forking from the current orchestrator session rather than launching an unrelated new Codex session.
@@ -92,6 +95,7 @@ Out of scope:
 - Owns the task window and pane map.
 - Decides whether `issue-gate` or `reviewer` is needed.
 - Keeps the agreed task plan, role boundaries, and handoff state visible.
+- Is window-scoped and normally persists across multiple phases within the same task window.
 - Does not become the default long-running code writer.
 - Does not become the default code reviewer.
 - May perform lightweight sanity checks, but formal code review belongs to the `reviewer` lane.
@@ -99,11 +103,13 @@ Out of scope:
 
 ### Coder
 - Default implementation lane.
+- Is phase-scoped and should be recreated when a new phase begins.
 - Owns edits unless the orchestrator explicitly assigns disjoint write scopes.
 - Reports changed files, verification, and remaining risks.
 
 ### Issue-Gate
 - Pre-implementation lane only.
+- Is phase-scoped and should be closed or discarded after issue status for the current phase is clear.
 - Checks whether the canonical issue already exists.
 - Creates the issue only when missing, preferably by invoking `issue-gate-skill`.
 - Must not re-plan the task or drift into implementation.
@@ -113,6 +119,7 @@ Out of scope:
 ### Reviewer
 - Post-plan or post-diff lane only.
 - Must run in a newly created dedicated `reviewer` pane when formal code review is required.
+- Is phase-scoped and should be closed after the current review cycle completes.
 - Reviews for correctness, risk, regressions, and missing validation.
 - Must not be presented as independent audit unless its prompt and scope are
   explicitly review-only.
@@ -129,6 +136,20 @@ Out of scope:
 - The orchestrator should only execute lane-specific skill work after an
   explicit role reassignment, and that reassignment should be visible in the
   pane map and handoff state.
+
+## Phase Lifecycle Policy
+
+- A task window may contain multiple sequential phases such as `phase1`,
+  `phase2`, or `phase3`.
+- The `orchestrator` pane is window-scoped and should usually remain alive
+  across phase boundaries.
+- The `coder`, `issue-gate`, and `reviewer` panes are phase-scoped.
+- When a new phase begins, create fresh non-orchestrator panes for that phase
+  instead of carrying old lane panes forward.
+- Do not reuse a completed phase's `coder`, `issue-gate`, or `reviewer` pane
+  as the active lane for the next phase.
+- Close completed phase panes when practical, or at minimum remove them from the
+  canonical pane map before creating the next phase's lanes.
 
 ## Pane Communication Protocol
 
@@ -329,6 +350,8 @@ You are the reviewer lane for this task window. Review the coder's output agains
   review begins instead of routing review through the orchestrator or the
   `issue-gate` lane.
 - Do not repurpose an `issue-gate` pane into a `reviewer` pane.
+- Do not carry `coder`, `issue-gate`, or `reviewer` panes across phase
+  boundaries as if they were still the active lanes for the new phase.
 - Every newly created non-orchestrator pane must receive a role-first prompt as
   its first message.
 - Do not claim independent review when all panes inherit the same starting
@@ -366,6 +389,8 @@ Interpretation:
 - `reviewer` is late-bound by default, but once formal code review is needed it
   should run in a newly created dedicated reviewer pane rather than through the
   orchestrator.
+- Across phase boundaries, keep the `orchestrator` pane and recreate the other
+  lane panes.
 - This skill should be entered by the forked bootstrap session before any
   implementation-heavy lane starts.
 
@@ -404,6 +429,8 @@ Interpretation:
    - `tmux select-window -t <window_name>`
    - pane titles and current role plan
 15. Dispatch downstream roles and monitor phase changes.
+16. When the phase completes, close or retire the phase-scoped panes and create
+    fresh ones for the next phase while keeping the orchestrator pane.
 
 ## Standard Manual Flow (Recommended)
 
