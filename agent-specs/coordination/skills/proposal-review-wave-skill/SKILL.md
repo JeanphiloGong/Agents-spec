@@ -1,6 +1,6 @@
 ---
 name: proposal-review-wave-skill
-description: v0.1.3 - Evaluate new feature ideas with parallel multi-agent master councils and produce one-wave conclusions with human-owned final decisions.
+description: v0.1.4 - Deliberate on new feature ideas through parallel multi-agent master councils and prioritize multi-angle reasoning over strong conclusions.
 ---
 
 # Proposal Review Wave Skill
@@ -11,9 +11,9 @@ Use this skill when a new feature idea, requirement, or plan needs cross-angle
 evaluation before implementation.
 
 In scope:
-- multi-role discussion for direction setting
-- one-wave conclusion with clear next-wave inputs
-- risk and tradeoff exposure for human decision
+- multi-role discussion for direction shaping
+- multi-angle reasoning traces and disagreement exposure
+- one-wave discussion pack with clear next-wave questions
 
 Out of scope:
 - code migration planning
@@ -22,10 +22,14 @@ Out of scope:
 
 ## Core Purpose
 
-- Keep attention on business direction and system integrity.
-- Use parallel multi-agent domain critique to surface hidden risks early.
-- Close each run as one smallest discussion loop.
-- Keep final decision human-owned.
+- Keep attention on business direction and system integrity without forcing
+  premature closure.
+- Use parallel multi-agent domain critique to surface tradeoffs, disagreements,
+  and hidden assumptions early.
+- Treat each run as one smallest useful discussion loop, not a final verdict by
+  default.
+- Keep final decision human-owned and allow the wave to end with structured
+  tension instead of an artificial recommendation.
 
 ## Required Inputs
 
@@ -37,7 +41,7 @@ Out of scope:
 
 ## Fixed Defaults
 
-- `output_mode=single-wave-pack`
+- `output_mode=discussion-first-pack`
 - `decision_mode=human-final`
 - `role_pack_strategy=layered-domain-councils`
 - `masters_per_domain=3`
@@ -45,6 +49,9 @@ Out of scope:
 - `max_parallel_agents=6`
 - `evaluation_model=fixed-six-dimension-score`
 - `artifact_mode=session-only`
+- `discussion_priority=reasoning-over-verdict`
+- `recommendation_strength=tentative`
+- `closure_mode=open-unless-converged`
 
 ## Scope Classification
 
@@ -90,30 +97,44 @@ Classify first, then discuss:
 - Spawn one sub-agent per selected master lens.
 - Run selected master agents in parallel; do not serialize by default.
 - Each sub-agent returns exactly:
-  - `position` (support/oppose/conditional)
+  - `working_view` (current leaning, not a final vote)
+  - `reasoning_path` (how this lens interprets the proposal)
   - `key_risks` (top 3)
+  - `promising_angles` (top 1-3)
   - `required_conditions` (must-have preconditions)
+  - `assumptions_or_unknowns` (what this lens cannot safely infer)
   - `control_map_flags` (`Human-Owned|AI-Assist|AI-Auto`)
 - Aggregate with a synthesis step:
-  - majority consensus
-  - minority dissent
+  - shared ground
+  - disagreement clusters
   - unresolved conflicts
-- If any high-risk `Human-Owned` item is unresolved, output `Decision=BLOCK`.
+  - unknowns that block confidence
+- Do not force a `GO/BLOCK` label unless the evidence naturally converges or the
+  user explicitly asks for a decision.
 
-## Workflow (Single Wave)
+## Workflow (Single Wave, Discussion-First)
 
 1. Parse inputs and classify scope (`frontend|backend|system`).
 2. Define `Wave Goal` and explicit non-goals for this round.
 3. Select the primary domain council and spawn one sub-agent per master.
 4. Trigger cross-domain add-on master agents only when risk or coupling requires them.
 5. Run all selected agents in parallel and collect structured outputs.
-6. Build `Council Consensus` and keep `Dissent Notes` (do not hide disagreements).
+6. Build `Discussion Map`:
+   - shared observations
+   - disagreement clusters
+   - untested assumptions
+   - decision-shaping tensions
 7. Build `Conflict Matrix` from non-trivial disagreements.
-8. Score fixed six dimensions.
-9. Draft recommendation (primary direction + fallback).
-10. List mandatory human decision points.
-11. List minimal next-wave input checklist.
-12. Apply closure gate.
+8. Score fixed six dimensions as support material, not as the final answer.
+9. Draft `Option Shapes`:
+   - strongest case for proceeding
+   - strongest case against or delaying
+   - conditional middle path
+10. State a `Tentative Lean` only if the wave naturally converges; otherwise
+    explicitly say that discussion remains open.
+11. List mandatory human decision points and unresolved questions.
+12. List minimal next-wave input checklist.
+13. Apply closure gate.
 
 ## Fixed Six-Dimension Score
 
@@ -131,10 +152,11 @@ Score each dimension `1-5`:
 This wave is closed only when:
 
 1. Core conflicts are identified.
-2. Direction is selected (or explicit human decision pending).
+2. Key assumptions and unknowns are explicit.
 3. Next-wave input checklist is concrete.
 
-If any item fails, output blocking questions only and do not fake closure.
+Direction selection is optional. If the wave does not naturally converge, close
+with an open discussion state rather than a forced verdict.
 
 ## Control Map (Required)
 
@@ -166,16 +188,34 @@ Always default to `Human-Owned` when discussion touches:
 
 ## Domain Master Deliberation
 - primary_council:
-- master_views: (must include named masters)
+- master_views: (must include named masters, reasoning paths, and unknowns)
 - dissent_notes:
 
 ## Cross-Domain Review (When Triggered)
 - ...
 
-## Council Consensus
+## Discussion Map
+- shared_ground:
+- disagreement_clusters:
+- assumptions_and_unknowns:
+- decision_shaping_tensions:
+- confidence_notes:
+
+## Option Shapes
+- strongest_case_for_progress:
+- strongest_case_for_delay_or_rejection:
+- conditional_middle_path:
+- what_would_change_the_discussion:
+
+## Tentative Lean (Optional)
+- current_lean:
+- why_this_is_only_tentative:
+- what_is_still_missing:
+
+## Council Consensus (If Real Convergence Exists)
 - ...
 - unresolved_conflicts:
-- decision: GO | GO-WITH-CONDITIONS | BLOCK
+- decision: optional, only if clearly justified by discussion
 
 ## Conflict Matrix
 - ...
@@ -189,9 +229,8 @@ Always default to `Human-Owned` when discussion touches:
 - delivery_cost:
 
 ## Recommendation
-- primary:
-- fallback:
-- rationale:
+- optional:
+- rationale_if_present:
 
 ## Human Decision Needed
 - ...
@@ -206,6 +245,9 @@ Always default to `Human-Owned` when discussion touches:
 - Do not force all councils when scope is local.
 - Do not allow a single master view to become the final decision.
 - Do not skip dissent capture when agents disagree.
+- Do not collapse reasoning into a verdict if the discussion is still genuinely open.
+- Do not fake convergence; unresolved tension is a valid result.
+- Do not hide assumptions or unknowns to make the output sound decisive.
 - Do not provide implementation/migration steps unless explicitly requested.
 - Do not fabricate unknown facts; mark unknowns directly.
-- Keep discussion concise and decision-oriented.
+- Keep discussion concise, evidence-aware, and discussion-oriented.

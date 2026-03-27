@@ -1,0 +1,1 @@
+{"template":true,"note":"Append one JSON object per reinforcement round and validate this file with scripts/validate_reinforcement_audit.py."}
