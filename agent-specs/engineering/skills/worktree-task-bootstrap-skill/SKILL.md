@@ -230,7 +230,7 @@ If Codex fork is required, inject it into that window instead of using a one-sho
 
 ```bash
 session_id="${CODEX_SESSION_ID:-${CODEX_THREAD_ID}}"
-prompt='Continue in this new worktree as the bootstrap handoff agent. Do not start implementation directly. First inspect repo state, confirm task context, and then run `worktree-task-orchestrator-skill` to decide pane layout, role ownership, and execution order. After the orchestrated task window is established, stop acting as the bootstrap agent.'
+prompt='Continue in this new worktree as the bootstrap handoff agent. Do not start implementation directly. First inspect repo state, confirm task context, and then run $worktree-task-orchestrator-skill to decide pane layout, role ownership, and execution order. After the orchestrated task window is established, stop acting as the bootstrap agent.'
 
 tmux send-keys -t "${session_name}:${window_name}" \
   "codex fork ${session_id} \"${prompt}\" --cd \"${worktree_path}\" --full-auto --no-alt-screen" C-m
@@ -276,7 +276,7 @@ fi
 
 git -C "$repo_root" worktree add -b "$branch" "$worktree_path" "$base_branch"
 tmux new-window -d -t "$session_name" -n "$window_name" -c "$worktree_path"
-prompt='Continue in this new worktree as the bootstrap handoff agent. Do not start implementation directly. First inspect repo state, confirm task context, and then run `worktree-task-orchestrator-skill` to decide pane layout, role ownership, and execution order. After the orchestrated task window is established, stop acting as the bootstrap agent.'
+prompt='Continue in this new worktree as the bootstrap handoff agent. Do not start implementation directly. First inspect repo state, confirm task context, and then run $worktree-task-orchestrator-skill to decide pane layout, role ownership, and execution order. After the orchestrated task window is established, stop acting as the bootstrap agent.'
 printf -v fork_cmd 'codex fork %q %q --cd %q --full-auto --no-alt-screen' "$session_id" "$prompt" "$worktree_path"
 tmux send-keys -t "${session_name}:${window_name}" "$fork_cmd" C-m
 sleep 2
