@@ -1,6 +1,6 @@
 ---
 name: worktree-task-orchestrator-skill
-description: v0.1.9 - Orchestrate pane layout, role ownership, and phased execution after a bootstrapped worktree session is forked into tmux, using pane_id routing, real-newline plus double-Enter pane messaging by default, and a newly created reviewer pane whenever code review is required.
+description: v0.1.10 - Orchestrate pane layout, role ownership, and phased execution after a bootstrapped worktree session is forked into tmux, using pane_id routing, real-newline plus double-Enter pane messaging by default, requiring newly created reviewer panes for code review and lane startup by forking from the orchestrator session.
 ---
 
 # Worktree Task Orchestrator Skill
@@ -46,6 +46,7 @@ Out of scope:
 - Use pane-local `@user_pane_title` for human-visible lane labels where the tmux config supports it.
 - Keep the orchestrator in a control-plane role rather than making it the default code reviewer.
 - Require a newly created dedicated `reviewer` pane whenever formal code review is needed.
+- Require every newly created non-orchestrator pane to start by forking from the current orchestrator session rather than launching an unrelated new Codex session.
 - Allow the orchestrator to dispatch lane-specific skills without silently replacing lane ownership.
 - Reflect the default tracked-work expectation that issue existence is checked
   before meaningful implementation proceeds.
@@ -121,6 +122,8 @@ Out of scope:
 - The orchestrator may require `coder`, `issue-gate`, or `reviewer` lanes to use
   specific skills when doing so clarifies execution boundaries.
 - Skill dispatch does not change role ownership by itself.
+- Newly created lane panes should inherit context by forking from the current
+  orchestrator session, not by starting unrelated fresh Codex sessions.
 - If a lane-specific skill is needed, prefer dispatching that skill to the
   appropriate lane instead of having the orchestrator perform the work.
 - The orchestrator should only execute lane-specific skill work after an
@@ -335,6 +338,8 @@ You are the reviewer lane for this task window. Review the coder's output agains
   that field over tmux built-in `pane_title` for human-visible lane names.
 - All machine-targeted inter-pane messaging must target tmux `pane_id`, not a
   pane title string.
+- Do not start a newly created lane pane with a brand-new unrelated Codex
+  session; fork it from the current orchestrator session instead.
 - Do not encode multiline inter-pane messages with a literal `\n` string.
 - Inter-pane Codex messages must use `tmux send-keys -l ...` followed by a
   separate `Enter`, and the default mode should send a second delayed `Enter`.
@@ -378,25 +383,27 @@ Interpretation:
 5. Capture each newly created pane's tmux `pane_id` immediately.
 6. Store a canonical pane map as window-scoped tmux options.
 7. Set pane titles immediately after creation.
-8. Immediately send a role-first prompt to each newly created non-orchestrator
+8. Start each newly created non-orchestrator pane by forking from the current
+   orchestrator session into that pane.
+9. Immediately send a role-first prompt to each newly created non-orchestrator
    pane.
-9. Establish one canonical pane map and role plan:
+10. Establish one canonical pane map and role plan:
    - the current session is already the orchestrator
    - assign roles conservatively and avoid multi-writer overlap
-10. Optional secondary lane startup:
+11. Optional secondary lane startup:
    - `issue-gate` starts by default and may run only before coding begins
    - `reviewer` may start only after a plan or diff exists unless explicitly
      overridden
    - when review starts, create a separate reviewer pane before any review
      dispatch occurs
-11. When panes need to communicate, send messages with real-newline text plus
+12. When panes need to communicate, send messages with real-newline text plus
     separate-Enter protocol, always targeting a resolved `pane_id`.
-12. Default to a second delayed `Enter` for inter-pane submission unless the
+13. Default to a second delayed `Enter` for inter-pane submission unless the
     current terminal interaction has already proven single-Enter reliable.
-13. Print handoff commands:
+14. Print handoff commands:
    - `tmux select-window -t <window_name>`
    - pane titles and current role plan
-14. Dispatch downstream roles and monitor phase changes.
+15. Dispatch downstream roles and monitor phase changes.
 
 ## Standard Manual Flow (Recommended)
 
@@ -405,6 +412,7 @@ session_name="$(tmux display-message -p '#S')"
 window_name="$(tmux display-message -p '#W')"
 worktree_path="$(pwd)"
 orch_pane="$(tmux display-message -p '#{pane_id}')"
+orchestrator_session_id="${CODEX_SESSION_ID:-${CODEX_THREAD_ID}}"
 coder_pane="$(tmux split-window -P -F '#{pane_id}' -h -t "${session_name}:${window_name}.0" -c "$worktree_path")"
 issue_pane="$(tmux split-window -P -F '#{pane_id}' -v -t "$coder_pane" -c "$worktree_path")"
 
@@ -415,6 +423,18 @@ tmux set -wq @pane_issue_gate "$issue_pane"
 tmux set -pt "$orch_pane" @user_pane_title "orchestrator"
 tmux set -pt "$coder_pane" @user_pane_title "coder"
 tmux set -pt "$issue_pane" @user_pane_title "issue-gate"
+
+printf -v coder_fork_cmd 'codex fork %q %q --cd %q --full-auto --no-alt-screen' \
+  "$orchestrator_session_id" \
+  "You are the coder lane for this task window." \
+  "$worktree_path"
+printf -v issue_fork_cmd 'codex fork %q %q --cd %q --full-auto --no-alt-screen' \
+  "$orchestrator_session_id" \
+  "You are the issue-gate lane for this task window." \
+  "$worktree_path"
+
+tmux send-keys -t "$coder_pane" "$coder_fork_cmd" C-m
+tmux send-keys -t "$issue_pane" "$issue_fork_cmd" C-m
 ```
 
 Default third pane for the issue lane:
@@ -449,6 +469,11 @@ Suggested reviewer lane startup message:
 reviewer_pane="$(tmux split-window -P -F '#{pane_id}' -v -t "$coder_pane" -c "$worktree_path")"
 tmux set -wq @pane_reviewer "$reviewer_pane"
 tmux set -pt "$reviewer_pane" @user_pane_title "reviewer"
+printf -v reviewer_fork_cmd 'codex fork %q %q --cd %q --full-auto --no-alt-screen' \
+  "$orchestrator_session_id" \
+  "You are the reviewer lane for this task window." \
+  "$worktree_path"
+tmux send-keys -t "$reviewer_pane" "$reviewer_fork_cmd" C-m
 message="$(printf 'You are the reviewer lane for this task window. Review the coder'\''s output against the already-agreed task plan. Focus on correctness, regressions, missing validation, and scope drift. Do not rewrite the plan and do not become an implementation lane. Return findings-first feedback to the orchestrator.')"
 tmux send-keys -t "$reviewer_pane" -l "$message"
 tmux send-keys -t "$reviewer_pane" Enter
