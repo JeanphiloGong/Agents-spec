@@ -170,10 +170,12 @@ The skill must require:
 
 ## Daily Workflow Position
 
-Use this skill after `worktree-task-bootstrap-skill` and before `human-core-feature-wave-skill` when the feature's core is novel, architecture-heavy, or difficult to learn from the production code directly.
+Use this skill after the repository-local tmux bootstrap skill and before
+`human-core-feature-wave-skill` when the feature's core is novel,
+architecture-heavy, or difficult to learn from the production code directly.
 
 Recommended sequence:
-1. `worktree-task-bootstrap-skill`
+1. repository-local tmux bootstrap skill
 2. `reference-core-impl-skill`
 3. `human-core-feature-wave-skill`
 4. `git-commit-skill`

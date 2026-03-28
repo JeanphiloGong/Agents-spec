@@ -59,7 +59,8 @@ automatic external memory setup, or repo-internal role scaffolding by default.
    - Confirm the repository was not moved or modified.
    - Confirm the scaffold lives outside the repository.
 10. Hand off follow-on work.
-   - Use `worktree-task-bootstrap-skill` before any engineer code task.
+   - Use the repository-local tmux bootstrap skill before any engineer code
+     task.
    - Use `project-memory-skill` only if the operator explicitly wants external
      memory outside the hub.
 11. If the operator wants to use the scaffolded roles inside OpenClaw, explain

@@ -62,7 +62,8 @@ This skill does **not** assume the AI branch is the source of truth.
 ## Mode Selection (Required)
 
 - Choose `feature-wave` by default when AI has already drafted code and the goal is to land one smallest useful closed loop on `main`.
-- Run `worktree-task-bootstrap-skill` first whenever this flow will produce or modify real code.
+- Run the repository-local tmux bootstrap skill first whenever this flow will
+  produce or modify real code.
 - Run `reference-core-impl-skill` first when the core is novel, architecture-heavy, or too noisy to learn safely from the production code or AI draft directly.
 - Inside `feature-wave`, switch into `implementation-coach` only for `Human-Owned` steps where the user needs the reasoning path for reimplementing the core logic.
 - Choose standalone `implementation-coach` only when there is no landing/integration context yet and the user mainly wants to learn or derive the design.
@@ -82,7 +83,7 @@ Default operating pattern:
 This is the default path the skill should optimize for.
 
 Recommended upstream/downstream chain:
-1. `worktree-task-bootstrap-skill`
+1. repository-local tmux bootstrap skill
 2. `reference-core-impl-skill` when needed
 3. `human-core-feature-wave-skill`
 4. `git-commit-skill`

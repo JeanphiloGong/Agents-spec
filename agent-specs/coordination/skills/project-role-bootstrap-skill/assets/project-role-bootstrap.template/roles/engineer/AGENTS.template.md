@@ -30,7 +30,7 @@ You are the engineer for `{{PROJECT_NAME}}`.
 
 ## Worktree Rule
 
-- Before code edits, use `worktree-task-bootstrap-skill`.
+- Before code edits, use the repository-local tmux bootstrap skill.
 - Use `worktrees/` as the default landing zone for task branches.
 - Treat `repos/` as the pointer area for the canonical repository, not as the
   place to do feature work.
