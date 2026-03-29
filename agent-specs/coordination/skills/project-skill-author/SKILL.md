@@ -1,6 +1,6 @@
 ---
 name: project-skill-author
-description: v0.1.0 - Create a project-specific Codex skill package (SKILL.md plus optional references/assets) with master-grade structure and defaults; use when building reusable skill folders, onboarding skills, or general project skills (not API-only).
+description: v0.1.2 - Create a project-specific Codex skill package (SKILL.md plus optional references/assets) with master-grade structure and defaults; use when building reusable skill folders, onboarding skills, or general project skills (not API-only).
 ---
 
 # Project Skill Author
@@ -29,151 +29,56 @@ single-use task scripts.
 - Make the workflow justify itself with evidence and tradeoffs.
 - Ensure outputs are actionable without follow-up prompting.
 - Avoid shallow coverage; favor depth in the chosen domain.
+- When a skill represents a long-lived actor, encode its operating identity with
+  an AGENTS-style role charter rather than leaving behavior implicit.
 - Prefer decision artifacts that can be audited later.
 - Maintain a clear separation between “guidance” and “evidence.”
-- Iteration is mandatory: every skill must include an acceptance loop and a next-step plan.
-- Treat improvement as continuous: each delivery must include an upgrade path.
+- Keep first delivery lightweight; avoid turning a skill authoring flow into a
+  full governance system unless the operator explicitly asks for that level.
 
 ## Master Workflow (Decision-Grade)
 
 1. Clarify mission and audience.
    - Project purpose, primary users, and core outcomes.
-2. Add a reinforcement mechanism (second-highest priority).
-   - Require a recurring self-check loop and concrete checkpoints before completion.
-3. Identify domain scope.
+   - If the skill is role-like, define the role charter boundary using an
+     AGENTS-style structure:
+     overview, mission, owns/does-not-own, permission model, execution rules,
+     escalation, and done signal.
+   - Also define role-specific golden rules using the AGENTS `Why / How / Check`
+     pattern; default to 12 rules unless the role is genuinely too small.
+2. Identify domain scope.
    - Independently infer domains that materially affect usage.
    - If needed, search your internal knowledge for master-level practices in those domains.
    - Map each domain to a high-signal workflow and explicitly note why it fits.
-4. Define the skill name and placement.
+3. Define the skill name and placement.
    - Use lowercase hyphen name under 64 chars; default to `skills/<skill-name>`.
-5. Add versioning to the header description.
+4. Add versioning to the header description.
    - Prefix `description` with a semantic version (e.g., `v0.1.0 - ...`).
    - If no version exists yet, start at `v0.1.0`.
    - Bump the patch version by +1 per completed commit that updates the skill (one commit = one version bump).
-6. Design the package structure.
+5. Design the package structure.
    - Keep SKILL.md lean; move detailed references into `references/`.
+   - When the skill is role-like, include a concise AGENTS-style role charter
+     in `SKILL.md` and add `references/role-charter-template.md` when reusable
+     scaffolding is helpful.
+   - Role-like skills should also include a role-level `Golden Rules (Why / How / Check)`
+     section in `SKILL.md` or the role charter reference.
    - Add `assets/` only when reusable templates are required.
    - If you mandate a validation script, add it in `scripts/` or reference an existing one.
-7. Draft SKILL.md with explicit triggers and workflow.
+6. Draft SKILL.md with explicit triggers and workflow.
    - Use clear frontmatter and imperative steps.
-8. Provide defaults and guardrails.
+   - Role-like skills must make the operating charter explicit instead of
+     scattering it across workflow prose.
+7. Provide defaults and guardrails.
    - Include sane defaults to reduce user input and prevent misuse.
-9. Validate and scope.
+8. Validate and scope.
    - Ensure no secrets, no fabricated facts, references are one level deep.
-10. Verify domain fitness.
+9. Verify domain fitness.
    - Confirm the workflow reflects expert practice in that domain.
-11. Produce a fit-for-purpose template.
+10. Produce a fit-for-purpose template.
    - Provide a short, standard, and strict output format.
-12. Add verification hooks.
+11. Add verification hooks.
    - Define how correctness and safety are validated for the skill.
-13. Add audit artifacts.
-   - Specify what evidence is stored and where.
-14. Add iteration loop.
-   - Require acceptance review, feedback capture, and a next-iteration plan.
-15. Add reinforcement plan.
-   - Define how the skill learns from repeated use and failures.
-## Iteration Loop (Required)
-
-- Run acceptance review using `references/acceptance-criteria.md` and record pass/fail evidence.
-- Capture gaps with scope impact and ownership (who resolves and by when).
-- Define a next-iteration checklist that targets the highest-impact gap first.
-- Explicitly name the highest-risk gap and the concrete verification step to close it.
-
-## Reinforcement Plan (Required)
-
-### Goals
-- Reduce recurring failures by turning them into explicit, testable guardrails.
-- Improve success rate by promoting consistently high-performing workflows into defaults.
-- Maintain quality by retiring or demoting patterns that repeatedly fail validation.
-
-### Operating Rules
-- Reinforcement runs in a repeatable four-step loop.
-- Changes are localized, reversible, and auditable (small diffs, clear rationale).
-- Each loop produces artifacts: plan note, change log, verification record, reflection entry.
-
-### Reinforcement Mode Gate
-- Default: off. The four-step loop runs only when explicitly enabled by the operator.
-- Enable with a clear signal (e.g., "enter reinforcement cycle" or `reinforcement=on`).
-- Optional trigger: on critical or repeated failures, prompt to enable; do not auto-enable.
-
-### Audit Baseline
-Each reinforcement round must produce:
-- A Git commit containing only that round's changes.
-- An audit record in `references/reinforcement-audit.jsonl`.
-- Validation via `scripts/validate_reinforcement_audit.py`.
-  - If you require this script, you must create it or explicitly reference an existing script.
-
-### Four-Step Reinforcement Cycle
-1) Plan (Objective + Scope)
-   - Objective: one-sentence user outcome (e.g., "Reduce tool-call errors in PDF workflows.").
-   - Acceptance criteria: measurable targets (e.g., "Pass rate >= 95% on last 50 runs," "0 critical policy violations," "avg. retries <= 1.").
-   - Scope: in-scope files/modules/prompts/edge cases and explicit out-of-scope boundaries (e.g., "No unrelated tools," "No behavior change outside PDF flow," "No new dependencies.").
-   - Inputs: evidence (failure examples with IDs/links, frequency, severity, taxonomy label).
-   - Exit condition: when to move to Change (e.g., "Top 1-2 failure modes identified + proposed guardrails drafted.").
-   - Plan template:
-     ```
-     Objective:
-     Acceptance criteria:
-     Scope in:
-     Scope out:
-     Inputs:
-     Exit condition:
-     ```
-2) Change (Apply Edits)
-   - Edit principles: clarity over cleverness; isolate to one failure mode when possible.
-   - Auditable edits: add a short "Why" comment or changelog entry; use consistent naming (GR-###, WF-###).
-   - Outputs: patch/diff summary (what/where/targeted failure mode/expected behavior shift).
-   - Rollback: define how to revert (feature flag, revert commit, config toggle).
-   - Change template:
-     ```
-     Failure mode targeted:
-     Edits:
-     Why:
-     Expected shift (before/after):
-     Rollback:
-     ```
-3) Verify (Checks + Evidence)
-   - Verification steps: unit, integration, regression, and negative tests (must be reproducible).
-   - Evidence: test run IDs/log excerpts/screenshots as applicable.
-   - Metrics snapshot: pass/fail counts, top remaining failure categories, any new failure introduced.
-   - Decision rule: promote/hold/rollback based on acceptance criteria.
-   - Verify template:
-     ```
-     Checks run:
-     Evidence:
-     Metrics snapshot:
-     Decision:
-     ```
-4) Reflect (Improvements + Next Adjustments)
-   - What improved: failure modes reduced and by how much (numbers, not vibes).
-   - What worked: guardrail/workflow effectiveness.
-   - Risks and tradeoffs: new complexity, false positives, coverage gaps.
-   - Next highest-impact refinement: one prioritized action (e.g., "Add targeted test set for X edge case," "Split WF into two variants," "Demote pattern Y.").
-   - Outcome: update the reinforcement backlog with the reflection result.
-   - Reflect template:
-     ```
-     Improvements:
-     What worked:
-     Risks/tradeoffs:
-     Next action:
-     Outcome:
-     ```
-
-## Step Gate (Required)
-
-After each of the four steps (Plan, Change, Verify, Reflect), when reinforcement mode is enabled, the system must prompt: “continue?”
-
-The system must not proceed to the next step until it receives explicit confirmation: continue.
-
-While awaiting confirmation, the system must not apply further edits, run additional checks, or advance the loop.
-
-If the operator replies with anything other than continue, the system must:
-
-keep the loop at the current step, and
-
-re-prompt “continue?” without advancing.
-
-Confirmation token: `continue`.
 
 ## Design Layers (Use As Needed)
 
@@ -182,7 +87,6 @@ Confirmation token: `continue`.
 3. **Reference Layer**: detailed docs in `references/`.
 4. **Asset Layer**: templates, examples, or boilerplate in `assets/`.
 5. **Script Layer**: deterministic or repeated logic in `scripts/`.
-6. **Acceptance Layer**: validation criteria in `references/acceptance-criteria.md`.
 
 ## Required Inputs (Minimal)
 
@@ -190,7 +94,6 @@ Confirmation token: `continue`.
 - Target users (role and context)
 - Primary outcomes or workflows
 - Delivery environment or distribution target (where the skill will live)
-- Acceptance owner (who signs off on the skill)
 
 ## Defaults (Use Unless User Specifies)
 
@@ -198,7 +101,12 @@ Confirmation token: `continue`.
 - Skill placement: `skills/<skill-name>` unless a project path is specified.
 - Output tone: concise, action-oriented, no fluff.
 - References: add only when details are needed repeatedly.
-- Acceptance: require owner approval for high-risk or public-facing skills.
+- Role charter: required when the skill defines a reusable role, control-plane
+  owner, reviewer, operator, or other long-lived actor.
+- Role charter format: default to a compact AGENTS-style structure rather than
+  a loose bullet list.
+- Role golden rules: required for role-like skills; default to 12 concise rules
+  in `Why / How / Check` form unless the role is too small to justify that many.
 - Versioning: prefix `description` with `v<major>.<minor>.<patch> - ...`; start at `v0.1.0` if absent; bump patch once per completed commit that updates the skill.
 
 ## Failure Modes to Avoid
@@ -235,63 +143,50 @@ Confirmation token: `continue`.
 - Include a negative test or failure case when risk is non-trivial.
 - Require explicit “unknowns” where facts are missing.
 - Require a lightweight evidence note (what was checked, by whom, when).
+- When the skill is role-like, verify that the charter uses an AGENTS-style
+  structure and makes mission, boundaries, permission model, execution rules,
+  outputs, and escalation conditions explicit.
+- When the skill is role-like, verify that the golden rules are role-specific,
+  operational, and written in `Why / How / Check` form.
 
-## Audit Artifacts (Use When Risk Is High)
+## AGENTS-Style Role Charter Standard (Required For Role-Like Skills)
 
-- Decision log entries (what, why, when).
-- Verification notes or test vectors.
-- Risk register updates and mitigation status.
+When a skill defines a long-lived actor rather than a one-shot helper, include
+an AGENTS-style role charter as part of the skill package.
 
-## Minimal Closed-Loop Structure (Required)
+The charter should feel structurally similar to a strong project `AGENTS.md`:
+boundary-first, measurable, and operational rather than persona-heavy.
 
-- Input: feedback signal.
-- Process: review and filter.
-- Output: change + evidence.
-- Re-input: acceptance/metrics.
+Minimum sections:
 
-## Minimal Metrics Set
+- `Overview`: role name, purpose, and where it fits
+- `Core Principles`: the role's steady operating rules
+- `Mission & Non-Negotiables`: durable outcome and unacceptable failures
+- `Ownership Boundaries`: what the role owns and what it does not own
+- `Permission Model`: what the role may decide directly vs. what needs approval
+- `Execution Rules`: how the role must operate turn to turn
+- `Inputs` and `Outputs`: required context and emitted decisions/artifacts
+- `Handoff & Escalation`: when the role must delegate, stop, or ask upward
+- `Quality Bar`: what evidence or verification is required before saying done
+- `Done Signal`: what counts as completion for one execution cycle
+- `Risks & Open Questions`: known gaps and unresolved assumptions
 
-- First delivery usability rate:
-  - Formula: usable deliverables / total deliverables in first iteration.
-  - Source: machine-readable acceptance logs.
-- Number of clarification rounds:
-  - Formula: count of back-and-forth cycles before acceptance.
-  - Source: structured review events (status transitions).
-- Acceptance pass rate:
-  - Formula: accepted items / total reviewed items.
-  - Source: acceptance checklist records in JSON/YAML.
-- Thresholds:
-  - Set by owner at project start, reviewed per iteration or on high-risk trigger.
-  - Update when scope or risk profile changes.
-  - Trigger automatic review when thresholds are breached.
+Golden rules requirement:
 
-## Responsibility and Cadence
+- include a `Golden Rules (Why / How / Check)` section for role-like skills
+- prefer 12 rules by default to match the AGENTS-style operating model
+- if fewer than 12 are used, the author must justify why the role is too narrow
+  for a full rule set
+- rules must be role-specific, enforceable, and phrased as operational
+  discipline rather than generic values
 
-- Initiate acceptance: automated checks + owner confirmation only when gating fails.
-- Record risks: automatic risk log updates from failed checks.
-- Execute cadence: per iteration or on automated threshold triggers.
-- Final approve/reject: owner only for high-risk or failed automation.
+Placement rules:
 
-## Shortest Change Path
-
-- Entry gate: feedback must include machine-verifiable evidence (logs/tests/metrics).
-- Feedback → change queue → evaluation (impact/risk/cost) → merge criteria → acceptance.
-
-## Minimal Closed-Loop Example (3–5 Lines)
-
-1. Feedback: onboarding fails, detected by quickstart completion metric < threshold.
-2. Review: automated log shows missing checklist step.
-3. Change: add checklist + run scripted onboarding test.
-4. If test fails, auto-log gap and re-enter change queue.
-
-## Automation Requirements
-
-- Feedback ingestion: logs, tests, or metrics must be machine-readable.
-- Verification: prefer scripted tests or replayable scenarios.
-- Alerts: threshold breaches trigger automatic review.
-- Audit trail: auto-write evidence and decisions to a log file.
-- Rollback: define automated rollback if critical checks fail.
-- Reinforcement: incorporate failure patterns into the next workflow revision.
+- keep the concise charter in `SKILL.md` when the role is central to trigger
+  and workflow
+- move reusable expansions or starter templates into
+  `references/role-charter-template.md`
+- do not bury charter elements only inside examples or optional notes
 
 ## Domain-Specific Variants (Optional)
 
@@ -311,9 +206,7 @@ Confirmation token: `continue`.
 
 ## References
 
-- `references/acceptance-criteria.md`: acceptance standards and reviewer challenge checklist.
-- `references/reinforcement-audit.jsonl`: per-round audit records (one JSON object per line).
-- `scripts/validate_reinforcement_audit.py`: JSONL structure validator for audit records.
+- `references/role-charter-template.md`: starter template for AGENTS-style role charters inside reusable skills.
 
 ## Domain Workflow Library (Use as Reference Only)
 
@@ -355,7 +248,7 @@ Confirmation token: `continue`.
 ### Product/PM
 1. Define target outcomes and success metrics.
 2. Establish priority rules and scope boundaries.
-3. Require acceptance criteria for each change.
+3. Require verification criteria for each change.
 4. Define risks and mitigation owners.
 5. Validate with milestone review checkpoints.
 
@@ -412,7 +305,7 @@ Confirmation token: `continue`.
 1. Define baseline a11y standards and target levels.
 2. Establish keyboard and screen-reader requirements.
 3. Define verification tooling and manual checks.
-4. Require a11y acceptance criteria for key flows.
+4. Require a11y verification criteria for key flows.
 5. Validate with audits or checklists.
 
 ### Localization/Internationalization
