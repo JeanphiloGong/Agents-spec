@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.12 - Enforce issue traceability with master-grade standard issue drafts, audience-fit templates, gh/glab check/create/link flow, and dry-run plus human confirmation.
+description: v0.1.13 - Enforce issue traceability with master-grade standard issue drafts, audience-fit templates, gh/glab check/create/link flow, and dry-run plus human confirmation.
 ---
 
 # Issue Gate Skill
@@ -94,6 +94,14 @@ One of:
 - Default to a reference bridge such as `ISSUE: #123` or equivalent `Refs` semantics.
 - Only use issue-closing semantics when the change truly resolves the issue and the operator explicitly intends closure.
 - An issue may remain open, blocked, deferred, or partially implemented after one or more linked commits.
+
+## Comment And Split Hygiene
+
+- Prefer short issue comments for incremental clarification, status notes, links, and narrow follow-up decisions.
+- Do not let one issue accumulate long comment threads that read like a rolling design doc, meeting log, or implementation spec.
+- If a clarification materially changes scope, introduces a distinct execution track, or needs a long structured explanation, prefer opening a new linked issue instead of adding another long comment.
+- If the content is still the same requirement and only needs a concise correction or addendum, prefer a short comment or fold the summary back into the issue body.
+- Use linked child / follow-up issues when the discussion becomes independently actionable for frontend, backend, integration, rollout, or investigation work.
 
 ## Platform Selection
 
