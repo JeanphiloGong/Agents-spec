@@ -1,4 +1,4 @@
 interface:
   display_name: "Issue Gate"
-  short_description: "Check, create, and link issues for tracked work"
+  short_description: "v0.1.16 - Check, create, and link issues for tracked work"
   default_prompt: "Use $issue-gate-skill to confirm or create the canonical issue for this tracked change and produce the commit Refs bridge before commit preparation."

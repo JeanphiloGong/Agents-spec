@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.15 - Check, create, and link GitHub or GitLab issues for tracked work before implementation and before commit preparation; use when a repo requires issue-backed traceability, canonical upstream issue confirmation, fork-vs-upstream issue targeting, or commit Refs output.
+description: v0.1.16 - Check, create, and link GitHub or GitLab issues for tracked work before implementation and before commit preparation; use when a repo requires issue-backed traceability, canonical upstream issue confirmation, product-facing parent issue framing, fork-vs-upstream issue targeting, or commit Refs output.
 ---
 
 # Issue Gate Skill
@@ -258,10 +258,42 @@ quality. The draft should be:
 - solution-aware but not solution-locked unless implementation detail is
   already approved and necessary
 
+## Issue Layering Rule
+
+- Default parent issues to product-, outcome-, and scope-oriented framing.
+- A `parent_requirement` should be readable by PM, product, and cross-functional
+  stakeholders without requiring knowledge of the internal codebase.
+- Parent issues should focus on:
+  - background or problem
+  - target outcome
+  - scope boundary
+  - external contract or user impact
+  - acceptance criteria
+  - risks or dependencies
+- Parent issues should not default to:
+  - code snippets
+  - file paths
+  - class, function, or method names
+  - internal module splits
+  - planner, repo, service, Cypher, schema, table, or similar
+    implementation-facing nouns
+- The only technical detail that may remain in a parent issue by default is
+  external contract information that stakeholders need to reason about, such as
+  a user-facing API contract, compatibility note, or externally visible input /
+  output behavior.
+- If the draft needs detailed implementation paths, migration sequencing,
+  architecture comparisons, or component-by-component responsibilities, keep
+  the parent issue lean and split those details into a linked engineering child
+  issue, `delivery_task`, or `implementation_task`.
+
 ## Framing Guardrails
 
 - `parent_requirement`: explain why the work matters, what outcome is expected,
-  what is in or out of scope, and how success is judged.
+  what is in or out of scope, how success is judged, and what external contract
+  or user impact matters.
+- `parent_requirement`: do not include code blocks, file paths, function names,
+  class names, internal dataflow, or module-by-module implementation plans
+  unless that information is itself part of an approved external contract.
 - `delivery_task`: may mention affected modules or contracts, but should still
   optimize for shared understanding over internal implementation detail.
 - `implementation_task`: technical detail is allowed only when the operator
@@ -319,6 +351,10 @@ Read `references/issue-templates.md` when you need:
   - `missing_required_fields`
   - `missing_recommended_fields`
   - `overspecification_warnings`
+- For `parent_requirement`, if the body contains code snippets, file paths,
+  class names, function names, implementation-phase jargon, or architecture
+  comparisons that are not required to explain an external contract, emit an
+  `overspecification_warning` and rewrite or split before presentation.
 - For backend-, AI-, workflow-, or integration-heavy feature work, missing
   `技术约束` or `验证方式` should emit an explicit warning.
 - For investigation work, missing a concrete `预期产出` or
@@ -364,6 +400,8 @@ Read `references/issue-templates.md` when you need:
      or risk must be named
    - strip unapproved implementation details from parent issues unless the
      operator explicitly wants an implementation-facing task
+   - if detailed engineering reasoning is needed, keep the parent issue
+     product-facing and propose a linked child issue for execution details
    - ensure the draft still covers required fields for the selected template
      family
 7. Emit dry-run plan:
@@ -455,6 +493,8 @@ happy-path example of the full required flow.
 - Default to master-grade standard drafts.
 - Do not turn a parent requirement issue into a design doc or implementation
   plan.
+- Do not default parent issues to code, file, class, function, planner, repo,
+  service, Cypher, schema, or other internal implementation vocabulary.
 - Do not name speculative classes, files, routes, tables, workers, or
   architecture splits in leadership- or cross-functional-facing issues.
 - If the operator says a draft is too long, too technical, or too shallow,
