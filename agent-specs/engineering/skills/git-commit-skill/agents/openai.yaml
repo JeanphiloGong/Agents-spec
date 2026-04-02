@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Commit"
+  short_description: "v0.2.0 - Draft and execute scoped Git commits"
+  default_prompt: "Use $git-commit-skill to review the current diff, confirm traceability, and draft or execute the final commit with the required Why/What/Impact/Tests/Refs structure."
