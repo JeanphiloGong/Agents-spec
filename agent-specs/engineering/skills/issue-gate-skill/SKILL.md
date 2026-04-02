@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.14 - Check, create, and link GitHub or GitLab issues for tracked work before implementation and before commit preparation; use when a repo requires issue-backed traceability, canonical upstream issue confirmation, or commit Refs output.
+description: v0.1.15 - Check, create, and link GitHub or GitLab issues for tracked work before implementation and before commit preparation; use when a repo requires issue-backed traceability, canonical upstream issue confirmation, fork-vs-upstream issue targeting, or commit Refs output.
 ---
 
 # Issue Gate Skill
@@ -49,11 +49,20 @@ Out of scope:
   Use when resolving template families, drafting issue bodies, validating
   required fields, or choosing the standard create payload for `gh` or `glab`.
 - `references/issue-cli-reference.md`
-  Use when checking CLI command syntax, repository targeting, and automation
-  notes for GitHub CLI or GitLab CLI.
+  Use when checking CLI command syntax, remote and upstream detection,
+  repository targeting, and automation notes for GitHub CLI or GitLab CLI.
 - `references/required-gitlab-flow-example.md`
   Use when you need an end-to-end example of the required GitLab flow or a
   concrete example of the output contract.
+
+## Concrete Trigger Examples
+
+Use this skill for requests such as:
+
+- "先检查这个任务在上游仓库里有没有 issue，没有就帮我起一个"
+- "commit 前帮我确认 issue，并给我一行 `Refs`"
+- "这个改动是给 upstream 的，不要在 fork 里重复建 issue"
+- "根据当前分支和改动范围，自动帮我起一个 issue 草稿"
 
 ## Input Policy (Auto-First)
 
@@ -64,6 +73,8 @@ confidence is low, conflicting, or blocked by repository policy.
 
 - `repo_root`: from current git root.
 - `change_type`: infer from branch name, change intent, and file scope.
+- `repo_target`: infer from origin/upstream remotes, explicit repo hints, and
+  whether the work is meant for canonical shared history.
 - `platform_hint`: detect from remote and CLI availability (`gh` or `glab`).
 - `gate_mode`: read repository policy first, then fall back to the default.
 
@@ -78,6 +89,7 @@ One of:
 - `labels`: comma-separated labels
 - `assignee`: issue assignee
 - `milestone`: milestone name
+- `repo_override`: explicit `<owner>/<repo>` or `<group>/<repo>` issue target
 - `audience_profile`: `leadership|cross_functional|engineering_only`
 - `issue_level`: `parent_requirement|delivery_task|implementation_task`
 
@@ -130,6 +142,20 @@ One of:
 - An issue may remain open, blocked, deferred, or partially implemented after
   one or more linked commits.
 
+## Repository Target Resolution
+
+- Resolve the issue target repository before searching or creating.
+- An explicit `repo_override` wins over inferred targets.
+- If the current repository is a fork and an `upstream` remote exists, prefer
+  the upstream repository when the change is intended for upstream or other
+  shared history.
+- If the work is fork-only, private-only, or upstream issue creation is
+  unavailable or inappropriate, the current repository may be the canonical
+  issue target.
+- Reuse an existing canonical issue before creating a fork-local duplicate.
+- The dry-run output must state the resolved `target_repo` and whether the
+  search scope is the current repo, upstream repo, or an explicit override.
+
 ## Comment And Split Hygiene
 
 - Prefer short issue comments for incremental clarification, status notes,
@@ -150,12 +176,18 @@ One of:
 
 1. If `platform_hint` is `gh` or `glab`, use that platform.
 2. If `platform_hint=auto`:
-   - use `gh` when available in current repo context
-   - else use `glab` when available
-   - else gate failure
+   - inspect the resolved target repository host from `origin`, `upstream`, or
+     `repo_override`
+   - GitHub host => prefer `gh`
+   - GitLab or self-managed GitLab host => prefer `glab`
+   - if host is ambiguous, prefer the CLI with proven auth for the resolved
+     target repo
+   - if both CLIs look usable but imply different platforms, stop and ask the
+     human to confirm instead of guessing
+   - if no suitable CLI is available, gate failure
 
 Read `references/issue-cli-reference.md` when you need the exact command
-surface or automation caveats.
+surface, remote-detection commands, or automation caveats.
 
 ## Inference Rules
 
@@ -166,11 +198,20 @@ surface or automation caveats.
    - infer from branch prefix (`feat/`, `fix/`, `hotfix/`, etc.)
    - fall back from change intent text
    - if low confidence => ask the human to confirm
-3. `platform_hint`
-   - infer from remote host and installed CLI
-   - if both are available but mismatch in repo context => ask the human to
-     choose
-4. `gate_mode`
+3. `repo_target`
+   - if `repo_override` exists => use it
+   - else if an `upstream` remote exists and the work is intended for shared or
+     upstream history => use upstream
+   - else use the current repository remote
+   - if canonical target cannot be inferred confidently => ask the human to
+     confirm before create
+4. `platform_hint`
+   - infer from the resolved target repo host and installed CLI
+   - if the matching CLI is installed but not authenticated for that host =>
+     stop and surface the auth gap
+   - if both CLIs are installed but imply different hosts or platforms => ask
+     the human to choose
+5. `gate_mode`
    - read repository policy if present
    - fall back to `required`
 
@@ -300,17 +341,23 @@ Read `references/issue-templates.md` when you need:
    - `repo_root`
    - `change_type`
    - `template_family`
+   - `repo_target`
    - `platform_hint`
    - `gate_mode`
    - `audience_profile`
    - `issue_level`
-4. Resolve platform (`gh` or `glab`) and verify CLI availability.
+4. Resolve target repo and platform:
+   - determine `target_repo` from `repo_override`, `origin`, `upstream`, and
+     canonical-intent rules
+   - choose the CLI that matches the resolved repo host and verify auth and
+     availability
 5. Resolve issue target:
    - prefer the canonical repository issue when the work is intended for
      upstream or shared history
    - prefer reusing the existing task issue when the current commit belongs to
      an already tracked task
-   - verify `existing_issue_id`, or prepare a new draft from context
+   - verify `existing_issue_id`, or search the resolved target repo and prepare
+     a new draft from context only when no matching issue exists
 6. Draft or verify issue content:
    - ensure the draft explains why now, what outcome is expected, what is in or
      out of scope, how success is judged, and whether any material dependency
@@ -343,6 +390,8 @@ Read `references/issue-templates.md` when you need:
 ## Platform
 - selected: gh | glab
 - cli_ready:
+- target_repo:
+- search_scope: current_repo | upstream_repo | explicit_override
 
 ## Issue Action
 - action: reuse | create | failed
@@ -372,6 +421,11 @@ Read `references/issue-templates.md` when you need:
 - If CLI is missing:
   - `required` => `BLOCK` with manual fallback steps
   - `recommended` => `PASS_WITH_WARNING`
+- If repo target cannot be resolved deterministically:
+  - `required` => `BLOCK` with `repo_override` or canonical repo confirmation
+  - `recommended` => `PASS_WITH_WARNING`
+- If the selected CLI lacks auth for the resolved target repo host:
+  - surface the failing auth check and the exact command needed to recover
 - If create fails:
   - surface the first failing command and a retry suggestion
 - Never hide partial failure; always return explicit state
@@ -393,6 +447,10 @@ happy-path example of the full required flow.
   same tracked task.
 - Do not default to creating the task issue in a fork when the work is meant
   for the canonical upstream repository.
+- Do not choose `gh` or `glab` purely because the binary exists; match the CLI
+  to the resolved repository host.
+- Do not search only the fork when an upstream or other canonical repository is
+  the more likely source of truth.
 - Do not treat issue linkage as issue resolution by default.
 - Default to master-grade standard drafts.
 - Do not turn a parent requirement issue into a design doc or implementation
