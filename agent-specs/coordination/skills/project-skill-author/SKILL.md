@@ -1,6 +1,6 @@
 ---
 name: project-skill-author
-description: v0.1.2 - Create a project-specific Codex skill package (SKILL.md plus optional references/assets) with master-grade structure and defaults; use when building reusable skill folders, onboarding skills, or general project skills (not API-only).
+description: v0.1.3 - Create a project-specific Codex skill package with master-grade governance and Codex-compatible defaults; use when building reusable skill folders, onboarding skills, coordination skills, or general project skills that should ship as native Codex skills (not API-only).
 ---
 
 # Project Skill Author
@@ -16,6 +16,9 @@ multi-domain guidance with auditable workflows.
 Out of scope: pure API integration skills, internal-only prompts, or
 single-use task scripts.
 
+Unless the user explicitly asks for another runtime, treat Codex as the target
+runtime and produce a Codex-compatible skill package by default.
+
 ## Skill Philosophy (Master-Level)
 
 - Skills are reusable decision systems, not one-off prompts.
@@ -25,6 +28,7 @@ single-use task scripts.
 - Always separate workflow from reference material.
 - Guard against hallucinated APIs or fake capabilities.
 - Treat defaults as policy: safe, conservative, and explicit.
+- Treat `name` and `description` as trigger-critical metadata, not decoration.
 - Derive domain-specific workflows from expert practice, not generic templates.
 - Make the workflow justify itself with evidence and tradeoffs.
 - Ensure outputs are actionable without follow-up prompting.
@@ -35,6 +39,25 @@ single-use task scripts.
 - Maintain a clear separation between “guidance” and “evidence.”
 - Keep first delivery lightweight; avoid turning a skill authoring flow into a
   full governance system unless the operator explicitly asks for that level.
+
+## Codex Compatibility Layer (Default Target)
+
+By default, this skill should produce packages that a native Codex runtime can
+discover and consume without further adaptation.
+
+Codex-compatible output means:
+
+- `SKILL.md` is the canonical instruction file and includes only `name` and
+  `description` in YAML frontmatter.
+- `description` carries both what the skill does and when to use it; do not
+  bury primary trigger conditions only in the body.
+- The package follows progressive disclosure:
+  `SKILL.md` for workflow, `references/` for on-demand detail, `scripts/` for
+  deterministic logic, and `assets/` for output resources.
+- Include `agents/openai.yaml` by default for Codex-facing metadata unless the
+  user explicitly requests a minimal package without UI metadata.
+- Prefer official Codex scaffold and validation tools when available, but do
+  not block delivery if manual-compatible creation is required.
 
 ## Master Workflow (Decision-Grade)
 
@@ -52,12 +75,17 @@ single-use task scripts.
    - Map each domain to a high-signal workflow and explicitly note why it fits.
 3. Define the skill name and placement.
    - Use lowercase hyphen name under 64 chars; default to `skills/<skill-name>`.
-4. Add versioning to the header description.
+4. Define runtime compatibility.
+   - Default to Codex unless the user explicitly names another runtime.
+   - State whether the package must be Codex-native only or cross-runtime.
+5. Add versioning to the header description.
    - Prefix `description` with a semantic version (e.g., `v0.1.0 - ...`).
    - If no version exists yet, start at `v0.1.0`.
    - Bump the patch version by +1 per completed commit that updates the skill (one commit = one version bump).
-5. Design the package structure.
+6. Design the package structure.
    - Keep SKILL.md lean; move detailed references into `references/`.
+   - For Codex targets, default package layout is:
+     `SKILL.md`, `agents/openai.yaml`, and optional `references/`, `scripts/`, `assets/`.
    - When the skill is role-like, include a concise AGENTS-style role charter
      in `SKILL.md` and add `references/role-charter-template.md` when reusable
      scaffolding is helpful.
@@ -65,28 +93,80 @@ single-use task scripts.
      section in `SKILL.md` or the role charter reference.
    - Add `assets/` only when reusable templates are required.
    - If you mandate a validation script, add it in `scripts/` or reference an existing one.
-6. Draft SKILL.md with explicit triggers and workflow.
+7. Draft SKILL.md with explicit triggers and workflow.
    - Use clear frontmatter and imperative steps.
+   - Keep trigger-critical "what/when to use" language in `description`, not only in body sections.
    - Role-like skills must make the operating charter explicit instead of
      scattering it across workflow prose.
-7. Provide defaults and guardrails.
+8. Add Codex metadata and toolchain hooks.
+   - For Codex targets, generate or update `agents/openai.yaml`.
+   - If official tools are available, prefer `init_skill.py`,
+     `generate_openai_yaml.py`, and `quick_validate.py`.
+   - If official tools are not available, create the same package structure manually and
+     note the fallback.
+9. Provide defaults and guardrails.
    - Include sane defaults to reduce user input and prevent misuse.
-8. Validate and scope.
+10. Validate and scope.
    - Ensure no secrets, no fabricated facts, references are one level deep.
-9. Verify domain fitness.
+   - Validate naming, frontmatter, Codex metadata freshness, and package layout.
+11. Verify domain fitness.
    - Confirm the workflow reflects expert practice in that domain.
-10. Produce a fit-for-purpose template.
+12. Produce a fit-for-purpose template.
    - Provide a short, standard, and strict output format.
-11. Add verification hooks.
+13. Add verification hooks.
    - Define how correctness and safety are validated for the skill.
 
 ## Design Layers (Use As Needed)
 
 1. **Trigger Layer**: name + description; clear "when to use" signals.
 2. **Workflow Layer**: concise steps, minimal ambiguity.
-3. **Reference Layer**: detailed docs in `references/`.
-4. **Asset Layer**: templates, examples, or boilerplate in `assets/`.
-5. **Script Layer**: deterministic or repeated logic in `scripts/`.
+3. **Codex Adapter Layer**: `agents/openai.yaml` and other runtime-facing metadata.
+4. **Reference Layer**: detailed docs in `references/`.
+5. **Asset Layer**: templates, examples, or boilerplate in `assets/`.
+6. **Script Layer**: deterministic or repeated logic in `scripts/`.
+
+## Compatible Package Layout (Codex Default)
+
+Use this layout unless the user explicitly asks for a different runtime shape:
+
+```text
+<skill-name>/
+  SKILL.md
+  agents/
+    openai.yaml
+  references/
+  scripts/
+  assets/
+```
+
+Rules:
+
+- `SKILL.md` is required.
+- `agents/openai.yaml` is the default Codex metadata adapter.
+- `references/`, `scripts/`, and `assets/` are optional; create only what the
+  workflow justifies.
+- Do not add auxiliary docs like `README.md`, `CHANGELOG.md`, or installation
+  notes unless the user explicitly asks for them.
+
+## Codex Triggering Rules
+
+- The frontmatter `name` and `description` are the primary trigger surface.
+- Put both capability and usage contexts in `description`.
+- Do not rely on a body section like "When to Use This Skill" as the only
+  trigger source.
+- Keep naming short, stable, and aligned with the folder name.
+- Keep `SKILL.md` lean and push domain detail into `references/` when possible.
+
+## Codex Toolchain Integration
+
+When official Codex scaffolding is available, prefer it because it reduces
+metadata drift and packaging mistakes.
+
+- For new skills, prefer `scripts/init_skill.py`.
+- For Codex metadata, prefer `scripts/generate_openai_yaml.py`.
+- For structural validation, prefer `scripts/quick_validate.py`.
+- If the official scripts are unavailable, reproduce the same package shape
+  manually and call out the fallback in the output.
 
 ## Required Inputs (Minimal)
 
@@ -94,13 +174,26 @@ single-use task scripts.
 - Target users (role and context)
 - Primary outcomes or workflows
 - Delivery environment or distribution target (where the skill will live)
+- Target runtime or agent platform if it is not Codex
 
 ## Defaults (Use Unless User Specifies)
 
 - Domain scope: Engineering + Product by default; add Security/Data/AI when relevant.
+- Runtime target: Codex.
 - Skill placement: `skills/<skill-name>` unless a project path is specified.
+- Package layout: `SKILL.md` plus `agents/openai.yaml` by default; add
+  `references/`, `scripts/`, and `assets/` only when justified by repeated use,
+  determinism, or output reuse.
 - Output tone: concise, action-oriented, no fluff.
 - References: add only when details are needed repeatedly.
+- Trigger policy: put "what the skill does" and "when to use it" in
+  frontmatter `description`, not only in the body.
+- Codex metadata: generate `agents/openai.yaml` by default for Codex-facing skills.
+- Initialization mode: use official Codex scaffold tools when available;
+  otherwise create a manual-compatible package.
+- Validation mode: use official Codex validation tools when available;
+  otherwise run a structural checklist covering frontmatter, naming, package
+  layout, and metadata freshness.
 - Role charter: required when the skill defines a reusable role, control-plane
   owner, reviewer, operator, or other long-lived actor.
 - Role charter format: default to a compact AGENTS-style structure rather than
@@ -116,6 +209,9 @@ single-use task scripts.
 - Overly verbose SKILL.md that bloats context.
 - Missing guardrails that allow unsafe edits.
 - Unclear triggers that cause accidental activation.
+- Burying "when to use" only in the body instead of frontmatter `description`.
+- Omitting or staling `agents/openai.yaml` for a Codex-targeted skill.
+- Shipping a package layout that Codex cannot consume without manual adaptation.
 - Relying on a single generic workflow for all domains.
 - Using “best practices” language without concrete steps.
 - Missing domain-specific risk controls or validation gates.
@@ -143,11 +239,34 @@ single-use task scripts.
 - Include a negative test or failure case when risk is non-trivial.
 - Require explicit “unknowns” where facts are missing.
 - Require a lightweight evidence note (what was checked, by whom, when).
+- For Codex-targeted skills, verify that `description` clearly covers both
+  capability and usage context.
+- For Codex-targeted skills, verify that `agents/openai.yaml` exists when UI
+  metadata is expected and still matches `SKILL.md`.
 - When the skill is role-like, verify that the charter uses an AGENTS-style
   structure and makes mission, boundaries, permission model, execution rules,
   outputs, and escalation conditions explicit.
 - When the skill is role-like, verify that the golden rules are role-specific,
   operational, and written in `Why / How / Check` form.
+
+## Compatibility Validation Checklist
+
+Use this checklist whenever the skill is expected to ship as a native Codex
+skill package:
+
+- `SKILL.md` frontmatter contains only `name` and `description`.
+- The skill folder name matches `name`.
+- `description` includes both the skill capability and concrete "when to use"
+  signals.
+- `SKILL.md` stays focused on workflow and does not absorb large reference
+  sections that should live under `references/`.
+- References are one level deep from `SKILL.md`.
+- `agents/openai.yaml` exists for Codex-facing skills and matches the current
+  skill scope.
+- Any required `scripts/` or `assets/` exist only because the workflow justifies them.
+- No auxiliary clutter files are introduced by default.
+- If official validation tooling is available, `quick_validate.py` passes; if
+  not, manual validation explicitly covers the same constraints.
 
 ## AGENTS-Style Role Charter Standard (Required For Role-Like Skills)
 
@@ -375,6 +494,9 @@ Placement rules:
 ## Required Inputs
 - ...
 
+## Bundled Resources
+- ...
+
 ## Output Format
 ...
 
@@ -386,8 +508,12 @@ Placement rules:
 
 ```
 ## Skill Name and Placement
+## Runtime Compatibility
+## Package Layout
 ## Required Inputs Missing
 ## Files Created
+## Metadata Plan
+## Validation Plan
 ## Open Questions
 ```
 
@@ -397,3 +523,6 @@ Placement rules:
 - Do not invent endpoints or behaviors; mark unknowns as TODO.
 - Do not provide bypass or evasion guidance for security controls.
 - Keep the skill self-contained and minimal; avoid extra docs.
+- Do not ship a Codex-targeted skill without trigger-quality frontmatter.
+- Do not omit the Codex metadata adapter unless the user explicitly asks for a
+  metadata-free package.
