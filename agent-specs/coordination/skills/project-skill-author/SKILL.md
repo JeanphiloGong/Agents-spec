@@ -1,6 +1,6 @@
 ---
 name: project-skill-author
-description: v0.1.6 - Create a project-specific Codex skill package with native Codex defaults and master-grade governance; use when building reusable skill folders, onboarding skills, coordination skills, or general project skills that should ship as native Codex skills (not API-only).
+description: v0.1.7 - Create a project-specific Codex skill package with native Codex defaults and master-grade governance; use when building reusable skill folders, onboarding skills, coordination skills, or general project skills that should ship as native Codex skills (not API-only).
 ---
 
 # Project Skill Author
@@ -114,6 +114,8 @@ runtime and produce a Codex-compatible skill package by default.
    - For Codex targets, generate or update `agents/openai.yaml`.
    - Define `display_name`, `short_description`, and `default_prompt` from the
      actual skill intent rather than placeholders.
+   - Prefix `short_description` with the current skill version so the UI
+     metadata stays traceable to the package revision.
    - Add icons, brand color, dependencies, or policy flags only when supported
      by real assets or requirements.
    - Prefer official Codex tooling when available.
@@ -165,6 +167,8 @@ runtime and produce a Codex-compatible skill package by default.
   frontmatter `description`.
 - Codex metadata: generate `agents/openai.yaml` by default for Codex-facing
   skills, populating `display_name`, `short_description`, and `default_prompt`.
+- Metadata versioning: include the current semantic version in
+  `interface.short_description`.
 - Initialization mode: use official Codex scaffold tools when available;
   otherwise create a manual-compatible package.
 - Validation mode: use official Codex validation tools when available;
@@ -186,6 +190,7 @@ runtime and produce a Codex-compatible skill package by default.
 - Unclear triggers that cause accidental activation.
 - Burying "when to use" only in the body instead of frontmatter `description`.
 - Omitting or staling `agents/openai.yaml` for a Codex-targeted skill.
+- Letting `interface.short_description` drift from the current skill version.
 - Shipping a package layout that Codex cannot consume without manual adaptation.
 - Adding `scripts/`, `references/`, or `assets/` without a repeated-use case.
 - Stuffing long reference content back into `SKILL.md` instead of using
@@ -223,6 +228,8 @@ runtime and produce a Codex-compatible skill package by default.
   `references/codex-native-authoring.md`.
 - If `SKILL.md` is unusually long, explain why it could not be split further
   without harming usability.
+- For Codex-targeted skills, verify that `interface.short_description` includes
+  the current skill version.
 - When the skill is role-like, verify that the charter uses an AGENTS-style
   structure and makes mission, boundaries, permission model, execution rules,
   outputs, and escalation conditions explicit.

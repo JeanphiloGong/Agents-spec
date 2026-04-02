@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Skill Author"
-  short_description: "Design reusable project skills"
+  short_description: "v0.1.7 - Design reusable project skills"
   default_prompt: "Use $project-skill-author to design a reusable Codex-native skill package for this project."

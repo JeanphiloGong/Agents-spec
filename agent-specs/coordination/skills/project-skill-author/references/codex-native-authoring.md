@@ -75,6 +75,8 @@ For Codex-facing skills, treat `agents/openai.yaml` as a first-class contract.
 
 - Generate `interface.display_name` as a clear, human-facing skill title.
 - Generate `interface.short_description` as a short UI blurb for quick scanning.
+- Prefix `interface.short_description` with the current semantic version so the
+  UI metadata stays aligned with the shipped package revision.
 - Generate `interface.default_prompt` as a short example prompt that explicitly
   mentions the skill by `$skill-name`.
 - Add `icon_small`, `icon_large`, and `brand_color` only when the assets or
@@ -119,6 +121,7 @@ skill package:
   skill scope.
 - `agents/openai.yaml` includes valid `display_name`, `short_description`, and
   `default_prompt` fields for Codex-facing skills.
+- `interface.short_description` includes the current skill version.
 - `interface.default_prompt` explicitly names the skill as `$skill-name`.
 - Optional metadata fields are included only when backed by real assets,
   dependencies, or product requirements.
