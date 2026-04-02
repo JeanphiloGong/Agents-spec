@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.17 - Check, create, and link GitHub or GitLab issues for tracked work before implementation and before commit preparation; use when a repo requires issue-backed traceability, canonical upstream issue confirmation, product-facing parent issue framing, child issue drafting for engineering detail, fork-vs-upstream issue targeting, or commit Refs output.
+description: v0.1.18 - Check, create, and link GitHub or GitLab issues for tracked work before implementation and before commit preparation; use when a repo requires issue-backed traceability, canonical upstream issue confirmation, product-facing parent issue framing, child issue drafting for engineering detail, fork-vs-upstream issue targeting, or commit Refs output.
 ---
 
 # Issue Gate Skill
@@ -138,7 +138,7 @@ One of:
   cases where canonical issue creation is unavailable or inappropriate.
 - Linking a commit to an issue does not mean that the commit resolves the
   issue.
-- Default to a reference bridge such as `ISSUE: #123` or equivalent `Refs`
+- Default to a reference bridge such as ISSUE: #123 or equivalent `Refs`
   semantics.
 - Only use issue-closing semantics when the change truly resolves the issue and
   the operator explicitly intends closure.
@@ -174,6 +174,17 @@ One of:
 - Use linked child or follow-up issues when the discussion becomes
   independently actionable for frontend, backend, integration, rollout, or
   investigation work.
+
+## Issue Reference Formatting Rule
+
+- When an issue reference should stay clickable in rendered markdown, render it
+  as plain text like #123, owner/repo#123, or a full issue URL in normal prose.
+- Do not wrap issue references such as #123 or owner/repo#123 in backticks when
+  the goal is clickable linkage.
+- Apply the same rule to parent/child issue linkage fields, follow-up issue
+  mentions, and issue references inside comments or issue bodies.
+- If you need to show a literal commit bridge line like ISSUE: #123, keep that
+  output as plain text rather than inline-code issue syntax.
 
 ## Platform Selection
 
@@ -558,6 +569,8 @@ happy-path example of the full required flow.
   plan in dry-run output first.
 - Do not leave required engineering detail stranded in the parent issue body if
   a child issue is the clearer execution layer.
+- Do not wrap issue references in backticks when the output is meant to keep
+  clickable issue links.
 - Do not treat issue linkage as issue resolution by default.
 - Default to master-grade standard drafts.
 - Do not turn a parent requirement issue into a design doc or implementation

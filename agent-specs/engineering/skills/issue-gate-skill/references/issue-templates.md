@@ -23,6 +23,9 @@ or validating template-specific required fields.
   user-facing heading text.
 - When a repository already provides canonical issue templates, mirror their
   field names and heading structure unless there is a strong reason not to.
+- When referencing related issues in rendered markdown, use plain `#123`,
+  `owner/repo#123`, or a full URL in normal prose; do not wrap the issue
+  reference itself in backticks if the link should stay clickable.
 
 ## Bug / Incident Template
 

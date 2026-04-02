@@ -36,7 +36,7 @@ Expected dry-run outcome:
 
 - no matching open issue is found
 - a feature-template issue draft is ready for confirmation
-- the future commit bridge will be `ISSUE: #<issue_number>`
+- the future commit bridge will be ISSUE: #<issue_number>
 
 ## 3. Human Confirmation
 
@@ -95,4 +95,4 @@ This example demonstrates the intended happy path:
 - dry-run before create
 - preserve human confirmation
 - create only when missing
-- emit a deterministic `Refs` bridge for commit tooling
+- emit a deterministic Refs bridge for commit tooling
