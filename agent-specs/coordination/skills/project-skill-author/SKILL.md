@@ -1,6 +1,6 @@
 ---
 name: project-skill-author
-description: v0.1.5 - Create a project-specific Codex skill package with native Codex defaults and master-grade governance; use when building reusable skill folders, onboarding skills, coordination skills, or general project skills that should ship as native Codex skills (not API-only).
+description: v0.1.6 - Create a project-specific Codex skill package with native Codex defaults and master-grade governance; use when building reusable skill folders, onboarding skills, coordination skills, or general project skills that should ship as native Codex skills (not API-only).
 ---
 
 # Project Skill Author
@@ -64,6 +64,9 @@ runtime and produce a Codex-compatible skill package by default.
   manually and note the fallback.
 - Default context policy: keep `SKILL.md` focused on workflow and guardrails;
   load detailed reference material only as needed.
+- Default size target: keep `SKILL.md` under 500 lines and under 5k words when
+  feasible; start splitting content into `references/` before crossing that
+  threshold.
 
 ## Master Workflow (Decision-Grade)
 
@@ -94,6 +97,9 @@ runtime and produce a Codex-compatible skill package by default.
    - Use the Codex-native anatomy in
      `references/codex-native-authoring.md`.
    - Keep `SKILL.md` lean and move detailed material into `references/`.
+   - Treat 500 lines and 5k words as the default `SKILL.md` ceiling; split
+     detailed rules, schemas, examples, and domain libraries into `references/`
+     before the body grows past that range.
    - Create `scripts/`, `references/`, and `assets/` only when they clearly
      reduce repeated reasoning or manual rewriting.
    - For role-like skills, keep the concise charter in `SKILL.md` and use
@@ -151,6 +157,8 @@ runtime and produce a Codex-compatible skill package by default.
 - Skill placement: `skills/<skill-name>` unless a project path is specified.
 - Package layout: `SKILL.md` plus `agents/openai.yaml` by default.
 - References: add only when details are needed repeatedly.
+- Size target: keep `SKILL.md` under 500 lines and under 5k words when
+  feasible; split before the body crosses that range.
 - Resource selection: start from concrete usage examples and add resource
   folders only when they reduce repeated reasoning or manual rewriting.
 - Trigger policy: put "what the skill does" and "when to use it" in
@@ -172,6 +180,8 @@ runtime and produce a Codex-compatible skill package by default.
 - Overfitting the skill to a single project.
 - Mixing workflow and reference content.
 - Overly verbose `SKILL.md` that bloats context.
+- Letting `SKILL.md` grow past roughly 500 lines or 5k words without splitting
+  heavy material into `references/`.
 - Missing guardrails that allow unsafe edits.
 - Unclear triggers that cause accidental activation.
 - Burying "when to use" only in the body instead of frontmatter `description`.
@@ -211,6 +221,8 @@ runtime and produce a Codex-compatible skill package by default.
 - Require a lightweight evidence note of what was checked, by whom, and when.
 - For Codex-targeted skills, run the compatibility checklist in
   `references/codex-native-authoring.md`.
+- If `SKILL.md` is unusually long, explain why it could not be split further
+  without harming usability.
 - When the skill is role-like, verify that the charter uses an AGENTS-style
   structure and makes mission, boundaries, permission model, execution rules,
   outputs, and escalation conditions explicit.

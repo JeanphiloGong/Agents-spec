@@ -37,10 +37,15 @@ Use the native Codex loading model as the default design discipline:
 Implications:
 
 - Keep primary workflow and guardrails in `SKILL.md`.
+- Target a `SKILL.md` body under 500 lines and under 5k words when feasible.
+- Start splitting content into `references/` before the body grows past that
+  range.
 - Push long schemas, playbooks, and detailed domain material into `references/`.
 - Put deterministic operations into `scripts/` instead of rewriting them in prose.
 - Put templates and reusable output resources into `assets/`.
 - Keep references one level deep from `SKILL.md`.
+- For reference files longer than 100 lines, add a short table of contents at
+  the top.
 
 ## Native Creation Flow
 
@@ -107,6 +112,8 @@ skill package:
   signals.
 - `SKILL.md` stays focused on workflow and does not absorb large reference
   sections that should live under `references/`.
+- `SKILL.md` stays under roughly 500 lines and under 5k words, or the package
+  explains why further splitting would harm usability.
 - References are one level deep from `SKILL.md`.
 - `agents/openai.yaml` exists for Codex-facing skills and matches the current
   skill scope.
