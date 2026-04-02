@@ -8,6 +8,7 @@ or validating template-specific required fields.
 - [Template Style Rule](#template-style-rule)
 - [Bug / Incident Template](#bug--incident-template)
 - [Feature / Change Template](#feature--change-template)
+- [Engineering Child Issue Template](#engineering-child-issue-template)
 - [Task / Maintenance Template](#task--maintenance-template)
 - [Investigation / Spike Template](#investigation--spike-template)
 - [Template Validation Rule](#template-validation-rule)
@@ -143,6 +144,81 @@ Parent issue default rules:
 - If detailed implementation discussion is required, create a linked
   engineering child issue instead of expanding the parent body.
 
+## Engineering Child Issue Template
+
+Use this template when the parent issue must stay product-facing but the work
+still needs engineering execution detail.
+
+Required fields:
+- `父 Issue / 承接关系`
+- `本次工程目标`
+- `范围边界`
+- `验收标准`
+
+Recommended fields:
+- `涉及模块 / 契约`
+- `技术约束`
+- `实施要点`
+- `风险 / 依赖`
+
+Optional fields:
+- `迁移步骤`
+- `回滚方案`
+- `关联设计文档 / PR`
+
+Standard template:
+
+```text
+## 🔗 父 Issue / 承接关系
+- 父 Issue：...
+- 本子任务承接的目标：...
+
+## 🎯 本次工程目标
+- 这次工程交付要完成什么：...
+- 完成后对父 Issue 有什么支撑：...
+
+## 🎯 范围边界
+- 本次要做：...
+- 本次不做：...
+
+## 🧩 涉及模块 / 契约
+- 涉及的服务 / 模块 / 仓库：...
+- 涉及的内部契约 / 数据结构 / 接口：...
+
+## ⚙️ 技术约束
+- 依赖限制：...
+- 迁移或兼容性要求：...
+- 回滚或降级要求：...
+
+## 🛠 实施要点
+- 主链路或实施步骤：...
+- 需要重点关注的内部约束：...
+
+## ✅ 验收标准
+- [ ] ...
+- [ ] ...
+
+## ⚠️ 风险 / 依赖
+- 风险点：...
+- 依赖项：...
+- 需要协调的事项：...
+
+## 📎 其他信息
+- 迁移步骤：...
+- 回滚方案：...
+- 关联设计文档 / PR：...
+```
+
+Child issue default rules:
+
+- Default this template to `delivery_task` or `implementation_task`.
+- Default audience is `engineering_only`.
+- Internal module, contract, and execution detail are allowed when they are
+  necessary to make the engineering task actionable.
+- Keep the child issue scoped to one execution layer; if it turns into a broad
+  program of work, split again instead of piling unrelated implementation
+  details into one engineering issue.
+
 ## Task / Maintenance Template
 
 Required fields:
@@ -259,6 +335,10 @@ Template:
 - If a `parent_requirement` draft contains speculative classes, files, routes,
   tables, workers, or unapproved architecture splits, emit an
   `overspecification_warning` and rewrite before presentation.
+- If `child_issue_needed=yes`, validate that:
+  - the parent issue stays product-facing
+  - the child issue carries the necessary engineering detail
+  - the parent/child relationship is explicit
 - Validation output must list missing fields explicitly.
 
 ## Template-to-Command Mapping Examples

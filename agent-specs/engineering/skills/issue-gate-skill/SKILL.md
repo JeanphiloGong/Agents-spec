@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.16 - Check, create, and link GitHub or GitLab issues for tracked work before implementation and before commit preparation; use when a repo requires issue-backed traceability, canonical upstream issue confirmation, product-facing parent issue framing, fork-vs-upstream issue targeting, or commit Refs output.
+description: v0.1.17 - Check, create, and link GitHub or GitLab issues for tracked work before implementation and before commit preparation; use when a repo requires issue-backed traceability, canonical upstream issue confirmation, product-facing parent issue framing, child issue drafting for engineering detail, fork-vs-upstream issue targeting, or commit Refs output.
 ---
 
 # Issue Gate Skill
@@ -107,6 +107,9 @@ One of:
 - `traceability_granularity=one-issue-to-many-commits-allowed`
 - `issue_repo_policy=canonical-repo-preferred`
 - `closure_policy=reference-by-default`
+- `layering_policy=parent-product-child-engineering`
+- `child_issue_detection=on`
+- `create_policy=parent-first-child-second-confirmed`
 - `audience_profile=cross_functional`
 - `issue_level=parent_requirement`
 - `quality_bar=master_grade`
@@ -286,6 +289,28 @@ quality. The draft should be:
   the parent issue lean and split those details into a linked engineering child
   issue, `delivery_task`, or `implementation_task`.
 
+## Child Issue Decision Rule
+
+- Default `child_issue_needed=no`.
+- Set `child_issue_needed=yes` when the parent issue would otherwise need:
+  - implementation paths or migration sequencing
+  - architecture comparisons or option tradeoff analysis
+  - module-by-module responsibilities
+  - engineering-only validation or rollout steps
+  - internal nouns such as planner, repo, service, Cypher, schema, table,
+    worker, class, file, or function to preserve actionable meaning
+- If the engineering detail is execution-ready but still one level above code,
+  use `child_issue_type=delivery_task`.
+- If the engineering detail requires implementation-facing structure such as
+  internal contracts, dataflow, module breakdown, migration steps, or approved
+  design details, use `child_issue_type=implementation_task`.
+- If parent-issue overspecification can be fixed by rewriting without losing
+  necessary execution detail, keep `child_issue_needed=no`.
+- If rewriting would hide necessary engineering work, keep the parent issue
+  product-facing and auto-draft a linked child issue.
+- When `child_issue_needed=yes`, the dry-run output must include both parent and
+  child drafts before any create action.
+
 ## Framing Guardrails
 
 - `parent_requirement`: explain why the work matters, what outcome is expected,
@@ -348,6 +373,8 @@ Read `references/issue-templates.md` when you need:
 - Validation output must include:
   - `template_family`
   - `issue_level`
+  - `child_issue_needed`
+  - `child_issue_type`
   - `missing_required_fields`
   - `missing_recommended_fields`
   - `overspecification_warnings`
@@ -355,6 +382,9 @@ Read `references/issue-templates.md` when you need:
   class names, function names, implementation-phase jargon, or architecture
   comparisons that are not required to explain an external contract, emit an
   `overspecification_warning` and rewrite or split before presentation.
+- If a parent issue still needs engineering detail after rewrite, require
+  `child_issue_needed=yes` and draft a linked child issue instead of keeping
+  that detail in the parent body.
 - For backend-, AI-, workflow-, or integration-heavy feature work, missing
   `技术约束` or `验证方式` should emit an explicit warning.
 - For investigation work, missing a concrete `预期产出` or
@@ -401,19 +431,29 @@ Read `references/issue-templates.md` when you need:
    - strip unapproved implementation details from parent issues unless the
      operator explicitly wants an implementation-facing task
    - if detailed engineering reasoning is needed, keep the parent issue
-     product-facing and propose a linked child issue for execution details
+     product-facing and draft a linked child issue for execution details
    - ensure the draft still covers required fields for the selected template
      family
-7. Emit dry-run plan:
+7. Derive layering decision:
+   - determine `child_issue_needed`
+   - if needed, choose `child_issue_type` as `delivery_task` or
+     `implementation_task`
+   - draft the child issue with the engineering child issue template
+   - keep the parent issue free of implementation-heavy detail
+8. Emit dry-run plan:
    - exact check/create/link command plan
    - expected artifacts (`issue_id`, `issue_url`, `refs_line`)
-   - drafted issue preview (`title` and `body`)
-8. Wait for human confirmation.
-9. Execute selected actions:
+   - parent draft preview (`title` and `body`)
+   - child draft preview when `child_issue_needed=yes`
+   - parent/child creation order and link plan
+9. Wait for human confirmation.
+10. Execute selected actions:
    - `check` issue
-   - `create` only when missing
+   - `create parent` only when missing
+   - `create child` only when needed and confirmed
+   - add parent/child cross-reference when both are created
    - `link` by generating the commit `Refs` line
-10. Emit gate result:
+11. Emit gate result:
    - `required` + failure => `BLOCK`
    - `recommended` + failure => `PASS_WITH_WARNING`
 
@@ -424,6 +464,13 @@ Read `references/issue-templates.md` when you need:
 - gate_mode:
 - result: PASS | PASS_WITH_WARNING | BLOCK
 - reason:
+
+## Layering Decision
+- parent_issue_level: parent_requirement | delivery_task | implementation_task
+- child_issue_needed: yes | no
+- child_issue_type: delivery_task | implementation_task | n/a
+- child_issue_reason:
+- parent_rewrite_applied: yes | no
 
 ## Platform
 - selected: gh | glab
@@ -438,10 +485,25 @@ Read `references/issue-templates.md` when you need:
 - issue_url:
 - title_source: user_input | auto_draft
 
+## Parent Issue Draft
+- title:
+- draft_preview:
+
+## Child Issue Draft
+- title:
+- draft_preview:
+- link_to_parent:
+
 ## Draft Decision
 - audience_profile:
 - issue_level: parent_requirement | delivery_task | implementation_task
 - quality_pass: yes | no
+
+## Execution Plan
+- create_parent: yes | no
+- create_child: yes | no
+- create_policy: parent-first-child-second-confirmed
+- link_method: body_reference | comment_reference
 
 ## Commit Bridge
 - refs_line: ISSUE: #<id>
@@ -449,7 +511,6 @@ Read `references/issue-templates.md` when you need:
 
 ## Execution Trace
 - dry_run_plan:
-- draft_preview:
 - executed_commands:
 - timestamp:
 ```
@@ -461,6 +522,10 @@ Read `references/issue-templates.md` when you need:
   - `recommended` => `PASS_WITH_WARNING`
 - If repo target cannot be resolved deterministically:
   - `required` => `BLOCK` with `repo_override` or canonical repo confirmation
+  - `recommended` => `PASS_WITH_WARNING`
+- If child-issue layering is clearly needed but the parent/child split cannot
+  be described coherently:
+  - `required` => `BLOCK`
   - `recommended` => `PASS_WITH_WARNING`
 - If the selected CLI lacks auth for the resolved target repo host:
   - surface the failing auth check and the exact command needed to recover
@@ -489,6 +554,10 @@ happy-path example of the full required flow.
   to the resolved repository host.
 - Do not search only the fork when an upstream or other canonical repository is
   the more likely source of truth.
+- Do not silently create a child issue without showing the draft and creation
+  plan in dry-run output first.
+- Do not leave required engineering detail stranded in the parent issue body if
+  a child issue is the clearer execution layer.
 - Do not treat issue linkage as issue resolution by default.
 - Default to master-grade standard drafts.
 - Do not turn a parent requirement issue into a design doc or implementation
