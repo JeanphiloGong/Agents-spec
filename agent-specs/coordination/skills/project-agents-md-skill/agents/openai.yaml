@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project AGENTS.md"
+  short_description: "v0.1.0 - Create or update a project-specific AGENTS.md"
+  default_prompt: "Use $project-agents-md-skill to inspect this repository's current instructions and create or update a project-level AGENTS.md with explicit scope boundaries, approvals, and execution rules."

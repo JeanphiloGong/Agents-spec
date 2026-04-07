@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Memory"
+  short_description: "v0.1.2 - Operate explicit project memory under ~/.agents"
+  default_prompt: "Use $project-memory-skill to detect or reuse this project's external memory root under ~/.agents and record an explicit session, decision, evolution note, or open question."
