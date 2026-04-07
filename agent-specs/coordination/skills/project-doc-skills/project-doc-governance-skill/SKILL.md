@@ -1,6 +1,6 @@
 ---
 name: project-doc-governance-skill
-description: v0.2.0 - Inspect or design a project-specific documentation governance model with document taxonomy, front matter, lifecycle states, ownership, and repo placement rules; use when a repository lacks a clear docs system or its RFC, ADR, architecture, and spec docs are drifting.
+description: v0.2.1 - Inspect or design a project-specific documentation governance model with document taxonomy, front matter, lifecycle states, and root-vs-module docs placement rules; use when a repository lacks a clear docs system or its RFC, ADR, architecture, and spec docs are drifting.
 ---
 
 # Project Documentation Governance Skill
@@ -28,8 +28,9 @@ Out of scope:
 ## Workflow
 
 1. Inspect the project before proposing rules.
-   - Look for `docs/`, existing RFC or ADR files, doc front matter, naming
-     conventions, and any repository instructions that already govern docs.
+   - Look for root-level `docs/`, module-local `*/docs/`, existing RFC or ADR
+     files, doc front matter, naming conventions, and any repository
+     instructions that already govern docs.
    - Classify the repo as:
      - `existing-governance`
      - `partial-governance`
@@ -62,6 +63,9 @@ Out of scope:
    - Prevent the same knowledge from being authoritative in multiple places.
 9. Define storage, naming, and indexing rules.
    - Recommend a stable layout for this repo.
+   - Decide whether the repo should use a hybrid model:
+     - root `docs/` for project decisions and formal source-of-truth docs
+     - module-local `*/docs/` for implementation and local operating notes
    - Define file naming and index expectations only to the degree the team can
      maintain.
 10. Define governance operations.
@@ -98,6 +102,7 @@ Out of scope:
 - Deletion policy: keep decision-grade docs; prefer `superseded` or `archived`
 - Source-of-truth rule: issues track work, repo docs hold durable knowledge,
   code comments explain local implementation
+- Placement strategy: hybrid by default
 - Automation baseline: front matter validation, broken-link checks,
   `review_by` expiry checks, and duplicate-authority checks
 
@@ -132,6 +137,10 @@ Out of scope:
 - Do not require so many metadata fields that authors stop maintaining them.
 - Do not let two document types carry the same authority without an explicit
   boundary.
+- Do not force all formal docs into root `docs/` when module-local docs are the
+  clearer home for implementation guidance.
+- Do not let module-local `*/docs/` become a parallel authority for
+  project-level RFC, ADR, or cross-module spec records.
 - Do not delete accepted decision history by default; mark it `superseded` and
   link the replacement.
 - Do not declare a document authoritative without naming its scope, owner, and
@@ -148,6 +157,8 @@ Out of scope:
 - Verify that each lifecycle state has an operational meaning.
 - Verify that source-of-truth boundaries between issue, doc, and code are
   explicit.
+- Verify that the storage model clearly separates project-level docs from
+  module-local docs when the repo uses multiple docs roots.
 - Verify that at least one frontend, backend, and module example can be
   classified without ambiguity.
 - Verify that the automation plan is realistic for normal repository workflows.
