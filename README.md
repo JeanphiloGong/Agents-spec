@@ -4,7 +4,7 @@
 
 ## 📘 项目介绍
 agents-spec-repo 用于管理 AI Agents 在不同工程/产品角色下的行为规范与代码生成规则。目标不是写业务代码，而是提供角色化规范，确保输出一致、专业、可控。
-仓库同时提供多智能体协作模板与角色索引，方便新项目快速落地与复用。
+仓库同时提供角色索引与项目治理技能，方便新项目快速落地与复用。
 
 ## 🎯 为什么需要这个仓库？
 - AI 同时承担文档助手、代码生成、测试生成、架构辅助、多智能体子角色等任务，需要统一规范
@@ -15,13 +15,12 @@ agents-spec-repo 用于管理 AI Agents 在不同工程/产品角色下的行为
 本仓库支持将项目规范与工作流沉淀为 Codex Skills，便于外部开发者或客户通过 AI 直接与项目交互。
 参考： [OpenAI Codex Skills](https://developers.openai.com/codex/skills)
 技能推荐按角色放置在 `agent-specs/<role>/skills/` 目录中，便于与角色规范绑定；如需本机使用，可同步到 `~/.codex/skills`。
-多 agent 协作规范已迁移为可选技能 `agent-collab-skill`，需要时再启用。
 显式外部记忆体系可使用 `project-memory-skill`，默认将项目记忆沉淀到 `~/.agents/memories/projects/<project-slug>/`。
 
 ## 🤝 协作方式
 - 先阅读 `AGENTS.md` 与 `AGENTS.template.md`，理解权限与协作边界
 - 新角色请放在 `agent-specs/` 下，并补齐对应 `AGENTS.md`
-- 讨论与变更请记录到 `agent-collab/` 的相应频道或日志
+- 讨论、决策与风险请在仓库文档中按需记录，并保持可追溯
 
 ## ✅ 贡献指南
 - 仅修改文档类文件时使用 `WRITE_DOC`
@@ -29,13 +28,12 @@ agents-spec-repo 用于管理 AI Agents 在不同工程/产品角色下的行为
 - 变更提交请保持可追溯、可解释
 
 ## 🧭 沟通与支持
-- 角色沟通：`agent-collab/agents/<id>/inbox.md` 与 `outbox.md`
-- 部门内讨论：`agent-collab/channels/dept-*.md`
-- 跨部门沟通：`agent-collab/channels/global.md`
+- 默认以对应角色的 `AGENTS.md` 和仓库文档作为协作入口
+- 如需项目级协作流程，应显式定义边界、职责与记录方式
 
 ## 🔒 安全与合规
 - 禁止提交密钥、Token、PII
-- 生产相关决策需记录在 `agent-collab/coordination/decisions.md`
+- 生产相关决策需记录在仓库文档中，并说明背景与理由
 
 ## 🏷️ 版本与发布
 - 本仓库以文档规范为主，发布节奏以变更合并为准
@@ -156,7 +154,7 @@ agents-spec-repo/
 
 ## 📘 Overview
 agents-spec-repo defines role-based AI agent behavior specs and collaboration norms for engineering and product teams. It is not a business codebase; it is a role-spec repository to keep outputs consistent, professional, and auditable.
-It also ships multi-agent collaboration templates and role indexes for quick adoption in new projects.
+It also ships role indexes and reusable project-governance skills for quick adoption in new projects.
 
 ## 🎯 Why this repository?
 - AI agents span documentation, code generation, testing, architecture support, and multi-agent roles
@@ -171,7 +169,7 @@ Place skills under `agent-specs/<role>/skills/` and sync to `~/.codex/skills` if
 ## 🤝 Collaboration
 - Read `AGENTS.md` and `AGENTS.template.md` first to understand boundaries
 - Add new roles under `agent-specs/` with a matching `AGENTS.md`
-- Record discussions and changes in `agent-collab/` channels/logs
+- Record discussions, decisions, and risks in repository documentation when relevant
 
 ## ✅ Contributing
 - Use `WRITE_DOC` for documentation-only changes
@@ -179,13 +177,12 @@ Place skills under `agent-specs/<role>/skills/` and sync to `~/.codex/skills` if
 - Keep commits traceable and explain intent
 
 ## 🧭 Support
-- Role inbox/outbox: `agent-collab/agents/<id>/inbox.md` and `outbox.md`
-- Department channels: `agent-collab/channels/dept-*.md`
-- Cross-department: `agent-collab/channels/global.md`
+- Use role-local `AGENTS.md` files and repository docs as the default coordination surface
+- Add project-specific coordination flows only when they are explicitly enabled
 
 ## 🔒 Security & Compliance
 - Never commit secrets, tokens, or PII
-- Record production-impacting decisions in `agent-collab/coordination/decisions.md`
+- Record production-impacting decisions in repository documentation with clear rationale
 
 ## 🏷️ Versioning & Releases
 - This repo is documentation-first; releases align with merged updates
