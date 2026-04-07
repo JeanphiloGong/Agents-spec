@@ -1,253 +1,119 @@
 ---
 name: proposal-review-wave-skill
-description: v0.1.4 - Deliberate on new feature ideas through parallel multi-agent master councils and prioritize multi-angle reasoning over strong conclusions.
+description: v0.1.5 - Deliberate on a new feature idea or plan through one parallel review wave that surfaces tradeoffs, dissent, and next questions before implementation.
 ---
 
 # Proposal Review Wave Skill
 
 ## Trigger and Scope
 
-Use this skill when a new feature idea, requirement, or plan needs cross-angle
-evaluation before implementation.
+Use this skill when a new feature idea, requirement, or plan needs structured
+cross-angle review before implementation starts.
 
 In scope:
-- multi-role discussion for direction shaping
-- multi-angle reasoning traces and disagreement exposure
-- one-wave discussion pack with clear next-wave questions
+- one-wave proposal review for direction shaping
+- scope classification and council selection
+- parallel multi-lens critique with explicit disagreement capture
+- discussion-first synthesis with human-owned final decisions
+- concrete next-wave questions when the proposal is still immature
 
 Out of scope:
-- code migration planning
-- direct implementation breakdown or file-level task lists
-- long meeting transcripts
+- direct implementation planning or file-level task breakdown
+- migration sequencing or rollout playbooks
+- long meeting transcripts or unstructured brainstorming dumps
+- forcing a final `go` or `block` decision when the evidence is still mixed
 
-## Core Purpose
+## Workflow
 
-- Keep attention on business direction and system integrity without forcing
-  premature closure.
-- Use parallel multi-agent domain critique to surface tradeoffs, disagreements,
-  and hidden assumptions early.
-- Treat each run as one smallest useful discussion loop, not a final verdict by
-  default.
-- Keep final decision human-owned and allow the wave to end with structured
-  tension instead of an artificial recommendation.
+1. Frame the proposal.
+   - Capture the idea, intended outcome, and the specific question this wave
+     should answer.
+2. Classify scope before reviewing.
+   - Choose `frontend`, `backend`, `system`, or `auto`.
+   - Use `references/council-lenses.md` to pick the primary council.
+3. Define the wave boundary.
+   - State the wave goal, explicit non-goals, and any constraints that should
+     shape the review.
+4. Select review lenses.
+   - Start with the primary council and add cross-domain lenses only when
+     coupling or risk justifies them.
+5. Run one review pass per selected lens.
+   - Prefer one parallel sub-agent per selected lens when the runtime and user
+     request allow parallel delegation.
+   - Otherwise run the same lens protocol sequentially and disclose the
+     fallback.
+6. Synthesize the wave.
+   - Build shared ground, disagreement clusters, unknowns, control boundaries,
+     and option shapes using `references/wave-synthesis.md`.
+7. State a tentative lean only when it is real.
+   - If the discussion does not naturally converge, keep the wave open and say
+     why.
+8. Close the wave.
+   - End with mandatory human decision points and a minimal next-wave input
+     checklist.
 
 ## Required Inputs
 
-- `idea`: one-sentence feature or proposal statement.
-- `goal`: expected user/business outcome.
-- `scope_hint`: `frontend|backend|system|auto`.
-- `constraints`: optional limits (time, compatibility, cost, policy).
-- `depth`: optional `quick|standard`, default `standard`.
+- `idea`: one-sentence feature or proposal statement
+- `goal`: intended user, product, or system outcome
+- `scope_hint`: `frontend|backend|system|auto`
+- `constraints`: optional limits such as compatibility, time, cost, or policy
+- `depth`: optional `quick|standard`; default `standard`
 
-## Fixed Defaults
+## Defaults
 
-- `output_mode=discussion-first-pack`
-- `decision_mode=human-final`
-- `role_pack_strategy=layered-domain-councils`
-- `masters_per_domain=3`
-- `agent_mode=parallel`
-- `max_parallel_agents=6`
-- `evaluation_model=fixed-six-dimension-score`
-- `artifact_mode=session-only`
-- `discussion_priority=reasoning-over-verdict`
-- `recommendation_strength=tentative`
-- `closure_mode=open-unless-converged`
+- review mode: `discussion-first`
+- decision owner: `human-final`
+- council strategy: `layered-domain-councils`
+- default primary council size: `3`
+- delegation mode: `parallel-when-allowed`
+- max parallel lenses: `6`
+- scoring mode: `six-dimension-supporting-score`
+- artifact mode: `session-only`
+- recommendation strength: `tentative`
+- closure mode: `open-unless-converged`
 
-## Scope Classification
+## Bundled Resources
 
-Classify first, then discuss:
-
-- `frontend`: UI flow, interaction, rendering, client contract usage.
-- `backend`: domain rules, data consistency, service/API behavior.
-- `system`: cross-layer changes or uncertain boundary.
-- `auto`: infer from input; if unclear, mark uncertainty and ask only blocking
-  questions.
-
-## Domain Master Councils
-
-### Frontend Council (3 Masters)
-- Alan Cooper (Interaction): user flow, state clarity, UX regressions.
-- Brad Frost (UI Architecture): component/system boundaries, consistency, reuse.
-- Addy Osmani (Frontend Quality): testability, web performance, maintainability.
-
-### Backend Council (3 Masters)
-- Eric Evans (Domain): business rule correctness and ownership boundaries.
-- Martin Kleppmann (Reliability): consistency, retries/idempotency/order/failure behavior.
-- Martin Fowler (Contract): API/event compatibility and integration blast radius.
-
-### Infra/SRE Council (3 Masters)
-- Jez Humble (Release): rollout strategy, rollback feasibility, operational safety.
-- Charity Majors (Observability): logs/metrics/traces and alertability coverage.
-- Brendan Gregg (Runtime): capacity, latency budget, cost-risk tradeoffs.
-
-### Cross-Domain Add-ons (As Needed)
-- Marty Cagan (Product): user value and scope discipline.
-- Ralph Kimball (Data): schema/lineage/backfill/deletion risks.
-- Bruce Schneier (Security): auth/permission/privacy/threat impact.
-
-## Master Usage Rule
-
-- Use these masters as fixed evaluation lenses, not persona role-play.
-- Keep output professional and technical; no style imitation.
-- If a master lens conflicts with project constraints, keep the dissent and let
-  human decide.
-
-## Multi-Agent Parallel Protocol
-
-- Spawn one sub-agent per selected master lens.
-- Run selected master agents in parallel; do not serialize by default.
-- Each sub-agent returns exactly:
-  - `working_view` (current leaning, not a final vote)
-  - `reasoning_path` (how this lens interprets the proposal)
-  - `key_risks` (top 3)
-  - `promising_angles` (top 1-3)
-  - `required_conditions` (must-have preconditions)
-  - `assumptions_or_unknowns` (what this lens cannot safely infer)
-  - `control_map_flags` (`Human-Owned|AI-Assist|AI-Auto`)
-- Aggregate with a synthesis step:
-  - shared ground
-  - disagreement clusters
-  - unresolved conflicts
-  - unknowns that block confidence
-- Do not force a `GO/BLOCK` label unless the evidence naturally converges or the
-  user explicitly asks for a decision.
-
-## Workflow (Single Wave, Discussion-First)
-
-1. Parse inputs and classify scope (`frontend|backend|system`).
-2. Define `Wave Goal` and explicit non-goals for this round.
-3. Select the primary domain council and spawn one sub-agent per master.
-4. Trigger cross-domain add-on master agents only when risk or coupling requires them.
-5. Run all selected agents in parallel and collect structured outputs.
-6. Build `Discussion Map`:
-   - shared observations
-   - disagreement clusters
-   - untested assumptions
-   - decision-shaping tensions
-7. Build `Conflict Matrix` from non-trivial disagreements.
-8. Score fixed six dimensions as support material, not as the final answer.
-9. Draft `Option Shapes`:
-   - strongest case for proceeding
-   - strongest case against or delaying
-   - conditional middle path
-10. State a `Tentative Lean` only if the wave naturally converges; otherwise
-    explicitly say that discussion remains open.
-11. List mandatory human decision points and unresolved questions.
-12. List minimal next-wave input checklist.
-13. Apply closure gate.
-
-## Fixed Six-Dimension Score
-
-Score each dimension `1-5`:
-
-- User Value
-- Implementation Complexity
-- Risk
-- Observability
-- Rollback Readiness
-- Delivery Cost
-
-## Closure Gate (All Required)
-
-This wave is closed only when:
-
-1. Core conflicts are identified.
-2. Key assumptions and unknowns are explicit.
-3. Next-wave input checklist is concrete.
-
-Direction selection is optional. If the wave does not naturally converge, close
-with an open discussion state rather than a forced verdict.
-
-## Control Map (Required)
-
-For each key decision, mark one:
-- `Human-Owned`: human decides and approves.
-- `AI-Assist`: AI drafts, human approves.
-- `AI-Auto`: AI proposes directly, human spot-checks.
-
-Always default to `Human-Owned` when discussion touches:
-- security/auth/permission
-- data model/migration/backfill/deletion
-- public contract/API/event schema
-- reliability guarantees (idempotency/retry/order)
+- `references/council-lenses.md`
+- `references/wave-synthesis.md`
 
 ## Output Format
 
-```
+```text
 ## Wave Goal
-- ...
-
 ## Scope Classification
-- ...
-
 ## Agent Execution
-- mode: parallel
-- selected_councils:
-- spawned_agents:
-- completed_agents:
-
-## Domain Master Deliberation
-- primary_council:
-- master_views: (must include named masters, reasoning paths, and unknowns)
-- dissent_notes:
-
-## Cross-Domain Review (When Triggered)
-- ...
-
+## Council Deliberation
 ## Discussion Map
-- shared_ground:
-- disagreement_clusters:
-- assumptions_and_unknowns:
-- decision_shaping_tensions:
-- confidence_notes:
-
 ## Option Shapes
-- strongest_case_for_progress:
-- strongest_case_for_delay_or_rejection:
-- conditional_middle_path:
-- what_would_change_the_discussion:
-
-## Tentative Lean (Optional)
-- current_lean:
-- why_this_is_only_tentative:
-- what_is_still_missing:
-
-## Council Consensus (If Real Convergence Exists)
-- ...
-- unresolved_conflicts:
-- decision: optional, only if clearly justified by discussion
-
-## Conflict Matrix
-- ...
-
-## Six-Dimension Score
-- user_value:
-- implementation_complexity:
-- risk:
-- observability:
-- rollback_readiness:
-- delivery_cost:
-
-## Recommendation
-- optional:
-- rationale_if_present:
-
+## Tentative Lean
 ## Human Decision Needed
-- ...
-
 ## Next-Wave Inputs
-- ...
 ```
 
 ## Guardrails
 
-- Keep output to one wave; do not output full roadmap by default.
-- Do not force all councils when scope is local.
-- Do not allow a single master view to become the final decision.
-- Do not skip dissent capture when agents disagree.
-- Do not collapse reasoning into a verdict if the discussion is still genuinely open.
-- Do not fake convergence; unresolved tension is a valid result.
-- Do not hide assumptions or unknowns to make the output sound decisive.
-- Do not provide implementation/migration steps unless explicitly requested.
-- Do not fabricate unknown facts; mark unknowns directly.
-- Keep discussion concise, evidence-aware, and discussion-oriented.
+- Keep the output to one review wave by default.
+- Do not force all councils when the proposal scope is narrow.
+- Do not let one review lens become the final decision by itself.
+- Do not suppress dissent, unknowns, or unresolved tension just to sound
+  decisive.
+- Do not output implementation, migration, or rollout steps unless the user
+  explicitly asks for them.
+- Do not fabricate facts, constraints, or convergence.
+- Do not hide when parallel delegation was unavailable; disclose the fallback.
+- Default high-risk decisions around security, data, public contracts, and
+  reliability guarantees to `Human-Owned`.
+
+## Verification Hooks
+
+- Verify the wave goal and non-goals are explicit before review starts.
+- Verify scope classification and council selection rationale are visible.
+- Verify every selected lens returns reasoning, risks, promising angles,
+  required conditions, unknowns, and control ownership signals.
+- Verify shared ground and disagreement clusters are separated instead of
+  blended together.
+- Verify the tentative lean is omitted or clearly labeled when convergence is
+  weak.
+- Verify the output ends with human decision points and next-wave inputs.

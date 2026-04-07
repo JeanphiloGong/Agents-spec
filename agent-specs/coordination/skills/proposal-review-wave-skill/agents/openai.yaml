@@ -1,0 +1,4 @@
+interface:
+  display_name: "Proposal Review Wave"
+  short_description: "v0.1.5 - Run one proposal review wave before implementation"
+  default_prompt: "Use $proposal-review-wave-skill to run one discussion-first review wave for this feature idea and surface tradeoffs, dissent, and next questions before implementation."
