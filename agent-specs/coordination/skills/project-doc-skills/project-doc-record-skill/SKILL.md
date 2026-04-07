@@ -1,6 +1,6 @@
 ---
 name: project-doc-record-skill
-description: v0.1.0 - Record a concrete agreed project plan into repository documentation by following the project’s current documentation rules; use when a feature, module, frontend, or backend proposal has been discussed and now needs a formal RFC, ADR, architecture, or spec document.
+description: v0.1.1 - Record a concrete agreed project plan into repository documentation by following the project’s current documentation rules and choosing between root docs and module docs; use when a feature, module, frontend, or backend proposal has been discussed and now needs a formal RFC, ADR, architecture, or spec document.
 ---
 
 # Project Documentation Record Skill
@@ -30,8 +30,9 @@ Out of scope:
 ## Workflow
 
 1. Inspect current repository doc rules first.
-   - Look for `docs/`, existing RFC, ADR, architecture, and spec files, front
-     matter patterns, naming rules, and indexing conventions.
+   - Look for root `docs/`, module-local `*/docs/`, existing RFC, ADR,
+     architecture, and spec files, front matter patterns, naming rules, and
+     indexing conventions.
    - If the project has no clear rules, fall back to a light default structure
      and note that `project-doc-governance-skill` should be used later to
      formalize the system.
@@ -49,6 +50,9 @@ Out of scope:
    - Create a new file when reusing would blur scope, ownership, or lifecycle.
 5. Choose the target path.
    - Follow the repo’s current folder conventions when they are coherent.
+   - Decide whether the content belongs in:
+     - root `docs/` for project-level or cross-module source-of-truth docs
+     - module-local `*/docs/` for implementation and local operating notes
    - Otherwise place the doc in a minimal default path that matches the chosen
      type and scope.
 6. Build front matter.
@@ -80,6 +84,8 @@ Out of scope:
 - Default levels: `system`, `domain`, `module`, `component`
 - Default front matter baseline: `id`, `title`, `type`, `level`, `domain`,
   `status`, `owner`, `created_at`, `updated_at`
+- Default placement strategy: root `docs/` for decisions and shared contracts;
+  module-local `*/docs/` for local implementation guidance
 - Default create/update rule: update only when scope clearly matches; otherwise
   create a new file
 - Default status choice:
@@ -117,6 +123,10 @@ Out of scope:
 - Do not put durable design or contract knowledge only in issues or chat logs.
 - Do not force new files when an existing authoritative document should be
   updated instead.
+- Do not place project-level RFC, ADR, or cross-module spec records into
+  module-local `*/docs/`.
+- Do not place module-only implementation notes into root `docs/` unless they
+  are intentionally being promoted to project-level visibility.
 - Do not update an existing doc if it would mix unrelated scopes or ownership.
 - Do not use front matter fields that the repo cannot realistically maintain.
 - Do not turn a formal doc into a task checklist or sprint log.
@@ -127,6 +137,8 @@ Out of scope:
 - Verify that the chosen doc type matches the content’s primary job.
 - Verify that the chosen level is the smallest level that still fits.
 - Verify that the selected path follows repo conventions or a clear default.
+- Verify that the selected docs root matches the document scope and
+  source-of-truth role.
 - Verify that the create-vs-update decision preserves source-of-truth clarity.
 - Verify that front matter is coherent and not over-specified.
 - Verify that the resulting document can be found and understood without the

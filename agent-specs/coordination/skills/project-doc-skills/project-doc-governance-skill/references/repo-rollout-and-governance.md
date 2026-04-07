@@ -32,6 +32,45 @@ docs/
 If a repo is small, collapse categories conservatively rather than creating
 empty folders.
 
+## Hybrid Multi-Docs-Root Strategy
+
+When a repository contains both a root `docs/` and module-local `*/docs/`,
+prefer a hybrid model instead of forcing everything into one location.
+
+### Root `docs/`
+
+Use root `docs/` for project-level and cross-module source-of-truth documents:
+
+- RFCs and ADRs
+- project policy and governance docs
+- cross-module architecture docs
+- stable shared specs and contracts
+- top-level index pages
+
+### Module-Local `*/docs/`
+
+Use module-local docs such as `app/docs/` or `frontend/docs/` for content that
+is owned and consumed mainly inside that module:
+
+- implementation notes
+- local architecture details
+- developer guides
+- local runbooks
+- component or submodule docs
+
+### Decision Rule
+
+- affects project direction or multiple modules => root `docs/`
+- formal project decision or shared contract => root `docs/`
+- only explains one module's implementation => module-local `*/docs/`
+- local operational or development guidance => module-local `*/docs/`
+
+### Promotion Rule
+
+If a module-local document becomes shared across multiple modules or turns into
+the authoritative project decision or contract, promote it to root `docs/` and
+leave a link or pointer in the old module-local location if needed.
+
 ## Domain Subfolders
 
 Add domain subfolders only when they improve retrieval:
@@ -48,6 +87,8 @@ Example:
 docs/10-rfcs/backend/knowledge-graph/graph-plan-v2.md
 docs/30-architecture/frontend/design-system/navigation.md
 docs/40-specs/shared/context-retrieve-contract.md
+frontend/docs/search-page-implementation-notes.md
+app/docs/worker-retry-runbook.md
 ```
 
 ## Naming Rules
@@ -80,14 +121,15 @@ Examples:
 
 1. Inspect current docs first.
 2. Define the project-local governance model.
-3. Apply the rules to all new important docs:
+3. Define the root-vs-module placement rule before adding new documents.
+4. Apply the rules to all new important docs:
    - open RFCs
    - active architecture docs
    - active specs
    - current runbooks
-4. Upgrade touched high-value docs during normal work.
-5. Archive or review unclear legacy docs incrementally.
-6. Add automation only after the metadata contract stabilizes.
+5. Upgrade touched high-value docs during normal work.
+6. Archive or review unclear legacy docs incrementally.
+7. Add automation only after the metadata contract stabilizes.
 
 ## Migration Rule
 
@@ -96,6 +138,8 @@ Do not rewrite every old document at once. Migrate incrementally:
 - new important docs must follow the governance model
 - touched high-value docs should be upgraded when edited
 - stale legacy docs should be archived or reviewed explicitly
+- module-local docs that have become cross-module source-of-truth docs should
+  be promoted to root `docs/`
 
 ## Governance Rule
 
