@@ -12,6 +12,8 @@ should be recorded into project documentation.
 ## Current Repo Convention
 - The repo has formal design docs under `docs/10-rfcs/` and architecture docs
   under `docs/30-architecture/`.
+- The repo also uses module-local docs such as `frontend/docs/` for
+  implementation notes and local operating docs.
 - Existing formal docs use YAML front matter with `id`, `title`, `type`,
   `level`, `domain`, `status`, `owner`, `created_at`, and `updated_at`.
 

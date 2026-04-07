@@ -28,6 +28,16 @@ This package contains two related Codex skills for project documentation work.
 3. If the repository already has stable doc rules, most day-to-day work should
    go directly through `project-doc-record-skill`.
 
+## Placement Model
+
+- Use root `docs/` for project-level decisions and formal source-of-truth
+  documents such as RFCs, ADRs, cross-module architecture docs, and shared
+  specs.
+- Use module-local docs such as `app/docs/` or `frontend/docs/` for local
+  implementation notes, local guides, and module-owned runbooks.
+- If a module-local doc becomes shared across modules, promote it to root
+  `docs/` and keep a pointer locally if needed.
+
 ## Example Prompts
 
 ### Governance

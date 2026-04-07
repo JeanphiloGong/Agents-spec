@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Doc Governance"
-  short_description: "v0.2.0 - Inspect or design a project-specific documentation governance model"
-  default_prompt: "Use $project-doc-governance-skill to inspect this repository's current documentation rules and design or update a project-specific documentation governance model with taxonomy, front matter, lifecycle, and placement rules."
+  short_description: "v0.2.1 - Inspect or design a project-specific documentation governance model"
+  default_prompt: "Use $project-doc-governance-skill to inspect this repository's current documentation rules and design or update a project-specific documentation governance model with taxonomy, front matter, lifecycle, and root-vs-module docs placement rules."

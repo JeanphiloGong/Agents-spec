@@ -72,7 +72,7 @@ project-level documentation governance proposal.
   for the same contract surface.
 
 ## Storage and Ownership
-- Default layout:
+- Root `docs/` holds project-level and cross-module source-of-truth docs:
   - `docs/10-rfcs/`
   - `docs/20-adrs/`
   - `docs/30-architecture/`
@@ -80,6 +80,8 @@ project-level documentation governance proposal.
   - `docs/50-guides/`
   - `docs/60-runbooks/`
   - `docs/70-postmortems/`
+- Module-local docs such as `frontend/docs/` or `app/docs/` hold local
+  implementation notes and module-owned operating docs.
 - Add domain subfolders only where retrieval improves.
 - Every formal doc must have a named owner.
 

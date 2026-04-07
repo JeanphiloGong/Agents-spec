@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Doc Record"
-  short_description: "v0.1.0 - Record a concrete agreed plan into the correct project documentation file"
-  default_prompt: "Use $project-doc-record-skill to inspect this repository's current documentation rules and record the agreed plan into the correct RFC, ADR, architecture, or spec document."
+  short_description: "v0.1.1 - Record a concrete agreed plan into the correct project documentation file"
+  default_prompt: "Use $project-doc-record-skill to inspect this repository's current documentation rules and record the agreed plan into the correct root or module-local RFC, ADR, architecture, or spec document."
