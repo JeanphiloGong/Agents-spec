@@ -1,0 +1,4 @@
+interface:
+  display_name: "Human-Core Feature Wave"
+  short_description: "v0.1.19 - Land one human-led feature wave on main"
+  default_prompt: "Use $human-core-feature-wave-skill to plan and land one smallest useful feature wave on `main`, keep `Human-Owned` core logic under explicit human control, and define verification plus `commit_when` checkpoints."

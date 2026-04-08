@@ -2,9 +2,11 @@
 
 ## Why This Example Matters
 
-This example demonstrates the teaching style the skill should prefer when the user asks "how do I implement this?" rather than "write it for me."
+This example demonstrates the teaching style the skill should prefer when the
+user asks "how do I implement this?" rather than "write it for me."
 
-The goal is not to jump to a memorized template. The goal is to make each structure feel necessary from the requirements.
+The goal is not to jump to a memorized template. The goal is to make each
+structure feel necessary from the requirements.
 
 ## Starting Point
 
@@ -25,9 +27,11 @@ Hard constraint:
    - `O(1)` lookup by key implies a hash map.
    - `O(1)` recency updates and tail eviction imply a doubly linked list.
 3. Derive the representation.
-   - The map cannot store only values, because `get` must move the entry in the recency structure.
+   - The map cannot store only values, because `get` must move the entry in
+     the recency structure.
    - Therefore the map should store nodes: `key -> node`.
-   - The node should store both `key` and `value`, because eviction starts from the list node and still must delete the map entry by key.
+   - The node should store both `key` and `value`, because eviction starts
+     from the list node and still must delete the map entry by key.
 4. Sketch the public surface before helpers.
    - public methods: `get`, `put`
    - helper contracts:
@@ -44,7 +48,9 @@ Hard constraint:
    - implement `put`
 6. Walk a concrete why-question.
    - "Why does the map store nodes instead of values?"
-   - Answer: because `get(key)` must both read the value and move the existing entry to the front in `O(1)`. A plain value is not enough to mutate the list without another lookup.
+   - Answer: because `get(key)` must both read the value and move the existing
+     entry to the front in `O(1)`. A plain value is not enough to mutate the
+     list without another lookup.
 
 ## Success Signals
 
@@ -61,4 +67,5 @@ This example is working well if the learner can answer all of these:
 - It separated public contract from helper mechanics.
 - It made side effects explicit.
 - It answered "why this structure?" before "how do I code it?"
-- It ended with a next-step implementation order the learner could execute alone.
+- It ended with a next-step implementation order the learner could execute
+  alone.
