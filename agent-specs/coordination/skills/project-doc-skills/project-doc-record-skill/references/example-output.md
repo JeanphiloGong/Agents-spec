@@ -14,8 +14,8 @@ should be recorded into project documentation.
   under `docs/30-architecture/`.
 - The repo also uses module-local docs such as `frontend/docs/` for
   implementation notes and local operating docs.
-- Existing formal docs use YAML front matter with `id`, `title`, `type`,
-  `level`, `domain`, `status`, `owner`, `created_at`, and `updated_at`.
+- If no heavier repo convention is enforced, formal docs default to no front
+  matter.
 
 ## Selected Document Type and Level
 - type: `rfc`
@@ -31,13 +31,9 @@ should be recorded into project documentation.
   architecture
 
 ## Front Matter Plan
-- `id: RFC-2026-018`
-- `title: Graph Plan V2`
-- `type: rfc`
-- `level: module`
-- `domain: backend`
-- `status: draft`
-- `owner: backend-team`
+- none
+- reason: the repo does not have an active metadata consumer for this class of
+  document
 
 ## Body Structure
 - Context
@@ -84,10 +80,9 @@ should be recorded into project documentation.
   boundary and flow explanation
 
 ## Front Matter Plan
-- `title: Ingest Overview`
-- `type: architecture`
-- `level: system`
-- `status: active`
+- none
+- reason: the page is primarily for direct human and AI reading, and the repo
+  does not require a metadata header here
 
 ## Body Structure
 - System Boundary

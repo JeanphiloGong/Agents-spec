@@ -1,6 +1,6 @@
 ---
 name: project-doc-record-skill
-description: v0.3.2 - Record one concrete documentation artifact by classifying lifecycle role, locating system placement, choosing the primary file, using a role-appropriate body structure, and landing the right local updates with a minimal reader-facing document shell.
+description: v0.3.4 - Record one concrete documentation artifact by classifying lifecycle role, locating system placement, choosing the primary file, using a role-appropriate body structure, and adding metadata only when the repository actually consumes it.
 ---
 
 # Project Documentation Record Skill
@@ -19,8 +19,8 @@ In scope:
   companion updates
 - choosing the target path and whether to create or update a file
 - generating front matter that matches the project's current conventions
-- keeping reader-facing metadata and cross-links lightweight unless the repo
-  explicitly needs a heavier shell
+- keeping reader-facing metadata and cross-links absent or lightweight unless
+  the repo actually consumes them
 - writing the document body in a clean, role-appropriate structure
 - linking the new or updated doc back to the relevant issue, current-state,
   proposal, decision, contract, guide, or runbook context
@@ -137,9 +137,15 @@ recording wave also needs immediate companion updates.
      in it.
    - Create a new file when reusing would blur scope, ownership, or lifecycle.
 7. Build front matter.
-   - Reuse the project's metadata pattern when one exists.
-   - Otherwise prefer a minimal front matter set that supports retrieval and
-     ownership without pushing reader-facing clutter into the file header.
+   - Reuse the project's metadata pattern when one exists and is actively used.
+   - Otherwise default to no front matter at all.
+   - Add metadata only when repository governance, retrieval, ownership,
+     rendering, or cross-document reference needs clearly justify it.
+   - If metadata is needed but no heavier convention exists, prefer a minimal
+     set such as:
+     - `type`
+     - `status`
+     - `updated_at`
 8. Build the body structure.
    - Choose a role-appropriate section structure before writing.
    - For `current-state` and overview-style architecture pages, prefer direct
@@ -185,8 +191,13 @@ recording wave also needs immediate companion updates.
 - Default active type set: `rfc`, `architecture`, `guide`, `policy`
 - Default reserved type set: `adr`, `spec`, `runbook`, `postmortem`
 - Default levels: `system`, `domain`, `module`, `component`
-- Default front matter baseline: `title`, `type`, `status`; add `owner` and
-  `updated_at` when they materially improve retrieval or maintenance
+- Default front matter baseline: none
+- Minimal metadata fallback when a header is actually needed: `type`, `status`,
+  `updated_at`
+- Additional front matter fields such as `title`, `owner`, `id`,
+  `created_at`, `level`, and `domain` are opt-in and should be added only when
+  governance, retrieval, rendering, or cross-document reference needs clearly
+  justify them
 - Default placement strategy: root `docs/` for project-level decisions and
   shared contracts; module-local `*/docs/` for local implementation guidance
 - Default create or update rule: update only when scope clearly matches;
@@ -206,6 +217,8 @@ recording wave also needs immediate companion updates.
   direct system content, not self-referential `Purpose` disclaimers
 - Reader-facing shell rule: keep metadata and cross-links short at the top;
   prefer footer placement for extended lineage
+- Metadata consumption rule: if no human workflow or machine workflow actually
+  consumes a metadata field, do not add it
 - Related-docs rule: use `Related Docs` as the default footer label; reserve
   full `Doc Lineage` for complex multi-document relationships
 - Default status choice:
@@ -246,6 +259,7 @@ recording wave also needs immediate companion updates.
 
 ## Create or Update Decision
 ## Front Matter Plan
+  - `none` is valid and preferred when the repo does not actually consume metadata
 ## Body Structure Plan
 ## Footer Context Plan
 ## Index Update Plan
@@ -271,8 +285,13 @@ recording wave also needs immediate companion updates.
 - Do not leave lineage implicit in chat history alone.
 - Do not use front matter fields that the repo cannot realistically maintain.
 - Do not turn a formal doc into a task checklist or sprint log.
+- Do not add front matter only because the file is formal markdown.
+- Do not duplicate the H1 title in front matter unless the repository or a
+  toolchain actually consumes `title`.
 - Do not let front matter grow into a repo-local schema dump when a minimal
   header would be sufficient.
+- Do not add `owner`, `id`, `created_at`, `level`, or `domain` by default when
+  the repository does not clearly need them.
 - Do not place long lineage or navigation scaffolding before the real content
   unless the repository already requires that layout.
 - Do not let current-state or overview docs open with self-referential
@@ -294,7 +313,10 @@ recording wave also needs immediate companion updates.
 - Verify that the selected path follows repo conventions or a clear default.
 - Verify that the selected docs root matches the document scope and
   source-of-truth role.
-- Verify that front matter is coherent and not over-specified.
+- Verify that front matter is absent unless the repo really consumes it, or
+  coherent and not over-specified when present.
+- Verify that the starting assumption for all formal docs is no front matter
+  unless metadata has a real consumer.
 - Verify that the body structure matches lifecycle role instead of falling back
   to generic formal-doc scaffolding.
 - Verify that current-state and overview docs start with real system content.

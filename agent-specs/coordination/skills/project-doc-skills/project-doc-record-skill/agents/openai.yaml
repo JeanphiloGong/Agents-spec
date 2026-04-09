@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Doc Record"
-  short_description: "v0.3.2 - Record one doc wave with a minimal reader-facing shell"
-  default_prompt: "Use $project-doc-record-skill to inspect this repository's current documentation rules, locate this one change in the system, choose the right documentation artifact, use a lifecycle-role-appropriate body structure, keep the reader-facing shell minimal, and land the immediate local updates for this recording wave."
+  short_description: "v0.3.4 - Record one doc wave with metadata only when consumed"
+  default_prompt: "Use $project-doc-record-skill to inspect this repository's current documentation rules, locate this one change in the system, choose the right documentation artifact, use a lifecycle-role-appropriate body structure, and default to no front matter unless the repository clearly consumes metadata."
