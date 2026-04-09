@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Doc Lifecycle"
+  short_description: "v0.1.0 - Manage RFC promotion and doc evolution"
+  default_prompt: "Use $project-doc-lifecycle-skill to inspect one proposal or doc cluster, decide its lifecycle progression, and determine the needed current-state, ADR, contract, guide, runbook, or archive actions before handing concrete doc writing to $project-doc-record-skill."

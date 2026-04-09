@@ -1,4 +1,0 @@
-interface:
-  display_name: "Project Doc Governance"
-  short_description: "v0.3.0 - Redesign project docs IA with promotion rules"
-  default_prompt: "Use $project-doc-governance-skill to inspect this repository's actual documentation usage and redesign its reader-first documentation information architecture with active-vs-reserved doc types, current-state/manual ownership, promotion rules, lineage rules, and navigation guidance."
