@@ -1,6 +1,6 @@
 ---
 name: project-doc-architecture-skill
-description: v0.1.0 - Design or refactor one repository's documentation information architecture, including reader-first entry points, active-vs-reserved doc types, current-state/manual ownership, and bootstrap plans when a codebase lacks a usable system overview.
+description: v0.1.1 - Design or refactor one repository's documentation information architecture, including reader-first entry points, active-vs-reserved doc types, current-state/manual ownership, and overview coverage plans; concrete file creation belongs to project-doc-record-skill.
 ---
 
 # Project Documentation Architecture Skill
@@ -29,6 +29,8 @@ Out of scope:
 - reconciling stale, superseded, or archived docs across an existing document
   family
 - replacing concrete doc-writing work for one change
+- creating or rewriting the concrete repository doc files that implement the
+  architecture plan
 
 Use this skill when prompts sound like:
 - "this repo needs a better docs structure"
@@ -47,6 +49,10 @@ This skill exists to help you:
 - choose which doc types are active and which stay reserved
 - assign current-state or manual ownership
 - define index and navigation rules that stay maintainable
+
+This skill produces architecture guidance, overview coverage plans, and
+rollout guidance. When the result must become concrete files or updated docs
+pages, hand that work to `project-doc-record-skill`.
 
 ## Mode Selection
 
@@ -112,6 +118,8 @@ This skill exists to help you:
 9. Produce the architecture proposal.
    - Return the reader entry model, overview coverage plan, active types,
      current-state ownership, and index rules.
+   - If useful, include a suggested file list or section list for handoff, but
+     do not create the concrete docs files in this skill.
 10. Provide rollout guidance.
    - Explain how the repo can adopt the structure incrementally without
      rewriting the whole docs tree at once.
@@ -168,6 +176,7 @@ This skill exists to help you:
 ## Current-State Ownership
 ## Navigation and Index Rules
 ## Metadata and Storage Baseline
+## Suggested File or Section Handoff
 ## Rollout Plan
 ## Open Questions
 ```
@@ -181,6 +190,8 @@ This skill exists to help you:
   everything underneath it.
 - Do not use this skill to write a concrete feature proposal or perform
   lifecycle promotion decisions for one document family.
+- Do not silently switch into concrete file creation; hand concrete doc-writing
+  work to `project-doc-record-skill`.
 
 ## Verification Hooks
 
