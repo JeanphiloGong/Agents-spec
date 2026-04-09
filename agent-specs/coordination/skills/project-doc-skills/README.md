@@ -1,59 +1,79 @@
 # Project Doc Skills
 
 This package contains two related Codex skills for project documentation work.
+Together they are meant to prevent proposal-only documentation and make project
+docs easier to read from the top down.
 
 ## Skills
 
 ### `project-doc-governance-skill`
-- Purpose: inspect or design the documentation governance model for one
-  repository.
+- Purpose: inspect or redesign a repository's documentation information
+  architecture.
 - Use when:
-  - the project has no clear doc organization rules
-  - RFC, ADR, architecture, and spec docs are drifting
-  - you need to define front matter, lifecycle, placement, and ownership rules
+  - the docs feel siloed
+  - RFCs are overloaded and other types are barely used
+  - there is no clear current-state or manual entrypoint
+  - you need active-vs-reserved doc types, promotion rules, lineage rules, or
+    navigation guidance
 
 ### `project-doc-record-skill`
-- Purpose: record one concrete agreed plan into the correct repository document.
+- Purpose: record or promote one concrete documentation artifact with the right
+  companion updates.
 - Use when:
-  - a feature or module plan has already been discussed
-  - you need to decide whether it should be an RFC, ADR, architecture, or spec
-  - you need to choose the path and create or update the file
+  - a feature, module, or system change needs to become durable documentation
+  - an RFC has been implemented and may need current-state, ADR, contract,
+    guide, or runbook follow-up
+  - you need to choose whether this should stay single-doc or update multiple
+    related docs
 
 ## Recommended Workflow
 
-1. Use `project-doc-governance-skill` first when the repository does not have a
-   coherent documentation system.
-2. Use `project-doc-record-skill` after a specific plan is agreed and ready to
-   become a durable document.
-3. If the repository already has stable doc rules, most day-to-day work should
+1. Use `project-doc-governance-skill` first when the repository lacks a clear
+   reader-first documentation system.
+2. Use `project-doc-record-skill` to record a proposal, current-state update,
+   contract, guide, or operational doc under those rules.
+3. Use `project-doc-record-skill` in `promote-rfc` style work whenever an
+   implemented RFC must be projected back into current-state and other related
+   docs.
+4. If the repository already has coherent governance, most day-to-day work can
    go directly through `project-doc-record-skill`.
 
-## Placement Model
+## Package Roles
 
-- Use root `docs/` for project-level decisions and formal source-of-truth
-  documents such as RFCs, ADRs, cross-module architecture docs, and shared
-  specs.
-- Use module-local docs such as `app/docs/` or `frontend/docs/` for local
-  implementation notes, local guides, and module-owned runbooks.
-- If a module-local doc becomes shared across modules, promote it to root
-  `docs/` and keep a pointer locally if needed.
+- `project-doc-governance-skill`
+  - defines reader entry model
+  - defines active and reserved doc types
+  - assigns current-state or manual ownership
+  - defines promotion and lineage rules
+- `project-doc-record-skill`
+  - locates one change in the system
+  - chooses the lifecycle role and primary artifact
+  - decides whether companion docs must update
+  - records or promotes the resulting docs
 
 ## Example Prompts
 
 ### Governance
 
 ```text
-Use $project-doc-governance-skill to inspect this repository's current
-documentation rules and propose a project-specific documentation governance
-model for RFC, ADR, architecture, and spec docs.
+Use $project-doc-governance-skill to inspect this repository's actual docs
+usage and redesign its documentation information architecture because RFCs are
+overloaded and the docs feel siloed.
 ```
 
 ### Record
 
 ```text
-Use $project-doc-record-skill to inspect this repository's current
-documentation rules and record the agreed Graph Plan V2 design into the
-correct project document.
+Use $project-doc-record-skill to inspect this repository's current doc rules,
+locate this feature change in the system, and record the right documentation
+artifact plus any required current-state or companion doc updates.
+```
+
+### Promote RFC
+
+```text
+Use $project-doc-record-skill to promote this implemented RFC into the right
+current-state, ADR, guide, and index updates for the repository.
 ```
 
 ## Package Layout

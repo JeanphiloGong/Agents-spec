@@ -1,145 +1,257 @@
 ---
 name: project-doc-record-skill
-description: v0.1.1 - Record a concrete agreed project plan into repository documentation by following the project’s current documentation rules and choosing between root docs and module docs; use when a feature, module, frontend, or backend proposal has been discussed and now needs a formal RFC, ADR, architecture, or spec document.
+description: v0.2.0 - Record or promote one concrete documentation artifact by classifying its lifecycle role, locating its system placement, choosing the primary file, and deciding required companion updates such as current-state, ADR, contract, guide, or runbook changes.
 ---
 
 # Project Documentation Record Skill
 
 ## Trigger and Scope
 
-Use this skill when a concrete plan has already been discussed and must now be
-recorded into the correct project documentation file.
+Use this skill when one concrete project change, plan, decision, current-state
+update, contract, guide, or operation record must be written into repository
+documentation.
 
 In scope:
-- inspecting the project’s existing documentation rules first
-- classifying the content as `rfc`, `adr`, `architecture`, `spec`, or another
-  formal doc type
-- deciding the right level: `system`, `domain`, `module`, or `component`
+- inspecting the project's current documentation rules first
+- locating the change in the system before choosing the document type
+- classifying lifecycle role before doc type
+- deciding whether the result is a single-document record or requires
+  companion updates
 - choosing the target path and whether to create or update a file
-- generating front matter that matches the project’s current conventions
+- generating front matter that matches the project's current conventions
 - writing the document body in a clean, decision-grade structure
-- linking the new or updated doc back to the relevant issue or context
+- linking the new or updated doc back to the relevant issue, current-state,
+  proposal, decision, contract, guide, or runbook context
 
 Out of scope:
-- designing the project’s entire documentation governance model from scratch
-- writing product copy, README prose, or informal notes
-- recording a plan before the content has enough agreement to stand as a
-  durable document
+- redesigning the repository's entire documentation governance model from
+  scratch
+- writing product copy, README prose, or informal notes with no durable
+  knowledge intent
+- recording a plan before the content has enough clarity to stand as a durable
+  document
 - migrating a whole docs tree in one pass
+
+Use this skill when prompts sound like:
+- "record this agreed design into docs"
+- "this RFC is now implemented; what else must be updated?"
+- "turn this change into the right current-state or ADR record"
+- "for this feature, which docs should exist besides the main proposal?"
+
+## Core Purpose
+
+Record one documentation artifact in the right place and decide whether that
+change must also update the system's higher-level documentation layers.
+
+This skill exists to help you:
+- place a change in the system before selecting a doc type
+- distinguish proposal, decision, current-state, contract, development, and
+  operational records
+- allow low-impact local changes to remain single-doc when that is sufficient
+- require companion updates when a change affects system understanding or
+  durable behavior
+- keep lineage and discoverability explicit instead of leaving them in chat
+  context
+
+## Mode Selection
+
+- `record-proposal`
+  - Use for proposed changes, design options, or rollout plans that are not yet
+    the repository's implemented current state.
+- `record-current-state`
+  - Use for how the system works now after implementation or clarification.
+- `promote-rfc`
+  - Use when an RFC or equivalent proposal has been accepted or implemented and
+    you must decide which current-state, ADR, contract, guide, or runbook docs
+    should now exist.
+- `extract-adr`
+  - Use when one durable decision should be pulled out from a broader proposal
+    or architecture discussion.
+- `record-contract`
+  - Use for stable, depended-on APIs, schemas, state models, or interface
+    boundaries.
+- `record-operation`
+  - Use for developer workflow, operator recovery, troubleshooting, rollback,
+    or runbook material.
+
+If the user does not specify a mode, infer it from lifecycle role and disclose
+the inference in the output.
+
+## System Placement Check (Required)
+
+Before choosing the primary document type, locate the change in the system.
+
+The output must answer:
+- which module or service owns the change
+- which higher-level capability or user-visible function it serves
+- which core flow or subsystem it affects
+- whether it changes proposal, decision, current-state, contract, development
+  flow, or operation
+- which current-state or manual page must be created or updated, if any
+
+This step decides whether a single document is enough or whether companion
+updates are required.
 
 ## Workflow
 
-1. Inspect current repository doc rules first.
-   - Look for root `docs/`, module-local `*/docs/`, existing RFC, ADR,
-     architecture, and spec files, front matter patterns, naming rules, and
-     indexing conventions.
+1. Inspect current repository doc rules and entry pages first.
+   - Look for root `docs/`, module-local `*/docs/`, entry pages, RFC, ADR,
+     architecture, guide, runbook, or spec files, front matter patterns,
+     naming rules, and indexing conventions.
    - If the project has no clear rules, fall back to a light default structure
      and note that `project-doc-governance-skill` should be used later to
      formalize the system.
-2. Clarify the recording target.
-   - Identify what is being recorded: proposal, decision, current
-     architecture, stable contract, or operational procedure.
-   - Confirm the scope level: `system`, `domain`, `module`, or `component`.
-3. Classify the document type.
-   - Use the project’s current categories first.
-   - If the repo lacks categories, default to `rfc`, `adr`, `architecture`,
-     `spec`, `guide`, `runbook`, `postmortem`, or `policy`.
-4. Decide whether to create or update.
+2. Run the `System Placement Check`.
+   - Locate the change in the system before selecting the primary artifact.
+3. Classify the lifecycle role first.
+   - Choose among:
+     - proposal
+     - decision
+     - current-state
+     - contract
+     - development guide
+     - operation
+4. Select the primary artifact.
+   - Choose the primary file type and level from lifecycle role, project rules,
+     and scope.
+5. Decide companion updates.
+   - Explicitly decide whether the change also requires:
+     - architecture or current-state updates
+     - ADR extraction
+     - contract or spec updates
+     - guide updates
+     - runbook updates
+     - root or section index updates
+   - Low-impact local changes may remain `single-doc only` if discoverability
+     and system understanding are not materially affected.
+6. Decide whether to create or update.
    - Reuse an existing authoritative doc when the new content clearly belongs
      in it.
    - Create a new file when reusing would blur scope, ownership, or lifecycle.
-5. Choose the target path.
-   - Follow the repo’s current folder conventions when they are coherent.
-   - Decide whether the content belongs in:
-     - root `docs/` for project-level or cross-module source-of-truth docs
-     - module-local `*/docs/` for implementation and local operating notes
-   - Otherwise place the doc in a minimal default path that matches the chosen
-     type and scope.
-6. Build front matter.
-   - Reuse the project’s metadata pattern when one exists.
+7. Build front matter.
+   - Reuse the project's metadata pattern when one exists.
    - Otherwise apply a small default front matter set with owner, status, and
      dates.
-7. Write the document body.
-   - Record the agreed content in a durable structure.
-   - Keep task tracking details in issues, not in the formal doc body.
-8. Link the record.
-   - Add relevant issue references, related docs, or replacement links when
-     appropriate.
-9. Verify fit.
-   - Confirm the document type, level, path, and status all match the content.
-   - Confirm the file can be found later by a developer who did not join the
+8. Build lineage.
+   - Add explicit links back to the relevant proposal, decision, current-state,
+     contract, guide, or runbook context.
+   - Prefer an explicit lineage block when the relationship would otherwise be
+     hard to discover.
+9. Update indexes or entry pages when required.
+   - Update the relevant current-state, section, or root entry pages when
+     discoverability changes.
+10. Verify fit.
+   - Confirm the lifecycle role, system placement, primary artifact, companion
+     updates, path, and status all match the content.
+   - Confirm the result can be found later by a developer who did not join the
      original discussion.
 
 ## Required Inputs
 
 - Project or repository name
-- The concrete plan, decision, or design content to record
+- The concrete plan, decision, implementation state, contract, guide, or
+  operation content to record
 - Any known related issue, task, or existing document
 
 ## Defaults
 
 - Inspection mode: inspect repo docs first, then adapt
-- Default type set: `rfc`, `adr`, `architecture`, `spec`, `guide`,
-  `runbook`, `postmortem`, `policy`
+- Decision order:
+  - system placement first
+  - lifecycle role second
+  - doc type third
+- Default active type set: `rfc`, `architecture`, `guide`, `policy`
+- Default reserved type set: `adr`, `spec`, `runbook`, `postmortem`
 - Default levels: `system`, `domain`, `module`, `component`
 - Default front matter baseline: `id`, `title`, `type`, `level`, `domain`,
   `status`, `owner`, `created_at`, `updated_at`
-- Default placement strategy: root `docs/` for decisions and shared contracts;
-  module-local `*/docs/` for local implementation guidance
-- Default create/update rule: update only when scope clearly matches; otherwise
-  create a new file
+- Default placement strategy: root `docs/` for project-level decisions and
+  shared contracts; module-local `*/docs/` for local implementation guidance
+- Default create or update rule: update only when scope clearly matches;
+  otherwise create a new file
+- Single-doc rule: low-impact local changes may remain a single document
+- Companion update rule: system-affecting changes must explicitly decide
+  companion updates
+- Implemented RFC rule: implemented RFCs require an explicit
+  current-state or manual decision
+- ADR rule: optional, not automatic
+- Contract rule: only when stability and downstream consumers justify it
+- Runbook rule: only when operator recovery or intervention matters
+- Index update rule: required when discoverability changes
 - Default status choice:
   - proposal => `draft`
   - accepted proposal => `accepted`
-  - current architecture/spec/runbook => `active`
+  - current architecture/spec/guide/runbook => `active`
 
 ## Bundled Resources
 
-- `references/doc-type-classification.md`
-- `references/path-selection-and-placement.md`
-- `references/frontmatter-template-rules.md`
+- `references/lifecycle-role-classification.md`
+- `references/system-placement-check.md`
+- `references/companion-update-rules.md`
+- `references/doc-lineage-block-template.md`
+- `references/index-update-rules.md`
+- `references/promote-rfc-example-output.md`
 - `references/create-vs-update-rules.md`
-- `references/example-output.md`
+- `references/doc-type-classification.md`
+- `references/frontmatter-template-rules.md`
+- `references/path-selection-and-placement.md`
 
 ## Output Format
 
 ```text
 ## Recording Goal
-## Current Repo Convention
-## Selected Document Type and Level
-## Target Path
+## System Placement
+- owning module/service:
+- serves capability:
+- affects core flow:
+- lifecycle role:
+
+## Primary Artifact
+## Companion Updates
+- current-state/manual:
+- adr:
+- contract/spec:
+- guide:
+- runbook:
+- indexes:
+
 ## Create or Update Decision
 ## Front Matter Plan
-## Body Structure
-## Related Links
+## Doc Lineage Plan
+## Index Update Plan
 ## Notes and Risks
 ```
 
 ## Guardrails
 
-- Do not record a plan before its scope and purpose are clear enough to
-  classify.
-- Do not invent a new project rule when the repo already has a coherent one.
-- Do not put durable design or contract knowledge only in issues or chat logs.
-- Do not force new files when an existing authoritative document should be
-  updated instead.
+- Do not record a feature-level or system-affecting change without locating it
+  in the system first.
+- Do not choose the primary document type before lifecycle role is explicit.
+- Do not record a system-affecting implemented change only as RFC.
+- Do not create ADR for every accepted RFC.
+- Do not create spec unless the boundary is stable and depended on.
 - Do not place project-level RFC, ADR, or cross-module spec records into
   module-local `*/docs/`.
 - Do not place module-only implementation notes into root `docs/` unless they
   are intentionally being promoted to project-level visibility.
-- Do not update an existing doc if it would mix unrelated scopes or ownership.
+- Do not finish without deciding whether current-state or manual pages must
+  update.
+- Do not leave lineage implicit in chat history alone.
 - Do not use front matter fields that the repo cannot realistically maintain.
 - Do not turn a formal doc into a task checklist or sprint log.
 
 ## Verification Hooks
 
-- Verify that the repo’s current documentation pattern was checked first.
-- Verify that the chosen doc type matches the content’s primary job.
+- Verify that the repo's current documentation pattern was checked first.
+- Verify that system placement is explicit before doc type is chosen.
+- Verify that the lifecycle role matches the content's primary job.
+- Verify that low-impact local changes are allowed to remain `single-doc only`
+  when appropriate.
+- Verify that system-affecting changes decide companion updates explicitly.
 - Verify that the chosen level is the smallest level that still fits.
 - Verify that the selected path follows repo conventions or a clear default.
 - Verify that the selected docs root matches the document scope and
   source-of-truth role.
-- Verify that the create-vs-update decision preserves source-of-truth clarity.
 - Verify that front matter is coherent and not over-specified.
-- Verify that the resulting document can be found and understood without the
-  original chat context.
+- Verify that lineage can be followed forward and backward without the original
+  chat context.
