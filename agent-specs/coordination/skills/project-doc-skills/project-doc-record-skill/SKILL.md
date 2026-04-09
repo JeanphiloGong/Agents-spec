@@ -1,6 +1,6 @@
 ---
 name: project-doc-record-skill
-description: v0.3.1 - Record one concrete documentation artifact by classifying lifecycle role, locating system placement, choosing the primary file, using a role-appropriate body structure, and landing the right local updates for that one documentation wave.
+description: v0.3.2 - Record one concrete documentation artifact by classifying lifecycle role, locating system placement, choosing the primary file, using a role-appropriate body structure, and landing the right local updates with a minimal reader-facing document shell.
 ---
 
 # Project Documentation Record Skill
@@ -19,6 +19,8 @@ In scope:
   companion updates
 - choosing the target path and whether to create or update a file
 - generating front matter that matches the project's current conventions
+- keeping reader-facing metadata and cross-links lightweight unless the repo
+  explicitly needs a heavier shell
 - writing the document body in a clean, role-appropriate structure
 - linking the new or updated doc back to the relevant issue, current-state,
   proposal, decision, contract, guide, or runbook context
@@ -136,8 +138,8 @@ recording wave also needs immediate companion updates.
    - Create a new file when reusing would blur scope, ownership, or lifecycle.
 7. Build front matter.
    - Reuse the project's metadata pattern when one exists.
-   - Otherwise apply a small default front matter set with owner, status, and
-     dates.
+   - Otherwise prefer a minimal front matter set that supports retrieval and
+     ownership without pushing reader-facing clutter into the file header.
 8. Build the body structure.
    - Choose a role-appropriate section structure before writing.
    - For `current-state` and overview-style architecture pages, prefer direct
@@ -153,8 +155,10 @@ recording wave also needs immediate companion updates.
 9. Build lineage.
    - Add explicit links back to the relevant proposal, decision, current-state,
      contract, guide, or runbook context.
-   - Prefer an explicit lineage block when the relationship would otherwise be
-     hard to discover.
+   - Prefer a lightweight footer section such as `Related Docs` for normal
+     cases.
+   - Use a full `Doc Lineage` block only when the relationships are complex
+     enough that a short footer would be ambiguous.
 10. Update indexes or entry pages when required.
    - Update the relevant current-state, section, or root entry pages when
      discoverability changes.
@@ -181,8 +185,8 @@ recording wave also needs immediate companion updates.
 - Default active type set: `rfc`, `architecture`, `guide`, `policy`
 - Default reserved type set: `adr`, `spec`, `runbook`, `postmortem`
 - Default levels: `system`, `domain`, `module`, `component`
-- Default front matter baseline: `id`, `title`, `type`, `level`, `domain`,
-  `status`, `owner`, `created_at`, `updated_at`
+- Default front matter baseline: `title`, `type`, `status`; add `owner` and
+  `updated_at` when they materially improve retrieval or maintenance
 - Default placement strategy: root `docs/` for project-level decisions and
   shared contracts; module-local `*/docs/` for local implementation guidance
 - Default create or update rule: update only when scope clearly matches;
@@ -200,6 +204,10 @@ recording wave also needs immediate companion updates.
   convention instead of falling back to generic formal-doc prose
 - Current-state rule: overview or architecture pages should usually start with
   direct system content, not self-referential `Purpose` disclaimers
+- Reader-facing shell rule: keep metadata and cross-links short at the top;
+  prefer footer placement for extended lineage
+- Related-docs rule: use `Related Docs` as the default footer label; reserve
+  full `Doc Lineage` for complex multi-document relationships
 - Default status choice:
   - proposal => `draft`
   - accepted proposal => `accepted`
@@ -239,7 +247,7 @@ recording wave also needs immediate companion updates.
 ## Create or Update Decision
 ## Front Matter Plan
 ## Body Structure Plan
-## Doc Lineage Plan
+## Footer Context Plan
 ## Index Update Plan
 ## Notes and Risks
 ```
@@ -263,6 +271,10 @@ recording wave also needs immediate companion updates.
 - Do not leave lineage implicit in chat history alone.
 - Do not use front matter fields that the repo cannot realistically maintain.
 - Do not turn a formal doc into a task checklist or sprint log.
+- Do not let front matter grow into a repo-local schema dump when a minimal
+  header would be sufficient.
+- Do not place long lineage or navigation scaffolding before the real content
+  unless the repository already requires that layout.
 - Do not let current-state or overview docs open with self-referential
   `Purpose` disclaimers unless the repository already uses that convention.
 - Do not let architecture/current-state docs read like RFCs with `Goals`,
@@ -286,5 +298,9 @@ recording wave also needs immediate companion updates.
 - Verify that the body structure matches lifecycle role instead of falling back
   to generic formal-doc scaffolding.
 - Verify that current-state and overview docs start with real system content.
+- Verify that the reader-facing header is lightweight and does not bury the
+  actual content.
+- Verify that long lineage information is moved to a footer or index page when
+  possible.
 - Verify that lineage can be followed forward and backward without the original
   chat context.

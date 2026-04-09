@@ -94,13 +94,15 @@ should be recorded into project documentation.
 - Major Modules and Responsibilities
 - Core Ingest Flow
 - External Interfaces
-- Related Docs
+- Related Docs (footer)
 
-## Related Links
+## Footer Context
 - related RFC: `docs/rfcs/document-ingest-service-layering.md`
 - related current-state index: `docs/architecture/README.md`
 
 ## Notes and Risks
 - Do not start with `Purpose` or `This document explains`; begin directly with
   the current system boundary and responsibilities.
+- Keep the header small; place extended cross-links at the end unless the repo
+  has a stronger current-state template.
 ```
