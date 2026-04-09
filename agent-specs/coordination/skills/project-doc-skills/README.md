@@ -15,6 +15,9 @@ and lifecycle progression instead of forcing all three jobs into one workflow.
   - there is no clear current-state or manual entrypoint
   - you need active-vs-reserved doc types, navigation rules, or overview
     bootstrapping
+- Output boundary:
+  - returns architecture guidance, overview coverage, and rollout suggestions
+  - concrete file creation or page updates belong to `project-doc-record-skill`
 
 ### `project-doc-record-skill`
 - Purpose: record or promote one concrete documentation artifact with the right
@@ -37,7 +40,9 @@ and lifecycle progression instead of forcing all three jobs into one workflow.
 
 1. Use `project-doc-architecture-skill` when the repository lacks a clear
    reader-first documentation system or a usable system overview.
-2. Use `project-doc-record-skill` for day-to-day document landing work:
+2. Use `project-doc-record-skill` to land the concrete files, pages, or index
+   updates implied by that architecture plan, and for day-to-day document
+   landing work:
    proposals, current-state pages, guides, contracts, and one-off decisions.
 3. Use `project-doc-lifecycle-skill` when a proposal or doc cluster needs
    promotion, reconciliation, or status progression.

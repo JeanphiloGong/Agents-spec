@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Doc Architecture"
-  short_description: "v0.1.0 - Design repo docs IA and bootstrap overview"
-  default_prompt: "Use $project-doc-architecture-skill to inspect this repository's docs and codebase, design a reader-first documentation information architecture, and bootstrap a system overview when the repo lacks a usable top-level overview."
+  short_description: "v0.1.1 - Design repo docs IA and overview plans; concrete files via record skill"
+  default_prompt: "Use $project-doc-architecture-skill to inspect this repository's docs and codebase, design a reader-first documentation information architecture, and bootstrap a system overview when the repo lacks a usable top-level overview. Return architecture guidance and overview coverage plans; hand concrete file creation to $project-doc-record-skill."
