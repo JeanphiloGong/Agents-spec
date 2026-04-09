@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Doc Record"
-  short_description: "v0.2.0 - Record or promote one doc with companion updates"
-  default_prompt: "Use $project-doc-record-skill to inspect this repository's current documentation rules, locate the change in the system, record or promote the right documentation artifact, and decide any required current-state, ADR, contract, guide, runbook, or index updates."
+  short_description: "v0.3.0 - Record one doc wave with local companion updates"
+  default_prompt: "Use $project-doc-record-skill to inspect this repository's current documentation rules, locate this one change in the system, choose the right documentation artifact, and land the immediate local updates for this recording wave."

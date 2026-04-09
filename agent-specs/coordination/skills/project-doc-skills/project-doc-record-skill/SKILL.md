@@ -1,6 +1,6 @@
 ---
 name: project-doc-record-skill
-description: v0.2.0 - Record or promote one concrete documentation artifact by classifying its lifecycle role, locating its system placement, choosing the primary file, and deciding required companion updates such as current-state, ADR, contract, guide, or runbook changes.
+description: v0.3.0 - Record one concrete documentation artifact by classifying lifecycle role, locating system placement, choosing the primary file, and landing the right local updates for that one documentation wave.
 ---
 
 # Project Documentation Record Skill
@@ -34,39 +34,36 @@ Out of scope:
 
 Use this skill when prompts sound like:
 - "record this agreed design into docs"
-- "this RFC is now implemented; what else must be updated?"
 - "turn this change into the right current-state or ADR record"
 - "for this feature, which docs should exist besides the main proposal?"
+- "write the right doc for this one change"
 
 ## Core Purpose
 
-Record one documentation artifact in the right place and decide whether that
-change must also update the system's higher-level documentation layers.
+Record one documentation artifact in the right place and land the immediate
+updates needed for that one documentation wave.
 
 This skill exists to help you:
 - place a change in the system before selecting a doc type
 - distinguish proposal, decision, current-state, contract, development, and
   operational records
 - allow low-impact local changes to remain single-doc when that is sufficient
-- require companion updates when a change affects system understanding or
-  durable behavior
+- decide the immediate companion updates needed for the current recording wave
 - keep lineage and discoverability explicit instead of leaving them in chat
   context
+- hand off lifecycle progression and stale-doc reconciliation to
+  `project-doc-lifecycle-skill`
 
 ## Mode Selection
 
 - `record-proposal`
   - Use for proposed changes, design options, or rollout plans that are not yet
     the repository's implemented current state.
+- `record-decision`
+  - Use for one settled decision that already deserves an ADR or equivalent
+    decision record.
 - `record-current-state`
   - Use for how the system works now after implementation or clarification.
-- `promote-rfc`
-  - Use when an RFC or equivalent proposal has been accepted or implemented and
-    you must decide which current-state, ADR, contract, guide, or runbook docs
-    should now exist.
-- `extract-adr`
-  - Use when one durable decision should be pulled out from a broader proposal
-    or architecture discussion.
 - `record-contract`
   - Use for stable, depended-on APIs, schemas, state models, or interface
     boundaries.
@@ -76,6 +73,14 @@ This skill exists to help you:
 
 If the user does not specify a mode, infer it from lifecycle role and disclose
 the inference in the output.
+
+If the request is really about:
+- RFC promotion after implementation
+- stale or conflicting doc families
+- supersede, archive, or status progression
+
+then stop and hand the task to `project-doc-lifecycle-skill` instead of
+stretching this skill.
 
 ## System Placement Check (Required)
 
@@ -89,8 +94,8 @@ The output must answer:
   flow, or operation
 - which current-state or manual page must be created or updated, if any
 
-This step decides whether a single document is enough or whether companion
-updates are required.
+This step decides whether a single document is enough or whether the current
+recording wave also needs immediate companion updates.
 
 ## Workflow
 
@@ -99,7 +104,7 @@ updates are required.
      architecture, guide, runbook, or spec files, front matter patterns,
      naming rules, and indexing conventions.
    - If the project has no clear rules, fall back to a light default structure
-     and note that `project-doc-governance-skill` should be used later to
+     and note that `project-doc-architecture-skill` should be used later to
      formalize the system.
 2. Run the `System Placement Check`.
    - Locate the change in the system before selecting the primary artifact.
@@ -114,10 +119,9 @@ updates are required.
 4. Select the primary artifact.
    - Choose the primary file type and level from lifecycle role, project rules,
      and scope.
-5. Decide companion updates.
+5. Decide immediate companion updates.
    - Explicitly decide whether the change also requires:
      - architecture or current-state updates
-     - ADR extraction
      - contract or spec updates
      - guide updates
      - runbook updates
@@ -171,10 +175,10 @@ updates are required.
   otherwise create a new file
 - Single-doc rule: low-impact local changes may remain a single document
 - Companion update rule: system-affecting changes must explicitly decide
-  companion updates
-- Implemented RFC rule: implemented RFCs require an explicit
-  current-state or manual decision
-- ADR rule: optional, not automatic
+  immediate companion updates for this recording wave
+- Lifecycle handoff rule: implemented RFC progression and stale-doc
+  reconciliation belong to `project-doc-lifecycle-skill`
+- ADR rule: use directly only when the input is already one settled decision
 - Contract rule: only when stability and downstream consumers justify it
 - Runbook rule: only when operator recovery or intervention matters
 - Index update rule: required when discoverability changes
@@ -190,7 +194,6 @@ updates are required.
 - `references/companion-update-rules.md`
 - `references/doc-lineage-block-template.md`
 - `references/index-update-rules.md`
-- `references/promote-rfc-example-output.md`
 - `references/create-vs-update-rules.md`
 - `references/doc-type-classification.md`
 - `references/frontmatter-template-rules.md`
@@ -207,9 +210,8 @@ updates are required.
 - lifecycle role:
 
 ## Primary Artifact
-## Companion Updates
+## Immediate Companion Updates
 - current-state/manual:
-- adr:
 - contract/spec:
 - guide:
 - runbook:
@@ -227,15 +229,17 @@ updates are required.
 - Do not record a feature-level or system-affecting change without locating it
   in the system first.
 - Do not choose the primary document type before lifecycle role is explicit.
-- Do not record a system-affecting implemented change only as RFC.
-- Do not create ADR for every accepted RFC.
+- Do not use this skill to reconcile the full lifecycle of an already
+  implemented RFC family.
+- Do not create ADR unless the input is already one settled decision that
+  clearly deserves a decision record.
 - Do not create spec unless the boundary is stable and depended on.
 - Do not place project-level RFC, ADR, or cross-module spec records into
   module-local `*/docs/`.
 - Do not place module-only implementation notes into root `docs/` unless they
   are intentionally being promoted to project-level visibility.
 - Do not finish without deciding whether current-state or manual pages must
-  update.
+  update in this recording wave.
 - Do not leave lineage implicit in chat history alone.
 - Do not use front matter fields that the repo cannot realistically maintain.
 - Do not turn a formal doc into a task checklist or sprint log.
@@ -247,7 +251,8 @@ updates are required.
 - Verify that the lifecycle role matches the content's primary job.
 - Verify that low-impact local changes are allowed to remain `single-doc only`
   when appropriate.
-- Verify that system-affecting changes decide companion updates explicitly.
+- Verify that system-affecting changes decide immediate companion updates
+  explicitly.
 - Verify that the chosen level is the smallest level that still fits.
 - Verify that the selected path follows repo conventions or a clear default.
 - Verify that the selected docs root matches the document scope and
