@@ -56,3 +56,51 @@ should be recorded into project documentation.
 - If the repo later creates a stronger documentation governance model, this RFC
   should be updated to match the new front matter and placement rules.
 ```
+
+## Example: Current-State Overview Recording Decision
+
+```text
+## Recording Goal
+- Record the repository's current ingest architecture as a durable current-state
+  page.
+
+## Current Repo Convention
+- The repo uses `docs/README.md` as the top-level entry and
+  `docs/architecture/` for current-state pages.
+- Architecture pages should explain how the system works now, not restate RFC
+  proposals.
+
+## Selected Document Type and Level
+- type: `architecture`
+- level: `system`
+- domain: `backend`
+
+## Target Path
+- `docs/architecture/ingest-overview.md`
+
+## Create or Update Decision
+- create new
+- reason: there is no existing current-state page that already owns the ingest
+  boundary and flow explanation
+
+## Front Matter Plan
+- `title: Ingest Overview`
+- `type: architecture`
+- `level: system`
+- `status: active`
+
+## Body Structure
+- System Boundary
+- Major Modules and Responsibilities
+- Core Ingest Flow
+- External Interfaces
+- Related Docs
+
+## Related Links
+- related RFC: `docs/rfcs/document-ingest-service-layering.md`
+- related current-state index: `docs/architecture/README.md`
+
+## Notes and Risks
+- Do not start with `Purpose` or `This document explains`; begin directly with
+  the current system boundary and responsibilities.
+```
