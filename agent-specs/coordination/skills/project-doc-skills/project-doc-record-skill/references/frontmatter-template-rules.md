@@ -6,22 +6,20 @@ project document.
 ## Reuse First
 
 - If the repo already has front matter conventions, follow them.
-- If the repo has no clear convention, use a light default:
+- If the repo has no clear convention, use a minimal default:
 
 ```yaml
 ---
-id: RFC-2026-001
 title: Example Title
 type: rfc
-level: module
-domain: backend
 status: draft
-owner: backend-team
-created_at: 2026-04-07
-updated_at: 2026-04-07
-related_issues: []
 ---
 ```
+
+- Add `owner` and `updated_at` when they materially improve retrieval or
+  maintenance.
+- Add heavier metadata only when the repository already sustains it across many
+  documents.
 
 ## Default Status Choice
 
@@ -34,3 +32,7 @@ related_issues: []
 
 Do not add metadata fields unless they improve retrieval, ownership, or
 lifecycle control.
+
+Prefer to keep reader-facing clutter out of the header. If a relationship can
+live clearly in a footer section or index page, do not force it into front
+matter.
