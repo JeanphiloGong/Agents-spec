@@ -1,58 +1,114 @@
 # Example Output
 
-Use this reference when the operator wants an example of how one concrete plan
-should be recorded into project documentation.
+Use this reference when the operator wants an example of how one node-local doc
+wave should be recorded.
 
-## Example: Graph Plan V2 Recording Decision
+## Example: Module Purpose Doc
 
 ```text
 ## Recording Goal
-- Record the agreed Graph Plan V2 backend design into the project docs.
+- Record the `graph` module's durable purpose and boundary.
 
-## Current Repo Convention
-- The repo has formal design docs under `docs/10-rfcs/` and architecture docs
-  under `docs/30-architecture/`.
-- The repo also uses module-local docs such as `frontend/docs/` for
-  implementation notes and local operating docs.
-- Existing formal docs use YAML front matter with `id`, `title`, `type`,
-  `level`, `domain`, `status`, `owner`, `created_at`, and `updated_at`.
+## Ownership Node
+- node: `module`
+- parent node: `system`
+- lowest common ancestor: `graph`
 
-## Selected Document Type and Level
-- type: `rfc`
-- level: `module`
-- domain: `backend`
+## Document Intent
+- `purpose`
 
-## Target Path
-- `docs/10-rfcs/backend/knowledge-graph/graph-plan-v2.md`
+## Primary Artifact
+- path: `graph/README.md`
+- type: purpose overview
+
+## Create or Update Decision
+- update existing
+- reason: the existing module root README already owns module-level purpose and
+  navigation, so the local `docs/` subtree does not need its own competing
+  summary page
+
+## Scope Boundary Decision
+- keep only module purpose, boundary, and child links here
+- do not add child implementation plans
+- do not create `graph/docs/README.md` just to mirror the local docs folders
+
+## Immediate Companion Updates
+- parent summary: no
+- current-state: maybe
+- indexes: update root system overview if discoverability changed
+- footer links: yes
+
+## Metadata Plan
+- none
+
+## Body Structure Plan
+- Purpose
+- Scope
+- Responsibilities
+- Child Areas
+- Related Docs
+
+## Footer Context Plan
+- link to system overview
+- link to child submodule docs
+
+## Index Update Plan
+- update the nearest parent index only if this module page becomes newly
+  discoverable
+- do not add a second local docs index unless the subtree later grows large or
+  mixed enough to justify it
+```
+
+## Example: Child Plan Must Stay Separate
+
+```text
+## Recording Goal
+- Record a detailed parser submodule implementation plan without losing the file
+  change list.
+
+## Ownership Node
+- node: `submodule`
+- parent node: `module`
+- lowest common ancestor: `graph/query/parser`
+
+## Document Intent
+- `proposal`
+
+## Primary Artifact
+- path: `graph/query/parser/docs/batch-normalization-plan.md`
+- type: proposal plan
 
 ## Create or Update Decision
 - create new
-- reason: this is a new module-level proposal, not an update to current
-  architecture
+- reason: appending this content to the parent query RFC would blur scope and
+  erase parser-local detail
 
-## Front Matter Plan
-- `id: RFC-2026-018`
-- `title: Graph Plan V2`
-- `type: rfc`
-- `level: module`
-- `domain: backend`
-- `status: draft`
-- `owner: backend-team`
+## Scope Boundary Decision
+- parent doc keeps: one short summary and link
+- child doc keeps: file change plan, execution slices, verification, and local
+  risks
 
-## Body Structure
-- Context
-- Goals
-- Non-Goals
-- Proposed Contract
-- Execution Flow
+## Immediate Companion Updates
+- parent summary: yes
+- current-state: no
+- indexes: maybe the nearest module or submodule index
+- footer links: yes
+
+## Metadata Plan
+- none
+
+## Body Structure Plan
+- Summary
+- Scope
+- Proposed Change
+- File Change Plan
+- Verification
 - Risks
-- Open Questions
 
-## Related Links
-- related issue: `#18`
-- related previous fix issue: `#16`
+## Footer Context Plan
+- link to parent RFC
+- link to nearest local current-state page if one exists
 
-## Notes and Risks
-- If the repo later creates a stronger documentation governance model, this RFC
-  should be updated to match the new front matter and placement rules.
+## Index Update Plan
+- update the nearest parent or local index with one stable link
 ```

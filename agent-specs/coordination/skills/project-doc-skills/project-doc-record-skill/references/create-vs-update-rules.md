@@ -1,21 +1,24 @@
-# Create vs Update Rules
+# Create Vs Update Rules
 
-Use this reference when deciding whether to create a new document or update an
+Use this reference when deciding whether to create a new doc or update an
 existing one.
 
 ## Update Existing When
 
-- the existing file is already authoritative for the same scope
-- the new content extends the same design or contract surface
+- the existing doc already owns the exact same node and intent
+- the new content extends the same source-of-truth surface
 - ownership and lifecycle remain coherent
+- no child-scope detail would be flattened into the parent
 
 ## Create New When
 
-- reusing the old file would mix different scopes
-- the old file is already too broad or stale
-- the new content needs a different lifecycle or owner
-- the new content is a new proposal rather than an update to current reality
+- reuse would mix different ownership nodes
+- reuse would mix parent summary and child detail
+- the new content needs its own local source of truth
+- the content carries file change plans, execution slices, or verification
+  detail that does not belong in the parent
+- the current file is already too broad
 
 ## Decision Rule
 
-Favor source-of-truth clarity over file count reduction.
+Favor scope clarity and preserved detail over file-count reduction.

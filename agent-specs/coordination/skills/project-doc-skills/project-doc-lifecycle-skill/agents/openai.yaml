@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Doc Lifecycle"
+  short_description: "v0.2.1 - Rebalance one doc family across real code-owned nodes"
+  default_prompt: "Use $project-doc-lifecycle-skill to inspect one proposal or doc family, compare it with current implementation reality, detect overloaded parent docs or stale placement, keep target nodes aligned to real code-owned seams rather than docs-only grouping folders, and produce the promotion, split, supersede, and lineage-repair handoffs that $project-doc-record-skill should execute concretely."
