@@ -105,8 +105,10 @@ This skill exists to help you:
   describes
 - Root docs role: system-level purpose, cross-module architecture, shared
   contracts, governance, and top-level indexes
-- Node-local docs role: local purpose, local current-state, local proposals,
-  local guides, local runbooks, and detailed implementation plans
+- Node entry role: use the node root `README.md` for node purpose, boundary,
+  and navigation when that node needs its own entry page
+- Node-local docs role: local current-state, local proposals, local guides,
+  local runbooks, and detailed implementation plans
 - Parent-summary rule: parents summarize and link, but do not retain child
   implementation detail
 - Child-detail rule: detailed plans, file change lists, verification slices,

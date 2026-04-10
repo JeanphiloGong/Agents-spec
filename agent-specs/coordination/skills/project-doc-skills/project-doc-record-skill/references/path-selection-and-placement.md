@@ -22,11 +22,15 @@ Use root `docs/` for:
 ## Node-Local `*/docs/`
 
 Use node-local docs for:
-- module or submodule purpose
 - local current-state
 - local proposals
 - local guides and runbooks
 - detailed implementation plans
+
+Use the node root `README.md` for:
+- module or submodule purpose
+- node boundary summary
+- child-area navigation
 
 ## Decision Rules
 
@@ -36,6 +40,8 @@ Use node-local docs for:
 - one component only => component-local docs only when that level has durable
   standalone knowledge
 - child detail under a broad parent => child path plus parent summary link
+- do not add `<node>/docs/README.md` by default when `<node>/README.md`
+  already owns the node summary
 
 ## Naming Rules
 

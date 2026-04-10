@@ -18,13 +18,14 @@ wave should be recorded.
 - `purpose`
 
 ## Primary Artifact
-- path: `graph/docs/README.md`
+- path: `graph/README.md`
 - type: purpose overview
 
 ## Create or Update Decision
 - update existing
-- reason: the existing module README already owns module-level purpose and
-  navigation
+- reason: the existing module root README already owns module-level purpose and
+  navigation, so the local `docs/` subtree does not need its own competing
+  summary page
 
 ## Scope Boundary Decision
 - keep only module purpose, boundary, and child links here

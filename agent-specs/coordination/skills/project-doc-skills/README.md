@@ -62,7 +62,7 @@ The package assumes two placement rules:
 - Project phase goals
   - system-level planning docs, roadmap docs, or tracked issues
 - Module purpose
-  - `<module>/docs/README.md` or a module-local overview page
+  - `<module>/README.md`
 - Submodule detailed plan
   - the submodule's own `docs/`
 - Component implementation detail
@@ -83,6 +83,18 @@ The package assumes two placement rules:
    splitting, supersede handling, or lineage repair.
 4. If the docs tree is already coherent, most day-to-day work can go directly
    through `project-doc-record-skill`.
+
+## README Rule
+
+- Root `docs/README.md` stays as the global docs entry point.
+- `<node>/README.md` is the default entry point for one module, submodule, or
+  component node.
+- `<node>/docs/` is the node's formal-doc container, not a second default
+  homepage.
+- Only add `<node>/docs/README.md` when that local docs subtree has enough
+  durable content that it needs its own secondary index.
+- Avoid keeping both `<node>/README.md` and `<node>/docs/README.md` as
+  competing summaries of the same node by default.
 
 ## Package Roles
 

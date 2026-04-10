@@ -13,8 +13,10 @@ updated.
 ## Common Targets
 
 - root `docs/README.md`
+- node `README.md` files that act as module or submodule entry points
 - current-state or architecture index
-- section `README.md` files such as RFC, guide, or runbook indexes
+- section `README.md` files only when a local docs subtree truly needs a
+  secondary index
 
 ## Default Rule
 
