@@ -72,8 +72,8 @@ Always decide these dimensions before writing:
 ## Workflow
 
 1. Inspect local docs around the relevant code node.
-   - Look at root `docs/`, nearby `*/docs/`, local `README.md`, current local
-     plans, and local current-state pages.
+   - Look at root `docs/`, the nearest node `README.md`, nearby `*/docs/`,
+     current local plans, and local current-state pages.
 2. Determine the ownership node.
    - Decide the concrete node that owns this knowledge:
      - system
@@ -136,6 +136,12 @@ Always decide these dimensions before writing:
   knowledge
 - Node-local rule: keep module, submodule, and component knowledge close to the
   owning node
+- Node entry rule: prefer `<node>/README.md` as the node's summary and
+  navigation page
+- Local docs rule: treat `<node>/docs/` as the node's formal-doc container, not
+  a second default homepage
+- Local docs README rule: only add `<node>/docs/README.md` when that local docs
+  subtree truly needs a secondary index
 - Parent-summary rule: parent docs summarize and link, but do not keep child
   detail by default
 - Child-detail rule: file change plans, execution slices, verification slices,

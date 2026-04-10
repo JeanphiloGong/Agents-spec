@@ -12,8 +12,9 @@ Place project purpose at the system node:
 ## Module Purpose
 
 Place module purpose at the module node:
-- `<module>/docs/README.md`
-- or a module-local overview page
+- `<module>/README.md`
+- or a module-local purpose page when the module root README is not the right
+  home
 
 ## Phase Goals
 

@@ -24,11 +24,15 @@ Keep root `docs/` for:
 ## Node-Local Docs
 
 Use node-local `*/docs/` for:
-- local purpose and scope
 - local current-state
 - local proposals
 - local guides and runbooks
 - detailed implementation plans
+
+Use the node root `README.md` for:
+- local purpose and scope
+- node-level summary
+- navigation into child docs
 
 ## Anti-Pattern
 

@@ -13,7 +13,7 @@ Use this reference when assigning doc responsibilities by node level.
 
 ## Module
 
-- module purpose
+- module purpose via the module root `README.md`
 - module boundaries
 - module current-state
 - module-local proposals
@@ -21,7 +21,8 @@ Use this reference when assigning doc responsibilities by node level.
 
 ## Submodule
 
-- submodule purpose or scope
+- submodule purpose or scope via the submodule root `README.md` when that node
+  needs its own entry page
 - local architecture and current-state
 - local implementation plans
 - local verification notes
