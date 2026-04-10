@@ -1,203 +1,162 @@
 ---
 name: project-doc-architecture-skill
-description: v0.1.1 - Design or refactor one repository's documentation information architecture, including reader-first entry points, active-vs-reserved doc types, current-state/manual ownership, and overview coverage plans; concrete file creation belongs to project-doc-record-skill.
+description: v0.2.0 - Design or refactor one repository's documentation ownership tree by aligning root, module, submodule, and component docs with code ownership, placing docs by lowest common ancestor, and defining parent-summary/child-detail rules; concrete file creation belongs to project-doc-record-skill.
 ---
 
 # Project Documentation Architecture Skill
 
 ## Trigger and Scope
 
-Use this skill when you must inspect, design, or refactor the documentation
-system for one concrete repository.
+Use this skill when you must inspect, design, or refactor the durable
+documentation structure for one concrete repository.
 
 In scope:
-- inspecting actual docs usage, not only folder layout
-- identifying missing or weak reader entry points
-- deciding how top-level docs should be organized for human navigation
-- defining active versus reserved doc types for this repo
-- deciding where current-state or manual pages live
-- deciding how root indexes, module indexes, and architecture entry pages fit
-  together
-- scanning the codebase and existing docs to bootstrap a missing system
-  overview
-- defining a metadata baseline and index rules
-- defining migration guidance for the docs structure itself
+- inspecting the code ownership tree and existing docs tree together
+- identifying where root docs are overloaded or local docs are missing
+- deriving durable documentation nodes at the system, module, submodule, and
+  component levels
+- deciding which nodes deserve their own local docs
+- placing docs by lowest common ancestor rather than by raw type-first
+  taxonomy
+- assigning responsibilities to root docs versus node-local docs
+- defining parent-summary and child-detail rules
+- defining where project purpose, module purpose, phase goals, current-state,
+  proposals, guides, and operations should live
+- bootstrapping a system overview when the system node lacks one
+- defining rollout guidance for the target doc tree
 
 Out of scope:
-- recording one concrete feature proposal into a target file
-- deciding the lifecycle progression of one specific RFC or doc cluster
-- reconciling stale, superseded, or archived docs across an existing document
-  family
-- replacing concrete doc-writing work for one change
-- creating or rewriting the concrete repository doc files that implement the
-  architecture plan
+- writing one concrete doc body from scratch
+- deciding lifecycle progression for one doc family
+- reconciling stale or superseded docs across one existing family
+- migrating the whole docs tree in one pass
 
 Use this skill when prompts sound like:
-- "this repo needs a better docs structure"
-- "the docs feel siloed and there is no system overview"
-- "we need a start-here path and a current-state layer"
-- "scan the codebase and bootstrap an overview"
+- "the docs are too concentrated in root docs"
+- "we need docs to follow the module tree"
+- "show me where project, module, and submodule docs should live"
+- "the root docs are overloaded and local detail keeps getting lost"
 
 ## Core Purpose
 
-Define how a repository's durable knowledge should be structured and entered
-from the top down.
+Design a documentation tree that follows code ownership and preserves detail at
+the right level.
 
 This skill exists to help you:
-- design reader-first entry points
-- bootstrap a missing system overview from code and docs inspection
-- choose which doc types are active and which stay reserved
-- assign current-state or manual ownership
-- define index and navigation rules that stay maintainable
-
-This skill produces architecture guidance, overview coverage plans, and
-rollout guidance. When the result must become concrete files or updated docs
-pages, hand that work to `project-doc-record-skill`.
-
-## Mode Selection
-
-- `inspect-doc-architecture`
-  - Use when the repo already has docs and you need to evaluate what works,
-    what is missing, and where the information architecture is failing.
-- `redesign-doc-architecture`
-  - Use when the current docs structure needs a deliberate new layout,
-    navigation model, and role split.
-- `bootstrap-system-overview`
-  - Use when the repo has no useful system overview and the skill must scan the
-    codebase plus existing docs to propose overview coverage and file layout.
+- align docs placement with code ownership
+- keep root docs focused on system and cross-module knowledge
+- keep detailed local knowledge near the owning module or component
+- prevent parent docs from swallowing child implementation detail
+- produce a target doc tree and migration order that
+  `project-doc-record-skill` can execute concretely
 
 ## Workflow
 
-1. Inspect current docs usage.
-   - Look for root `docs/`, module-local `*/docs/`, existing indexes, current
-     architecture pages, and the real density of RFCs, guides, contracts, and
-     operational docs.
-   - Classify the repo as:
-     - `existing-doc-architecture`
-     - `partial-doc-architecture`
-     - `missing-doc-architecture`
-2. Identify reader-facing failure modes.
+1. Inspect the code ownership tree.
+   - Identify system, module, submodule, and component boundaries from the
+     actual repository layout and major ownership seams.
+2. Inspect the current docs tree.
+   - Look for root `docs/`, node-local `*/docs/`, existing indexes, and where
+     detailed plans currently accumulate.
+3. Identify concentration and placement problems.
    - Check for:
-     - no clear `Start Here`
-     - no usable current-state or manual layer
-     - RFC overload
-     - empty or ornamental categories
-     - weak index or navigation paths
-     - module docs with no clear relation to root docs
-3. If overview coverage is weak, scan the codebase.
-   - Derive:
-     - system boundary
-     - major modules or services
-     - core flows or subsystems
-     - obvious external interfaces and operational surfaces
-   - Record unknowns explicitly instead of inventing architecture.
-4. Define the reader entry model.
-   - Decide how readers should move through:
-     - `Start Here`
-     - `System Overview`
-     - `Current State`
-     - `Active Changes`
-     - `Key Decisions`
-     - `Stable Contracts`
-     - `Development`
-     - `Operations`
-     - `Governance`
-5. Define active versus reserved doc types.
-   - Activate only the types this repo can sustain.
-   - Keep the rest available but not mandatory.
-6. Choose current-state or manual ownership.
-   - Decide which path owns "how the system works now."
-   - Ensure it acts as an entry layer into detailed docs, not as a duplicate
-     authority for every lower-level page.
-7. Define navigation and index rules.
-   - State what the root docs entry should contain.
-   - Decide when section indexes and module indexes are required.
-8. Define metadata and storage baseline.
-   - Keep the metadata small enough to maintain.
-   - Decide how root docs and module-local docs divide responsibility.
-9. Produce the architecture proposal.
-   - Return the reader entry model, overview coverage plan, active types,
-     current-state ownership, and index rules.
-   - If useful, include a suggested file list or section list for handoff, but
-     do not create the concrete docs files in this skill.
-10. Provide rollout guidance.
-   - Explain how the repo can adopt the structure incrementally without
-     rewriting the whole docs tree at once.
+     - overloaded root docs
+     - parent docs holding child implementation detail
+     - missing node-local current-state or plan docs
+     - empty decorative docs directories
+     - purpose or goal docs at the wrong level
+4. Derive durable documentation nodes.
+   - Map the nodes that merit durable docs:
+     - `system`
+     - `module`
+     - `submodule`
+     - `component`
+5. Decide which nodes are doc-worthy.
+   - Create local docs only for nodes with durable knowledge, repeated change,
+     or local onboarding value.
+6. Define placement by lowest common ancestor.
+   - Place each doc at the lowest node that fully owns the described object or
+     change.
+7. Assign responsibilities by node level.
+   - Define what root docs own versus module, submodule, and component docs.
+8. Define parent-summary and child-detail rules.
+   - Parents summarize, link, and index.
+   - Children retain detailed plans, file change lists, verification slices,
+     and local risks.
+9. Define purpose and goal placement.
+   - Decide where project purpose, module purpose, phase goals, and detailed
+     implementation plans belong.
+10. Produce the target doc tree and rollout plan.
+   - Return the node map, placement rules, target tree, and the concrete
+     handoff list for `project-doc-record-skill`.
 
 ## Required Inputs
 
 - Project or repository name
 - Current documentation pain points or desired cleanup goal
-- Primary maintainers or doc owners if known
-- Whether the result should be advisory or required in review
+- Major code areas or ownership seams if known
+- Whether the result should be advisory or enforced in review
 
 ## Defaults
 
-- Operating target: `project-doc-information-architecture`
-- Inspection mode: inspect docs usage first, then scan codebase if overview
-  coverage is weak
-- Reader entry baseline:
-  - `Start Here`
-  - `System Overview`
-  - `Current State`
-  - `Active Changes`
-  - `Key Decisions`
-  - `Stable Contracts`
-  - `Development`
-  - `Operations`
-  - `Governance`
-- Active doc types by default: `rfc`, `architecture`, `guide`, `policy`
-- Reserved doc types by default: `adr`, `spec`, `runbook`, `postmortem`
-- Current-state owner: `architecture/README.md` or an equivalent current-state
-  landing page
-- Overview bootstrap policy: enabled when a usable top-level overview is
-  missing
-- Module model: derive from real code and docs, not from ideal taxonomy
-- Metadata baseline: small YAML front matter with owner, status, and dates
-- Placement strategy: hybrid by default
+- Operating target: `project-doc-ownership-tree`
+- Node levels: `system`, `module`, `submodule`, `component`
+- Placement rule: place each doc at the lowest common ancestor of the thing it
+  describes
+- Root docs role: system-level purpose, cross-module architecture, shared
+  contracts, governance, and top-level indexes
+- Node-local docs role: local purpose, local current-state, local proposals,
+  local guides, local runbooks, and detailed implementation plans
+- Parent-summary rule: parents summarize and link, but do not retain child
+  implementation detail
+- Child-detail rule: detailed plans, file change lists, verification slices,
+  and local risks stay with the owning child node
+- Directory creation rule: do not create empty docs trees for symmetry alone
+- Overview bootstrap rule: if the system node has no usable overview, propose
+  one
+- Metadata baseline: keep metadata optional and minimal unless the repo clearly
+  consumes it
 
 ## Bundled Resources
 
-- `references/reader-entry-model.md`
-- `references/active-vs-reserved-types.md`
-- `references/current-state-manual-pattern.md`
+- `references/ownership-tree-placement.md`
+- `references/lowest-common-ancestor-rule.md`
+- `references/node-responsibility-matrix.md`
+- `references/purpose-and-goal-placement.md`
+- `references/parent-summary-child-detail.md`
 - `references/bootstrap-system-overview.md`
-- `references/index-and-navigation-rules.md`
 
 ## Output Format
 
 ```text
-## Architecture Goal
-## Current Documentation State
-## Reader-Facing Failure Modes
-## System Overview Coverage
-## Reader Entry Model
-## Active vs Reserved Types
-## Current-State Ownership
-## Navigation and Index Rules
-## Metadata and Storage Baseline
-## Suggested File or Section Handoff
+## Doc Tree Goal
+## Current Concentration Problems
+## Ownership Node Map
+## Doc-Worthy Nodes
+## Placement Rules
+## Root vs Node Responsibilities
+## Parent Summary / Child Detail Rules
+## Purpose / Goal Placement Rules
+## Target Doc Tree
+## Suggested Record-Skill Handoffs
 ## Rollout Plan
 ## Open Questions
 ```
 
 ## Guardrails
 
-- Do not optimize for folder symmetry over reader discoverability.
-- Do not invent a system overview without inspecting code and existing docs.
-- Do not activate more doc types than the repo can actually sustain.
-- Do not make the current-state or manual layer a duplicate source of truth for
-  everything underneath it.
-- Do not use this skill to write a concrete feature proposal or perform
-  lifecycle promotion decisions for one document family.
-- Do not silently switch into concrete file creation; hand concrete doc-writing
-  work to `project-doc-record-skill`.
+- Do not design placement from folder aesthetics alone.
+- Do not centralize child detail into root docs just to keep fewer files.
+- Do not create node-local docs where no durable local knowledge exists.
+- Do not let parent docs become the only home of child implementation detail.
+- Do not silently switch into concrete file creation; hand that work to
+  `project-doc-record-skill`.
 
 ## Verification Hooks
 
-- Verify that actual docs usage was inspected before redesigning structure.
-- Verify that the reader entry model gives a clear top-down path.
-- Verify that the current-state or manual owner is explicit.
-- Verify that overview coverage is grounded in inspected code or docs.
-- Verify that active doc types are fewer than or equal to what the repo can
-  sustain.
+- Verify that both the code tree and docs tree were inspected.
+- Verify that placement follows lowest common ancestor rather than type-first
+  convenience.
+- Verify that each doc-worthy node has a real durable purpose.
+- Verify that root docs stay focused on system or cross-module knowledge.
+- Verify that parent docs only summarize and link to child detail.

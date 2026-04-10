@@ -1,103 +1,110 @@
 # Example Output
 
-Use this reference when the operator wants an example of how one concrete plan
-should be recorded into project documentation.
+Use this reference when the operator wants an example of how one node-local doc
+wave should be recorded.
 
-## Example: Graph Plan V2 Recording Decision
+## Example: Module Purpose Doc
 
 ```text
 ## Recording Goal
-- Record the agreed Graph Plan V2 backend design into the project docs.
+- Record the `graph` module's durable purpose and boundary.
 
-## Current Repo Convention
-- The repo has formal design docs under `docs/10-rfcs/` and architecture docs
-  under `docs/30-architecture/`.
-- The repo also uses module-local docs such as `frontend/docs/` for
-  implementation notes and local operating docs.
-- If no heavier repo convention is enforced, formal docs default to no front
-  matter.
+## Ownership Node
+- node: `module`
+- parent node: `system`
+- lowest common ancestor: `graph`
 
-## Selected Document Type and Level
-- type: `rfc`
-- level: `module`
-- domain: `backend`
+## Document Intent
+- `purpose`
 
-## Target Path
-- `docs/10-rfcs/backend/knowledge-graph/graph-plan-v2.md`
+## Primary Artifact
+- path: `graph/docs/README.md`
+- type: purpose overview
 
 ## Create or Update Decision
-- create new
-- reason: this is a new module-level proposal, not an update to current
-  architecture
+- update existing
+- reason: the existing module README already owns module-level purpose and
+  navigation
 
-## Front Matter Plan
+## Scope Boundary Decision
+- keep only module purpose, boundary, and child links here
+- do not add child implementation plans
+
+## Immediate Companion Updates
+- parent summary: no
+- current-state: maybe
+- indexes: update root system overview if discoverability changed
+- footer links: yes
+
+## Metadata Plan
 - none
-- reason: the repo does not have an active metadata consumer for this class of
-  document
 
-## Body Structure
-- Context
-- Goals
-- Non-Goals
-- Proposed Contract
-- Execution Flow
-- Risks
-- Open Questions
+## Body Structure Plan
+- Purpose
+- Scope
+- Responsibilities
+- Child Areas
+- Related Docs
 
-## Related Links
-- related issue: `#18`
-- related previous fix issue: `#16`
+## Footer Context Plan
+- link to system overview
+- link to child submodule docs
 
-## Notes and Risks
-- If the repo later creates a stronger documentation governance model, this RFC
-  should be updated to match the new front matter and placement rules.
+## Index Update Plan
+- update the nearest parent index only if this module page becomes newly
+  discoverable
 ```
 
-## Example: Current-State Overview Recording Decision
+## Example: Child Plan Must Stay Separate
 
 ```text
 ## Recording Goal
-- Record the repository's current ingest architecture as a durable current-state
-  page.
+- Record a detailed parser submodule implementation plan without losing the file
+  change list.
 
-## Current Repo Convention
-- The repo uses `docs/README.md` as the top-level entry and
-  `docs/architecture/` for current-state pages.
-- Architecture pages should explain how the system works now, not restate RFC
-  proposals.
+## Ownership Node
+- node: `submodule`
+- parent node: `module`
+- lowest common ancestor: `graph/query/parser`
 
-## Selected Document Type and Level
-- type: `architecture`
-- level: `system`
-- domain: `backend`
+## Document Intent
+- `proposal`
 
-## Target Path
-- `docs/architecture/ingest-overview.md`
+## Primary Artifact
+- path: `graph/query/parser/docs/batch-normalization-plan.md`
+- type: proposal plan
 
 ## Create or Update Decision
 - create new
-- reason: there is no existing current-state page that already owns the ingest
-  boundary and flow explanation
+- reason: appending this content to the parent query RFC would blur scope and
+  erase parser-local detail
 
-## Front Matter Plan
+## Scope Boundary Decision
+- parent doc keeps: one short summary and link
+- child doc keeps: file change plan, execution slices, verification, and local
+  risks
+
+## Immediate Companion Updates
+- parent summary: yes
+- current-state: no
+- indexes: maybe the nearest module or submodule index
+- footer links: yes
+
+## Metadata Plan
 - none
-- reason: the page is primarily for direct human and AI reading, and the repo
-  does not require a metadata header here
 
-## Body Structure
-- System Boundary
-- Major Modules and Responsibilities
-- Core Ingest Flow
-- External Interfaces
-- Related Docs (footer)
+## Body Structure Plan
+- Summary
+- Scope
+- Proposed Change
+- File Change Plan
+- Verification
+- Risks
 
-## Footer Context
-- related RFC: `docs/rfcs/document-ingest-service-layering.md`
-- related current-state index: `docs/architecture/README.md`
+## Footer Context Plan
+- link to parent RFC
+- link to nearest local current-state page if one exists
 
-## Notes and Risks
-- Do not start with `Purpose` or `This document explains`; begin directly with
-  the current system boundary and responsibilities.
-- Keep the header small; place extended cross-links at the end unless the repo
-  has a stronger current-state template.
+## Index Update Plan
+- update the nearest parent or local index with one stable link
 ```

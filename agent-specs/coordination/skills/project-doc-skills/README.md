@@ -1,95 +1,130 @@
 # Project Doc Skills
 
 This package contains three related Codex skills for project documentation
-work. Together they separate repository docs architecture, one-off recording,
-and lifecycle progression instead of forcing all three jobs into one workflow.
+work. Together they move the package from root-docs-first thinking to an
+ownership-tree-first model:
+
+- root `docs/` keeps system-level and cross-module knowledge
+- module, submodule, and component docs live near the code that owns them
+- parent docs summarize and link
+- child docs keep detailed local knowledge
+
+## Package Model
+
+The package assumes two placement rules:
+
+1. Place docs at the lowest common ancestor of the thing they describe.
+2. Let parent docs summarize and index, while child docs preserve local detail.
 
 ## Skills
 
 ### `project-doc-architecture-skill`
-- Purpose: inspect or redesign a repository's documentation information
-  architecture.
+
+- Purpose: design or refactor the repository's docs ownership tree.
 - Use when:
-  - the docs feel siloed
-  - there is no useful system overview
-  - there is no clear current-state or manual entrypoint
-  - you need active-vs-reserved doc types, navigation rules, or overview
-    bootstrapping
+  - root docs are overloaded
+  - local module detail keeps getting buried in parent docs
+  - the repo needs a clear root/module/submodule/component doc layout
+  - project purpose and node-local purpose are not clearly separated
 - Output boundary:
-  - returns architecture guidance, overview coverage, and rollout suggestions
-  - concrete file creation or page updates belong to `project-doc-record-skill`
+  - returns the ownership node map, placement rules, target doc tree, and
+    rollout plan
+  - concrete file creation belongs to `project-doc-record-skill`
 
 ### `project-doc-record-skill`
-- Purpose: record or promote one concrete documentation artifact with the right
-  local updates for a single documentation wave.
+
+- Purpose: write one concrete document at the correct ownership node.
 - Use when:
-  - a feature, module, or system change needs to become durable documentation
-  - you need to decide the primary file, path, front matter, lineage, and
-    immediate companion updates
-  - the job is one recording wave rather than full lifecycle management
+  - a module, submodule, or component change needs durable docs
+  - you need to decide create versus update without losing child detail
+  - you need to write one purpose doc, proposal, current-state page, guide,
+    contract, or operation note
+- Output boundary:
+  - records one node-local doc wave
+  - updates parent summaries or indexes only as light companion changes
 
 ### `project-doc-lifecycle-skill`
-- Purpose: manage lifecycle progression for one proposal or doc cluster.
+
+- Purpose: evolve one doc family across the ownership tree.
 - Use when:
-  - an RFC has been accepted or implemented and you need promotion decisions
-  - docs overlap, go stale, or need supersede/archive handling
-  - you need to decide whether to extract ADR, add current-state, or repair
-    lineage across a doc family
+  - a proposal was implemented and needs promotion
+  - a parent doc is overloaded and should split
+  - child detail is trapped in the wrong place
+  - supersede, archive, and lineage repair decisions are needed
+- Output boundary:
+  - returns the rebalancing plan and record-skill handoffs
+  - concrete file writing still belongs to `project-doc-record-skill`
+
+## Placement Matrix
+
+- Project purpose
+  - root overview or root `docs/README.md`
+- Project phase goals
+  - system-level planning docs, roadmap docs, or tracked issues
+- Module purpose
+  - `<module>/docs/README.md` or a module-local overview page
+- Submodule detailed plan
+  - the submodule's own `docs/`
+- Component implementation detail
+  - component-local docs only when the component has durable standalone
+    knowledge
+- Current state
+  - the node that owns the implemented behavior
+- Execution checklist
+  - issues, PRs, or task tracking, not current-state docs
 
 ## Recommended Workflow
 
-1. Use `project-doc-architecture-skill` when the repository lacks a clear
-   reader-first documentation system or a usable system overview.
-2. Use `project-doc-record-skill` to land the concrete files, pages, or index
-   updates implied by that architecture plan, and for day-to-day document
-   landing work:
-   proposals, current-state pages, guides, contracts, and one-off decisions.
-3. Use `project-doc-lifecycle-skill` when a proposal or doc cluster needs
-   promotion, reconciliation, or status progression.
-4. If the repository already has coherent docs architecture, most day-to-day
-   work can go directly through `project-doc-record-skill`.
+1. Use `project-doc-architecture-skill` to inspect the code tree and docs
+   tree, then design the target ownership-tree layout.
+2. Use `project-doc-record-skill` to place one concrete document at the
+   correct node and preserve local detail.
+3. Use `project-doc-lifecycle-skill` when a doc family needs promotion,
+   splitting, supersede handling, or lineage repair.
+4. If the docs tree is already coherent, most day-to-day work can go directly
+   through `project-doc-record-skill`.
 
 ## Package Roles
 
 - `project-doc-architecture-skill`
-  - defines reader entry model
-  - bootstraps system overview when missing
-  - defines active and reserved doc types
-  - assigns current-state or manual ownership
+  - derives ownership nodes
+  - defines placement by lowest common ancestor
+  - assigns root versus node-local responsibilities
+  - defines parent-summary and child-detail rules
 - `project-doc-record-skill`
-  - locates one change in the system
-  - chooses the lifecycle role and primary artifact
-  - decides immediate local updates for one recording wave
-  - records the resulting docs
+  - finds the owning node for one document
+  - decides create versus update for that node
+  - keeps detailed local knowledge in the correct child doc
+  - writes the resulting doc wave
 - `project-doc-lifecycle-skill`
-  - decides lifecycle progression for one proposal or doc cluster
-  - determines promotion, supersede, and archive actions
-  - hands concrete doc-writing work back to `project-doc-record-skill`
+  - detects overloaded parent docs and stale placement
+  - decides promotion, split, supersede, and archive actions
+  - hands concrete writes back to `project-doc-record-skill`
 
 ## Example Prompts
 
-### Governance
+### Architecture
 
 ```text
-Use $project-doc-architecture-skill to inspect this repository's docs and
-codebase, redesign its documentation information architecture, and bootstrap a
-system overview because the current docs are hard to navigate.
+Use $project-doc-architecture-skill to inspect this repository's code tree and
+docs tree, identify overloaded root docs, and design a docs ownership tree with
+root, module, submodule, and component responsibilities.
 ```
 
 ### Record
 
 ```text
-Use $project-doc-record-skill to inspect this repository's current doc rules,
-locate this feature change in the system, and record the right documentation
-artifact plus any immediate local companion updates for this recording wave.
+Use $project-doc-record-skill to inspect the nearby docs for this submodule,
+determine the ownership node and lowest common ancestor, and record this plan
+without collapsing child detail into the parent doc.
 ```
 
 ### Lifecycle
 
 ```text
-Use $project-doc-lifecycle-skill to inspect this implemented RFC, decide which
-current-state, ADR, guide, or archive actions are needed, and hand concrete
-doc-writing work to $project-doc-record-skill.
+Use $project-doc-lifecycle-skill to inspect this implemented RFC family,
+decide whether the parent should split into child docs, repair lineage, and
+produce the concrete handoffs that $project-doc-record-skill should execute.
 ```
 
 ## Package Layout
