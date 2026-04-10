@@ -16,6 +16,8 @@ Place module purpose at the module node:
 - or a module-local purpose page when the module root README is not the right
   home
 
+Do not place module purpose inside a docs-only grouping folder by default.
+
 ## Phase Goals
 
 Place phase or milestone goals at the system level:

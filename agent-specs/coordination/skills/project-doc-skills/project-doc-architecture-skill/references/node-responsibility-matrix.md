@@ -2,6 +2,9 @@
 
 Use this reference when assigning doc responsibilities by node level.
 
+Each node in this matrix must correspond to a real code ownership seam, not
+only to a docs folder or topic grouping.
+
 ## System
 
 - project purpose

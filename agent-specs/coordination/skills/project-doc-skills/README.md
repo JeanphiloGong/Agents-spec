@@ -11,10 +11,12 @@ ownership-tree-first model:
 
 ## Package Model
 
-The package assumes two placement rules:
+The package assumes three placement rules:
 
 1. Place docs at the lowest common ancestor of the thing they describe.
 2. Let parent docs summarize and index, while child docs preserve local detail.
+3. Treat only real code-owned seams as ownership nodes; docs-only grouping
+   folders are containers by default, not nodes.
 
 ## Skills
 
@@ -91,8 +93,11 @@ The package assumes two placement rules:
   component node.
 - `<node>/docs/` is the node's formal-doc container, not a second default
   homepage.
-- Only add `<node>/docs/README.md` when that local docs subtree has enough
-  durable content that it needs its own secondary index.
+- Docs-only grouping folders such as `docs/rfcs/`, `docs/guides/`, or topic
+  buckets like `docs/generation/` are not ownership nodes by default.
+- Only add `<node>/docs/README.md` when that local docs subtree has at least
+  4 durable docs, spans mixed intents, or has a non-obvious reader path that
+  genuinely needs a second index.
 - Avoid keeping both `<node>/README.md` and `<node>/docs/README.md` as
   competing summaries of the same node by default.
 

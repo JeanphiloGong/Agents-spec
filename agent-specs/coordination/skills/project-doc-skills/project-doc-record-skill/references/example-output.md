@@ -30,6 +30,7 @@ wave should be recorded.
 ## Scope Boundary Decision
 - keep only module purpose, boundary, and child links here
 - do not add child implementation plans
+- do not create `graph/docs/README.md` just to mirror the local docs folders
 
 ## Immediate Companion Updates
 - parent summary: no
@@ -54,6 +55,8 @@ wave should be recorded.
 ## Index Update Plan
 - update the nearest parent index only if this module page becomes newly
   discoverable
+- do not add a second local docs index unless the subtree later grows large or
+  mixed enough to justify it
 ```
 
 ## Example: Child Plan Must Stay Separate
