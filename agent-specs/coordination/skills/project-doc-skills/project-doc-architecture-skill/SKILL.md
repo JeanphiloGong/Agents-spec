@@ -1,6 +1,6 @@
 ---
 name: project-doc-architecture-skill
-description: v0.2.0 - Design or refactor one repository's documentation ownership tree by aligning root, module, submodule, and component docs with code ownership, placing docs by lowest common ancestor, and defining parent-summary/child-detail rules; concrete file creation belongs to project-doc-record-skill.
+description: v0.2.1 - Design or refactor one repository's documentation ownership tree by aligning root, module, submodule, and component docs with real code ownership seams, placing docs by lowest common ancestor, and defining parent-summary/child-detail rules; concrete file creation belongs to project-doc-record-skill.
 ---
 
 # Project Documentation Architecture Skill
@@ -15,6 +15,7 @@ In scope:
 - identifying where root docs are overloaded or local docs are missing
 - deriving durable documentation nodes at the system, module, submodule, and
   component levels
+- distinguishing real ownership nodes from docs-only grouping directories
 - deciding which nodes deserve their own local docs
 - placing docs by lowest common ancestor rather than by raw type-first
   taxonomy
@@ -55,9 +56,12 @@ This skill exists to help you:
 1. Inspect the code ownership tree.
    - Identify system, module, submodule, and component boundaries from the
      actual repository layout and major ownership seams.
+   - Do not treat docs-only grouping folders as ownership nodes unless they
+     map to a real owned code seam.
 2. Inspect the current docs tree.
    - Look for root `docs/`, node-local `*/docs/`, existing indexes, and where
      detailed plans currently accumulate.
+   - Note where docs-only grouping folders are being mistaken for real nodes.
 3. Identify concentration and placement problems.
    - Check for:
      - overloaded root docs
@@ -103,12 +107,18 @@ This skill exists to help you:
 - Node levels: `system`, `module`, `submodule`, `component`
 - Placement rule: place each doc at the lowest common ancestor of the thing it
   describes
+- Node definition rule: only real code-owned seams count as `system`, `module`,
+  `submodule`, or `component`; docs-only grouping folders are containers by
+  default
 - Root docs role: system-level purpose, cross-module architecture, shared
   contracts, governance, and top-level indexes
 - Node entry role: use the node root `README.md` for node purpose, boundary,
   and navigation when that node needs its own entry page
 - Node-local docs role: local current-state, local proposals, local guides,
   local runbooks, and detailed implementation plans
+- Secondary index rule: add `<node>/docs/README.md` only when a local docs
+  subtree has at least 4 durable docs, spans mixed intents, or has a
+  non-obvious reader path that needs a second index
 - Parent-summary rule: parents summarize and link, but do not retain child
   implementation detail
 - Child-detail rule: detailed plans, file change lists, verification slices,
@@ -150,6 +160,10 @@ This skill exists to help you:
 - Do not design placement from folder aesthetics alone.
 - Do not centralize child detail into root docs just to keep fewer files.
 - Do not create node-local docs where no durable local knowledge exists.
+- Do not treat docs-only grouping folders such as `docs/rfcs`, `docs/guides`,
+  or topic buckets as ownership nodes by default.
+- Do not add `docs/README.md` to a tiny or single-intent subtree just for
+  symmetry.
 - Do not let parent docs become the only home of child implementation detail.
 - Do not silently switch into concrete file creation; hand that work to
   `project-doc-record-skill`.
@@ -159,6 +173,9 @@ This skill exists to help you:
 - Verify that both the code tree and docs tree were inspected.
 - Verify that placement follows lowest common ancestor rather than type-first
   convenience.
+- Verify that each proposed node corresponds to a real code ownership seam.
 - Verify that each doc-worthy node has a real durable purpose.
 - Verify that root docs stay focused on system or cross-module knowledge.
+- Verify that any proposed `docs/README.md` is justified as a real secondary
+  index rather than folder decoration.
 - Verify that parent docs only summarize and link to child detail.

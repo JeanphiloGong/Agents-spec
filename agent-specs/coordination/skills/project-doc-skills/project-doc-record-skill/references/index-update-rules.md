@@ -18,6 +18,18 @@ updated.
 - section `README.md` files only when a local docs subtree truly needs a
   secondary index
 
+## Secondary Index Gate
+
+Treat a local `docs/README.md` as a real secondary index only when:
+- the subtree has at least 4 durable docs
+- the subtree spans mixed intents such as proposals plus current-state plus
+  guides
+- or the reader path is non-obvious enough that the node root `README.md`
+  cannot navigate it cleanly
+
+Do not add a section `README.md` to a tiny or single-intent subtree just for
+symmetry.
+
 ## Default Rule
 
 If discoverability changed, the index should change too.

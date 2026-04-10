@@ -1,6 +1,6 @@
 ---
 name: project-doc-lifecycle-skill
-description: v0.2.0 - Manage one doc family's evolution across the ownership tree by deciding promotion, split, supersede, archive, and lineage-repair actions, then handing concrete doc writes to project-doc-record-skill.
+description: v0.2.1 - Manage one doc family's evolution across the ownership tree by deciding promotion, split, supersede, archive, and lineage-repair actions across real code-owned nodes, then handing concrete doc writes to project-doc-record-skill.
 ---
 
 # Project Documentation Lifecycle Skill
@@ -56,6 +56,8 @@ This skill exists to help you:
 2. Inspect code and current implementation reality.
    - Compare the docs with current behavior, ownership boundaries, and existing
      node-local docs.
+   - Treat docs-only grouping folders as containers unless they map to a real
+     owned code seam.
    - Record unknowns explicitly.
 3. Detect lifecycle and placement problems.
    - Check for:
@@ -126,6 +128,8 @@ This skill exists to help you:
 - Archive baseline: prefer `superseded` or `deprecated` before archival
 - Execution model: decide lifecycle and placement here, then hand concrete doc
   writing to `project-doc-record-skill`
+- Node definition rule: target nodes must correspond to real code-owned seams,
+  not docs-only grouping folders
 
 ## Bundled Resources
 
@@ -169,6 +173,8 @@ This skill exists to help you:
 - Do not keep adding child detail into an overloaded parent doc.
 - Do not promote everything upward to root docs when the real source of truth
   belongs lower in the tree.
+- Do not propose docs-only grouping folders as target ownership nodes by
+  default.
 - Do not delete history blindly; prefer supersede, archive, and repair links.
 - Do not write full final bodies for every target doc here; hand concrete
   writing to `project-doc-record-skill`.
@@ -182,4 +188,6 @@ This skill exists to help you:
 - Verify that promotion and split decisions are justified rather than
   automatic.
 - Verify that parent and child boundaries after rebalancing are explicit.
+- Verify that record-skill handoffs target real code-owned nodes rather than
+  docs-only grouping folders.
 - Verify that record-skill handoffs are node-specific and executable.

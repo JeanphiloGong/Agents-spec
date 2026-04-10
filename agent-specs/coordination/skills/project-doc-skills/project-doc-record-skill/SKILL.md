@@ -1,6 +1,6 @@
 ---
 name: project-doc-record-skill
-description: v0.4.0 - Record one concrete documentation artifact at the correct ownership node by determining lowest-common-ancestor placement, preserving child scope, using an intent-appropriate body structure, and adding metadata only when the repository actually consumes it.
+description: v0.4.1 - Record one concrete documentation artifact at the correct code-owned node by determining lowest-common-ancestor placement, preserving child scope, using an intent-appropriate body structure, and adding metadata only when the repository actually consumes it.
 ---
 
 # Project Documentation Record Skill
@@ -13,6 +13,7 @@ written into repository docs at the right ownership node.
 In scope:
 - inspecting local docs near the relevant code node before writing
 - determining the ownership node and lowest common ancestor placement
+- distinguishing real code-owned nodes from docs-only grouping folders
 - determining the document intent before choosing structure or path
 - deciding whether to create a child doc or update an existing parent doc
 - preserving detailed implementation artifacts instead of collapsing them into
@@ -80,6 +81,9 @@ Always decide these dimensions before writing:
      - module
      - submodule
      - component
+   - Treat only real code-owned seams as nodes.
+   - Do not treat docs-only grouping folders under `*/docs/` as nodes by
+     default.
 3. Determine lowest common ancestor placement.
    - Place the doc at the lowest node that fully owns the described knowledge
      or change.
@@ -132,6 +136,8 @@ Always decide these dimensions before writing:
 - Operating target: `one-node-local-doc-wave`
 - Ownership levels: `system`, `module`, `submodule`, `component`
 - Placement rule: lowest common ancestor
+- Node definition rule: only real code-owned seams count as nodes; docs-only
+  grouping folders are containers unless they map to a real owned code seam
 - Root docs rule: reserve root `docs/` for system-level or cross-module
   knowledge
 - Node-local rule: keep module, submodule, and component knowledge close to the
@@ -141,7 +147,8 @@ Always decide these dimensions before writing:
 - Local docs rule: treat `<node>/docs/` as the node's formal-doc container, not
   a second default homepage
 - Local docs README rule: only add `<node>/docs/README.md` when that local docs
-  subtree truly needs a secondary index
+  subtree has at least 4 durable docs, spans mixed intents, or has a
+  non-obvious reader path that truly needs a secondary index
 - Parent-summary rule: parent docs summarize and link, but do not keep child
   detail by default
 - Child-detail rule: file change plans, execution slices, verification slices,
@@ -206,6 +213,10 @@ Always decide these dimensions before writing:
   local risks just to reduce file count.
 - Do not use root `docs/` for local module detail unless the knowledge is
   truly cross-module.
+- Do not treat `docs/guides`, `docs/rfcs`, topic buckets, or similar docs-only
+  folders as ownership nodes by default.
+- Do not add `docs/README.md` to a tiny or single-intent subtree just for
+  symmetry.
 - Do not add front matter only because the file is formal markdown.
 - Do not duplicate the H1 title in front matter unless the repo or renderer
   truly consumes it.
@@ -216,11 +227,15 @@ Always decide these dimensions before writing:
 
 - Verify that nearby local docs were inspected before placement was chosen.
 - Verify that the ownership node and lowest common ancestor are explicit.
+- Verify that the chosen node is a real code-owned seam rather than a docs-only
+  grouping folder.
 - Verify that create-versus-update does not collapse a narrower child scope
   into a broader parent doc.
 - Verify that detailed implementation artifacts remain preserved when they
   matter to the document's job.
 - Verify that metadata is absent unless the repo truly consumes it, or minimal
   when present.
+- Verify that any proposed `docs/README.md` is justified by a real secondary
+  index need.
 - Verify that parent docs only summarize and link to child detail.
 - Verify that the final path matches the node that owns the knowledge.

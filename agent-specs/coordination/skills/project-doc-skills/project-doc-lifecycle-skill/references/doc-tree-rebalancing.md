@@ -15,3 +15,5 @@ Rebalance the family so:
 - parent docs summarize and link
 - child docs hold local detail
 - current-state sits at the node that owns the implemented behavior
+- target nodes remain real code-owned seams rather than docs-only grouping
+  folders

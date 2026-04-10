@@ -10,6 +10,13 @@ ownership tree.
 3. Place the doc at the lowest common ancestor that fully owns the knowledge.
 4. Reuse an existing local docs subtree only when it already matches that node.
 
+## Node Definition
+
+Only real code-owned seams count as ownership nodes.
+
+Docs-only grouping folders such as `docs/rfcs`, `docs/guides`, or topic
+buckets are containers by default, not nodes.
+
 ## Root `docs/`
 
 Use root `docs/` for:
@@ -42,6 +49,9 @@ Use the node root `README.md` for:
 - child detail under a broad parent => child path plus parent summary link
 - do not add `<node>/docs/README.md` by default when `<node>/README.md`
   already owns the node summary
+- only add `<node>/docs/README.md` when the local docs subtree has at least 4
+  durable docs, spans mixed intents, or has a genuinely non-obvious reader
+  path
 
 ## Naming Rules
 
