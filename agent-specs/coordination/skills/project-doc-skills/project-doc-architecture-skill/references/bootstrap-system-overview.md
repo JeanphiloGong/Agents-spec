@@ -1,35 +1,35 @@
 # Bootstrap System Overview
 
-Use this reference when the repository lacks a usable top-level overview and
-the skill must derive one from inspection.
+Use this reference when the system node lacks a usable overview page.
 
 ## Inspect First
 
 Scan:
 - top-level packages or services
+- major ownership seams
 - routing or API entrypoints
 - background jobs or workers
-- major storage or external dependency surfaces
+- shared storage or external dependency surfaces
 - existing docs that already describe subsystems
 
 ## Extract
 
 Derive:
-- system boundary
-- major modules or services
-- core data or control flows
-- obvious external interfaces
-- operational surfaces worth mentioning
+- system purpose and boundary
+- major modules
+- core flows
+- major external interfaces
+- links to module or submodule docs when they already exist
 
 ## Output Shape
 
-A good overview bootstrap usually proposes:
-- one overview landing page
-- one module map page
-- one core flows page
-- links to deeper current-state pages
+A good system overview bootstrap usually proposes:
+- one root overview landing page
+- one module map page or section
+- one core flows page or section
+- links into node-local current-state or plan docs
 
 ## Unknowns
 
 If inspection is incomplete, mark the unknown explicitly. Do not invent a
-clean architecture that the repository does not actually show.
+clean system shape that the repository does not actually show.

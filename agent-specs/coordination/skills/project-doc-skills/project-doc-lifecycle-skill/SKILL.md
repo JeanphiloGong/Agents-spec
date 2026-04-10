@@ -1,140 +1,149 @@
 ---
 name: project-doc-lifecycle-skill
-description: v0.1.0 - Manage one documentation lifecycle wave for a proposal or doc cluster by deciding promotion, status progression, ADR extraction, current-state updates, stale-doc reconciliation, and archive or supersede actions.
+description: v0.2.0 - Manage one doc family's evolution across the ownership tree by deciding promotion, split, supersede, archive, and lineage-repair actions, then handing concrete doc writes to project-doc-record-skill.
 ---
 
 # Project Documentation Lifecycle Skill
 
 ## Trigger and Scope
 
-Use this skill when one RFC, ADR, architecture page, or related doc cluster
-needs lifecycle management rather than one-off recording.
+Use this skill when one proposal, current-state page, ADR, or related doc
+cluster needs evolution planning across the ownership tree rather than one-off
+doc writing.
 
 In scope:
-- deciding what stage one proposal or doc cluster is in now
-- deciding what should happen after an RFC is accepted or implemented
-- deciding whether an ADR should be extracted
-- deciding whether current-state, contract, guide, or runbook docs must be
-  created or updated
-- reconciling stale or overlapping docs in one document family
-- deciding supersede, deprecate, archive, or relink actions
-- defining the execution order for the next lifecycle wave
+- inspecting one doc family and its current ownership-node placement
+- comparing docs with implemented code reality
+- detecting overloaded parent docs, stale summaries, hidden child detail, and
+  overlapping current-state pages
+- deciding whether implemented proposals should promote into current-state,
+  contracts, guides, or runbooks
+- deciding whether a broad parent doc should split into child docs
+- deciding supersede, archive, and relink actions
+- defining lineage repair across parent and child docs
+- producing an ordered handoff that `project-doc-record-skill` can execute
 
 Out of scope:
-- redesigning the repository's overall documentation architecture
-- drafting one concrete document from scratch with full body content
+- redesigning the repository's overall docs tree
+- drafting full final bodies for every resulting target doc
 - replacing day-to-day record placement for one normal doc-writing request
-- migrating the entire docs tree in one pass
+- migrating the entire repository docs tree in one pass
 
 Use this skill when prompts sound like:
-- "this RFC is implemented now, what else should exist?"
-- "do we need an ADR here?"
-- "which docs should be updated or archived after this change?"
-- "these docs overlap; how should they evolve?"
+- "this implemented RFC is too big now; what should be split or promoted?"
+- "which current-state docs should exist after this change?"
+- "the parent doc is overloaded; how should the family evolve?"
+- "which docs should be superseded, archived, or relinked?"
 
 ## Core Purpose
 
-Prevent proposal docs from becoming dead ends and keep one document family
-moving toward accurate system knowledge.
+Keep one document family evolving toward accurate, well-placed system
+knowledge.
 
 This skill exists to help you:
-- determine lifecycle state and desired target state
-- decide promotion from proposal into current-state and related docs
-- separate durable decisions from transient proposals
-- reconcile stale or overlapping docs without deleting history blindly
+- detect when proposal history has outgrown its current placement
+- split overloaded parent docs before they absorb more child detail
+- decide promotion into current-state and related durable docs
+- preserve history while making the new source of truth easier to find
 - hand concrete writing work to `project-doc-record-skill` in a clear order
-
-## Mode Selection
-
-- `promote-proposal`
-  - Use when a proposal was accepted or implemented and the repo now needs the
-    right follow-on docs.
-- `extract-decision`
-  - Use when a durable decision should be separated from a broader proposal or
-    architecture discussion.
-- `reconcile-current-state`
-  - Use when current-state docs lag behind implemented behavior or overlap with
-    proposal docs.
-- `supersede-or-archive`
-  - Use when old docs need status transitions, supersede links, or archival
-    decisions.
 
 ## Workflow
 
-1. Inspect the source doc cluster.
-   - Read the triggering RFC, ADR, architecture page, or related set of docs.
-   - Note status, owner, lineage, and obvious overlap.
-2. Inspect implementation and current-state reality.
-   - Compare the docs with code, current behavior, and current-state pages.
+1. Inspect the source doc family.
+   - Read the triggering RFC, ADR, architecture page, or related cluster.
+   - Note current status, placement node, parent links, child links, and
+     obvious overlap.
+2. Inspect code and current implementation reality.
+   - Compare the docs with current behavior, ownership boundaries, and existing
+     node-local docs.
    - Record unknowns explicitly.
-3. Determine the current lifecycle state.
-   - Decide whether the source is:
-     - still proposal-only
-     - accepted but not implemented
-     - partially implemented
+3. Detect lifecycle and placement problems.
+   - Check for:
      - implemented but not promoted
+     - stale parent summary
+     - overloaded parent doc
+     - hidden child detail
+     - overlapping current-state docs
+     - missing lineage links
+4. Determine current lifecycle and placement state.
+   - Decide whether the family is:
+     - proposal-only
+     - accepted but not implemented
+     - implemented but not promoted
+     - promoted but badly placed
      - current but stale-linked
      - superseded or archival-ready
-4. Decide the target lifecycle state.
-   - Define what this wave should accomplish:
-     - promote to current-state
-     - extract ADR
-     - add contract
-     - add guide or runbook
-     - relink current docs
-     - supersede or archive old docs
-5. Decide promotion targets.
-   - Explicitly decide whether the wave requires:
-     - architecture or current-state updates
+5. Define the target tree shape.
+   - Decide what the family should look like after this wave:
+     - parent summary plus child docs
+     - local current-state replacing proposal detail
+     - extracted ADR
+     - local contract, guide, or runbook
+     - superseded or archived history
+6. Decide promotion, split, and supersede actions.
+   - Explicitly decide whether this wave requires:
+     - current-state updates
+     - child-doc creation
      - ADR extraction
      - contract or spec docs
-     - guide docs
-     - runbook docs
-6. Decide status transitions and stale-doc actions.
-   - State which docs remain active, which become superseded, and which should
-     be archived.
-7. Decide lineage repairs.
-   - Define forward and backward links the document family should have after
-     this wave.
-8. Produce the lifecycle action plan.
+     - guide or runbook docs
+     - supersede or archive actions
+7. Decide parent summary changes.
+   - State what the parent should keep:
+     - short summary
+     - replacement links
+     - index guidance
+8. Decide child doc creates or updates.
+   - State which child nodes now need their own docs and why.
+9. Decide lineage repairs.
+   - Define forward and backward links after the wave:
+     - proposal to current-state
+     - parent to child
+     - superseded doc to replacement
+10. Produce the lifecycle handoff plan.
    - Order the actions.
-   - State which actions `project-doc-record-skill` should execute as concrete
-     doc-writing work.
+   - Specify which actions `project-doc-record-skill` should execute.
 
 ## Required Inputs
 
-- Source doc or doc cluster to evaluate
+- Source doc or doc family to evaluate
 - Current implementation or rollout state
-- Related current-state, contract, guide, or runbook docs if known
+- Related current-state, guide, contract, or local node docs if known
 
 ## Defaults
 
-- Operating target: `one-doc-family-lifecycle-wave`
-- Promotion baseline: implemented proposal requires an explicit
+- Operating target: `one-doc-family-tree-rebalance`
+- Promotion baseline: implemented proposals require an explicit
   current-state decision
+- Split baseline: overloaded parent docs should split before more child detail
+  is added
+- Child-source rule: child docs may become the canonical local source of truth
+  while the parent becomes summary or index
 - ADR baseline: extract only when the decision is durable and likely to be
   revisited
 - Contract baseline: add only when the boundary is stable and depended on
 - Runbook baseline: add only when operator recovery or intervention matters
-- Archive policy: prefer `superseded` or `deprecated` before archival
-- Execution model: decide the lifecycle wave here, then hand concrete doc
+- Archive baseline: prefer `superseded` or `deprecated` before archival
+- Execution model: decide lifecycle and placement here, then hand concrete doc
   writing to `project-doc-record-skill`
 
 ## Bundled Resources
 
+- `references/doc-tree-rebalancing.md`
+- `references/split-parent-doc-rules.md`
+- `references/promote-child-summary-rules.md`
+- `references/parent-child-lineage-repair.md`
 - `references/status-transition-model.md`
-- `references/promotion-decision-rules.md`
-- `references/stale-doc-reconciliation.md`
-- `references/lineage-repair-rules.md`
 - `references/example-output.md`
 
 ## Output Format
 
 ```text
 ## Lifecycle Goal
-## Source Documents
+## Source Node
 ## Current Lifecycle State
-## Desired End State
+## Current Placement Problems
+## Target Tree Shape
 ## Promotion Decisions
 - current-state/manual:
 - adr:
@@ -142,6 +151,9 @@ This skill exists to help you:
 - guide:
 - runbook:
 
+## Split Decisions
+## Parent Summary Changes
+## Child Doc Creates/Updates
 ## Status Transitions
 ## Lineage Repairs
 ## Record-Skill Handoffs
@@ -151,22 +163,23 @@ This skill exists to help you:
 
 ## Guardrails
 
-- Do not redesign the entire repository IA here; use
+- Do not redesign the repository's whole docs tree here; use
   `project-doc-architecture-skill` for that.
 - Do not treat every accepted RFC as an ADR candidate.
-- Do not leave implemented behavior trapped in proposal-only docs when system
-  understanding changed.
-- Do not delete decision history by default; prefer supersede and archive
-  links.
+- Do not keep adding child detail into an overloaded parent doc.
+- Do not promote everything upward to root docs when the real source of truth
+  belongs lower in the tree.
+- Do not delete history blindly; prefer supersede, archive, and repair links.
 - Do not write full final bodies for every target doc here; hand concrete
   writing to `project-doc-record-skill`.
 
 ## Verification Hooks
 
-- Verify that the source doc cluster and current implementation state were both
+- Verify that the source doc family and current implementation state were both
   inspected.
-- Verify that the current lifecycle state and desired end state are explicit.
-- Verify that promotion decisions are justified rather than automatic.
-- Verify that stale-doc handling preserves history and discoverability.
-- Verify that handoff actions are specific enough for
-  `project-doc-record-skill` to execute.
+- Verify that lifecycle problems and placement problems are both explicit.
+- Verify that the target tree shape is clearer than the current state.
+- Verify that promotion and split decisions are justified rather than
+  automatic.
+- Verify that parent and child boundaries after rebalancing are explicit.
+- Verify that record-skill handoffs are node-specific and executable.

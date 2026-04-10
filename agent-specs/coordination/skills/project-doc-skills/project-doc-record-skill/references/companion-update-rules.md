@@ -1,32 +1,29 @@
 # Companion Update Rules
 
-Use this reference after selecting the primary artifact.
+Use this reference after deciding the primary artifact.
 
-## Single-Doc Only Is Allowed When
+## Parent Updates Are Allowed When
 
-- the change is local
-- it does not alter system understanding
-- it does not create a durable decision
-- it does not create a stable boundary
-- it does not change recurring developer or operational workflows
+- the parent only needs a short summary
+- the parent only needs a stable link to the child doc
+- the parent acts as an index or boundary page
 
-## Companion Updates Are Required When
+## Extra Updates Are Required When
 
 At least one of these is true:
-- module or service boundaries changed
-- a core flow changed
-- implemented behavior changed current system understanding
-- a durable design decision was made
-- a stable contract or schema changed
-- developer workflow changed
-- operator recovery or troubleshooting changed
-- discoverability would suffer without index or entry page updates
+- discoverability would suffer without parent or index updates
+- a local current-state page should now point to the new child doc
+- a cross-node summary must acknowledge the new local source of truth
+- a child detail doc changes the parent's local navigation surface
 
-## Companion Update Targets
+## Common Companion Targets
 
-- `architecture/current-state`
-- `adr`
-- `contract/spec`
-- `guide`
-- `runbook`
-- root or section indexes
+- parent summary or parent index
+- current-state page at the same node
+- root or section index
+- footer lineage or related-doc links
+
+## Rule
+
+Use companion updates to improve discovery, not to relocate child detail back
+into parent docs.

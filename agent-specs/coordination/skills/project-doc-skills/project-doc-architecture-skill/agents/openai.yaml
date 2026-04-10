@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Doc Architecture"
-  short_description: "v0.1.1 - Design repo docs IA and overview plans; concrete files via record skill"
-  default_prompt: "Use $project-doc-architecture-skill to inspect this repository's docs and codebase, design a reader-first documentation information architecture, and bootstrap a system overview when the repo lacks a usable top-level overview. Return architecture guidance and overview coverage plans; hand concrete file creation to $project-doc-record-skill."
+  short_description: "v0.2.0 - Design a docs ownership tree aligned with code ownership"
+  default_prompt: "Use $project-doc-architecture-skill to inspect this repository's code ownership tree and docs tree, derive durable documentation nodes, place docs by lowest common ancestor, define root versus node-local responsibilities, and produce an ownership-tree doc layout that concrete file creation can later realize through $project-doc-record-skill."

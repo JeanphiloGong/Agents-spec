@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Doc Lifecycle"
-  short_description: "v0.1.0 - Manage RFC promotion and doc evolution"
-  default_prompt: "Use $project-doc-lifecycle-skill to inspect one proposal or doc cluster, decide its lifecycle progression, and determine the needed current-state, ADR, contract, guide, runbook, or archive actions before handing concrete doc writing to $project-doc-record-skill."
+  short_description: "v0.2.0 - Rebalance one doc family across the ownership tree"
+  default_prompt: "Use $project-doc-lifecycle-skill to inspect one proposal or doc family, compare it with current implementation reality, detect overloaded parent docs or stale placement, decide the target tree shape, and produce the promotion, split, supersede, and lineage-repair handoffs that $project-doc-record-skill should execute concretely."

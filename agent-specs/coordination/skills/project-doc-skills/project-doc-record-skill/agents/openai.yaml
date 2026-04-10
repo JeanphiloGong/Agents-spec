@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Doc Record"
-  short_description: "v0.3.4 - Record one doc wave with metadata only when consumed"
-  default_prompt: "Use $project-doc-record-skill to inspect this repository's current documentation rules, locate this one change in the system, choose the right documentation artifact, use a lifecycle-role-appropriate body structure, and default to no front matter unless the repository clearly consumes metadata."
+  short_description: "v0.4.0 - Record one doc at the correct ownership node"
+  default_prompt: "Use $project-doc-record-skill to inspect this repository's nearby docs and code ownership, determine the ownership node and lowest common ancestor, choose the correct artifact, preserve child detail instead of collapsing it into a parent doc, and write the resulting document with metadata only when the repository truly consumes it."

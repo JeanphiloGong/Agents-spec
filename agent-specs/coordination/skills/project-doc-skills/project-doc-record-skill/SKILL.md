@@ -1,265 +1,190 @@
 ---
 name: project-doc-record-skill
-description: v0.3.4 - Record one concrete documentation artifact by classifying lifecycle role, locating system placement, choosing the primary file, using a role-appropriate body structure, and adding metadata only when the repository actually consumes it.
+description: v0.4.0 - Record one concrete documentation artifact at the correct ownership node by determining lowest-common-ancestor placement, preserving child scope, using an intent-appropriate body structure, and adding metadata only when the repository actually consumes it.
 ---
 
 # Project Documentation Record Skill
 
 ## Trigger and Scope
 
-Use this skill when one concrete project change, plan, decision, current-state
-update, contract, guide, or operation record must be written into repository
-documentation.
+Use this skill when one concrete piece of durable project knowledge must be
+written into repository docs at the right ownership node.
 
 In scope:
-- inspecting the project's current documentation rules first
-- locating the change in the system before choosing the document type
-- classifying lifecycle role before doc type
-- deciding whether the result is a single-document record or requires
-  companion updates
-- choosing the target path and whether to create or update a file
-- generating front matter that matches the project's current conventions
-- keeping reader-facing metadata and cross-links absent or lightweight unless
-  the repo actually consumes them
-- writing the document body in a clean, role-appropriate structure
-- linking the new or updated doc back to the relevant issue, current-state,
-  proposal, decision, contract, guide, or runbook context
+- inspecting local docs near the relevant code node before writing
+- determining the ownership node and lowest common ancestor placement
+- determining the document intent before choosing structure or path
+- deciding whether to create a child doc or update an existing parent doc
+- preserving detailed implementation artifacts instead of collapsing them into
+  broader docs
+- deciding immediate parent summary, footer, and index updates
+- adding metadata only when the repository actually consumes it
+- writing the concrete document body for this one doc wave
 
 Out of scope:
-- redesigning the repository's entire documentation governance model from
-  scratch
-- writing product copy, README prose, or informal notes with no durable
-  knowledge intent
-- recording a plan before the content has enough clarity to stand as a durable
-  document
+- redesigning the repository's overall docs tree
+- deciding lifecycle progression for an entire doc family
 - migrating a whole docs tree in one pass
+- using one parent doc as a dumping ground for unrelated local changes
 
 Use this skill when prompts sound like:
-- "record this agreed design into docs"
-- "turn this change into the right current-state or ADR record"
-- "for this feature, which docs should exist besides the main proposal?"
-- "write the right doc for this one change"
+- "write the right doc for this module change"
+- "where should this submodule plan live, and write it"
+- "should this be a new child doc or an update to the parent doc?"
+- "record this detailed implementation plan without losing the file list"
 
 ## Core Purpose
 
-Record one documentation artifact in the right place and land the immediate
-updates needed for that one documentation wave.
+Write the document at the correct node without losing ownership boundaries or
+detailed local knowledge.
 
 This skill exists to help you:
-- place a change in the system before selecting a doc type
-- distinguish proposal, decision, current-state, contract, development, and
-  operational records
-- allow low-impact local changes to remain single-doc when that is sufficient
-- decide the immediate companion updates needed for the current recording wave
-- keep lineage and discoverability explicit instead of leaving them in chat
-  context
-- keep body structure aligned with lifecycle role instead of reusing generic
-  formal-doc prose
-- hand off lifecycle progression and stale-doc reconciliation to
-  `project-doc-lifecycle-skill`
+- place docs by ownership node rather than by raw root-doc convenience
+- preserve child-scope detail instead of flattening it into parent docs
+- choose intent-appropriate body structure
+- keep parent docs as summary and navigation layers
+- keep metadata optional and lightweight unless the repository truly consumes it
 
-## Mode Selection
+## Decision Dimensions
 
-- `record-proposal`
-  - Use for proposed changes, design options, or rollout plans that are not yet
-    the repository's implemented current state.
-- `record-decision`
-  - Use for one settled decision that already deserves an ADR or equivalent
-    decision record.
-- `record-current-state`
-  - Use for how the system works now after implementation or clarification.
-- `record-contract`
-  - Use for stable, depended-on APIs, schemas, state models, or interface
-    boundaries.
-- `record-operation`
-  - Use for developer workflow, operator recovery, troubleshooting, rollback,
-    or runbook material.
+Always decide these dimensions before writing:
 
-If the user does not specify a mode, infer it from lifecycle role and disclose
-the inference in the output.
-
-If the request is really about:
-- RFC promotion after implementation
-- stale or conflicting doc families
-- supersede, archive, or status progression
-
-then stop and hand the task to `project-doc-lifecycle-skill` instead of
-stretching this skill.
-
-## System Placement Check (Required)
-
-Before choosing the primary document type, locate the change in the system.
-
-The output must answer:
-- which module or service owns the change
-- which higher-level capability or user-visible function it serves
-- which core flow or subsystem it affects
-- whether it changes proposal, decision, current-state, contract, development
-  flow, or operation
-- which current-state or manual page must be created or updated, if any
-
-This step decides whether a single document is enough or whether the current
-recording wave also needs immediate companion updates.
+- `ownership node`
+  - Which node owns this knowledge:
+    - `system`
+    - `module`
+    - `submodule`
+    - `component`
+- `document intent`
+  - What the document primarily does:
+    - `purpose`
+    - `proposal`
+    - `current-state`
+    - `contract`
+    - `guide`
+    - `operation`
+- `detail level`
+  - Is this:
+    - parent summary or index
+    - normal node-local durable doc
+    - detailed child implementation plan
 
 ## Workflow
 
-1. Inspect current repository doc rules and entry pages first.
-   - Look for root `docs/`, module-local `*/docs/`, entry pages, RFC, ADR,
-     architecture, guide, runbook, or spec files, front matter patterns,
-     naming rules, and indexing conventions.
-   - If the project has no clear rules, fall back to a light default structure
-     and note that `project-doc-architecture-skill` should be used later to
-     formalize the system.
-2. Run the `System Placement Check`.
-   - Locate the change in the system before selecting the primary artifact.
-3. Classify the lifecycle role first.
-   - Choose among:
+1. Inspect local docs around the relevant code node.
+   - Look at root `docs/`, nearby `*/docs/`, local `README.md`, current local
+     plans, and local current-state pages.
+2. Determine the ownership node.
+   - Decide the concrete node that owns this knowledge:
+     - system
+     - module
+     - submodule
+     - component
+3. Determine lowest common ancestor placement.
+   - Place the doc at the lowest node that fully owns the described knowledge
+     or change.
+4. Determine document intent.
+   - Choose the document's primary job:
+     - purpose
      - proposal
-     - decision
      - current-state
      - contract
-     - development guide
+     - guide
      - operation
-4. Select the primary artifact.
-   - Choose the primary file type and level from lifecycle role, project rules,
-     and scope.
-5. Decide immediate companion updates.
-   - Explicitly decide whether the change also requires:
-     - architecture or current-state updates
-     - contract or spec updates
-     - guide updates
-     - runbook updates
-     - root or section index updates
-   - Low-impact local changes may remain `single-doc only` if discoverability
-     and system understanding are not materially affected.
-6. Decide whether to create or update.
-   - Reuse an existing authoritative doc when the new content clearly belongs
-     in it.
-   - Create a new file when reusing would blur scope, ownership, or lifecycle.
-7. Build front matter.
-   - Reuse the project's metadata pattern when one exists and is actively used.
-   - Otherwise default to no front matter at all.
-   - Add metadata only when repository governance, retrieval, ownership,
-     rendering, or cross-document reference needs clearly justify it.
-   - If metadata is needed but no heavier convention exists, prefer a minimal
-     set such as:
-     - `type`
-     - `status`
-     - `updated_at`
-8. Build the body structure.
-   - Choose a role-appropriate section structure before writing.
-   - For `current-state` and overview-style architecture pages, prefer direct
-     content sections such as:
-     - system boundary
-     - major modules or responsibilities
-     - core flows
-     - external interfaces
-     - related docs
-   - Avoid generic meta-introduction sections such as `Purpose`, "this
-     document explains", or "it answers" unless the repository already uses
-     that pattern intentionally.
-9. Build lineage.
-   - Add explicit links back to the relevant proposal, decision, current-state,
-     contract, guide, or runbook context.
-   - Prefer a lightweight footer section such as `Related Docs` for normal
-     cases.
-   - Use a full `Doc Lineage` block only when the relationships are complex
-     enough that a short footer would be ambiguous.
-10. Update indexes or entry pages when required.
-   - Update the relevant current-state, section, or root entry pages when
-     discoverability changes.
+5. Decide create versus update.
+   - Reuse an existing doc only when it already owns the exact same scope.
+   - Create a new child doc when updating a parent would blur boundaries or
+     erase detail.
+6. Enforce parent-summary and child-detail boundaries.
+   - Parents may receive a short summary, pointer, or index update.
+   - Child docs retain detailed plans, file change lists, execution order,
+     verification slices, ownership splits, and local risks.
+7. Decide immediate companion updates.
+   - Explicitly decide whether this recording wave also needs:
+     - parent summary update
+     - current-state update
+     - section or root index update
+     - footer or lineage links
+8. Decide metadata only if consumed.
+   - Reuse repository metadata only when it is actively used.
+   - Otherwise prefer no front matter.
+   - If metadata is needed, keep it minimal.
+9. Write the document.
+   - Use an intent-appropriate body structure.
+   - Keep the reader-facing shell light.
+10. Update parent summaries and indexes if needed.
+   - Update parent docs or indexes only with concise summaries, links, or
+     discovery guidance.
 11. Verify fit.
-   - Confirm the lifecycle role, system placement, primary artifact, companion
-     updates, path, and status all match the content.
-   - Confirm the result can be found later by a developer who did not join the
-     original discussion.
+   - Confirm node, intent, path, scope boundary, preserved detail, and
+     companion updates all match the document's job.
 
 ## Required Inputs
 
 - Project or repository name
-- The concrete plan, decision, implementation state, contract, guide, or
+- The concrete change, purpose, plan, current-state fact, contract, guide, or
   operation content to record
-- Any known related issue, task, or existing document
+- Relevant code path or ownership area if known
+- Any known related parent doc, child doc, issue, or current-state page
 
 ## Defaults
 
-- Inspection mode: inspect repo docs first, then adapt
-- Decision order:
-  - system placement first
-  - lifecycle role second
-  - doc type third
-- Default active type set: `rfc`, `architecture`, `guide`, `policy`
-- Default reserved type set: `adr`, `spec`, `runbook`, `postmortem`
-- Default levels: `system`, `domain`, `module`, `component`
-- Default front matter baseline: none
-- Minimal metadata fallback when a header is actually needed: `type`, `status`,
-  `updated_at`
-- Additional front matter fields such as `title`, `owner`, `id`,
-  `created_at`, `level`, and `domain` are opt-in and should be added only when
-  governance, retrieval, rendering, or cross-document reference needs clearly
-  justify them
-- Default placement strategy: root `docs/` for project-level decisions and
-  shared contracts; module-local `*/docs/` for local implementation guidance
-- Default create or update rule: update only when scope clearly matches;
-  otherwise create a new file
-- Single-doc rule: low-impact local changes may remain a single document
-- Companion update rule: system-affecting changes must explicitly decide
-  immediate companion updates for this recording wave
-- Lifecycle handoff rule: implemented RFC progression and stale-doc
-  reconciliation belong to `project-doc-lifecycle-skill`
-- ADR rule: use directly only when the input is already one settled decision
-- Contract rule: only when stability and downstream consumers justify it
-- Runbook rule: only when operator recovery or intervention matters
-- Index update rule: required when discoverability changes
-- Body structure rule: section layout must match lifecycle role and repository
-  convention instead of falling back to generic formal-doc prose
-- Current-state rule: overview or architecture pages should usually start with
-  direct system content, not self-referential `Purpose` disclaimers
-- Reader-facing shell rule: keep metadata and cross-links short at the top;
-  prefer footer placement for extended lineage
-- Metadata consumption rule: if no human workflow or machine workflow actually
-  consumes a metadata field, do not add it
-- Related-docs rule: use `Related Docs` as the default footer label; reserve
-  full `Doc Lineage` for complex multi-document relationships
-- Default status choice:
-  - proposal => `draft`
-  - accepted proposal => `accepted`
-  - current architecture/spec/guide/runbook => `active`
+- Operating target: `one-node-local-doc-wave`
+- Ownership levels: `system`, `module`, `submodule`, `component`
+- Placement rule: lowest common ancestor
+- Root docs rule: reserve root `docs/` for system-level or cross-module
+  knowledge
+- Node-local rule: keep module, submodule, and component knowledge close to the
+  owning node
+- Parent-summary rule: parent docs summarize and link, but do not keep child
+  detail by default
+- Child-detail rule: file change plans, execution slices, verification slices,
+  ownership boundaries, and local risks stay in the child doc
+- Create or update rule: update only when the existing doc already owns the
+  exact same scope
+- Metadata rule: no front matter unless the repository or toolchain actually
+  consumes it
+- Minimal metadata fallback: `type`, `status`, `updated_at`
+- Index rule: update indexes when discoverability changes
+- Body structure rule: choose structure from intent, not from one generic
+  formal-doc template
 
 ## Bundled Resources
 
-- `references/lifecycle-role-classification.md`
-- `references/system-placement-check.md`
+- `references/ownership-node-check.md`
+- `references/create-vs-update-rules.md`
+- `references/detail-preservation-rules.md`
+- `references/parent-update-vs-child-doc.md`
+- `references/body-structure-by-intent.md`
+- `references/metadata-consumption-rules.md`
+- `references/path-selection-and-placement.md`
 - `references/companion-update-rules.md`
 - `references/doc-lineage-block-template.md`
 - `references/index-update-rules.md`
-- `references/create-vs-update-rules.md`
-- `references/doc-type-classification.md`
-- `references/body-structure-by-role.md`
-- `references/frontmatter-template-rules.md`
-- `references/path-selection-and-placement.md`
+- `references/purpose-doc-template.md`
+- `references/delivery-goal-doc-template.md`
+- `references/example-output.md`
 
 ## Output Format
 
 ```text
 ## Recording Goal
-## System Placement
-- owning module/service:
-- serves capability:
-- affects core flow:
-- lifecycle role:
+## Ownership Node
+- node:
+- parent node:
+- lowest common ancestor:
 
+## Document Intent
 ## Primary Artifact
-## Immediate Companion Updates
-- current-state/manual:
-- contract/spec:
-- guide:
-- runbook:
-- indexes:
-
 ## Create or Update Decision
-## Front Matter Plan
-  - `none` is valid and preferred when the repo does not actually consume metadata
+## Scope Boundary Decision
+## Immediate Companion Updates
+- parent summary:
+- current-state:
+- indexes:
+- footer links:
+
+## Metadata Plan
 ## Body Structure Plan
 ## Footer Context Plan
 ## Index Update Plan
@@ -268,61 +193,28 @@ recording wave also needs immediate companion updates.
 
 ## Guardrails
 
-- Do not record a feature-level or system-affecting change without locating it
-  in the system first.
-- Do not choose the primary document type before lifecycle role is explicit.
-- Do not use this skill to reconcile the full lifecycle of an already
-  implemented RFC family.
-- Do not create ADR unless the input is already one settled decision that
-  clearly deserves a decision record.
-- Do not create spec unless the boundary is stable and depended on.
-- Do not place project-level RFC, ADR, or cross-module spec records into
-  module-local `*/docs/`.
-- Do not place module-only implementation notes into root `docs/` unless they
-  are intentionally being promoted to project-level visibility.
-- Do not finish without deciding whether current-state or manual pages must
-  update in this recording wave.
-- Do not leave lineage implicit in chat history alone.
-- Do not use front matter fields that the repo cannot realistically maintain.
-- Do not turn a formal doc into a task checklist or sprint log.
+- Do not place a doc before the ownership node is explicit.
+- Do not append child module or component detail into a broader parent doc when
+  that would erase scope boundaries.
+- Do not sacrifice file change plans, execution slices, verification slices, or
+  local risks just to reduce file count.
+- Do not use root `docs/` for local module detail unless the knowledge is
+  truly cross-module.
 - Do not add front matter only because the file is formal markdown.
-- Do not duplicate the H1 title in front matter unless the repository or a
-  toolchain actually consumes `title`.
-- Do not let front matter grow into a repo-local schema dump when a minimal
-  header would be sufficient.
-- Do not add `owner`, `id`, `created_at`, `level`, or `domain` by default when
-  the repository does not clearly need them.
-- Do not place long lineage or navigation scaffolding before the real content
-  unless the repository already requires that layout.
-- Do not let current-state or overview docs open with self-referential
-  `Purpose` disclaimers unless the repository already uses that convention.
-- Do not let architecture/current-state docs read like RFCs with `Goals`,
-  `Non-Goals`, and `Open Questions` unless the content is actually still a
-  proposal.
+- Do not duplicate the H1 title in front matter unless the repo or renderer
+  truly consumes it.
+- Do not let parent updates become the only durable home of child detail.
+- Do not write one generic formal-doc shape for every intent.
 
 ## Verification Hooks
 
-- Verify that the repo's current documentation pattern was checked first.
-- Verify that system placement is explicit before doc type is chosen.
-- Verify that the lifecycle role matches the content's primary job.
-- Verify that low-impact local changes are allowed to remain `single-doc only`
-  when appropriate.
-- Verify that system-affecting changes decide immediate companion updates
-  explicitly.
-- Verify that the chosen level is the smallest level that still fits.
-- Verify that the selected path follows repo conventions or a clear default.
-- Verify that the selected docs root matches the document scope and
-  source-of-truth role.
-- Verify that front matter is absent unless the repo really consumes it, or
-  coherent and not over-specified when present.
-- Verify that the starting assumption for all formal docs is no front matter
-  unless metadata has a real consumer.
-- Verify that the body structure matches lifecycle role instead of falling back
-  to generic formal-doc scaffolding.
-- Verify that current-state and overview docs start with real system content.
-- Verify that the reader-facing header is lightweight and does not bury the
-  actual content.
-- Verify that long lineage information is moved to a footer or index page when
-  possible.
-- Verify that lineage can be followed forward and backward without the original
-  chat context.
+- Verify that nearby local docs were inspected before placement was chosen.
+- Verify that the ownership node and lowest common ancestor are explicit.
+- Verify that create-versus-update does not collapse a narrower child scope
+  into a broader parent doc.
+- Verify that detailed implementation artifacts remain preserved when they
+  matter to the document's job.
+- Verify that metadata is absent unless the repo truly consumes it, or minimal
+  when present.
+- Verify that parent docs only summarize and link to child detail.
+- Verify that the final path matches the node that owns the knowledge.
