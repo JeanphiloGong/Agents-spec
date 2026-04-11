@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Doc Record"
-  short_description: "v0.4.1 - Record one doc at the correct code-owned node"
-  default_prompt: "Use $project-doc-record-skill to inspect this repository's nearby docs and code ownership, determine the real code-owned ownership node and lowest common ancestor, avoid treating docs-only grouping folders as nodes by default, choose the correct artifact, preserve child detail instead of collapsing it into a parent doc, and write the resulting document with metadata only when the repository truly consumes it."
+  short_description: "v0.4.2 - Record one doc with placement and linkage rationale"
+  default_prompt: "Use $project-doc-record-skill to inspect this repository's nearby docs, applicable architecture or lifecycle guidance, and code ownership, determine the real code-owned ownership node and lowest common ancestor, avoid treating docs-only grouping folders as nodes by default, choose the correct artifact, preserve child detail instead of collapsing it into a parent doc, and write the resulting document with the minimum parent, neighbor, or follow-up links needed for local discoverability."

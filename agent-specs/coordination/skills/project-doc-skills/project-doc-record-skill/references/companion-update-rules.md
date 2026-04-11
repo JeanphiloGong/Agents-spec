@@ -22,6 +22,7 @@ At least one of these is true:
 - current-state page at the same node
 - root or section index
 - footer lineage or related-doc links
+- neighbor or follow-up reading links
 
 ## Rule
 

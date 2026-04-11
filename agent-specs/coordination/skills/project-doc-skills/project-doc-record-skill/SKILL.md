@@ -1,6 +1,6 @@
 ---
 name: project-doc-record-skill
-description: v0.4.1 - Record one concrete documentation artifact at the correct code-owned node by determining lowest-common-ancestor placement, preserving child scope, using an intent-appropriate body structure, and adding metadata only when the repository actually consumes it.
+description: v0.4.2 - Record one concrete documentation artifact at the correct code-owned node with clear placement rationale, intent-appropriate structure, and minimal link maintenance so it fits the repository's book-like documentation system.
 ---
 
 # Project Documentation Record Skill
@@ -8,23 +8,26 @@ description: v0.4.1 - Record one concrete documentation artifact at the correct 
 ## Trigger and Scope
 
 Use this skill when one concrete piece of durable project knowledge must be
-written into repository docs at the right ownership node.
+written into repository docs at the right ownership node and connected to the
+local reading context.
 
 In scope:
 - inspecting local docs near the relevant code node before writing
+- inspecting any relevant architecture or lifecycle guidance when available
 - determining the ownership node and lowest common ancestor placement
 - distinguishing real code-owned nodes from docs-only grouping folders
 - determining the document intent before choosing structure or path
 - deciding whether to create a child doc or update an existing parent doc
 - preserving detailed implementation artifacts instead of collapsing them into
   broader docs
-- deciding immediate parent summary, footer, and index updates
+- deciding immediate parent summary, footer, index, and neighbor-link updates
 - adding metadata only when the repository actually consumes it
 - writing the concrete document body for this one doc wave
 
 Out of scope:
 - redesigning the repository's overall docs tree
 - deciding lifecycle progression for an entire doc family
+- repairing the full reading order of a repository or module
 - migrating a whole docs tree in one pass
 - using one parent doc as a dumping ground for unrelated local changes
 
@@ -36,14 +39,16 @@ Use this skill when prompts sound like:
 
 ## Core Purpose
 
-Write the document at the correct node without losing ownership boundaries or
-detailed local knowledge.
+Write the document at the correct node without losing ownership boundaries,
+detailed local knowledge, or the local reading path.
 
 This skill exists to help you:
 - place docs by ownership node rather than by raw root-doc convenience
 - preserve child-scope detail instead of flattening it into parent docs
 - choose intent-appropriate body structure
 - keep parent docs as summary and navigation layers
+- maintain the minimum links needed so the new page is discoverable and
+  situationally readable
 - keep metadata optional and lightweight unless the repository truly consumes it
 
 ## Decision Dimensions
@@ -75,6 +80,8 @@ Always decide these dimensions before writing:
 1. Inspect local docs around the relevant code node.
    - Look at root `docs/`, the nearest node `README.md`, nearby `*/docs/`,
      current local plans, and local current-state pages.
+   - If architecture or lifecycle guidance exists for this scope, read the
+     parts that constrain placement, role, or linkage.
 2. Determine the ownership node.
    - Decide the concrete node that owns this knowledge:
      - system
@@ -109,6 +116,7 @@ Always decide these dimensions before writing:
      - current-state update
      - section or root index update
      - footer or lineage links
+     - neighbor or follow-up links
 8. Decide metadata only if consumed.
    - Reuse repository metadata only when it is actively used.
    - Otherwise prefer no front matter.
@@ -129,7 +137,8 @@ Always decide these dimensions before writing:
 - The concrete change, purpose, plan, current-state fact, contract, guide, or
   operation content to record
 - Relevant code path or ownership area if known
-- Any known related parent doc, child doc, issue, or current-state page
+- Any known related parent doc, child doc, issue, current-state page, or
+  lifecycle guidance
 
 ## Defaults
 
@@ -153,6 +162,9 @@ Always decide these dimensions before writing:
   detail by default
 - Child-detail rule: file change plans, execution slices, verification slices,
   ownership boundaries, and local risks stay in the child doc
+- Linkage maintenance rule: when discoverability or reading order would
+  otherwise break, add the minimum parent, neighbor, or follow-up links needed
+  to situate the new page
 - Create or update rule: update only when the existing doc already owns the
   exact same scope
 - Metadata rule: no front matter unless the repository or toolchain actually
@@ -188,6 +200,7 @@ Always decide these dimensions before writing:
 - lowest common ancestor:
 
 ## Document Intent
+## Why This Node
 ## Primary Artifact
 ## Create or Update Decision
 ## Scope Boundary Decision
@@ -196,11 +209,13 @@ Always decide these dimensions before writing:
 - current-state:
 - indexes:
 - footer links:
+- neighbor links:
 
 ## Metadata Plan
 ## Body Structure Plan
-## Footer Context Plan
+## Linkage Notes
 ## Index Update Plan
+## Follow-up Docs
 ## Notes and Risks
 ```
 
@@ -221,11 +236,15 @@ Always decide these dimensions before writing:
 - Do not duplicate the H1 title in front matter unless the repo or renderer
   truly consumes it.
 - Do not let parent updates become the only durable home of child detail.
+- Do not silently perform repo-wide editorial repair here; use
+  `project-doc-lifecycle-skill` when the reading path itself is broken.
 - Do not write one generic formal-doc shape for every intent.
 
 ## Verification Hooks
 
 - Verify that nearby local docs were inspected before placement was chosen.
+- Verify that relevant architecture or lifecycle guidance was consulted when it
+  exists.
 - Verify that the ownership node and lowest common ancestor are explicit.
 - Verify that the chosen node is a real code-owned seam rather than a docs-only
   grouping folder.
@@ -233,6 +252,8 @@ Always decide these dimensions before writing:
   into a broader parent doc.
 - Verify that detailed implementation artifacts remain preserved when they
   matter to the document's job.
+- Verify that the resulting page has the minimum linkage needed to be
+  discoverable in context.
 - Verify that metadata is absent unless the repo truly consumes it, or minimal
   when present.
 - Verify that any proposed `docs/README.md` is justified by a real secondary

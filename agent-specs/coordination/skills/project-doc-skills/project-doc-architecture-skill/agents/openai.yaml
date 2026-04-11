@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Doc Architecture"
-  short_description: "v0.2.1 - Design a docs ownership tree aligned with real code ownership"
-  default_prompt: "Use $project-doc-architecture-skill to inspect this repository's code ownership tree and docs tree, derive durable documentation nodes only from real code-owned seams, place docs by lowest common ancestor, ignore docs-only grouping folders as nodes by default, define root versus node-local responsibilities, and produce an ownership-tree doc layout that concrete file creation can later realize through $project-doc-record-skill."
+  short_description: "v0.3.0 - Design a book-like docs information architecture"
+  default_prompt: "Use $project-doc-architecture-skill to inspect this repository's code ownership tree, docs tree, and reader entry surfaces, derive durable documentation nodes only from real code-owned seams, define entrypoints, overview pages, authority pages, and reading paths, place docs by lowest common ancestor, ignore docs-only grouping folders as nodes by default, and produce a target doc tree and target navigation tree that concrete file creation can later realize through $project-doc-record-skill."

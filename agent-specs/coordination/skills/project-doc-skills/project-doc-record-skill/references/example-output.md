@@ -17,6 +17,10 @@ wave should be recorded.
 ## Document Intent
 - `purpose`
 
+## Why This Node
+- the module root owns boundary and navigation for `graph`, so the purpose page
+  should live at the module entry rather than in a child docs folder
+
 ## Primary Artifact
 - path: `graph/README.md`
 - type: purpose overview
@@ -37,6 +41,7 @@ wave should be recorded.
 - current-state: maybe
 - indexes: update root system overview if discoverability changed
 - footer links: yes
+- neighbor links: maybe to the module current-state page
 
 ## Metadata Plan
 - none
@@ -48,7 +53,7 @@ wave should be recorded.
 - Child Areas
 - Related Docs
 
-## Footer Context Plan
+## Linkage Notes
 - link to system overview
 - link to child submodule docs
 
@@ -57,6 +62,10 @@ wave should be recorded.
   discoverable
 - do not add a second local docs index unless the subtree later grows large or
   mixed enough to justify it
+
+## Follow-up Docs
+- maybe update or create module current-state if the purpose page reveals a
+  missing authority page
 ```
 
 ## Example: Child Plan Must Stay Separate
@@ -73,6 +82,10 @@ wave should be recorded.
 
 ## Document Intent
 - `proposal`
+
+## Why This Node
+- the parser submodule owns this implementation change, so the plan belongs
+  under `graph/query/parser` rather than inside the broader query RFC
 
 ## Primary Artifact
 - path: `graph/query/parser/docs/batch-normalization-plan.md`
@@ -93,6 +106,7 @@ wave should be recorded.
 - current-state: no
 - indexes: maybe the nearest module or submodule index
 - footer links: yes
+- neighbor links: yes to the nearest parser current-state page if one exists
 
 ## Metadata Plan
 - none
@@ -105,10 +119,13 @@ wave should be recorded.
 - Verification
 - Risks
 
-## Footer Context Plan
+## Linkage Notes
 - link to parent RFC
 - link to nearest local current-state page if one exists
 
 ## Index Update Plan
 - update the nearest parent or local index with one stable link
+
+## Follow-up Docs
+- create or refresh parser current-state when the proposal becomes implemented
 ```
