@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Doc Lifecycle"
-  short_description: "v0.3.0 - Maintain docs as a book-like editorial system"
-  default_prompt: "Use $project-doc-lifecycle-skill to inspect one repository, module, or doc-family scope, compare it with current implementation reality, map canonical versus historical pages, detect broken reading order or missing bridge docs, keep target nodes aligned to real code-owned seams rather than docs-only grouping folders, and produce the promotion, split, supersede, archive, and navigation-repair handoffs that $project-doc-record-skill should execute concretely."
+  short_description: "v0.3.1 - Maintain docs as a book-like system with clearer README roles"
+  default_prompt: "Use $project-doc-lifecycle-skill to inspect one repository, module, or doc-family scope, compare it with current implementation reality, map canonical versus historical pages, detect broken reading order, docs-first READMEs, or missing bridge docs, keep target nodes aligned to real code-owned seams rather than docs-only grouping folders, and produce the promotion, split, README-role-repair, supersede, archive, and navigation-repair handoffs that $project-doc-record-skill should execute concretely."

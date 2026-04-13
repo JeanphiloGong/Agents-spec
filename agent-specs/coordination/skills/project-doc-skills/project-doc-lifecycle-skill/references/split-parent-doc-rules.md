@@ -12,6 +12,8 @@ Use this reference when a parent doc keeps growing with local child detail.
 ## After Split
 
 - parent keeps summary, boundary, and stable links
+- parent README, when present, keeps purpose and main-flow cues instead of
+  turning into a replacement docs landing page
 - child docs keep detail, local risks, and local verification
 
 ## Rule

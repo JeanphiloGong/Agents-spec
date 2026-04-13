@@ -11,6 +11,33 @@ Prefer:
 - Child Nodes or Related Areas
 - Related Docs
 
+## Repo Landing README
+
+Prefer:
+- Project Purpose
+- Main Capabilities
+- Repository Orientation
+- Getting Started or Entry Cues
+- Short Docs Pointer
+
+## Node Entry README
+
+Prefer:
+- Purpose
+- Responsibilities or Boundaries
+- Main Flow
+- Key Areas or Child Nodes
+- Related Docs
+
+## Docs Landing README
+
+Prefer:
+- Scope
+- Start Here or Reading Order
+- Current Authority Routes
+- Doc Categories
+- Related Nodes
+
 ## Proposal
 
 Prefer:
@@ -62,4 +89,5 @@ Prefer:
 ## Rule
 
 Use the document's intent to choose structure. Do not reuse one generic formal
-outline for every artifact.
+outline for every artifact. For README pages that are not docs landings, keep
+docs pointers brief and late.

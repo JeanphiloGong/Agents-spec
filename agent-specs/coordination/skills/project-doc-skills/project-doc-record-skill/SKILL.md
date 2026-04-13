@@ -1,6 +1,6 @@
 ---
 name: project-doc-record-skill
-description: v0.4.3 - Record one concrete documentation artifact at the correct code-owned node with clear placement rationale, intent-appropriate structure, and repo-landing-vs-docs-landing separation so it fits the repository's book-like documentation system.
+description: v0.4.4 - Record one concrete documentation artifact at the correct code-owned node with clear page-role selection, README-vs-docs separation, and preserved local detail so it fits the repository's book-like documentation system.
 ---
 
 # Project Documentation Record Skill
@@ -16,6 +16,8 @@ In scope:
 - inspecting any relevant architecture or lifecycle guidance when available
 - determining the ownership node and lowest common ancestor placement
 - distinguishing real code-owned nodes from docs-only grouping folders
+- distinguishing repo landing README, node README, docs landing README, and
+  formal docs before writing
 - determining the document intent before choosing structure or path
 - deciding whether to create a child doc or update an existing parent doc
 - preserving detailed implementation artifacts instead of collapsing them into
@@ -45,6 +47,8 @@ detailed local knowledge, or the local reading path.
 This skill exists to help you:
 - place docs by ownership node rather than by raw root-doc convenience
 - preserve child-scope detail instead of flattening it into parent docs
+- keep README pages focused on local purpose, boundaries, and logic before
+  they mention the docs system around them
 - choose intent-appropriate body structure
 - keep parent docs as summary and navigation layers
 - keep repo landing pages lightweight while docs landing pages own deeper docs
@@ -71,6 +75,12 @@ Always decide these dimensions before writing:
     - `contract`
     - `guide`
     - `operation`
+- `page role`
+  - What kind of page this is:
+    - `repo landing README`
+    - `node entry README`
+    - `docs landing README`
+    - `formal doc`
 - `detail level`
   - Is this:
     - parent summary or index
@@ -97,7 +107,15 @@ Always decide these dimensions before writing:
 3. Determine lowest common ancestor placement.
    - Place the doc at the lowest node that fully owns the described knowledge
      or change.
-4. Determine document intent.
+4. Determine page role.
+   - Decide whether the artifact is:
+     - repo landing README
+     - node entry README
+     - docs landing README
+     - formal doc
+   - If the page is a README that is not a docs landing page, treat it as an
+     entry page for the layer itself first, not as a docs index.
+5. Determine document intent.
    - Choose the document's primary job:
      - purpose
      - proposal
@@ -105,34 +123,48 @@ Always decide these dimensions before writing:
      - contract
      - guide
      - operation
-5. Decide create versus update.
+6. Decide create versus update.
    - Reuse an existing doc only when it already owns the exact same scope.
    - Create a new child doc when updating a parent would blur boundaries or
      erase detail.
-6. Enforce parent-summary and child-detail boundaries.
+7. Enforce parent-summary and child-detail boundaries.
    - Parents may receive a short summary, pointer, or index update.
    - Child docs retain detailed plans, file change lists, execution order,
      verification slices, ownership splits, and local risks.
-7. Decide immediate companion updates.
+8. Enforce README body priority.
+   - For repo or node READMEs, explain the layer before the documentation
+     around the layer.
+   - Prefer:
+     - purpose
+     - responsibilities or boundaries
+     - main flow
+     - key areas or child nodes
+     - short related-doc pointers near the end
+   - Use docs-routing-heavy structure only when the page itself is a docs
+     landing README.
+9. Decide immediate companion updates.
    - Explicitly decide whether this recording wave also needs:
      - parent summary update
      - current-state update
      - section or root index update
      - footer or lineage links
      - neighbor or follow-up links
-8. Decide metadata only if consumed.
+10. Decide metadata only if consumed.
    - Reuse repository metadata only when it is actively used.
    - Otherwise prefer no front matter.
    - If metadata is needed, keep it minimal.
-9. Write the document.
+11. Write the document.
    - Use an intent-appropriate body structure.
+   - Match the body to the page role, not only to the file extension.
+   - If the page is a README, avoid turning it into a file inventory when the
+     layer has meaningful runtime or design logic to explain.
    - Keep the reader-facing shell light.
-10. Update parent summaries and indexes if needed.
+12. Update parent summaries and indexes if needed.
    - Update parent docs or indexes only with concise summaries, links, or
      discovery guidance.
-11. Verify fit.
-   - Confirm node, intent, path, scope boundary, preserved detail, and
-     companion updates all match the document's job.
+13. Verify fit.
+   - Confirm node, page role, intent, path, scope boundary, preserved detail,
+     and companion updates all match the document's job.
 
 ## Required Inputs
 
@@ -148,23 +180,36 @@ Always decide these dimensions before writing:
 - Operating target: `one-node-local-doc-wave`
 - Ownership levels: `system`, `module`, `submodule`, `component`
 - Placement rule: lowest common ancestor
+- Page-role rule: distinguish repo landing README, node entry README, docs
+  landing README, and formal docs before choosing structure
 - Node definition rule: only real code-owned seams count as nodes; docs-only
   grouping folders are containers unless they map to a real owned code seam
 - Root docs rule: reserve root `docs/` for system-level or cross-module
   knowledge
 - Root README rule: keep root `README.md` as a repository landing page with a
   brief pointer into docs, not as the full docs index
+- Root README content rule: focus on repository purpose, core capabilities,
+  quick orientation, and a short pointer into docs
 - Docs landing rule: prefer `docs/README.md` for docs index, reading order,
   and formal-doc navigation
 - Node-local rule: keep module, submodule, and component knowledge close to the
   owning node
 - Node entry rule: prefer `<node>/README.md` as the node's summary and
   navigation page
+- Node README content rule: focus on node purpose, boundaries,
+  responsibilities, main flow, key areas, and short related-doc pointers
+- Docs README content rule: focus on reading order, document categories,
+  authority routes, and formal-doc discovery rather than repeating the node's
+  runtime explanation
 - Local docs rule: treat `<node>/docs/` as the node's formal-doc container, not
   a second default homepage
 - Local docs README rule: only add `<node>/docs/README.md` when that local docs
   subtree has at least 4 durable docs, spans mixed intents, or has a
   non-obvious reader path that truly needs a secondary index
+- README priority rule: README pages explain the layer first and the docs
+  system second unless the page itself is a docs landing
+- README structure rule: prefer `Purpose`, `Responsibilities or Boundaries`,
+  `Main Flow`, `Key Areas or Child Nodes`, and optional `Related Docs`
 - Parent-summary rule: parent docs summarize and link, but do not keep child
   detail by default
 - Child-detail rule: file change plans, execution slices, verification slices,
@@ -188,6 +233,7 @@ Always decide these dimensions before writing:
 - `references/detail-preservation-rules.md`
 - `references/parent-update-vs-child-doc.md`
 - `references/body-structure-by-intent.md`
+- `references/readme-body-priority-rules.md`
 - `references/metadata-consumption-rules.md`
 - `references/path-selection-and-placement.md`
 - `references/companion-update-rules.md`
@@ -206,6 +252,7 @@ Always decide these dimensions before writing:
 - parent node:
 - lowest common ancestor:
 
+## Page Role
 ## Document Intent
 ## Why This Node
 ## Primary Artifact
@@ -241,6 +288,11 @@ Always decide these dimensions before writing:
   symmetry.
 - Do not turn root `README.md` into the repository's full docs index, long
   reading order, or detailed formal-doc inventory by default.
+- Do not let README-to-docs relationship explanation dominate a repo or node
+  README that should primarily explain local purpose, boundaries, or logic.
+- Do not leave a repo or node README as a raw file inventory when the layer has
+  real responsibilities or runtime flow that readers need first.
+- Do not duplicate a docs landing page inside root or node `README.md`.
 - Do not add front matter only because the file is formal markdown.
 - Do not duplicate the H1 title in front matter unless the repo or renderer
   truly consumes it.
@@ -265,6 +317,10 @@ Always decide these dimensions before writing:
   discoverable in context.
 - Verify that metadata is absent unless the repo truly consumes it, or minimal
   when present.
+- Verify that any repo or node README answers what this layer is and how it
+  works before it explains where deeper docs live.
+- Verify that README body sections prioritize local purpose, boundaries, and
+  flow over docs-system navigation unless the page itself is a docs landing.
 - Verify that root `README.md` stays lightweight and points readers to
   `docs/README.md` when a docs landing page exists.
 - Verify that any proposed `docs/README.md` is justified by a real secondary

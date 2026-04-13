@@ -26,6 +26,8 @@
 ## Broken Navigation Paths
 - readers land in the parent RFC before they see parser current truth
 - parser-local notes have no stable route back to the module overview
+- parser entry README, if rewritten, currently leads with local docs pointers
+  instead of parser purpose and flow
 
 ## Missing Entry / Overview / Bridge Docs
 - missing parser current-state page
@@ -48,6 +50,9 @@
 
 ## Parent / Child / Neighbor Repairs
 - parent RFC keeps one summary section and stable links
+- parser README keeps parser purpose, boundary, and main-flow summary
+- parser README moves docs pointers into a short related-docs section instead
+  of opening with them
 - create `graph/query/parser/docs/parser-batch-normalization-plan.md`
 - create or update parser current-state at the parser node
 - add neighbor links between parser current-state and parser plan

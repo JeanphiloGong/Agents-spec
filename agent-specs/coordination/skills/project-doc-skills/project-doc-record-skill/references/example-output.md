@@ -14,6 +14,9 @@ wave should be recorded.
 - parent node: `system`
 - lowest common ancestor: `graph`
 
+## Page Role
+- `node entry README`
+
 ## Document Intent
 - `purpose`
 
@@ -49,9 +52,9 @@ wave should be recorded.
 
 ## Body Structure Plan
 - Purpose
-- Scope
-- Responsibilities
-- Child Areas
+- Responsibilities or Boundaries
+- Main Flow
+- Key Areas or Child Nodes
 - Related Docs
 
 ## Linkage Notes
@@ -59,6 +62,7 @@ wave should be recorded.
 - link to child submodule docs
 - keep the repository root README limited to a short docs pointer if it needs
   any update at all
+- do not open with a docs-tree explanation before the module purpose and flow
 
 ## Index Update Plan
 - update the nearest parent index only if this module page becomes newly
@@ -82,6 +86,9 @@ wave should be recorded.
 - node: `submodule`
 - parent node: `module`
 - lowest common ancestor: `graph/query/parser`
+
+## Page Role
+- `formal doc`
 
 ## Document Intent
 - `proposal`
@@ -132,3 +139,12 @@ wave should be recorded.
 ## Follow-up Docs
 - create or refresh parser current-state when the proposal becomes implemented
 ```
+
+## Counterexample To Avoid
+
+- a node `README.md` that starts with `docs/` navigation before it explains the
+  node's purpose
+- a node `README.md` that only lists files without describing
+  responsibilities, inputs and outputs, or the main flow
+- a root `README.md` that duplicates the full formal-doc index from
+  `docs/README.md`
