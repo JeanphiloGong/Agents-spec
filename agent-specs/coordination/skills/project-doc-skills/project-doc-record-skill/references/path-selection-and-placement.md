@@ -26,6 +26,11 @@ Use root `docs/` for:
 - governance
 - top-level indexes
 
+Use root `README.md` for:
+- repository identity
+- light runtime or developer orientation
+- a short pointer to `docs/README.md`
+
 ## Node-Local `*/docs/`
 
 Use node-local docs for:
@@ -52,6 +57,8 @@ Use the node root `README.md` for:
 - only add `<node>/docs/README.md` when the local docs subtree has at least 4
   durable docs, spans mixed intents, or has a genuinely non-obvious reader
   path
+- do not treat root `README.md` as the full docs index when `docs/README.md`
+  exists
 
 ## Naming Rules
 

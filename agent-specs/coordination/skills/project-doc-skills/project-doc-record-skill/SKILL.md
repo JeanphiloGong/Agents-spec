@@ -1,6 +1,6 @@
 ---
 name: project-doc-record-skill
-description: v0.4.2 - Record one concrete documentation artifact at the correct code-owned node with clear placement rationale, intent-appropriate structure, and minimal link maintenance so it fits the repository's book-like documentation system.
+description: v0.4.3 - Record one concrete documentation artifact at the correct code-owned node with clear placement rationale, intent-appropriate structure, and repo-landing-vs-docs-landing separation so it fits the repository's book-like documentation system.
 ---
 
 # Project Documentation Record Skill
@@ -47,6 +47,8 @@ This skill exists to help you:
 - preserve child-scope detail instead of flattening it into parent docs
 - choose intent-appropriate body structure
 - keep parent docs as summary and navigation layers
+- keep repo landing pages lightweight while docs landing pages own deeper docs
+  routing
 - maintain the minimum links needed so the new page is discoverable and
   situationally readable
 - keep metadata optional and lightweight unless the repository truly consumes it
@@ -78,8 +80,9 @@ Always decide these dimensions before writing:
 ## Workflow
 
 1. Inspect local docs around the relevant code node.
-   - Look at root `docs/`, the nearest node `README.md`, nearby `*/docs/`,
-     current local plans, and local current-state pages.
+   - Look at root `README.md`, root `docs/README.md`, the nearest node
+     `README.md`, nearby `*/docs/`, current local plans, and local
+     current-state pages.
    - If architecture or lifecycle guidance exists for this scope, read the
      parts that constrain placement, role, or linkage.
 2. Determine the ownership node.
@@ -149,6 +152,10 @@ Always decide these dimensions before writing:
   grouping folders are containers unless they map to a real owned code seam
 - Root docs rule: reserve root `docs/` for system-level or cross-module
   knowledge
+- Root README rule: keep root `README.md` as a repository landing page with a
+  brief pointer into docs, not as the full docs index
+- Docs landing rule: prefer `docs/README.md` for docs index, reading order,
+  and formal-doc navigation
 - Node-local rule: keep module, submodule, and component knowledge close to the
   owning node
 - Node entry rule: prefer `<node>/README.md` as the node's summary and
@@ -232,6 +239,8 @@ Always decide these dimensions before writing:
   folders as ownership nodes by default.
 - Do not add `docs/README.md` to a tiny or single-intent subtree just for
   symmetry.
+- Do not turn root `README.md` into the repository's full docs index, long
+  reading order, or detailed formal-doc inventory by default.
 - Do not add front matter only because the file is formal markdown.
 - Do not duplicate the H1 title in front matter unless the repo or renderer
   truly consumes it.
@@ -256,6 +265,8 @@ Always decide these dimensions before writing:
   discoverable in context.
 - Verify that metadata is absent unless the repo truly consumes it, or minimal
   when present.
+- Verify that root `README.md` stays lightweight and points readers to
+  `docs/README.md` when a docs landing page exists.
 - Verify that any proposed `docs/README.md` is justified by a real secondary
   index need.
 - Verify that parent docs only summarize and link to child detail.
