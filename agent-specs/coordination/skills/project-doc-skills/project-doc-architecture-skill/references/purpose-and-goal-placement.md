@@ -6,8 +6,12 @@ live.
 ## Project Purpose
 
 Place project purpose at the system node:
-- root `docs/README.md`
-- system overview or overview subtree
+- root `README.md`
+- system overview or overview subtree under `docs/`
+
+Do not make `docs/README.md` the only home of project identity by default; it
+should route readers through the docs system rather than replace the repo
+landing page.
 
 ## Module Purpose
 

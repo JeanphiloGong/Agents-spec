@@ -11,9 +11,21 @@ An entrypoint answers:
 - where should this reader go next
 
 Typical entrypoints:
-- root `README.md`
-- `docs/README.md` when the docs subtree needs a guided secondary entry
+- root `README.md` as the repository landing page
+- `docs/README.md` as the documentation landing page
 - module or submodule `README.md`
+
+## Repository Landing vs Docs Landing
+
+Use root `README.md` to:
+- state what the repository is
+- give light runtime or developer orientation
+- point readers to `docs/README.md`
+
+Use `docs/README.md` to:
+- own the docs index
+- own the recommended reading map
+- route readers into overview, authority, and local detail pages
 
 ## Overview
 
@@ -29,3 +41,5 @@ implementation truth that belongs to authority or detail pages.
 
 Entrypoints route readers into the system. Overview pages explain the map.
 Neither should become the only home of deep local detail.
+Do not turn root `README.md` into the full docs homepage when `docs/README.md`
+exists.

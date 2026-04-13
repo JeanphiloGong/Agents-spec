@@ -12,6 +12,8 @@ updated.
 
 ## Common Targets
 
+- root `README.md` only when the repository landing page needs a brief docs
+  pointer update
 - root `docs/README.md`
 - node `README.md` files that act as module or submodule entry points
 - current-state or architecture index
@@ -33,3 +35,5 @@ symmetry.
 ## Default Rule
 
 If discoverability changed, the index should change too.
+Keep root `README.md` lightweight and prefer `docs/README.md` for the actual
+docs reading map.

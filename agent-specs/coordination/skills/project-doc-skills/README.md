@@ -11,12 +11,15 @@ ownership-tree-first model:
 
 ## Package Model
 
-The package assumes three placement rules:
+The package assumes four placement rules:
 
 1. Place docs at the lowest common ancestor of the thing they describe.
 2. Let parent docs summarize and index, while child docs preserve local detail.
 3. Treat only real code-owned seams as ownership nodes; docs-only grouping
    folders are containers by default, not nodes.
+4. Keep the repository landing page and the documentation landing page
+   separate: root `README.md` briefly points to docs, while `docs/README.md`
+   owns the docs index and reading map.
 
 ## Skills
 
@@ -59,8 +62,12 @@ The package assumes three placement rules:
 
 ## Placement Matrix
 
-- Project purpose
-  - root overview or root `docs/README.md`
+- Repository landing and quick docs pointer
+  - root `README.md`
+- Documentation landing and reading map
+  - root `docs/README.md`
+- Project purpose and system intent
+  - root `README.md` plus system overview pages under `docs/` when needed
 - Project phase goals
   - system-level planning docs, roadmap docs, or tracked issues
 - Module purpose
@@ -88,7 +95,11 @@ The package assumes three placement rules:
 
 ## README Rule
 
-- Root `docs/README.md` stays as the global docs entry point.
+- Root `README.md` is the repository landing page, not the full docs index.
+- Root `README.md` should briefly describe the project and point readers to
+  `docs/README.md` for structured documentation.
+- Root `docs/README.md` stays as the global docs entry point and owns the docs
+  reading map.
 - `<node>/README.md` is the default entry point for one module, submodule, or
   component node.
 - `<node>/docs/` is the node's formal-doc container, not a second default
@@ -98,6 +109,8 @@ The package assumes three placement rules:
 - Only add `<node>/docs/README.md` when that local docs subtree has at least
   4 durable docs, spans mixed intents, or has a non-obvious reader path that
   genuinely needs a second index.
+- Do not turn root `README.md` into a long docs reading order, architecture
+  index, or formal-doc inventory by default.
 - Avoid keeping both `<node>/README.md` and `<node>/docs/README.md` as
   competing summaries of the same node by default.
 

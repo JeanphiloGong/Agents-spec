@@ -39,7 +39,8 @@ wave should be recorded.
 ## Immediate Companion Updates
 - parent summary: no
 - current-state: maybe
-- indexes: update root system overview if discoverability changed
+- indexes: update root docs landing or system overview if discoverability
+  changed
 - footer links: yes
 - neighbor links: maybe to the module current-state page
 
@@ -56,6 +57,8 @@ wave should be recorded.
 ## Linkage Notes
 - link to system overview
 - link to child submodule docs
+- keep the repository root README limited to a short docs pointer if it needs
+  any update at all
 
 ## Index Update Plan
 - update the nearest parent index only if this module page becomes newly

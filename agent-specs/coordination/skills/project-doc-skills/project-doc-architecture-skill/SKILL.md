@@ -1,6 +1,6 @@
 ---
 name: project-doc-architecture-skill
-description: v0.3.0 - Design or refactor one repository's documentation information architecture by defining entrypoints, overview layers, authority layers, ownership-aware placement, and reading paths so distributed docs can behave like one coherent book; concrete doc writing belongs to project-doc-record-skill.
+description: v0.3.1 - Design or refactor one repository's documentation information architecture by separating repo landing from docs landing, defining entrypoints, overview layers, authority layers, ownership-aware placement, and reading paths so distributed docs can behave like one coherent book; concrete doc writing belongs to project-doc-record-skill.
 ---
 
 # Project Documentation Architecture Skill
@@ -15,6 +15,8 @@ In scope:
   surfaces together
 - identifying missing or overloaded entrypoints such as `README.md`,
   `docs/README.md`, module `README.md`, and local docs indexes
+- separating repository landing responsibilities from documentation landing
+  responsibilities
 - deriving durable documentation nodes at the system, module, submodule, and
   component levels
 - distinguishing real ownership nodes from docs-only grouping directories
@@ -54,7 +56,8 @@ coherent book.
 
 This skill exists to help you:
 - align docs placement with code ownership
-- define root and node entrypoints that help readers start in the right place
+- define repository, docs, and node entrypoints that help readers start in the
+  right place
 - separate discovery layers from authority layers
 - keep root docs focused on system and cross-module knowledge
 - keep detailed local knowledge near the owning module or component
@@ -70,7 +73,8 @@ This skill exists to help you:
    - Do not treat docs-only grouping folders as ownership nodes unless they
      map to a real owned code seam.
 2. Inspect the current docs tree and current reader entrypoints.
-   - Look for root `README.md`, root `docs/`, node-local `README.md`,
+   - Look for root `README.md`, root `docs/`, `docs/README.md`,
+     node-local `README.md`,
      `*/docs/`, existing indexes, and where detailed plans currently
      accumulate.
    - Note where docs-only grouping folders are being mistaken for real nodes.
@@ -140,10 +144,12 @@ This skill exists to help you:
   default
 - Root docs role: system-level purpose, entry, cross-module architecture,
   shared contracts, governance, and top-level indexes
-- Root entry rule: evaluate root `README.md` first as the primary repo
-  entrypoint before inventing additional landing pages
-- Docs entry rule: use `docs/README.md` as a secondary entrypoint only when the
-  root docs area is large enough to justify a separate guided entry
+- Root entry rule: use root `README.md` as the repository landing page for
+  project summary, runtime or developer orientation, and a brief docs pointer
+- Root README brevity rule: keep docs content in root `README.md` lightweight;
+  do not turn it into the full docs index or long reading map by default
+- Docs entry rule: use `docs/README.md` as the documentation landing page for
+  docs index, reading order, and guided navigation across the docs tree
 - Node entry role: use the node root `README.md` for node purpose, boundary,
   and navigation when that node needs its own entry page
 - Node-local docs role: local current-state, local proposals, local guides,
@@ -185,6 +191,8 @@ This skill exists to help you:
 ## Current Discovery Problems
 ## Ownership Node Map
 ## Navigation Layer Map
+## Repository Landing
+## Docs Landing
 ## Doc-Worthy Nodes
 ## Entry Points
 ## Overview Nodes
@@ -211,6 +219,8 @@ This skill exists to help you:
   or topic buckets as ownership nodes by default.
 - Do not add `docs/README.md` to a tiny or single-intent subtree just for
   symmetry.
+- Do not turn root `README.md` into the repository's full docs index, long
+  reading order, or formal-doc inventory by default.
 - Do not confuse discovery pages with authority pages.
 - Do not make readers infer the start page or main path from folder names
   alone.
@@ -228,6 +238,8 @@ This skill exists to help you:
 - Verify that each doc-worthy node has a real durable purpose.
 - Verify that entrypoint, overview, authority, and detail responsibilities are
   not being conflated.
+- Verify that root `README.md` remains a repository landing page with only a
+  light docs pointer when `docs/README.md` exists.
 - Verify that root docs stay focused on system or cross-module knowledge.
 - Verify that any proposed `docs/README.md` is justified as a real secondary
   index rather than folder decoration.
