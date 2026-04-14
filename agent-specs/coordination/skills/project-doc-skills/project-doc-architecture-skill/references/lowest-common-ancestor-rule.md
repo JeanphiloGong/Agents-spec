@@ -14,6 +14,8 @@ responsibilities, or behaviors it describes.
 - one submodule plan => `<module>/<submodule>/docs/`
 - one component detail => component-local `docs/` if durable docs are justified
 - a change shared by two sibling submodules => their parent module's `docs/`
+- a coverage note spanning `tests/unit/services` and `tests/unit/routers` =>
+  `tests/unit/`
 
 ## Goal
 

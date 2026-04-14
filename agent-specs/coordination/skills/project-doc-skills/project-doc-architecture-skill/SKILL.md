@@ -1,6 +1,6 @@
 ---
 name: project-doc-architecture-skill
-description: v0.3.1 - Design or refactor one repository's documentation information architecture by separating repo landing from docs landing, defining entrypoints, overview layers, authority layers, ownership-aware placement, and reading paths so distributed docs can behave like one coherent book; concrete doc writing belongs to project-doc-record-skill.
+description: v0.3.2 - Design or refactor one repository's documentation information architecture by separating repo landing from docs landing, defining entrypoints, overview layers, authority layers, runtime-vs-tests ownership-aware placement, and reading paths so distributed docs can behave like one coherent book; concrete doc writing belongs to project-doc-record-skill.
 ---
 
 # Project Documentation Architecture Skill
@@ -18,7 +18,8 @@ In scope:
 - separating repository landing responsibilities from documentation landing
   responsibilities
 - deriving durable documentation nodes at the system, module, submodule, and
-  component levels
+  component levels, including test-suite ownership seams when they hold durable
+  verification knowledge
 - distinguishing real ownership nodes from docs-only grouping directories
 - classifying documentation layers such as `entrypoint`, `overview`,
   `authority`, and `detail`
@@ -28,7 +29,7 @@ In scope:
 - assigning responsibilities to root docs versus node-local docs
 - defining parent-summary and child-detail rules
 - defining where project purpose, module purpose, phase goals, current-state,
-  proposals, guides, and operations should live
+  proposals, guides, operations, and verification docs should live
 - defining reader entrypoints and reading paths by intent
 - bootstrapping a system overview when the system node lacks one
 - defining rollout guidance for the target doc tree and target navigation tree
@@ -61,6 +62,8 @@ This skill exists to help you:
 - separate discovery layers from authority layers
 - keep root docs focused on system and cross-module knowledge
 - keep detailed local knowledge near the owning module or component
+- keep test coverage and verification knowledge near the owning test suite
+  rather than the runtime module by default
 - prevent parent docs from swallowing child implementation detail
 - produce a target doc tree and target navigation tree that
   `project-doc-record-skill` can execute concretely
@@ -68,8 +71,8 @@ This skill exists to help you:
 ## Workflow
 
 1. Inspect the code ownership tree.
-   - Identify system, module, submodule, and component boundaries from the
-     actual repository layout and major ownership seams.
+   - Identify system, module, submodule, component, and test-suite boundaries
+     from the actual repository layout and major ownership seams.
    - Do not treat docs-only grouping folders as ownership nodes unless they
      map to a real owned code seam.
 2. Inspect the current docs tree and current reader entrypoints.
@@ -95,6 +98,7 @@ This skill exists to help you:
      - `module`
      - `submodule`
      - `component`
+     - `test-suite`
 5. Classify documentation layers.
    - For each doc-worthy surface, decide whether it is primarily:
      - `entrypoint`
@@ -108,7 +112,8 @@ This skill exists to help you:
    - Place each doc at the lowest node that fully owns the described object or
      change.
 8. Assign responsibilities by node level and doc layer.
-   - Define what root docs own versus module, submodule, and component docs.
+   - Define what root docs own versus module, submodule, component, and
+     test-suite docs.
 9. Define parent-summary and child-detail rules.
    - Parents summarize, link, and index.
    - Children retain detailed plans, file change lists, verification slices,
@@ -135,13 +140,13 @@ This skill exists to help you:
 ## Defaults
 
 - Operating target: `project-doc-information-architecture`
-- Node levels: `system`, `module`, `submodule`, `component`
+- Node levels: `system`, `module`, `submodule`, `component`, `test-suite`
 - Navigation layers: `entrypoint`, `overview`, `authority`, `detail`
 - Placement rule: place each doc at the lowest common ancestor of the thing it
   describes
 - Node definition rule: only real code-owned seams count as `system`, `module`,
-  `submodule`, or `component`; docs-only grouping folders are containers by
-  default
+  `submodule`, `component`, or `test-suite`; docs-only grouping folders are
+  containers by default
 - Root docs role: system-level purpose, entry, cross-module architecture,
   shared contracts, governance, and top-level indexes
 - Root entry rule: use root `README.md` as the repository landing page for
@@ -154,6 +159,12 @@ This skill exists to help you:
   and navigation when that node needs its own entry page
 - Node-local docs role: local current-state, local proposals, local guides,
   local runbooks, and detailed implementation plans
+- Test-suite docs role: coverage overviews, fixture or harness notes,
+  verification contracts, regression matrices, and other docs whose primary
+  subject is the test asset itself
+- Runtime-vs-tests rule: when a document primarily describes test coverage,
+  fixtures, harnesses, or verification gaps, place it under the owning tests
+  subtree rather than under the runtime module by default
 - Secondary index rule: add `<node>/docs/README.md` only when a local docs
   subtree has at least 4 durable docs, spans mixed intents, or has a
   non-obvious reader path that needs a second index
@@ -235,6 +246,8 @@ This skill exists to help you:
 - Verify that placement follows lowest common ancestor rather than type-first
   convenience.
 - Verify that each proposed node corresponds to a real code ownership seam.
+- Verify that verification docs are placed under the tests subtree when the
+  tests asset, not the runtime module, is the primary owner.
 - Verify that each doc-worthy node has a real durable purpose.
 - Verify that entrypoint, overview, authority, and detail responsibilities are
   not being conflated.

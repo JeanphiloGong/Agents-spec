@@ -4,13 +4,15 @@ Use this reference before choosing path, structure, or create-versus-update.
 
 ## Required Questions
 
-- Which system, module, submodule, or component owns this knowledge?
+- Which system, module, submodule, component, or test-suite owns this
+  knowledge?
 - Which parent node owns the broader context around it?
 - What is the lowest common ancestor of the behavior or change described here?
 - Is the candidate node a real code ownership seam, or only a docs grouping
   folder?
 - Is this a parent summary or a child detail doc?
 - Which existing local docs already live near this node?
+- Is the primary subject runtime behavior, or the tests asset that verifies it?
 
 ## Rule
 

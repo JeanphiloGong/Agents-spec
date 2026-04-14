@@ -6,6 +6,8 @@ ownership-tree-first model:
 
 - root `docs/` keeps system-level and cross-module knowledge
 - module, submodule, and component docs live near the code that owns them
+- test coverage, fixture, and verification docs live near the test tree that
+  owns them
 - parent docs summarize and link
 - child docs keep detailed local knowledge
 
@@ -29,7 +31,9 @@ The package assumes four placement rules:
 - Use when:
   - root docs are overloaded
   - local module detail keeps getting buried in parent docs
-  - the repo needs a clear root/module/submodule/component doc layout
+  - test or verification docs keep getting attached to runtime modules
+  - the repo needs a clear root/module/submodule/component/test-suite doc
+    layout
   - project purpose and node-local purpose are not clearly separated
 - Output boundary:
   - returns the ownership node map, placement rules, target doc tree, and
@@ -41,6 +45,7 @@ The package assumes four placement rules:
 - Purpose: write one concrete document at the correct ownership node.
 - Use when:
   - a module, submodule, or component change needs durable docs
+  - a test coverage, fixture, or verification note needs durable docs
   - you need to decide create versus update without losing child detail
   - you need to write one purpose doc, proposal, current-state page, guide,
     contract, or operation note
@@ -77,6 +82,8 @@ The package assumes four placement rules:
 - Component implementation detail
   - component-local docs only when the component has durable standalone
     knowledge
+- Test suite coverage, fixture, or verification docs
+  - the lowest common ancestor under `tests/` that owns those test assets
 - Current state
   - the node that owns the implemented behavior
 - Execution checklist
@@ -101,7 +108,7 @@ The package assumes four placement rules:
 - Root `docs/README.md` stays as the global docs entry point and owns the docs
   reading map.
 - `<node>/README.md` is the default entry point for one module, submodule, or
-  component node.
+  component, or test-suite node.
 - `<node>/docs/` is the node's formal-doc container, not a second default
   homepage.
 - Docs-only grouping folders such as `docs/rfcs/`, `docs/guides/`, or topic
@@ -137,8 +144,9 @@ The package assumes four placement rules:
 
 ```text
 Use $project-doc-architecture-skill to inspect this repository's code tree and
-docs tree, identify overloaded root docs, and design a docs ownership tree with
-root, module, submodule, and component responsibilities.
+docs tree, identify overloaded root docs, misplaced test docs, and design a
+docs ownership tree with root, module, submodule, component, and test-suite
+responsibilities.
 ```
 
 ### Record
@@ -147,6 +155,13 @@ root, module, submodule, and component responsibilities.
 Use $project-doc-record-skill to inspect the nearby docs for this submodule,
 determine the ownership node and lowest common ancestor, and record this plan
 without collapsing child detail into the parent doc.
+```
+
+```text
+Use $project-doc-record-skill to inspect this repository's tests tree, runtime
+module docs, and nearby coverage notes, determine whether this document is
+owned by the tests subtree or the runtime module, and place the resulting test
+coverage overview at the lowest common ancestor under tests/.
 ```
 
 ### Lifecycle

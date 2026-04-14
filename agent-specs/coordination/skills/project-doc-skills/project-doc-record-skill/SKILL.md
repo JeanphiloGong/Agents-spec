@@ -1,6 +1,6 @@
 ---
 name: project-doc-record-skill
-description: v0.4.4 - Record one concrete documentation artifact at the correct code-owned node with clear page-role selection, README-vs-docs separation, and preserved local detail so it fits the repository's book-like documentation system.
+description: v0.4.5 - Record one concrete documentation artifact at the correct code-owned node with clear page-role selection, runtime-vs-tests ownership, README-vs-docs separation, and preserved local detail so it fits the repository's book-like documentation system.
 ---
 
 # Project Documentation Record Skill
@@ -18,6 +18,8 @@ In scope:
 - distinguishing real code-owned nodes from docs-only grouping folders
 - distinguishing repo landing README, node README, docs landing README, and
   formal docs before writing
+- distinguishing runtime-owned docs from test-suite-owned docs before choosing
+  path
 - determining the document intent before choosing structure or path
 - deciding whether to create a child doc or update an existing parent doc
 - preserving detailed implementation artifacts instead of collapsing them into
@@ -47,6 +49,8 @@ detailed local knowledge, or the local reading path.
 This skill exists to help you:
 - place docs by ownership node rather than by raw root-doc convenience
 - preserve child-scope detail instead of flattening it into parent docs
+- keep coverage, fixture, and verification docs under the owning tests subtree
+  when the tests asset itself is the primary subject
 - keep README pages focused on local purpose, boundaries, and logic before
   they mention the docs system around them
 - choose intent-appropriate body structure
@@ -67,6 +71,7 @@ Always decide these dimensions before writing:
     - `module`
     - `submodule`
     - `component`
+    - `test-suite`
 - `document intent`
   - What the document primarily does:
     - `purpose`
@@ -101,9 +106,13 @@ Always decide these dimensions before writing:
      - module
      - submodule
      - component
+     - test-suite
    - Treat only real code-owned seams as nodes.
    - Do not treat docs-only grouping folders under `*/docs/` as nodes by
      default.
+   - If the document primarily describes test coverage, fixtures, harnesses,
+     regression matrices, or verification gaps, prefer the lowest common
+     ancestor under `tests/` rather than the runtime module by default.
 3. Determine lowest common ancestor placement.
    - Place the doc at the lowest node that fully owns the described knowledge
      or change.
@@ -178,7 +187,7 @@ Always decide these dimensions before writing:
 ## Defaults
 
 - Operating target: `one-node-local-doc-wave`
-- Ownership levels: `system`, `module`, `submodule`, `component`
+- Ownership levels: `system`, `module`, `submodule`, `component`, `test-suite`
 - Placement rule: lowest common ancestor
 - Page-role rule: distinguish repo landing README, node entry README, docs
   landing README, and formal docs before choosing structure
@@ -194,6 +203,8 @@ Always decide these dimensions before writing:
   and formal-doc navigation
 - Node-local rule: keep module, submodule, and component knowledge close to the
   owning node
+- Test-suite-local rule: keep coverage, fixture, harness, and verification docs
+  close to the owning tests node when the tests asset is the primary owner
 - Node entry rule: prefer `<node>/README.md` as the node's summary and
   navigation page
 - Node README content rule: focus on node purpose, boundaries,
@@ -214,6 +225,9 @@ Always decide these dimensions before writing:
   detail by default
 - Child-detail rule: file change plans, execution slices, verification slices,
   ownership boundaries, and local risks stay in the child doc
+- Tests-ownership rule: docs about test suites, fixtures, harnesses, golden
+  data, verification contracts, or coverage gaps belong under the owning
+  `tests/` subtree by default, not under the runtime module they exercise
 - Linkage maintenance rule: when discoverability or reading order would
   otherwise break, add the minimum parent, neighbor, or follow-up links needed
   to situate the new page
@@ -282,6 +296,8 @@ Always decide these dimensions before writing:
   local risks just to reduce file count.
 - Do not use root `docs/` for local module detail unless the knowledge is
   truly cross-module.
+- Do not attach a test coverage or fixture overview to a runtime module docs
+  tree when the tests subtree is the real lowest common ancestor.
 - Do not treat `docs/guides`, `docs/rfcs`, topic buckets, or similar docs-only
   folders as ownership nodes by default.
 - Do not add `docs/README.md` to a tiny or single-intent subtree just for
@@ -309,6 +325,8 @@ Always decide these dimensions before writing:
 - Verify that the ownership node and lowest common ancestor are explicit.
 - Verify that the chosen node is a real code-owned seam rather than a docs-only
   grouping folder.
+- Verify that test coverage, fixture, or verification docs are owned by the
+  appropriate tests subtree when that subtree is the primary subject.
 - Verify that create-versus-update does not collapse a narrower child scope
   into a broader parent doc.
 - Verify that detailed implementation artifacts remain preserved when they

@@ -148,3 +148,48 @@ wave should be recorded.
   responsibilities, inputs and outputs, or the main flow
 - a root `README.md` that duplicates the full formal-doc index from
   `docs/README.md`
+- a test coverage overview stored under a runtime module docs tree when the
+  covered files span multiple tests under `tests/`
+
+## Example: Test Coverage Overview
+
+```text
+## Recording Goal
+- Record one durable overview of `document_ingest` unit-test coverage.
+
+## Ownership Node
+- node: `test-suite`
+- parent node: `system`
+- lowest common ancestor: `tests/unit`
+
+## Page Role
+- `formal doc`
+
+## Document Intent
+- `current-state`
+
+## Why This Node
+- the document primarily describes test assets spread across `tests/unit`
+  rather than the runtime module itself, so the tests subtree is the real owner
+
+## Primary Artifact
+- path: `tests/unit/document-ingest-tests-overview.md`
+- type: test coverage overview
+
+## Create or Update Decision
+- create new
+- reason: attaching this page to the runtime module would blur runtime docs and
+  verification docs into one tree
+
+## Scope Boundary Decision
+- the runtime module README may keep one short link
+- the tests overview keeps file coverage, verification boundaries, and known
+  gaps
+
+## Immediate Companion Updates
+- parent summary: maybe a short note in `tests/README.md`
+- current-state: no
+- indexes: yes at the nearest tests entrypoint
+- footer links: yes
+- neighbor links: maybe to the runtime module README
+```

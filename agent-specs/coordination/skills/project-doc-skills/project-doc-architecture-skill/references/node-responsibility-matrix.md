@@ -37,6 +37,15 @@ only to a docs folder or topic grouping.
 - local constraints and risks
 - tightly scoped operating notes
 
+## Test Suite
+
+- test-scope purpose via the tests-node `README.md` when that node needs an
+  entry page
+- coverage overviews
+- fixture, harness, or golden-data notes
+- verification boundaries and known gaps
+- test-local current-state when the tests asset itself evolves independently
+
 ## Rule
 
 Parents own boundaries and navigation. Children own local detail.
