@@ -1,6 +1,6 @@
 ---
 name: project-doc-lifecycle-skill
-description: v0.3.0 - Maintain one repository, module, or doc-family slice as a book-like documentation system by repairing canonical vs historical relationships, reading order, bridge docs, and export readiness across real code-owned nodes; concrete doc writing belongs to project-doc-record-skill.
+description: v0.3.2 - Maintain one repository, module, test-suite, or doc-family slice as a book-like documentation system by repairing canonical vs historical relationships, README-vs-docs roles, reading order, and bridge docs across real code-owned nodes; concrete doc writing belongs to project-doc-record-skill.
 ---
 
 # Project Documentation Lifecycle Skill
@@ -15,11 +15,14 @@ In scope:
 - inspecting one operating scope:
   - one doc family
   - one module or submodule
+  - one test-suite slice
   - one repository slice
 - comparing docs with implemented code reality
 - mapping canonical versus historical pages
 - detecting overloaded parent docs, stale summaries, hidden child detail, and
   overlapping current-state pages
+- detecting README pages whose docs navigation overwhelms local purpose,
+  boundary, or flow explanation
 - detecting broken reading order, missing bridge docs, missing overviews, and
   missing entry cues
 - deciding whether implemented proposals should promote into current-state,
@@ -57,6 +60,10 @@ This skill exists to help you:
 - split overloaded parent docs before they absorb more child detail
 - decide promotion into current-state and related durable docs
 - preserve history while making the current source of truth easier to find
+- keep repo and node READMEs logic-first while docs landing pages stay
+  navigation-first
+- keep verification docs under the tests subtree when runtime modules are only
+  related readers, not the primary owners
 - repair reading order and navigation continuity
 - identify missing overview or bridge docs
 - assess book-readiness and exportability
@@ -85,6 +92,9 @@ This skill exists to help you:
      - stale parent summary
      - overloaded parent doc
      - hidden child detail
+     - docs-first README
+     - file-inventory README with no layer logic
+     - parent README swallowing child runtime detail
      - overlapping current-state docs
      - broken reading order
      - missing bridge or overview docs
@@ -124,12 +134,15 @@ This skill exists to help you:
 8. Decide parent, child, and neighbor repairs.
    - State what the parent should keep:
      - short summary
+     - local purpose or main-flow cue when the parent is a README entry page
      - replacement links
      - index guidance
    - State which child or neighboring nodes need:
      - new docs
      - updated links
      - new related-reading guidance
+   - State whether any root or node README must be rewritten so docs pointers
+     become secondary to the layer's purpose, boundary, or flow.
 9. Decide lineage and navigation repairs.
    - Define forward and backward links after the wave:
      - proposal to current-state
@@ -161,6 +174,12 @@ This skill exists to help you:
   is added
 - Child-source rule: child docs may become the canonical local source of truth
   while the parent becomes summary or index
+- Tests-owner rule: when the page primarily describes coverage, fixtures,
+  harnesses, or verification gaps, the tests subtree may be the canonical
+  owner even if the runtime module stays a related entrypoint
+- README repair baseline: repo and node READMEs should explain local purpose,
+  boundaries, and flow before they explain documentation structure; docs
+  landing pages own deeper navigation
 - Canonical rule: every maintained scope should have inspectable current
   authority rather than only historical proposal text
 - Reading-order rule: if readers would not know what to read first or next, the
@@ -222,6 +241,10 @@ This skill exists to help you:
 - Do not keep adding child detail into an overloaded parent doc.
 - Do not promote everything upward to root docs when the real source of truth
   belongs lower in the tree.
+- Do not leave test coverage or fixture docs trapped in runtime-module docs
+  when the tests subtree is the clearer owner.
+- Do not stop at folder-placement repair when the README body still behaves
+  like a docs index or child-detail dump.
 - Do not propose docs-only grouping folders as target ownership nodes by
   default.
 - Do not delete history blindly; prefer supersede, archive, and repair links.
@@ -244,6 +267,12 @@ This skill exists to help you:
   than automatic.
 - Verify that parent, child, and neighbor boundaries after rebalancing are
   explicit.
+- Verify that any repaired repo or node README now explains local purpose or
+  flow before docs navigation.
+- Verify that docs landing pages remain navigation-first instead of duplicating
+  repo or node runtime explanation.
+- Verify that test coverage or verification docs move under the tests subtree
+  when the tests asset is the canonical owner.
 - Verify that record-skill handoffs target real code-owned nodes rather than
   docs-only grouping folders.
 - Verify that record-skill handoffs are node-specific and executable.

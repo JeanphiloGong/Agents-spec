@@ -1,6 +1,6 @@
 ---
 name: project-doc-architecture-skill
-description: v0.3.0 - Design or refactor one repository's documentation information architecture by defining entrypoints, overview layers, authority layers, ownership-aware placement, and reading paths so distributed docs can behave like one coherent book; concrete doc writing belongs to project-doc-record-skill.
+description: v0.3.2 - Design or refactor one repository's documentation information architecture by separating repo landing from docs landing, defining entrypoints, overview layers, authority layers, runtime-vs-tests ownership-aware placement, and reading paths so distributed docs can behave like one coherent book; concrete doc writing belongs to project-doc-record-skill.
 ---
 
 # Project Documentation Architecture Skill
@@ -15,8 +15,11 @@ In scope:
   surfaces together
 - identifying missing or overloaded entrypoints such as `README.md`,
   `docs/README.md`, module `README.md`, and local docs indexes
+- separating repository landing responsibilities from documentation landing
+  responsibilities
 - deriving durable documentation nodes at the system, module, submodule, and
-  component levels
+  component levels, including test-suite ownership seams when they hold durable
+  verification knowledge
 - distinguishing real ownership nodes from docs-only grouping directories
 - classifying documentation layers such as `entrypoint`, `overview`,
   `authority`, and `detail`
@@ -26,7 +29,7 @@ In scope:
 - assigning responsibilities to root docs versus node-local docs
 - defining parent-summary and child-detail rules
 - defining where project purpose, module purpose, phase goals, current-state,
-  proposals, guides, and operations should live
+  proposals, guides, operations, and verification docs should live
 - defining reader entrypoints and reading paths by intent
 - bootstrapping a system overview when the system node lacks one
 - defining rollout guidance for the target doc tree and target navigation tree
@@ -54,10 +57,13 @@ coherent book.
 
 This skill exists to help you:
 - align docs placement with code ownership
-- define root and node entrypoints that help readers start in the right place
+- define repository, docs, and node entrypoints that help readers start in the
+  right place
 - separate discovery layers from authority layers
 - keep root docs focused on system and cross-module knowledge
 - keep detailed local knowledge near the owning module or component
+- keep test coverage and verification knowledge near the owning test suite
+  rather than the runtime module by default
 - prevent parent docs from swallowing child implementation detail
 - produce a target doc tree and target navigation tree that
   `project-doc-record-skill` can execute concretely
@@ -65,12 +71,13 @@ This skill exists to help you:
 ## Workflow
 
 1. Inspect the code ownership tree.
-   - Identify system, module, submodule, and component boundaries from the
-     actual repository layout and major ownership seams.
+   - Identify system, module, submodule, component, and test-suite boundaries
+     from the actual repository layout and major ownership seams.
    - Do not treat docs-only grouping folders as ownership nodes unless they
      map to a real owned code seam.
 2. Inspect the current docs tree and current reader entrypoints.
-   - Look for root `README.md`, root `docs/`, node-local `README.md`,
+   - Look for root `README.md`, root `docs/`, `docs/README.md`,
+     node-local `README.md`,
      `*/docs/`, existing indexes, and where detailed plans currently
      accumulate.
    - Note where docs-only grouping folders are being mistaken for real nodes.
@@ -91,6 +98,7 @@ This skill exists to help you:
      - `module`
      - `submodule`
      - `component`
+     - `test-suite`
 5. Classify documentation layers.
    - For each doc-worthy surface, decide whether it is primarily:
      - `entrypoint`
@@ -104,7 +112,8 @@ This skill exists to help you:
    - Place each doc at the lowest node that fully owns the described object or
      change.
 8. Assign responsibilities by node level and doc layer.
-   - Define what root docs own versus module, submodule, and component docs.
+   - Define what root docs own versus module, submodule, component, and
+     test-suite docs.
 9. Define parent-summary and child-detail rules.
    - Parents summarize, link, and index.
    - Children retain detailed plans, file change lists, verification slices,
@@ -131,23 +140,31 @@ This skill exists to help you:
 ## Defaults
 
 - Operating target: `project-doc-information-architecture`
-- Node levels: `system`, `module`, `submodule`, `component`
+- Node levels: `system`, `module`, `submodule`, `component`, `test-suite`
 - Navigation layers: `entrypoint`, `overview`, `authority`, `detail`
 - Placement rule: place each doc at the lowest common ancestor of the thing it
   describes
 - Node definition rule: only real code-owned seams count as `system`, `module`,
-  `submodule`, or `component`; docs-only grouping folders are containers by
-  default
+  `submodule`, `component`, or `test-suite`; docs-only grouping folders are
+  containers by default
 - Root docs role: system-level purpose, entry, cross-module architecture,
   shared contracts, governance, and top-level indexes
-- Root entry rule: evaluate root `README.md` first as the primary repo
-  entrypoint before inventing additional landing pages
-- Docs entry rule: use `docs/README.md` as a secondary entrypoint only when the
-  root docs area is large enough to justify a separate guided entry
+- Root entry rule: use root `README.md` as the repository landing page for
+  project summary, runtime or developer orientation, and a brief docs pointer
+- Root README brevity rule: keep docs content in root `README.md` lightweight;
+  do not turn it into the full docs index or long reading map by default
+- Docs entry rule: use `docs/README.md` as the documentation landing page for
+  docs index, reading order, and guided navigation across the docs tree
 - Node entry role: use the node root `README.md` for node purpose, boundary,
   and navigation when that node needs its own entry page
 - Node-local docs role: local current-state, local proposals, local guides,
   local runbooks, and detailed implementation plans
+- Test-suite docs role: coverage overviews, fixture or harness notes,
+  verification contracts, regression matrices, and other docs whose primary
+  subject is the test asset itself
+- Runtime-vs-tests rule: when a document primarily describes test coverage,
+  fixtures, harnesses, or verification gaps, place it under the owning tests
+  subtree rather than under the runtime module by default
 - Secondary index rule: add `<node>/docs/README.md` only when a local docs
   subtree has at least 4 durable docs, spans mixed intents, or has a
   non-obvious reader path that needs a second index
@@ -185,6 +202,8 @@ This skill exists to help you:
 ## Current Discovery Problems
 ## Ownership Node Map
 ## Navigation Layer Map
+## Repository Landing
+## Docs Landing
 ## Doc-Worthy Nodes
 ## Entry Points
 ## Overview Nodes
@@ -211,6 +230,8 @@ This skill exists to help you:
   or topic buckets as ownership nodes by default.
 - Do not add `docs/README.md` to a tiny or single-intent subtree just for
   symmetry.
+- Do not turn root `README.md` into the repository's full docs index, long
+  reading order, or formal-doc inventory by default.
 - Do not confuse discovery pages with authority pages.
 - Do not make readers infer the start page or main path from folder names
   alone.
@@ -225,9 +246,13 @@ This skill exists to help you:
 - Verify that placement follows lowest common ancestor rather than type-first
   convenience.
 - Verify that each proposed node corresponds to a real code ownership seam.
+- Verify that verification docs are placed under the tests subtree when the
+  tests asset, not the runtime module, is the primary owner.
 - Verify that each doc-worthy node has a real durable purpose.
 - Verify that entrypoint, overview, authority, and detail responsibilities are
   not being conflated.
+- Verify that root `README.md` remains a repository landing page with only a
+  light docs pointer when `docs/README.md` exists.
 - Verify that root docs stay focused on system or cross-module knowledge.
 - Verify that any proposed `docs/README.md` is justified as a real secondary
   index rather than folder decoration.

@@ -8,7 +8,8 @@ technical truth.
 Discovery pages help readers find the next correct page.
 
 Common discovery layers:
-- entrypoints
+- repository landing page
+- documentation landing page
 - overview pages
 - indexes
 

@@ -14,8 +14,8 @@ Most healthy documentation systems expose a route similar to:
 ## Reading Paths By Intent
 
 Common intent-based routes:
-- new contributor: root entrypoint -> system overview -> module overview ->
-  local current-state
+- new contributor: root README -> docs/README -> system overview -> module
+  overview -> local current-state
 - implementer: module entrypoint -> local current-state -> detailed plan ->
   verification notes
 - reviewer: overview -> authority page -> related detail or historical context

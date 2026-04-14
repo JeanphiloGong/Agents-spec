@@ -6,17 +6,22 @@ ownership-tree-first model:
 
 - root `docs/` keeps system-level and cross-module knowledge
 - module, submodule, and component docs live near the code that owns them
+- test coverage, fixture, and verification docs live near the test tree that
+  owns them
 - parent docs summarize and link
 - child docs keep detailed local knowledge
 
 ## Package Model
 
-The package assumes three placement rules:
+The package assumes four placement rules:
 
 1. Place docs at the lowest common ancestor of the thing they describe.
 2. Let parent docs summarize and index, while child docs preserve local detail.
 3. Treat only real code-owned seams as ownership nodes; docs-only grouping
    folders are containers by default, not nodes.
+4. Keep the repository landing page and the documentation landing page
+   separate: root `README.md` briefly points to docs, while `docs/README.md`
+   owns the docs index and reading map.
 
 ## Skills
 
@@ -26,7 +31,9 @@ The package assumes three placement rules:
 - Use when:
   - root docs are overloaded
   - local module detail keeps getting buried in parent docs
-  - the repo needs a clear root/module/submodule/component doc layout
+  - test or verification docs keep getting attached to runtime modules
+  - the repo needs a clear root/module/submodule/component/test-suite doc
+    layout
   - project purpose and node-local purpose are not clearly separated
 - Output boundary:
   - returns the ownership node map, placement rules, target doc tree, and
@@ -38,6 +45,7 @@ The package assumes three placement rules:
 - Purpose: write one concrete document at the correct ownership node.
 - Use when:
   - a module, submodule, or component change needs durable docs
+  - a test coverage, fixture, or verification note needs durable docs
   - you need to decide create versus update without losing child detail
   - you need to write one purpose doc, proposal, current-state page, guide,
     contract, or operation note
@@ -59,8 +67,12 @@ The package assumes three placement rules:
 
 ## Placement Matrix
 
-- Project purpose
-  - root overview or root `docs/README.md`
+- Repository landing and quick docs pointer
+  - root `README.md`
+- Documentation landing and reading map
+  - root `docs/README.md`
+- Project purpose and system intent
+  - root `README.md` plus system overview pages under `docs/` when needed
 - Project phase goals
   - system-level planning docs, roadmap docs, or tracked issues
 - Module purpose
@@ -70,6 +82,8 @@ The package assumes three placement rules:
 - Component implementation detail
   - component-local docs only when the component has durable standalone
     knowledge
+- Test suite coverage, fixture, or verification docs
+  - the lowest common ancestor under `tests/` that owns those test assets
 - Current state
   - the node that owns the implemented behavior
 - Execution checklist
@@ -88,9 +102,13 @@ The package assumes three placement rules:
 
 ## README Rule
 
-- Root `docs/README.md` stays as the global docs entry point.
+- Root `README.md` is the repository landing page, not the full docs index.
+- Root `README.md` should briefly describe the project and point readers to
+  `docs/README.md` for structured documentation.
+- Root `docs/README.md` stays as the global docs entry point and owns the docs
+  reading map.
 - `<node>/README.md` is the default entry point for one module, submodule, or
-  component node.
+  component, or test-suite node.
 - `<node>/docs/` is the node's formal-doc container, not a second default
   homepage.
 - Docs-only grouping folders such as `docs/rfcs/`, `docs/guides/`, or topic
@@ -98,6 +116,8 @@ The package assumes three placement rules:
 - Only add `<node>/docs/README.md` when that local docs subtree has at least
   4 durable docs, spans mixed intents, or has a non-obvious reader path that
   genuinely needs a second index.
+- Do not turn root `README.md` into a long docs reading order, architecture
+  index, or formal-doc inventory by default.
 - Avoid keeping both `<node>/README.md` and `<node>/docs/README.md` as
   competing summaries of the same node by default.
 
@@ -124,8 +144,9 @@ The package assumes three placement rules:
 
 ```text
 Use $project-doc-architecture-skill to inspect this repository's code tree and
-docs tree, identify overloaded root docs, and design a docs ownership tree with
-root, module, submodule, and component responsibilities.
+docs tree, identify overloaded root docs, misplaced test docs, and design a
+docs ownership tree with root, module, submodule, component, and test-suite
+responsibilities.
 ```
 
 ### Record
@@ -134,6 +155,13 @@ root, module, submodule, and component responsibilities.
 Use $project-doc-record-skill to inspect the nearby docs for this submodule,
 determine the ownership node and lowest common ancestor, and record this plan
 without collapsing child detail into the parent doc.
+```
+
+```text
+Use $project-doc-record-skill to inspect this repository's tests tree, runtime
+module docs, and nearby coverage notes, determine whether this document is
+owned by the tests subtree or the runtime module, and place the resulting test
+coverage overview at the lowest common ancestor under tests/.
 ```
 
 ### Lifecycle

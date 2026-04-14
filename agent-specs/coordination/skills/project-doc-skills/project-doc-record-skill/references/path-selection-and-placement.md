@@ -26,6 +26,11 @@ Use root `docs/` for:
 - governance
 - top-level indexes
 
+Use root `README.md` for:
+- repository identity
+- light runtime or developer orientation
+- a short pointer to `docs/README.md`
+
 ## Node-Local `*/docs/`
 
 Use node-local docs for:
@@ -33,11 +38,18 @@ Use node-local docs for:
 - local proposals
 - local guides and runbooks
 - detailed implementation plans
+- test-suite-local coverage, fixture, harness, and verification docs when the
+  tests subtree owns the knowledge
 
 Use the node root `README.md` for:
 - module or submodule purpose
 - node boundary summary
 - child-area navigation
+
+Use the tests-node `README.md` for:
+- test-scope summary
+- coverage or verification boundary explanation
+- navigation into test-local coverage or fixture docs when needed
 
 ## Decision Rules
 
@@ -46,12 +58,18 @@ Use the node root `README.md` for:
 - one submodule only => `<module>/<submodule>/docs/`
 - one component only => component-local docs only when that level has durable
   standalone knowledge
+- one test suite or verification slice only => the matching lowest common
+  ancestor under `tests/`
+- coverage or fixture docs spanning multiple test files => the shared ancestor
+  under `tests/`
 - child detail under a broad parent => child path plus parent summary link
 - do not add `<node>/docs/README.md` by default when `<node>/README.md`
   already owns the node summary
 - only add `<node>/docs/README.md` when the local docs subtree has at least 4
   durable docs, spans mixed intents, or has a genuinely non-obvious reader
   path
+- do not treat root `README.md` as the full docs index when `docs/README.md`
+  exists
 
 ## Naming Rules
 
