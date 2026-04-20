@@ -1,9 +1,9 @@
 ---
-name: human-core-feature-wave-skill
-description: v0.1.19 - Guide one human-led feature landing wave on `main` from an AI draft or worktree, keeping `Human-Owned` core logic on `main`, AI output as reference only, and verification plus `commit_when` checkpoints explicit.
+name: human-led-main-landing-skill
+description: v0.1.20 - Guide one human-led, main-first landing wave from an AI draft or worktree, keeping `Human-Owned` core logic on `main`, AI output as reference only, and verification plus `commit_when` checkpoints explicit.
 ---
 
-# Human-Core Feature Wave Skill (Main-First Landing)
+# Human-Led Main Landing Skill (One-Wave, Main-First)
 
 ## Trigger and Scope
 
@@ -23,7 +23,7 @@ In scope:
 - ownership splitting across `Human-Owned`, `Human-Confirm`, and `AI-Auto`
 - verification planning on `main`
 - defining reversible `commit_when` checkpoints
-- calling `implementation-coach-skill` for `Human-Owned` steps when the human
+- calling `from-scratch-implementation-skill` for `Human-Owned` steps when the human
   needs step-by-step derivation before coding
 
 Out of scope:
@@ -32,7 +32,7 @@ Out of scope:
 - post-hoc diff summaries or code review
 - broad multi-wave roadmaps
 
-Use `implementation-coach-skill` when the user mainly wants to learn how to
+Use `from-scratch-implementation-skill` when the user mainly wants to learn how to
 derive and build the core logic step by step.
 
 ## Core Purpose
@@ -45,12 +45,12 @@ This skill exists to help you:
 - decide what AI code can be adopted as glue
 - land one smallest useful closed loop on `main`
 - define verification and commit boundaries for small, reversible commits
-- use `implementation-coach-skill` for `Human-Owned` core reasoning when
+- use `from-scratch-implementation-skill` for `Human-Owned` core reasoning when
   derivation matters more than raw velocity
 
 This skill does **not** assume the AI branch is the source of truth.
 
-## Default Operating Model (Human-Core, AI-Sandbox)
+## Default Operating Model (Main-First, AI-Sandbox)
 
 - AI worktree or branch is a parallel experiment sandbox and can be discarded.
 - `main` is the only source of truth.
@@ -66,7 +66,7 @@ This skill does **not** assume the AI branch is the source of truth.
 - `output_style=wave-plan-first`
 - `plan_horizon=this-wave-only`
 - `integration_strategy=human-led-main-first`
-- `teaching_subroutine=implementation-coach-skill-when-needed`
+- `teaching_subroutine=from-scratch-implementation-skill-when-needed`
 - `agent_mode=single|multi(optional)`
 - `human_core_reimplementation=default-on`
 
@@ -79,7 +79,7 @@ This skill does **not** assume the AI branch is the source of truth.
 - Run `reference-core-impl-skill` first when the core is novel,
   architecture-heavy, or too noisy to learn safely from the production code or
   AI draft directly.
-- Run `implementation-coach-skill` for `Human-Owned` steps when the user needs
+- Run `from-scratch-implementation-skill` for `Human-Owned` steps when the user needs
   the reasoning path for reimplementing the core logic before touching code.
 - Choose `triage` only when the AI diff or change surface is too large to
   reason about safely in one wave.
@@ -94,7 +94,7 @@ Default operating pattern:
    `reference-core-impl-skill` to distill a runnable minimal-complete sample
    first.
 4. If a `Human-Owned` step still needs structured derivation, run
-   `implementation-coach-skill` before coding on `main`.
+   `from-scratch-implementation-skill` before coding on `main`.
 5. Human reimplements that core path on `main` from requirements, invariants,
    and the learned sample or teaching output, not by trust-copying the AI
    diff.
@@ -107,8 +107,8 @@ This is the default path the skill should optimize for.
 Recommended upstream or downstream chain:
 1. repository-local tmux bootstrap skill
 2. `reference-core-impl-skill` when needed
-3. `human-core-feature-wave-skill`
-4. `implementation-coach-skill` when needed for `Human-Owned` steps
+3. `human-led-main-landing-skill`
+4. `from-scratch-implementation-skill` when needed for `Human-Owned` steps
 5. `git-commit-skill`
 
 ## What Counts as "One Wave"
@@ -185,7 +185,7 @@ Default for:
 4. Restate the `Human-Owned` core path in requirement terms before touching
    code.
 5. For each `Human-Owned` step, decide whether to call
-   `implementation-coach-skill` first to derive:
+   `from-scratch-implementation-skill` first to derive:
    - behavior and invariants
    - structure from constraints
    - public method or boundary
@@ -279,19 +279,19 @@ Suggested reviewer roles when used:
 - Step 1:
   - owner:
   - use_ai_reference:
-  - use_implementation_coach:
+  - use_from_scratch_implementation:
   - done_when:
   - commit_when:
 - Step 2:
   - owner:
   - use_ai_reference:
-  - use_implementation_coach:
+  - use_from_scratch_implementation:
   - done_when:
   - commit_when:
 - Step 3:
   - owner:
   - use_ai_reference:
-  - use_implementation_coach:
+  - use_from_scratch_implementation:
   - done_when:
   - commit_when:
 
@@ -312,7 +312,7 @@ Suggested reviewer roles when used:
 - Do not treat the AI diff as the source of truth.
 - Do not default to copying the AI core algorithm into `main`; reimplement the
   `Human-Owned` path from explicit reasoning and use
-  `implementation-coach-skill` when needed.
+  `from-scratch-implementation-skill` when needed.
 - Do not start from schema or model work unless the current wave truly
   requires it.
 - Do not output a full multi-wave roadmap unless explicitly requested.
@@ -327,5 +327,5 @@ Suggested reviewer roles when used:
 - Verify every landing step includes `owner`, `done_when`, and `commit_when`.
 - Verify every `Human-Owned` step names its reasoning source:
   requirements, `reference-core-impl-skill`, or
-  `implementation-coach-skill`, not the AI diff alone.
+  `from-scratch-implementation-skill`, not the AI diff alone.
 - Verify the output ends after one wave with a one-line next-wave pointer.

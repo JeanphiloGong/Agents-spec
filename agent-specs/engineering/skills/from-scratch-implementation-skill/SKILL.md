@@ -1,9 +1,9 @@
 ---
-name: implementation-coach-skill
-description: v0.1.1 - Produce a document-first, from-scratch implementation guide that derives one feature or method from behavior and invariants into step-by-step structure, helper contracts, small code fragments, and verification; use it when the human wants to learn how to build the core logic rather than trust final code.
+name: from-scratch-implementation-skill
+description: v0.1.2 - Produce a document-first, from-scratch implementation guide that derives one feature or method from behavior and invariants into step-by-step structure, helper contracts, small code fragments, and verification; use it when the human wants to learn how to build the core logic rather than trust final code.
 ---
 
-# Implementation Coach Skill
+# From-Scratch Implementation Skill
 
 ## Trigger and Scope
 
@@ -34,7 +34,7 @@ Out of scope:
 - final-code-only requests with no teaching intent
 - diff migration and commit sequencing
 
-Use `human-core-feature-wave-skill` when there is real landing or integration
+Use `human-led-main-landing-skill` when there is real landing or integration
 context on `main`.
 
 ## Core Purpose
@@ -66,7 +66,7 @@ This skill exists to help you:
 
 ## Fixed Defaults
 
-- `mode=implementation-coach`
+- `mode=from-scratch-implementation`
 - `output_style=tutorial-first`
 - `artifact_mode=full-markdown-doc-default`
 - `document_shape=from-scratch-implementation-guide`
@@ -91,7 +91,7 @@ This skill exists to help you:
 
 - Choose this skill by default when there is no landing context yet and the
   user mainly wants to learn or derive the design.
-- Use this skill as a nested subroutine inside `human-core-feature-wave-skill`
+- Use this skill as a nested subroutine inside `human-led-main-landing-skill`
   for `Human-Owned` steps that need explicit reasoning before coding.
 - Run `reference-core-impl-skill` first when the better teaching artifact is a
   runnable minimal-complete sample rather than an inline walkthrough.

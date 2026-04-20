@@ -32,7 +32,7 @@ Use this after the minimal-complete sample is understood and validated.
 - boundary/failure case
 - invariant-specific regression
 
-## 5. Hand Off To `human-core-feature-wave-skill`
+## 5. Hand Off To `human-led-main-landing-skill`
 
 - use the sample as reference, not merge target
 - land one smallest closed loop on `main`
