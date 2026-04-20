@@ -1,6 +1,6 @@
 ---
 name: reference-core-impl-skill
-description: v0.1.2 - Produce a runnable minimal-complete reference implementation for a feature or system core inside a dedicated worktree before main-project integration; use it to learn the core, then hand off to human-core landing.
+description: v0.1.3 - Distill a feature or system core into a runnable minimal-complete reference sample before `main` integration; use it when production code or an AI draft is too noisy to learn from safely, then hand off to human-core landing.
 ---
 
 # Reference Core Implementation Skill
@@ -26,6 +26,11 @@ Out of scope:
 - copying the full production module into a "mini" folder with trivial deletions
 - hiding real invariants just to stay within a line budget
 - replacing `human-core-feature-wave-skill` for `main` landing and integration
+
+Typical trigger prompts:
+- `Use $reference-core-impl-skill to distill this scheduler into a runnable core sample before we touch main.`
+- `Use $reference-core-impl-skill to compare this noisy AI draft with the real invariant and produce a minimal-complete sample plus mapping back to production.`
+- `Use $reference-core-impl-skill to extract the editor loop into a tiny runnable example that a human can rederive by hand.`
 
 ## Core Purpose
 
@@ -57,13 +62,30 @@ Out of scope:
 - `sample_readme=required`
 - `production_import_barrier=required`
 - `output_style=tutorial-plus-code`
-- `agent_mode=single|multi(optional)`
+- `agent_mode=single-default|multi-by-explicit-request`
 
 ## Mode Selection
 
 - Choose `reference-core` by default when the goal is a runnable minimal sample.
 - Choose `reference-plus-map` when the output must include an explicit production mapping plan in the same response.
 - Choose `compare-draft` when an AI draft or existing module already exists and the task is to distill its real core into a cleaner sample.
+
+## Reference Map (Read As Needed)
+
+- `references/what-counts-as-minimal-complete.md`
+  - read when the line budget or boundary feels contested and you need to recheck what must survive compression
+- `references/project-placement-policy.md`
+  - read when project placement is unclear or the sample might accidentally land in a production-imported path
+- `references/mapping-back-to-main-checklist.md`
+  - read before finalizing the mapping section so the handoff back to production modules stays concrete
+- `references/acceptance-criteria.md`
+  - read during acceptance review and before proposing the next rewrite step
+- `references/worked-example-mini-langgraph.md`
+  - read when the feature is graph-runner, orchestration, or scheduler shaped
+- `references/worked-example-mini-viim.md`
+  - read when the feature is editor-loop, command-dispatch, or state-machine shaped
+- `assets/reference-core-readme-template.md`
+  - read when the sample will persist in the target project repository and needs a colocated `README.md`
 
 ## What Counts as "Minimal Complete" (Required)
 
@@ -81,26 +103,28 @@ If any of these are missing, the sample is either incomplete or too abstract.
 ## Workflow
 
 1. State the system slice and the user-visible/core-visible success condition.
-2. Separate core invariants from production constraints.
-3. Define the smallest boundary that still preserves the real core.
-4. Choose the minimum runtime model:
+2. State required inputs that are still missing; stop and ask for them only when the missing item would make the sample misleading or unsafe.
+3. Separate core invariants from production constraints.
+4. Define the smallest boundary that still preserves the real core.
+5. Choose the minimum runtime model:
    - in-memory state
    - fake adapters
    - synchronous loop unless async behavior is itself core
-5. Resolve the sample placement strategy in the target project repo.
-6. Define the sample structure:
+6. Resolve the sample placement strategy in the target project repo.
+7. Define the sample structure:
    - essential types/state
    - core loop or public entrypoints
    - essential helper contracts
-7. Produce a runnable minimal-complete sample within the line/file budget.
-8. Add a colocated `README.md` using the reference template when the sample is meant to persist in the project repo.
-9. Validate it with one happy path and one important failure or edge case.
-10. List deferred constraints, adapters, and production-only policies.
-11. Map the sample back to the real codebase:
+8. Produce a runnable minimal-complete sample within the line/file budget.
+9. Add a colocated `README.md` using the reference template when the sample is meant to persist in the project repo.
+10. Validate it with one happy path and one important failure or edge case.
+11. Run acceptance review against `references/acceptance-criteria.md` and record pass/fail evidence.
+12. List deferred constraints, adapters, and production-only policies.
+13. Map the sample back to the real codebase:
    - which modules own the equivalent behavior
    - which abstractions must be reintroduced
    - which tests should be ported first
-12. Recommend the next step:
+14. Recommend the next step:
    - use `human-core-feature-wave-skill` to land the learned core on `main`, or
    - iterate once more if the sample still hides the real invariant.
 
@@ -195,6 +219,14 @@ Interpretation:
 - optional preferred size budget
 - optional preferred language/runtime for the sample
 
+## Missing Inputs Policy (Required)
+
+- If the feature name, core behavior goal, or defining invariant is missing, ask for it before drafting the sample unless the repository context makes the answer explicit.
+- If invariants are only partially known, infer them from the provided code or problem statement and label them `inferred` in the output.
+- If the target project root is unknown, produce an ephemeral placement recommendation and state that persistence is blocked on project-path confirmation.
+- If the language/runtime is unspecified, default to the production language when practical; otherwise choose the simplest local runtime that preserves the invariant and explain why.
+- Do not fake certainty: unresolved constraints must stay in `## Open Risks / Unknowns`.
+
 ## Defaults
 
 - size budget: target `~400` lines, acceptable `150-500`
@@ -209,6 +241,7 @@ Interpretation:
 
 ```
 ## Core Goal
+## Missing Inputs / Assumptions
 ## Minimal Boundary
 ## Suggested Project Placement
 ## Minimal Complete Sample
@@ -216,20 +249,23 @@ Interpretation:
 ## Included Invariants
 ## Deferred Constraints
 ## Validation
+## Acceptance Review
 ## Mapping Back To Main
 ## Next Human Rewrite Step
 ## Open Risks / Unknowns
 ```
 
-## Worked Example References
+## Output Contract (Required)
 
-- `references/what-counts-as-minimal-complete.md`
-- `references/project-placement-policy.md`
-- `references/worked-example-mini-langgraph.md`
-- `references/worked-example-mini-viim.md`
-- `references/mapping-back-to-main-checklist.md`
-- `references/acceptance-criteria.md`
-- `assets/reference-core-readme-template.md`
+Every non-trivial run must make these items explicit:
+
+- whether each required input was provided, inferred, or still missing
+- one happy-path validation command or test
+- one important failure or boundary validation
+- one sentence on what the sample proves
+- one sentence on what the sample does **not** prove
+- pass/fail evidence against `references/acceptance-criteria.md`
+- the exact production modules or boundaries that the sample maps back to next
 
 ## Iteration Loop (Required)
 
@@ -239,6 +275,9 @@ Interpretation:
 - Name the one verification step that proves the next iteration improved the sample.
 
 ## Reinforcement Plan (Required)
+
+This section applies only when improving the skill package itself. It does
+not apply to ordinary use of the skill for generating a reference sample.
 
 ### Goals
 
@@ -263,7 +302,7 @@ Interpretation:
 Each reinforcement round must produce:
 - a Git commit containing only that round's changes
 - an audit record in `references/reinforcement-audit.jsonl`
-- validation via `scripts/validate_reinforcement_audit.py`
+- validation via `python scripts/validate_reinforcement_audit.py references/reinforcement-audit.jsonl`
 
 ### Four-Step Reinforcement Cycle
 
