@@ -1,4 +1,4 @@
 interface:
   display_name: "Implementation Coach"
-  short_description: "v0.1.0 - Teach one feature or method step by step"
-  default_prompt: "Use $implementation-coach-skill to derive one feature or method from behavior and invariants into structure, helper contracts, build order, and verification before writing or trusting final code."
+  short_description: "v0.1.1 - Write a from-scratch implementation guide"
+  default_prompt: "Use $implementation-coach-skill to produce a markdown from-scratch implementation guide for one feature or method, deriving behavior and invariants into step-by-step structure, helper contracts, small code fragments, assembly, and verification before writing or trusting final code."
