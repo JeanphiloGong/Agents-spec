@@ -1,4 +1,4 @@
 interface:
   display_name: "Reference Core Implementation"
-  short_description: "v0.1.3 - Distill a runnable minimal-complete core sample"
+  short_description: "v0.1.4 - Distill a runnable minimal-complete core sample"
   default_prompt: "Use $reference-core-impl-skill to distill a feature or system core into a runnable minimal-complete reference sample, preserve the defining invariants, list deferred production constraints, and map the sample back to the real codebase."

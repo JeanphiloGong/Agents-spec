@@ -1,6 +1,6 @@
 ---
 name: reference-core-impl-skill
-description: v0.1.3 - Distill a feature or system core into a runnable minimal-complete reference sample before `main` integration; use it when production code or an AI draft is too noisy to learn from safely, then hand off to human-core landing.
+description: v0.1.4 - Distill a feature or system core into a runnable minimal-complete reference sample before `main` integration; use it when production code or an AI draft is too noisy to learn from safely, then hand off to human-led main landing.
 ---
 
 # Reference Core Implementation Skill
@@ -25,7 +25,7 @@ Out of scope:
 - polishing the sample into production-ready code
 - copying the full production module into a "mini" folder with trivial deletions
 - hiding real invariants just to stay within a line budget
-- replacing `human-core-feature-wave-skill` for `main` landing and integration
+- replacing `human-led-main-landing-skill` for `main` landing and integration
 
 Typical trigger prompts:
 - `Use $reference-core-impl-skill to distill this scheduler into a runnable core sample before we touch main.`
@@ -125,7 +125,7 @@ If any of these are missing, the sample is either incomplete or too abstract.
    - which abstractions must be reintroduced
    - which tests should be ported first
 14. Recommend the next step:
-   - use `human-core-feature-wave-skill` to land the learned core on `main`, or
+   - use `human-led-main-landing-skill` to land the learned core on `main`, or
    - iterate once more if the sample still hides the real invariant.
 
 ## Minimal Sample Design Rules (Required)
@@ -195,18 +195,18 @@ The skill must require:
 ## Daily Workflow Position
 
 Use this skill after the repository-local tmux bootstrap skill and before
-`human-core-feature-wave-skill` when the feature's core is novel,
+`human-led-main-landing-skill` when the feature's core is novel,
 architecture-heavy, or difficult to learn from the production code directly.
 
 Recommended sequence:
 1. repository-local tmux bootstrap skill
 2. `reference-core-impl-skill`
-3. `human-core-feature-wave-skill`
+3. `human-led-main-landing-skill`
 4. `git-commit-skill`
 
 Interpretation:
 - `reference-core-impl-skill` is a distillation and learning stage, not the final production edit stage.
-- If the reference sample reveals a production mismatch, use `human-core-feature-wave-skill` to decide and land the real production change.
+- If the reference sample reveals a production mismatch, use `human-led-main-landing-skill` to decide and land the real production change.
 - Do not patch production code directly from the sample without the landing/invariant review step.
 
 ## Required Inputs (Minimal)
