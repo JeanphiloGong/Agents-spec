@@ -18,7 +18,7 @@ agents-spec-repo 用于管理 AI Agents 在不同工程/产品角色下的行为
 显式外部记忆体系可使用 `project-memory-skill`，默认将项目记忆沉淀到 `~/.agents/memories/projects/<project-slug>/`。
 
 ## 🤝 协作方式
-- 先阅读 `AGENTS.md` 与 `AGENTS.template.md`，理解权限与协作边界
+- 先阅读 `AGENTS.md` 与 `agent-specs/coordination/skills/project-agents-md-skill/references/AGENTS.template.md`，理解权限与协作边界
 - 新角色请放在 `agent-specs/` 下，并补齐对应 `AGENTS.md`
 - 讨论、决策与风险请在仓库文档中按需记录，并保持可追溯
 
@@ -167,7 +167,7 @@ Reference: [OpenAI Codex Skills](https://developers.openai.com/codex/skills)
 Place skills under `agent-specs/<role>/skills/` and sync to `~/.codex/skills` if needed.
 
 ## 🤝 Collaboration
-- Read `AGENTS.md` and `AGENTS.template.md` first to understand boundaries
+- Read `AGENTS.md` and `agent-specs/coordination/skills/project-agents-md-skill/references/AGENTS.template.md` first to understand boundaries
 - Add new roles under `agent-specs/` with a matching `AGENTS.md`
 - Record discussions, decisions, and risks in repository documentation when relevant
 

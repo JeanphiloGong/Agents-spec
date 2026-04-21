@@ -77,6 +77,7 @@ Out of scope:
 
 ## Bundled Resources
 
+- `references/AGENTS.template.md`
 - `references/acceptance-criteria.md`
 - `references/domain-philosophy-library.md`
 
