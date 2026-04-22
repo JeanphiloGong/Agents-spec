@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Doc Architecture"
-  short_description: "v0.3.3 - Design a docs IA with topic-family containers"
+  short_description: "v0.3.6 - Design a docs IA with topic-family containers"
   default_prompt: "Use $project-doc-architecture-skill to inspect this repository's code ownership tree, tests tree, docs tree, and reader entry surfaces, keep root README as a repository landing page, use docs/README as the documentation landing page, derive durable documentation nodes only from real code-owned seams, distinguish runtime ownership from test-suite ownership, place docs by lowest common ancestor, keep docs-only grouping folders as containers instead of nodes, decide when a node-local topic-family container should group sibling proposals, decisions, plans, or current-state pages, and produce a target doc tree and target navigation tree that concrete file creation can later realize through $project-doc-record-skill."

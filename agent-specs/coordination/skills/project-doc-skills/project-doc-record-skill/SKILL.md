@@ -1,106 +1,71 @@
 ---
 name: project-doc-record-skill
-description: v0.4.6 - Record one concrete documentation artifact at the correct code-owned node with clear page-role selection, runtime-vs-tests ownership, node-local topic-family containers, README-vs-docs separation, and preserved local detail so it fits the repository's book-like documentation system.
+description: v0.4.8 - Record one concrete documentation artifact at the correct code-owned node with reader-first page choices, node-local topic-family containers, README-vs-docs separation, and preserved local detail so it fits the repository's book-like documentation system.
 ---
 
 # Project Documentation Record Skill
 
-## Trigger and Scope
+## Overview
 
-Use this skill when one concrete piece of durable project knowledge must be
-written into repository docs at the right ownership node and connected to the
-local reading context.
+Use this skill when one concrete piece of durable project knowledge needs to
+be written into repository docs at the right ownership node and connected to
+the local reading context. It is the day-to-day writing skill in this package.
 
-In scope:
-- inspecting local docs near the relevant code node before writing
-- inspecting any relevant architecture or lifecycle guidance when available
-- determining the ownership node and lowest common ancestor placement
-- distinguishing real code-owned nodes from docs-only grouping folders
-- distinguishing repo landing README, node README, docs landing README, and
-  formal docs before writing
-- distinguishing runtime-owned docs from test-suite-owned docs before choosing
-  path
-- determining the document intent before choosing structure or path
-- deciding whether to create a child doc or update an existing parent doc
-- deciding whether a doc should stand alone or join a node-local topic-family
-  container
-- preserving detailed implementation artifacts instead of collapsing them into
-  broader docs
-- deciding immediate parent summary, footer, index, and neighbor-link updates
-- adding metadata only when the repository actually consumes it
-- writing the concrete document body for this one doc wave
+The skill turns the ownership-tree model into one bounded documentation wave.
+It decides where one page belongs, whether it should stay standalone or join a
+node-local topic family, which page role fits best, and what light companion
+updates are needed so the result remains discoverable.
 
-Out of scope:
-- redesigning the repository's overall docs tree
-- deciding lifecycle progression for an entire doc family
-- repairing the full reading order of a repository or module
-- migrating a whole docs tree in one pass
-- using one parent doc as a dumping ground for unrelated local changes
+## Purpose
 
-Use this skill when prompts sound like:
-- "write the right doc for this module change"
-- "where should this submodule plan live, and write it"
-- "should this be a new child doc or an update to the parent doc?"
-- "record this detailed implementation plan without losing the file list"
+This skill exists to write the document at the correct node without losing
+ownership boundaries, detailed local knowledge, or the local reading path.
 
-## Core Purpose
+In practice, it helps you:
 
-Write the document at the correct node without losing ownership boundaries,
-detailed local knowledge, or the local reading path.
-
-This skill exists to help you:
-- place docs by ownership node rather than by raw root-doc convenience
+- place docs by ownership node rather than by root-doc convenience
 - preserve child-scope detail instead of flattening it into parent docs
 - keep coverage, fixture, and verification docs under the owning tests subtree
   when the tests asset itself is the primary subject
 - keep README pages focused on local purpose, boundaries, and logic before
   they mention the docs system around them
-- choose intent-appropriate body structure
-- keep parent docs as summary and navigation layers
-- keep repo landing pages lightweight while docs landing pages own deeper docs
-  routing
-- maintain the minimum links needed so the new page is discoverable and
-  situationally readable
-- choose when one topic needs a small local family folder instead of another
-  loose sibling file in a root type bucket
-- keep metadata optional and lightweight unless the repository truly consumes it
+- choose when one topic needs a small node-local family folder instead of
+  another loose sibling file in a root type bucket
 
-## Decision Dimensions
+## When To Use This Skill
 
-Always decide these dimensions before writing:
+Reach for this skill when the problem is one concrete documentation wave rather
+than a repository-wide redesign. Common cases include:
 
-- `ownership node`
-  - Which node owns this knowledge:
-    - `system`
-    - `module`
-    - `submodule`
-    - `component`
-    - `test-suite`
-- `document intent`
-  - What the document primarily does:
-    - `purpose`
-    - `proposal`
-    - `current-state`
-    - `contract`
-    - `guide`
-    - `operation`
-- `page role`
-  - What kind of page this is:
-    - `repo landing README`
-    - `node entry README`
-    - `docs landing README`
-    - `formal doc`
-- `detail level`
-  - Is this:
-    - parent summary or index
-    - normal node-local durable doc
-    - detailed child implementation plan
-- `container strategy`
-  - Does this wave need:
-    - one standalone artifact
-    - one node-local topic-family container
+- a module, submodule, or component change needs durable docs
+- a test coverage, fixture, or verification note needs durable docs
+- you need to decide create versus update without losing child detail
+- you need to write one purpose doc, proposal, current-state page, guide,
+  contract, or operation note
+- one local subject now has multiple proposals, decisions, plans, or
+  current-state pages and needs a small topic-family container
 
-## Workflow
+Typical requests sound like:
+
+- "write the right doc for this module change"
+- "where should this submodule plan live, and write it"
+- "should this be a new child doc or an update to the parent doc?"
+- "record this detailed implementation plan without losing the file list"
+
+Do not use this skill for redesigning the overall docs tree, deciding
+lifecycle progression for an entire doc family, or repairing the full reading
+order of a repository or module. Those jobs belong to
+`project-doc-architecture-skill` or `project-doc-lifecycle-skill`.
+
+## How It Works
+
+Every recording wave begins by settling five practical questions: who owns the
+knowledge, what the document is for, what kind of page should carry it, how
+much detail it must retain, and whether it belongs in a small topic family.
+Those decisions come before writing so the resulting page does not become
+another misplaced summary or root-bucket orphan.
+
+A normal recording pass should work in this order:
 
 1. Inspect local docs around the relevant code node.
    - Look at root `README.md`, root `docs/README.md`, the nearest node
@@ -109,90 +74,112 @@ Always decide these dimensions before writing:
    - If architecture or lifecycle guidance exists for this scope, read the
      parts that constrain placement, role, or linkage.
 2. Determine the ownership node.
-   - Decide the concrete node that owns this knowledge:
-     - system
-     - module
-     - submodule
-     - component
-     - test-suite
+   - Decide whether the knowledge belongs to the system, module, submodule,
+     component, or test-suite.
    - Treat only real code-owned seams as nodes.
-   - Do not treat docs-only grouping folders under `*/docs/` as nodes by
-     default.
    - If the document primarily describes test coverage, fixtures, harnesses,
      regression matrices, or verification gaps, prefer the lowest common
      ancestor under `tests/` rather than the runtime module by default.
 3. Determine lowest common ancestor placement.
    - Place the doc at the lowest node that fully owns the described knowledge
      or change.
-4. Decide container strategy.
+4. Decide whether the wave stays standalone or becomes a topic family.
    - Keep one standalone artifact when the content is a one-off local doc and
      no sibling alternatives or mixed-intent family already exists.
    - Use a node-local topic-family container such as `<node>/docs/<topic>/`
      when the same local subject has 2 or more live alternative proposals, or
      mixes proposal, decision, implementation-plan, and current-state docs.
-   - Treat the topic-family folder as a container for reader navigation, not as
-     an ownership node.
-5. Determine page role.
-   - Decide whether the artifact is:
-     - repo landing README
-     - node entry README
-     - docs landing README
-     - formal doc
+   - Treat the topic-family folder as a container for reader navigation, not
+     as a new ownership node.
+5. Determine the page role.
+   - Decide whether the artifact is a repository landing README, node entry
+     README, docs landing README, or formal doc.
    - If the page is a README that is not a docs landing page, treat it as an
      entry page for the layer itself first, not as a docs index.
-6. Determine document intent.
-   - Choose the document's primary job:
-     - purpose
-     - proposal
-     - current-state
-     - contract
-     - guide
-     - operation
+6. Determine the document intent.
+   - Choose whether the page is primarily a purpose, proposal, current-state,
+     contract, guide, or operation document.
 7. Decide create versus update.
    - Reuse an existing doc only when it already owns the exact same scope.
    - Create a new child doc when updating a parent would blur boundaries or
      erase detail.
-8. Enforce parent-summary and child-detail boundaries.
-   - Parents may receive a short summary, pointer, or index update.
+8. Protect the summary/detail split.
+   - Parent pages may receive a short summary, pointer, or index update.
    - Child docs retain detailed plans, file change lists, execution order,
      verification slices, ownership splits, and local risks.
-9. Enforce README body priority.
+9. Keep README pages reader-first.
    - For repo or node READMEs, explain the layer before the documentation
      around the layer.
-   - Prefer:
-     - purpose
-     - responsibilities or boundaries
-     - main flow
-     - key areas or child nodes
-     - short related-doc pointers near the end
    - Use docs-routing-heavy structure only when the page itself is a docs
      landing README.
-10. Decide immediate companion updates.
-   - Explicitly decide whether this recording wave also needs:
-     - parent summary update
-     - current-state update
-     - section or root index update
-     - topic-family `README.md`
-     - footer or lineage links
-     - neighbor or follow-up links
-11. Decide metadata only if consumed.
-   - Reuse repository metadata only when it is actively used.
-   - Otherwise prefer no front matter.
-   - If metadata is needed, keep it minimal.
-12. Write the document.
-   - Use an intent-appropriate body structure.
-   - Match the body to the page role, not only to the file extension.
-   - If the page is a README, avoid turning it into a file inventory when the
-     layer has meaningful runtime or design logic to explain.
-   - Keep the reader-facing shell light.
-13. Update parent summaries and indexes if needed.
-   - Update parent docs or indexes only with concise summaries, links, or
-     discovery guidance.
-14. Verify fit.
-   - Confirm node, page role, intent, path, scope boundary, preserved detail,
-     and companion updates all match the document's job.
+10. Decide companion updates.
+    - Explicitly decide whether this wave also needs a parent summary update,
+      current-state update, section or root index update, topic-family
+      `README.md`, footer links, or neighbor links.
+11. Write the document and update only the necessary companions.
+    - Match the body to the page role and intent, not only to the file
+      extension.
+    - Update parent docs or indexes only with concise summaries, links, or
+      discovery guidance.
+12. Verify fit.
+    - Confirm node, page role, intent, path, scope boundary, preserved detail,
+      and companion updates all match the document's job.
 
-## Required Inputs
+## How To Read And Apply The Result
+
+The result should describe one node-local documentation wave. In the simplest
+case, that means one new or updated file plus a light parent or index repair.
+When the local subject has become crowded, it may also mean introducing a
+topic-family container and a small local reading path.
+
+The result should not read like a repo-wide cleanup plan. If the wave keeps
+discoverability local and keeps ownership clear, it is small enough. If the
+wave starts repairing lineage, canonical versus historical status, or a whole
+reader path, hand the problem to `project-doc-lifecycle-skill`.
+
+## Limits And Boundaries
+
+This skill is for one concrete document wave. It should not redesign the
+repository's overall docs tree, decide lifecycle progression for an entire doc
+family, or migrate a whole docs tree in one pass.
+
+It also should not use one parent doc as a dumping ground for unrelated local
+changes. When a narrower child scope needs its own durable home, create it.
+
+## Reference: Working Vocabulary
+
+- Ownership node
+  - Which code-owned seam actually owns this knowledge:
+    - `system`
+    - `module`
+    - `submodule`
+    - `component`
+    - `test-suite`
+- Document intent
+  - What the page primarily does:
+    - `purpose`
+    - `proposal`
+    - `current-state`
+    - `contract`
+    - `guide`
+    - `operation`
+- Page role
+  - What kind of page carries the content:
+    - `repo landing README`
+    - `node entry README`
+    - `docs landing README`
+    - `formal doc`
+- Detail level
+  - How much detail the page must retain:
+    - parent summary or index
+    - normal node-local durable doc
+    - detailed child implementation plan
+- Container strategy
+  - Whether the wave should stay:
+    - one standalone artifact
+    - one node-local topic-family container
+
+## Reference: Inputs
 
 - Project or repository name
 - The concrete change, purpose, plan, current-state fact, contract, guide, or
@@ -201,7 +188,7 @@ Always decide these dimensions before writing:
 - Any known related parent doc, child doc, issue, current-state page, or
   lifecycle guidance
 
-## Defaults
+## Reference: Default Assumptions
 
 - Operating target: `one-node-local-doc-wave`
 - Ownership levels: `system`, `module`, `submodule`, `component`, `test-suite`
@@ -259,9 +246,6 @@ Always decide these dimensions before writing:
   to situate the new page
 - Create or update rule: update only when the existing doc already owns the
   exact same scope
-- Metadata rule: no front matter unless the repository or toolchain actually
-  consumes it
-- Minimal metadata fallback: `type`, `status`, `updated_at`
 - Index rule: update indexes when discoverability changes
 - Root bucket rule: treat root `docs/rfcs` and `docs/plans` as entry
   containers or system-level indexes by default, not as the long-term home for
@@ -269,24 +253,26 @@ Always decide these dimensions before writing:
 - Body structure rule: choose structure from intent, not from one generic
   formal-doc template
 
-## Bundled Resources
+## Reference: Lookup Pages
 
 - `references/ownership-node-check.md`
-- `references/create-vs-update-rules.md`
-- `references/detail-preservation-rules.md`
-- `references/parent-update-vs-child-doc.md`
-- `references/body-structure-by-intent.md`
-- `references/readme-body-priority-rules.md`
-- `references/metadata-consumption-rules.md`
+  - Use when the real owning code seam is still ambiguous.
 - `references/path-selection-and-placement.md`
-- `references/companion-update-rules.md`
-- `references/doc-lineage-block-template.md`
-- `references/index-update-rules.md`
-- `references/purpose-doc-template.md`
-- `references/delivery-goal-doc-template.md`
+  - Use when deciding between root docs, node docs, docs landings, and
+    node-local topic-family containers.
+- `references/scope-boundary-and-split-rules.md`
+  - Use when deciding create versus update, parent summary versus child detail,
+    and whether one topic has become its own local family.
+- `references/body-structure-by-intent.md`
+  - Use when shaping prose for purpose, proposal, current-state, contract,
+    guide, or operation pages.
+- `references/navigation-and-companion-updates.md`
+  - Use when deciding which parent, index, related-doc, or local README
+    updates are actually needed.
 - `references/example-output.md`
+  - Use when the operator wants a concrete sample of the final output.
 
-## Output Format
+## Reference: Expected Output Shape
 
 ```text
 ## Recording Goal
@@ -309,7 +295,6 @@ Always decide these dimensions before writing:
 - footer links:
 - neighbor links:
 
-## Metadata Plan
 ## Body Structure Plan
 ## Linkage Notes
 ## Index Update Plan
@@ -317,7 +302,7 @@ Always decide these dimensions before writing:
 ## Notes and Risks
 ```
 
-## Guardrails
+## Reference: Constraints
 
 - Do not place a doc before the ownership node is explicit.
 - Do not append child module or component detail into a broader parent doc when
@@ -344,15 +329,12 @@ Always decide these dimensions before writing:
 - Do not leave a repo or node README as a raw file inventory when the layer has
   real responsibilities or runtime flow that readers need first.
 - Do not duplicate a docs landing page inside root or node `README.md`.
-- Do not add front matter only because the file is formal markdown.
-- Do not duplicate the H1 title in front matter unless the repo or renderer
-  truly consumes it.
 - Do not let parent updates become the only durable home of child detail.
 - Do not silently perform repo-wide editorial repair here; use
   `project-doc-lifecycle-skill` when the reading path itself is broken.
 - Do not write one generic formal-doc shape for every intent.
 
-## Verification Hooks
+## Reference: Review Checks
 
 - Verify that nearby local docs were inspected before placement was chosen.
 - Verify that relevant architecture or lifecycle guidance was consulted when it
@@ -371,8 +353,6 @@ Always decide these dimensions before writing:
   matter to the document's job.
 - Verify that the resulting page has the minimum linkage needed to be
   discoverable in context.
-- Verify that metadata is absent unless the repo truly consumes it, or minimal
-  when present.
 - Verify that any repo or node README answers what this layer is and how it
   works before it explains where deeper docs live.
 - Verify that README body sections prioritize local purpose, boundaries, and

@@ -1,25 +1,27 @@
-# Path Selection And Placement
+# Choose The Path From Ownership, Not From Buckets
 
-Use this reference when choosing where a concrete doc should live in the
-ownership tree.
+Use this reference after the ownership node is known. The path should make it
+clear who owns the knowledge and how readers move from summary to detail.
 
 ## Placement Order
 
 1. Inspect nearby local docs around the owning code node.
 2. Determine the ownership node.
 3. Place the doc at the lowest common ancestor that fully owns the knowledge.
-4. Reuse an existing local docs subtree only when it already matches that node.
+4. Reuse an existing local docs subtree only when it already matches that
+   owning node.
 
-## Node Definition
+## What Counts As A Node
 
 Only real code-owned seams count as ownership nodes.
 
 Docs-only grouping folders such as `docs/rfcs`, `docs/guides`, or topic
 buckets are containers by default, not nodes.
 
-## Root `docs/`
+## Root-Level Paths
 
 Use root `docs/` for:
+
 - system purpose and overview
 - cross-module architecture
 - shared contracts
@@ -27,13 +29,15 @@ Use root `docs/` for:
 - top-level indexes
 
 Use root `README.md` for:
+
 - repository identity
 - light runtime or developer orientation
 - a short pointer to `docs/README.md`
 
-## Node-Local `*/docs/`
+## Node-Local Paths
 
 Use node-local docs for:
+
 - local current-state
 - local proposals
 - local guides and runbooks
@@ -42,16 +46,30 @@ Use node-local docs for:
   tests subtree owns the knowledge
 
 Use the node root `README.md` for:
+
 - module or submodule purpose
 - node boundary summary
 - child-area navigation
 
 Use the tests-node `README.md` for:
+
 - test-scope summary
 - coverage or verification boundary explanation
 - navigation into test-local coverage or fixture docs when needed
 
-## Decision Rules
+## Topic-Family Paths
+
+A topic-family container such as `<node>/docs/<topic>/` is warranted when:
+
+- one local subject has 2 or more live alternatives
+- one local subject mixes proposal, decision, implementation-plan, and
+  current-state docs
+- readers would understand the local subject more clearly as a small family
+  than as another loose file in root `docs/rfcs` or `docs/plans`
+
+Treat the topic-family folder as a container, not as a new ownership node.
+
+## Practical Decision Rules
 
 - system or cross-module knowledge => root `docs/`
 - one module only => `<module>/docs/`
@@ -78,7 +96,7 @@ Use the tests-node `README.md` for:
 - do not treat root `README.md` as the full docs index when `docs/README.md`
   exists
 
-## Naming Rules
+## Naming Guidance
 
 - Use lowercase kebab case.
 - Name the topic, not only the type.

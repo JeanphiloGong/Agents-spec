@@ -1,49 +1,52 @@
 ---
 name: project-doc-lifecycle-skill
-description: v0.3.3 - Maintain one repository, module, test-suite, or doc-family slice as a book-like documentation system by repairing canonical vs historical relationships, README-vs-docs roles, reading order, bridge docs, and node-local topic families across real code-owned nodes; concrete doc writing belongs to project-doc-record-skill.
+description: v0.3.5 - Maintain one repository, module, test-suite, or doc-family slice as a readable documentation family by repairing canonical vs historical relationships, reading order, node-local topic families, and README roles across real code-owned nodes; concrete doc writing belongs to project-doc-record-skill.
 ---
 
 # Project Documentation Lifecycle Skill
 
-## Trigger and Scope
+## Overview
 
-Use this skill when an existing repository, module, or doc-family slice needs
-editorial maintenance so distributed docs remain readable as one coherent
-system rather than as disconnected pages.
+Use this skill when an existing repository, module, test-suite, or doc-family
+slice needs editorial maintenance so distributed docs still read as one
+coherent system rather than as disconnected pages.
 
-In scope:
-- inspecting one operating scope:
-  - one doc family
-  - one module or submodule
-  - one test-suite slice
-  - one repository slice
-- comparing docs with implemented code reality
-- mapping canonical versus historical pages
-- detecting overloaded parent docs, stale summaries, hidden child detail, and
-  overlapping current-state pages
-- detecting README pages whose docs navigation overwhelms local purpose,
-  boundary, or flow explanation
-- detecting broken reading order, missing bridge docs, missing overviews, and
-  missing entry cues
-- deciding whether implemented proposals should promote into current-state,
-  contracts, guides, or runbooks
-- deciding whether a broad parent doc should split into child docs
-- deciding when crowded root `rfcs/plans` buckets or parent docs should extract
-  a node-local topic-family container
-- deciding supersede, archive, relink, and neighbor-link actions
-- defining lineage repair across parent, child, and neighboring docs
-- assessing whether the scope is ready to be exported or assembled like a
-  project book
-- producing an ordered handoff that `project-doc-record-skill` can execute
+The lifecycle skill is for the messy middle: implemented proposals that were
+never promoted, parent pages that have absorbed too much child detail, stale
+or competing current-state pages, broken reading order, and local topic
+families that are still stranded in root `docs/rfcs` or `docs/plans`.
 
-Out of scope:
-- designing the repository's initial documentation information architecture
-- drafting full final bodies for every resulting target doc
-- replacing day-to-day record placement for one normal doc-writing request
-- migrating the entire repository docs tree in one pass without an explicitly
-  bounded scope
+## Purpose
 
-Use this skill when prompts sound like:
+This skill exists to keep distributed docs readable as one project book even
+when the pages live near different code-owned nodes.
+
+In practice, it helps you:
+
+- detect when proposal history has outgrown its current placement
+- split overloaded parent docs before they absorb more child detail
+- decide promotion into current-state and related durable docs
+- preserve history while making the current source of truth easier to find
+- extract one node's option set or mixed-intent family out of root buckets
+  before it becomes untraceable
+- repair reading order, bridge docs, and lineage links
+- hand concrete writing work to `project-doc-record-skill` in a clear order
+
+## When To Use This Skill
+
+Reach for this skill when the family has drifted even though the broader docs
+architecture may still be sound. Common signals include:
+
+- a proposal was implemented and now needs promotion
+- a parent doc is overloaded and should split
+- child detail is trapped in the wrong place
+- supersede, archive, and lineage repair decisions are needed
+- readers can no longer tell which page is current
+- one node's local topic family is still spread across root `docs/rfcs` or
+  `docs/plans`
+
+Typical requests sound like:
+
 - "this implemented RFC is too big now; what should be split or promoted?"
 - "which current-state docs should exist after this change?"
 - "the parent doc is overloaded; how should the family evolve?"
@@ -52,131 +55,105 @@ Use this skill when prompts sound like:
 - "what is the canonical reading order here?"
 - "which overview or bridge docs are missing?"
 
-## Core Purpose
+Do not use this skill for the repository's initial documentation information
+architecture or for drafting full final bodies for every resulting page. Those
+jobs belong to `project-doc-architecture-skill` and
+`project-doc-record-skill`.
 
-Keep distributed docs readable as one coherent project book even when the pages
-live near different code-owned nodes.
+## How It Works
 
-This skill exists to help you:
-- detect when proposal history has outgrown its current placement
-- split overloaded parent docs before they absorb more child detail
-- decide promotion into current-state and related durable docs
-- preserve history while making the current source of truth easier to find
-- extract one node's option set or mixed-intent family out of root buckets
-  before it becomes untraceable
-- keep repo and node READMEs logic-first while docs landing pages stay
-  navigation-first
-- keep verification docs under the tests subtree when runtime modules are only
-  related readers, not the primary owners
-- repair reading order and navigation continuity
-- identify missing overview or bridge docs
-- assess book-readiness and exportability
-- hand concrete writing work to `project-doc-record-skill` in a clear order
+The lifecycle skill starts from one bounded operating scope and asks a simple
+question: after the current wave of implementation and history, what should
+this family look like so readers can still move from broad context to local
+truth without guessing?
 
-## Workflow
+A normal lifecycle pass should work in this order:
 
 1. Define the operating scope.
-   - Choose the smallest scope that can solve the problem:
-     - one doc family
-     - one node
-     - one repository slice
+   - Choose the smallest scope that can solve the problem: one doc family, one
+     node, or one repository slice.
    - Escalate to a wider scope only when a narrower scope cannot repair the
      reading or authority problem.
 2. Inspect code and current implementation reality.
-   - Compare the docs with current behavior, ownership boundaries, and existing
-     node-local docs.
-   - Read current entrypoints, overviews, and authority pages inside the chosen
-     scope.
+   - Compare the docs with current behavior, ownership boundaries, and
+     existing node-local docs.
+   - Read current entrypoints, overviews, and authority pages inside the
+     chosen scope.
    - Treat docs-only grouping folders as containers unless they map to a real
      owned code seam.
-   - Record unknowns explicitly.
 3. Detect editorial, lifecycle, and placement problems.
-   - Check for:
-     - implemented but not promoted
-     - stale parent summary
-     - overloaded parent doc
-     - hidden child detail
-     - docs-first README
-     - file-inventory README with no layer logic
-     - parent README swallowing child runtime detail
-     - overlapping current-state docs
-     - broken reading order
-     - missing bridge or overview docs
-     - ambiguous canonical source
-     - missing lineage links
-     - root `docs/rfcs` or `docs/plans` hiding one node's local topic family
+   - Look for implemented-but-not-promoted proposals, stale parent summaries,
+     overloaded parent docs, hidden child detail, docs-first READMEs,
+     overlapping current-state pages, broken reading order, missing bridge
+     docs, ambiguous canonical sources, and root buckets hiding one node's
+     local topic family.
 4. Build the current canonical-versus-historical map.
-   - Mark which pages are:
-     - canonical current truth
-     - summary or discovery only
-     - historical but still useful
-     - stale or replacement-needed
-5. Determine current lifecycle and placement state.
-   - Decide whether the scope is:
-     - proposal-only
-     - accepted but not implemented
-     - implemented but not promoted
-     - promoted but badly placed
-     - current but stale-linked
-     - superseded or archival-ready
-6. Define the target reading structure and target tree shape.
-   - Decide what the scope should look like after this wave:
-     - parent summary plus child docs
-     - local current-state replacing proposal detail
-     - extracted ADR
-     - local contract, guide, or runbook
-     - node-local topic-family container
-     - bridge or overview pages
-     - superseded or archived history
-7. Decide promotion, split, supersede, and archive actions.
-   - Explicitly decide whether this wave requires:
-     - current-state updates
-     - child-doc creation
-     - ADR extraction
-     - contract or spec docs
-     - guide or runbook docs
-     - topic-family extraction
-     - bridge or overview docs
-     - supersede or archive actions
-8. Decide parent, child, and neighbor repairs.
-   - State what the parent should keep:
-     - short summary
-     - local purpose or main-flow cue when the parent is a README entry page
-     - replacement links
-     - index guidance
-   - State which child or neighboring nodes need:
-     - new docs
-     - updated links
-     - new related-reading guidance
-   - State whether any root or node README must be rewritten so docs pointers
-     become secondary to the layer's purpose, boundary, or flow.
-9. Decide lineage and navigation repairs.
-   - Define forward and backward links after the wave:
-     - proposal to current-state
-     - parent to child
-     - sibling to sibling when reading order depends on it
-     - superseded doc to replacement
+   - Mark which pages are current authority, summary-only, historical but
+     useful, or stale and replacement-needed.
+5. Determine lifecycle state.
+   - Decide whether the family is still proposal-only, accepted but not
+     implemented, implemented but not promoted, promoted but badly placed,
+     current but stale-linked, or superseded and archival-ready.
+6. Define the target reading structure.
+   - Decide whether the family should end up as parent summary plus child docs,
+     local current-state replacing proposal detail, extracted ADR, local
+     contract or runbook, node-local topic family, bridge or overview pages,
+     or superseded history with clear replacements.
+7. Decide promotion, split, supersede, archive, and extraction actions.
+   - Make the explicit call on which current-state updates, child docs, ADRs,
+     guides, runbooks, bridge docs, topic-family extractions, or archive steps
+     are needed.
+8. Repair parent, child, and neighbor responsibilities.
+   - Keep parent pages short, linked, and clear about what moved.
+   - Decide which child or neighboring nodes need new docs, updated links, or
+     new related-reading guidance.
+   - Repair any README whose docs navigation has overwhelmed its explanation of
+     local purpose or flow.
+9. Repair lineage and navigation.
+   - Define forward and backward links across proposals, current-state pages,
+     sibling docs, and superseded history.
 10. Assess book readiness and export readiness.
-   - State whether the scope can currently be assembled into a readable
-     project-book slice and what is still missing.
+    - State whether the scope can currently be assembled into a readable slice
+      and what is still missing.
 11. Produce the lifecycle handoff plan.
-   - Order the actions.
-   - Specify which actions `project-doc-record-skill` should execute.
+    - Order the actions and specify which ones `project-doc-record-skill`
+      should execute concretely.
 
-## Required Inputs
+## How To Read And Apply The Result
+
+The result is an ordered maintenance plan. It should clarify what the current
+source of truth is, what stays as history, what needs to split, and how the
+reader path changes after the wave.
+
+Use the result to guide concrete writing and relinking work in
+`project-doc-record-skill`. If the family problem turns out to be a symptom of
+the repository's larger documentation structure, hand the broader question back
+to `project-doc-architecture-skill`.
+
+## Limits And Boundaries
+
+This skill does not redesign the whole docs tree and does not write final
+bodies for every resulting artifact. It also should not silently widen a
+small doc-family problem into a full-repository rewrite.
+
+Use it to rebalance one living family. If the issue is truly structural across
+the whole repository, move up to the architecture skill instead of stretching
+the lifecycle skill past its scope.
+
+## Reference: Inputs
 
 - Source doc family, node, or repository slice to evaluate
 - Current implementation or rollout state
 - Related current-state, guide, contract, or local node docs if known
 - Reader confusion or navigation symptoms if known
 
-## Defaults
+## Reference: Default Assumptions
 
 - Operating target: `editorial-maintenance-for-book-like-doc-systems`
 - Scope rule: start from the smallest useful scope and widen only when the
   reading or authority problem crosses that boundary
-- Promotion baseline: implemented proposals require an explicit
-  current-state decision
+- Promotion baseline: implemented proposals require an explicit current-state
+  decision
 - Split baseline: overloaded parent docs should split before more child detail
   is added
 - Child-source rule: child docs may become the canonical local source of truth
@@ -208,19 +185,21 @@ This skill exists to help you:
 - Node definition rule: target nodes must correspond to real code-owned seams,
   not docs-only grouping folders
 
-## Bundled Resources
+## Reference: Lookup Pages
 
-- `references/doc-tree-rebalancing.md`
-- `references/split-parent-doc-rules.md`
-- `references/promote-child-summary-rules.md`
-- `references/parent-child-lineage-repair.md`
-- `references/canonical-vs-historical-map.md`
-- `references/reading-order-repair.md`
-- `references/book-manifest-and-export-readiness.md`
-- `references/status-transition-model.md`
+- `references/rebalancing-and-lineage-rules.md`
+  - Use when deciding split, promotion, parent-summary repair, child-detail
+    preservation, and node-local topic-family extraction.
+- `references/canonical-status-and-history.md`
+  - Use when deciding what page is current, what stays historical, and how
+    lifecycle status changes affect placement and authority.
+- `references/reading-order-and-book-slice-readiness.md`
+  - Use when placement is roughly correct but reading order, bridge pages, or
+    coherent book-like export readiness are still weak.
 - `references/example-output.md`
+  - Use when the operator wants a concrete sample of the final output.
 
-## Output Format
+## Reference: Expected Output Shape
 
 ```text
 ## Lifecycle Goal
@@ -243,7 +222,7 @@ This skill exists to help you:
 ## Open Questions
 ```
 
-## Guardrails
+## Reference: Constraints
 
 - Do not redesign the repository's whole docs tree here; use
   `project-doc-architecture-skill` for that.
@@ -268,7 +247,7 @@ This skill exists to help you:
 - Do not write full final bodies for every target doc here; hand concrete
   writing to `project-doc-record-skill`.
 
-## Verification Hooks
+## Reference: Review Checks
 
 - Verify that the chosen operating scope is explicit and justified.
 - Verify that current implementation reality and current docs were both

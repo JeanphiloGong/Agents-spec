@@ -47,9 +47,6 @@ wave should be recorded.
 - footer links: yes
 - neighbor links: maybe to the module current-state page
 
-## Metadata Plan
-- none
-
 ## Body Structure Plan
 - Purpose
 - Responsibilities or Boundaries
@@ -117,9 +114,6 @@ wave should be recorded.
 - indexes: maybe the nearest module or submodule index
 - footer links: yes
 - neighbor links: yes to the nearest parser current-state page if one exists
-
-## Metadata Plan
-- none
 
 ## Body Structure Plan
 - Summary
