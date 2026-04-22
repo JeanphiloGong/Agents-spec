@@ -1,6 +1,6 @@
 ---
 name: project-doc-record-skill
-description: v0.4.8 - Record one concrete documentation artifact at the correct code-owned node with reader-first page choices, node-local topic-family containers, README-vs-docs separation, and preserved local detail so it fits the repository's book-like documentation system.
+description: v0.4.9 - Record one concrete documentation artifact at the correct code-owned node with reader-first page choices, reader-facing section titles, single-job page boundaries, node-local topic-family containers, README-vs-docs separation, and preserved local detail so it fits the repository's book-like documentation system.
 ---
 
 # Project Documentation Record Skill
@@ -15,6 +15,9 @@ The skill turns the ownership-tree model into one bounded documentation wave.
 It decides where one page belongs, whether it should stay standalone or join a
 node-local topic family, which page role fits best, and what light companion
 updates are needed so the result remains discoverable.
+
+The final page should read like normal technical prose for readers, not like
+exposed planning scaffolding for the operator.
 
 ## Purpose
 
@@ -99,6 +102,9 @@ A normal recording pass should work in this order:
 6. Determine the document intent.
    - Choose whether the page is primarily a purpose, proposal, current-state,
      contract, guide, or operation document.
+   - Keep one document, one job. If the page needs file change plans,
+     execution order, or verification work, treat it as a proposal or
+     delivery-plan page rather than as a direction note or high-level summary.
 7. Decide create versus update.
    - Reuse an existing doc only when it already owns the exact same scope.
    - Create a new child doc when updating a parent would blur boundaries or
@@ -119,6 +125,8 @@ A normal recording pass should work in this order:
 11. Write the document and update only the necessary companions.
     - Match the body to the page role and intent, not only to the file
       extension.
+    - Use reader-facing section titles in the final page. Keep operator
+      planning labels out of the finished document.
     - Update parent docs or indexes only with concise summaries, links, or
       discovery guidance.
 12. Verify fit.
@@ -252,6 +260,15 @@ changes. When a narrower child scope needs its own durable home, create it.
   one node's local topic family
 - Body structure rule: choose structure from intent, not from one generic
   formal-doc template
+- Single-job rule: each final page should do one clear job; direction notes,
+  implementation plans, current-state pages, guides, and contracts should not
+  blur together by default
+- Reader-title rule: final document headings should read like normal chapter
+  or section names for readers, not like control labels, schema keys, or
+  review fields
+- Operator-output rule: labels such as `Recording Goal`, `Page Role`,
+  `Create or Update Decision`, or `Scope Boundary Decision` are planning
+  scaffolds for the operator, not final page headings
 
 ## Reference: Lookup Pages
 
@@ -272,34 +289,38 @@ changes. When a narrower child scope needs its own durable home, create it.
 - `references/example-output.md`
   - Use when the operator wants a concrete sample of the final output.
 
-## Reference: Expected Output Shape
+## Reference: Operator Planning Shape
+
+Use this shape only for the operator's planning note or internal reasoning.
+Do not copy these labels directly into the final document. Translate them into
+reader-facing sections such as `Summary`, `Context`, `Scope`,
+`Proposed Change`, `Verification`, or `Related Docs` as appropriate.
 
 ```text
-## Recording Goal
-## Ownership Node
-- node:
-- parent node:
-- lowest common ancestor:
-
-## Page Role
-## Document Intent
-## Why This Node
-## Container Strategy
-## Primary Artifact
-## Create or Update Decision
-## Scope Boundary Decision
-## Immediate Companion Updates
-- parent summary:
-- current-state:
-- indexes:
-- footer links:
-- neighbor links:
-
-## Body Structure Plan
-## Linkage Notes
-## Index Update Plan
-## Follow-up Docs
-## Notes and Risks
+planning note
+- recording_goal:
+- ownership_node:
+  - node:
+  - parent_node:
+  - lowest_common_ancestor:
+- page_role:
+- document_intent:
+- why_this_node:
+- container_strategy:
+- primary_artifact:
+- create_or_update_decision:
+- scope_boundary_decision:
+- immediate_companion_updates:
+  - parent_summary:
+  - current_state:
+  - indexes:
+  - footer_links:
+  - neighbor_links:
+- body_structure_plan:
+- linkage_notes:
+- index_update_plan:
+- follow_up_docs:
+- notes_and_risks:
 ```
 
 ## Reference: Constraints
@@ -329,6 +350,17 @@ changes. When a narrower child scope needs its own durable home, create it.
 - Do not leave a repo or node README as a raw file inventory when the layer has
   real responsibilities or runtime flow that readers need first.
 - Do not duplicate a docs landing page inside root or node `README.md`.
+- Do not use control-language or schema-like section titles such as `Role`,
+  `Document Role`, `Target Shape`, `Output Contract`, `Trigger and Scope`, or
+  `Recommended Next Step` in the final document.
+- Do not copy operator planning labels such as `Recording Goal`, `Page Role`,
+  `Create or Update Decision`, or `Body Structure Plan` into the final page.
+- Do not mix direction-only prose with implementation-plan sections such as
+  `File Change Plan`, `Execution Order`, or `Verification` unless the page is
+  explicitly a proposal or delivery-plan document.
+- Do not describe a document as only directional or high-level once it already
+  contains concrete file changes, execution ordering, rollout slices, or test
+  expectations.
 - Do not let parent updates become the only durable home of child detail.
 - Do not silently perform repo-wide editorial repair here; use
   `project-doc-lifecycle-skill` when the reading path itself is broken.
@@ -351,6 +383,15 @@ changes. When a narrower child scope needs its own durable home, create it.
   into a broader parent doc.
 - Verify that detailed implementation artifacts remain preserved when they
   matter to the document's job.
+- Verify that the document has one clear job and that its body structure
+  matches that job.
+- Verify that top-level section titles are reader-facing names rather than
+  control labels, template keys, or review fields.
+- Verify that operator planning labels were translated into natural document
+  sections instead of being copied into the final page.
+- Verify that a direction note does not also contain implementation-plan
+  sections such as `File Change Plan`, `Execution Order`, or `Verification`
+  unless the page is explicitly a proposal or delivery-plan doc.
 - Verify that the resulting page has the minimum linkage needed to be
   discoverable in context.
 - Verify that any repo or node README answers what this layer is and how it

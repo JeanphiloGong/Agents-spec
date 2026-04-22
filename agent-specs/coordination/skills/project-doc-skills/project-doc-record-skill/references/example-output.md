@@ -3,6 +3,9 @@
 Use this reference when the operator wants an example of how one node-local doc
 wave should be recorded.
 
+These examples show operator planning output, not final document headings. Do
+not copy labels such as `Recording Goal` or `Page Role` into the finished page.
+
 ## Example: Module Purpose Doc
 
 ```text
