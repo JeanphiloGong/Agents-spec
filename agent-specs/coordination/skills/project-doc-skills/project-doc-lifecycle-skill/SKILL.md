@@ -1,6 +1,6 @@
 ---
 name: project-doc-lifecycle-skill
-description: v0.3.2 - Maintain one repository, module, test-suite, or doc-family slice as a book-like documentation system by repairing canonical vs historical relationships, README-vs-docs roles, reading order, and bridge docs across real code-owned nodes; concrete doc writing belongs to project-doc-record-skill.
+description: v0.3.3 - Maintain one repository, module, test-suite, or doc-family slice as a book-like documentation system by repairing canonical vs historical relationships, README-vs-docs roles, reading order, bridge docs, and node-local topic families across real code-owned nodes; concrete doc writing belongs to project-doc-record-skill.
 ---
 
 # Project Documentation Lifecycle Skill
@@ -28,6 +28,8 @@ In scope:
 - deciding whether implemented proposals should promote into current-state,
   contracts, guides, or runbooks
 - deciding whether a broad parent doc should split into child docs
+- deciding when crowded root `rfcs/plans` buckets or parent docs should extract
+  a node-local topic-family container
 - deciding supersede, archive, relink, and neighbor-link actions
 - defining lineage repair across parent, child, and neighboring docs
 - assessing whether the scope is ready to be exported or assembled like a
@@ -60,6 +62,8 @@ This skill exists to help you:
 - split overloaded parent docs before they absorb more child detail
 - decide promotion into current-state and related durable docs
 - preserve history while making the current source of truth easier to find
+- extract one node's option set or mixed-intent family out of root buckets
+  before it becomes untraceable
 - keep repo and node READMEs logic-first while docs landing pages stay
   navigation-first
 - keep verification docs under the tests subtree when runtime modules are only
@@ -100,6 +104,7 @@ This skill exists to help you:
      - missing bridge or overview docs
      - ambiguous canonical source
      - missing lineage links
+     - root `docs/rfcs` or `docs/plans` hiding one node's local topic family
 4. Build the current canonical-versus-historical map.
    - Mark which pages are:
      - canonical current truth
@@ -120,6 +125,7 @@ This skill exists to help you:
      - local current-state replacing proposal detail
      - extracted ADR
      - local contract, guide, or runbook
+     - node-local topic-family container
      - bridge or overview pages
      - superseded or archived history
 7. Decide promotion, split, supersede, and archive actions.
@@ -129,6 +135,7 @@ This skill exists to help you:
      - ADR extraction
      - contract or spec docs
      - guide or runbook docs
+     - topic-family extraction
      - bridge or overview docs
      - supersede or archive actions
 8. Decide parent, child, and neighbor repairs.
@@ -186,6 +193,11 @@ This skill exists to help you:
   scope needs editorial repair even when file placement is technically correct
 - Bridge-doc rule: add a bridge or overview page only when it resolves a real
   navigation gap or authority confusion
+- Topic-family extraction baseline: when one node or topic has 2 or more live
+  alternative proposals, or mixes proposal, decision, implementation-plan, and
+  current-state docs for the same local subject, extract a node-local
+  topic-family container instead of leaving the family in root `docs/rfcs` or
+  `docs/plans`
 - ADR baseline: extract only when the decision is durable and likely to be
   revisited
 - Contract baseline: add only when the boundary is stable and depended on
@@ -247,6 +259,8 @@ This skill exists to help you:
   like a docs index or child-detail dump.
 - Do not propose docs-only grouping folders as target ownership nodes by
   default.
+- Do not leave one node's multi-option or mixed-intent family stranded in root
+  `docs/rfcs` or `docs/plans` once a node-local topic family is warranted.
 - Do not delete history blindly; prefer supersede, archive, and repair links.
 - Do not leave the canonical current page ambiguous after a maintenance wave.
 - Do not treat a correct folder location as sufficient when reading order is
@@ -275,4 +289,6 @@ This skill exists to help you:
   when the tests asset is the canonical owner.
 - Verify that record-skill handoffs target real code-owned nodes rather than
   docs-only grouping folders.
+- Verify that any topic-family extraction is tied to a real owning node and a
+  concrete local subject.
 - Verify that record-skill handoffs are node-specific and executable.

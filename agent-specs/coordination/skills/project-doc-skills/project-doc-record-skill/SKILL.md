@@ -1,6 +1,6 @@
 ---
 name: project-doc-record-skill
-description: v0.4.5 - Record one concrete documentation artifact at the correct code-owned node with clear page-role selection, runtime-vs-tests ownership, README-vs-docs separation, and preserved local detail so it fits the repository's book-like documentation system.
+description: v0.4.6 - Record one concrete documentation artifact at the correct code-owned node with clear page-role selection, runtime-vs-tests ownership, node-local topic-family containers, README-vs-docs separation, and preserved local detail so it fits the repository's book-like documentation system.
 ---
 
 # Project Documentation Record Skill
@@ -22,6 +22,8 @@ In scope:
   path
 - determining the document intent before choosing structure or path
 - deciding whether to create a child doc or update an existing parent doc
+- deciding whether a doc should stand alone or join a node-local topic-family
+  container
 - preserving detailed implementation artifacts instead of collapsing them into
   broader docs
 - deciding immediate parent summary, footer, index, and neighbor-link updates
@@ -59,6 +61,8 @@ This skill exists to help you:
   routing
 - maintain the minimum links needed so the new page is discoverable and
   situationally readable
+- choose when one topic needs a small local family folder instead of another
+  loose sibling file in a root type bucket
 - keep metadata optional and lightweight unless the repository truly consumes it
 
 ## Decision Dimensions
@@ -91,6 +95,10 @@ Always decide these dimensions before writing:
     - parent summary or index
     - normal node-local durable doc
     - detailed child implementation plan
+- `container strategy`
+  - Does this wave need:
+    - one standalone artifact
+    - one node-local topic-family container
 
 ## Workflow
 
@@ -116,7 +124,15 @@ Always decide these dimensions before writing:
 3. Determine lowest common ancestor placement.
    - Place the doc at the lowest node that fully owns the described knowledge
      or change.
-4. Determine page role.
+4. Decide container strategy.
+   - Keep one standalone artifact when the content is a one-off local doc and
+     no sibling alternatives or mixed-intent family already exists.
+   - Use a node-local topic-family container such as `<node>/docs/<topic>/`
+     when the same local subject has 2 or more live alternative proposals, or
+     mixes proposal, decision, implementation-plan, and current-state docs.
+   - Treat the topic-family folder as a container for reader navigation, not as
+     an ownership node.
+5. Determine page role.
    - Decide whether the artifact is:
      - repo landing README
      - node entry README
@@ -124,7 +140,7 @@ Always decide these dimensions before writing:
      - formal doc
    - If the page is a README that is not a docs landing page, treat it as an
      entry page for the layer itself first, not as a docs index.
-5. Determine document intent.
+6. Determine document intent.
    - Choose the document's primary job:
      - purpose
      - proposal
@@ -132,15 +148,15 @@ Always decide these dimensions before writing:
      - contract
      - guide
      - operation
-6. Decide create versus update.
+7. Decide create versus update.
    - Reuse an existing doc only when it already owns the exact same scope.
    - Create a new child doc when updating a parent would blur boundaries or
      erase detail.
-7. Enforce parent-summary and child-detail boundaries.
+8. Enforce parent-summary and child-detail boundaries.
    - Parents may receive a short summary, pointer, or index update.
    - Child docs retain detailed plans, file change lists, execution order,
      verification slices, ownership splits, and local risks.
-8. Enforce README body priority.
+9. Enforce README body priority.
    - For repo or node READMEs, explain the layer before the documentation
      around the layer.
    - Prefer:
@@ -151,27 +167,28 @@ Always decide these dimensions before writing:
      - short related-doc pointers near the end
    - Use docs-routing-heavy structure only when the page itself is a docs
      landing README.
-9. Decide immediate companion updates.
+10. Decide immediate companion updates.
    - Explicitly decide whether this recording wave also needs:
      - parent summary update
      - current-state update
      - section or root index update
+     - topic-family `README.md`
      - footer or lineage links
      - neighbor or follow-up links
-10. Decide metadata only if consumed.
+11. Decide metadata only if consumed.
    - Reuse repository metadata only when it is actively used.
    - Otherwise prefer no front matter.
    - If metadata is needed, keep it minimal.
-11. Write the document.
+12. Write the document.
    - Use an intent-appropriate body structure.
    - Match the body to the page role, not only to the file extension.
    - If the page is a README, avoid turning it into a file inventory when the
      layer has meaningful runtime or design logic to explain.
    - Keep the reader-facing shell light.
-12. Update parent summaries and indexes if needed.
+13. Update parent summaries and indexes if needed.
    - Update parent docs or indexes only with concise summaries, links, or
      discovery guidance.
-13. Verify fit.
+14. Verify fit.
    - Confirm node, page role, intent, path, scope boundary, preserved detail,
      and companion updates all match the document's job.
 
@@ -217,6 +234,15 @@ Always decide these dimensions before writing:
 - Local docs README rule: only add `<node>/docs/README.md` when that local docs
   subtree has at least 4 durable docs, spans mixed intents, or has a
   non-obvious reader path that truly needs a secondary index
+- Topic-family rule: when one local subject has 2 or more live alternative
+  proposals, or mixes proposal, decision, implementation-plan, and
+  current-state docs, prefer `<node>/docs/<topic>/` over another loose file in
+  root `docs/rfcs` or `docs/plans`
+- One-off artifact rule: keep a single durable local doc as one file unless
+  sibling alternatives or mixed intents justify a topic-family container
+- Topic-family README rule: add `<node>/docs/<topic>/README.md` when the topic
+  family has 2 or more live alternatives, spans mixed intents, or otherwise
+  needs a local reading order
 - README priority rule: README pages explain the layer first and the docs
   system second unless the page itself is a docs landing
 - README structure rule: prefer `Purpose`, `Responsibilities or Boundaries`,
@@ -237,6 +263,9 @@ Always decide these dimensions before writing:
   consumes it
 - Minimal metadata fallback: `type`, `status`, `updated_at`
 - Index rule: update indexes when discoverability changes
+- Root bucket rule: treat root `docs/rfcs` and `docs/plans` as entry
+  containers or system-level indexes by default, not as the long-term home for
+  one node's local topic family
 - Body structure rule: choose structure from intent, not from one generic
   formal-doc template
 
@@ -269,6 +298,7 @@ Always decide these dimensions before writing:
 ## Page Role
 ## Document Intent
 ## Why This Node
+## Container Strategy
 ## Primary Artifact
 ## Create or Update Decision
 ## Scope Boundary Decision
@@ -302,6 +332,11 @@ Always decide these dimensions before writing:
   folders as ownership nodes by default.
 - Do not add `docs/README.md` to a tiny or single-intent subtree just for
   symmetry.
+- Do not keep one node's multi-option or mixed-intent family in root
+  `docs/rfcs` or `docs/plans` by default when a node-local topic family is the
+  clearer home.
+- Do not create a topic-family container for a one-off local doc that has no
+  sibling alternatives or mixed-intent family.
 - Do not turn root `README.md` into the repository's full docs index, long
   reading order, or detailed formal-doc inventory by default.
 - Do not let README-to-docs relationship explanation dominate a repo or node
@@ -325,6 +360,9 @@ Always decide these dimensions before writing:
 - Verify that the ownership node and lowest common ancestor are explicit.
 - Verify that the chosen node is a real code-owned seam rather than a docs-only
   grouping folder.
+- Verify that the container strategy is explicit and that any topic-family
+  folder is treated as a container under the chosen node rather than as a new
+  node.
 - Verify that test coverage, fixture, or verification docs are owned by the
   appropriate tests subtree when that subtree is the primary subject.
 - Verify that create-versus-update does not collapse a narrower child scope

@@ -1,6 +1,6 @@
 ---
 name: project-doc-architecture-skill
-description: v0.3.2 - Design or refactor one repository's documentation information architecture by separating repo landing from docs landing, defining entrypoints, overview layers, authority layers, runtime-vs-tests ownership-aware placement, and reading paths so distributed docs can behave like one coherent book; concrete doc writing belongs to project-doc-record-skill.
+description: v0.3.3 - Design or refactor one repository's documentation information architecture by separating repo landing from docs landing, defining entrypoints, overview layers, authority layers, runtime-vs-tests ownership-aware placement, node-local topic-family containers, and reading paths so distributed docs can behave like one coherent book; concrete doc writing belongs to project-doc-record-skill.
 ---
 
 # Project Documentation Architecture Skill
@@ -28,6 +28,8 @@ In scope:
   taxonomy
 - assigning responsibilities to root docs versus node-local docs
 - defining parent-summary and child-detail rules
+- deciding when multi-option or mixed-intent doc sets need a node-local
+  topic-family container rather than another root-level type bucket
 - defining where project purpose, module purpose, phase goals, current-state,
   proposals, guides, operations, and verification docs should live
 - defining reader entrypoints and reading paths by intent
@@ -65,6 +67,9 @@ This skill exists to help you:
 - keep test coverage and verification knowledge near the owning test suite
   rather than the runtime module by default
 - prevent parent docs from swallowing child implementation detail
+- keep one task or topic's sibling proposals, decisions, plans, and
+  current-state pages grouped near the owning node instead of piling up in root
+  `docs/rfcs` or `docs/plans`
 - produce a target doc tree and target navigation tree that
   `project-doc-record-skill` can execute concretely
 
@@ -91,6 +96,8 @@ This skill exists to help you:
      - missing node-local current-state or plan docs
      - empty decorative docs directories
      - purpose or goal docs at the wrong level
+     - root `docs/rfcs` or `docs/plans` acting as long-term dumping grounds for
+       one node's local topic family
      - broken or non-obvious reading routes
 4. Derive durable documentation nodes.
    - Map the nodes that merit durable docs:
@@ -111,6 +118,9 @@ This skill exists to help you:
 7. Define placement by lowest common ancestor.
    - Place each doc at the lowest node that fully owns the described object or
      change.
+   - When one node or topic accumulates sibling alternatives or mixed intents,
+     prefer a node-local topic-family container such as `<node>/docs/<topic>/`
+     rather than another root type bucket.
 8. Assign responsibilities by node level and doc layer.
    - Define what root docs own versus module, submodule, component, and
      test-suite docs.
@@ -159,6 +169,16 @@ This skill exists to help you:
   and navigation when that node needs its own entry page
 - Node-local docs role: local current-state, local proposals, local guides,
   local runbooks, and detailed implementation plans
+- Topic-family container rule: when one node or topic has 2 or more live
+  alternative proposals, or mixes proposal, decision, implementation-plan, and
+  current-state docs for the same local subject, group them under
+  `<node>/docs/<topic>/`; treat that folder as a container, not as an ownership
+  node
+- One-off topic rule: do not create `<node>/docs/<topic>/` for one standalone
+  local doc unless sibling alternatives or mixed intents are already expected
+- Root bucket rule: keep root `docs/rfcs` and `docs/plans` as system-level
+  entry containers or indexes by default, not as the long-term home for one
+  node's local topic family
 - Test-suite docs role: coverage overviews, fixture or harness notes,
   verification contracts, regression matrices, and other docs whose primary
   subject is the test asset itself
@@ -230,6 +250,8 @@ This skill exists to help you:
   or topic buckets as ownership nodes by default.
 - Do not add `docs/README.md` to a tiny or single-intent subtree just for
   symmetry.
+- Do not keep one node's multi-option or mixed-intent doc family in root
+  `docs/rfcs` or `docs/plans` just because those buckets already exist.
 - Do not turn root `README.md` into the repository's full docs index, long
   reading order, or formal-doc inventory by default.
 - Do not confuse discovery pages with authority pages.
@@ -246,6 +268,8 @@ This skill exists to help you:
 - Verify that placement follows lowest common ancestor rather than type-first
   convenience.
 - Verify that each proposed node corresponds to a real code ownership seam.
+- Verify that any proposed topic-family container is treated as a container
+  under a real node rather than as a new ownership node.
 - Verify that verification docs are placed under the tests subtree when the
   tests asset, not the runtime module, is the primary owner.
 - Verify that each doc-worthy node has a real durable purpose.

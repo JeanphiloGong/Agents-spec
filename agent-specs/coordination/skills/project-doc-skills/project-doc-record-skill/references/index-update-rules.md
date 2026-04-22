@@ -19,6 +19,8 @@ updated.
 - current-state or architecture index
 - section `README.md` files only when a local docs subtree truly needs a
   secondary index
+- `<node>/docs/<topic>/README.md` when one local topic family needs its own
+  entry page
 
 ## Secondary Index Gate
 
@@ -31,6 +33,15 @@ Treat a local `docs/README.md` as a real secondary index only when:
 
 Do not add a section `README.md` to a tiny or single-intent subtree just for
 symmetry.
+
+## Topic-Family README Gate
+
+Treat `<node>/docs/<topic>/README.md` as warranted when:
+- the topic family has 2 or more live alternative proposals
+- the topic family spans mixed intents such as proposal plus decision plus
+  implementation plan plus current-state
+- or readers would not know the intended order across the sibling docs without
+  a local entry page
 
 ## Default Rule
 

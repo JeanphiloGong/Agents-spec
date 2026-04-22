@@ -18,7 +18,13 @@ existing one.
 - the content carries file change plans, execution slices, or verification
   detail that does not belong in the parent
 - the current file is already too broad
+- the same node or topic now has multiple live alternatives or mixed intents
+  and needs a local topic-family container rather than one more loose sibling
+  file
 
 ## Decision Rule
 
 Favor scope clarity and preserved detail over file-count reduction.
+Favor a node-local topic-family container over a root type bucket when one
+local subject accumulates sibling proposals, decisions, plans, or current-state
+pages.

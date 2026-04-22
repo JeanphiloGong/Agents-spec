@@ -11,6 +11,8 @@ Use this reference before choosing path, structure, or create-versus-update.
 - Is the candidate node a real code ownership seam, or only a docs grouping
   folder?
 - Is this a parent summary or a child detail doc?
+- Is this one standalone artifact, or part of a multi-option or mixed-intent
+  local topic family?
 - Which existing local docs already live near this node?
 - Is the primary subject runtime behavior, or the tests asset that verifies it?
 

@@ -39,6 +39,13 @@ Use node-local `*/docs/` for:
 - test-suite-local coverage, fixture, harness, and verification docs when the
   tests tree is the primary owner
 
+Use node-local topic-family containers such as `<node>/docs/<topic>/` for:
+- 2 or more live alternative proposals for one local subject
+- mixed-intent local families that include proposal, decision,
+  implementation-plan, and current-state docs for the same subject
+- local reading paths that are clearer as one small family than as many loose
+  siblings in a root type bucket
+
 Use the node root `README.md` for:
 - local purpose and scope
 - node-level summary
@@ -53,6 +60,8 @@ Use the tests root or tests-node `README.md` for:
 
 Do not keep all durable docs in root `docs/` when the knowledge clearly belongs
 to one owned subtree.
+Do not keep one node's multi-option or mixed-intent family in root `docs/rfcs`
+or `docs/plans` once a node-local topic-family container is warranted.
 Do not promote docs-only grouping folders into ownership nodes just because
 they already exist in the docs tree.
 Do not attach test coverage or fixture docs to a runtime module when the tests

@@ -63,11 +63,18 @@ Use the tests-node `README.md` for:
 - coverage or fixture docs spanning multiple test files => the shared ancestor
   under `tests/`
 - child detail under a broad parent => child path plus parent summary link
+- one local subject with 2 or more live alternatives => `<node>/docs/<topic>/`
+- one local subject with proposal, decision, implementation-plan, and
+  current-state siblings => `<node>/docs/<topic>/`
+- one standalone local doc with no sibling alternatives or mixed intents =>
+  keep one file at the owning node
 - do not add `<node>/docs/README.md` by default when `<node>/README.md`
   already owns the node summary
 - only add `<node>/docs/README.md` when the local docs subtree has at least 4
   durable docs, spans mixed intents, or has a genuinely non-obvious reader
   path
+- do not keep one node's topic family in root `docs/rfcs` or `docs/plans` by
+  default when the family has a clear owning node
 - do not treat root `README.md` as the full docs index when `docs/README.md`
   exists
 
