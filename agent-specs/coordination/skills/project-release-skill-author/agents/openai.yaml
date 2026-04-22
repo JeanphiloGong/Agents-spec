@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Release Skill Author"
+  short_description: "v0.1.1 - Design repo-specific release skills"
+  default_prompt: "Use $project-release-skill-author to inspect this repository's release evidence and create or update a repo-specific release skill package, defaulting to a Codex-style release notes template."
