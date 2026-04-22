@@ -10,6 +10,8 @@ current parent-child structure or local reading shape.
 - local source of truth missing at the owning node
 - stale summaries after child docs were created
 - reading order breaking across parent, child, or sibling docs
+- a broad parent topic and narrower subtopic family being treated as one flat
+  directory pile
 
 ## Split A Parent When
 
@@ -51,6 +53,14 @@ source of truth easier to find.
 - one local subject mixes proposal, decision, implementation-plan, and
   current-state pages
 - the family is still stranded in root `docs/rfcs` or `docs/plans`
+
+If the local subject naturally forms a tree, distinguish the broad parent
+topic from the narrower subtopic family before extracting it. A `topic_path`
+may be one segment or a deeper path such as `core/comparable-result`.
+
+Same-directory grouping is not enough. If canonical current authority,
+historical phases, and narrower subtopics are still mixed together, the family
+still needs lifecycle repair.
 
 ## Default Rule
 

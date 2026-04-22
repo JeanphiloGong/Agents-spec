@@ -1,6 +1,6 @@
 ---
 name: project-doc-architecture-skill
-description: v0.3.6 - Design or refactor one repository's documentation information architecture as a reader-first, ownership-tree system with node-local topic-family containers and clear reading paths; concrete doc writing belongs to project-doc-record-skill.
+description: v0.3.7 - Design or refactor one repository's documentation information architecture as a reader-first, ownership-tree system with node-local topic trees, subject containers, and clear reading paths; concrete doc writing belongs to project-doc-record-skill.
 ---
 
 # Project Documentation Architecture Skill
@@ -10,7 +10,7 @@ description: v0.3.6 - Design or refactor one repository's documentation informat
 Use this skill when the shape of the documentation system itself needs work.
 It is for the moments when the repository no longer has a clear start-here
 path, root docs are overloaded, local truth keeps drifting away from the code
-that owns it, or one local topic has spilled into root `docs/rfcs` or
+that owns it, or one node's topic tree has spilled into root `docs/rfcs` or
 `docs/plans`.
 
 The skill treats the docs tree as a reader-facing system. Root pages should
@@ -29,8 +29,8 @@ In practice, it helps you:
 - separate repository landing, documentation landing, and node entry pages
 - keep discovery pages distinct from authority pages
 - keep test-owned verification knowledge near the tests tree
-- decide when a node-local topic-family container is clearer than another
-  loose file in root `docs/rfcs` or `docs/plans`
+- decide when a node-local topic-path container is clearer than another loose
+  file in a root type bucket
 
 ## When To Use This Skill
 
@@ -44,8 +44,9 @@ missing page. Common signals include:
   layout
 - project purpose, node purpose, and local implementation detail are mixed
   together
-- one topic's sibling proposals, decisions, plans, and current-state pages
-  have become hard to navigate
+- one parent topic's sibling proposals, decisions, plans, and current-state
+  pages have become hard to navigate, especially when narrower subtopics are
+  starting to emerge
 
 Typical requests sound like:
 
@@ -81,26 +82,33 @@ A normal architecture pass should work in this order:
 3. Identify discovery, concentration, and placement problems.
    - Look for overloaded root docs, missing start pages, ambiguous authority
      pages, child detail trapped in parents, empty decorative directories, and
-     root-level type buckets acting as dumping grounds for one node's local
-     topic family.
+     root-level type buckets acting as dumping grounds for one node's topic
+     tree.
 4. Derive the durable documentation nodes.
    - Decide which system, module, submodule, component, or test-suite nodes
      actually deserve their own local docs.
-5. Classify each surface by reader job.
+5. Identify local topic paths inside those nodes.
+   - Distinguish broad parent topics from narrower subtopic families when the
+     subject naturally forms a tree.
+   - Preserve useful topic paths such as `core/comparable-result/` instead of
+     flattening them into one generic topic or mistaking a type bucket for the
+     subject container.
+6. Classify each surface by reader job.
    - Distinguish entrypoint, overview, authority, and detail so readers do not
      have to infer the main path from folder names alone.
-6. Place docs by lowest common ancestor.
+7. Place docs by lowest common ancestor.
    - Put each document at the lowest node that fully owns the knowledge it
      describes.
-   - When one node or subject accumulates sibling alternatives or mixed
-     intents, prefer `<node>/docs/<topic>/` over another root type bucket.
-7. Assign responsibilities by layer.
+   - When one node or local topic path accumulates sibling alternatives or
+     mixed intents, prefer `<node>/docs/<topic_path>/` over another root type
+     bucket.
+8. Assign responsibilities by layer.
    - Define what belongs in root docs, node entry READMEs, node-local formal
      docs, and test-local docs.
-8. Define the reading paths.
+9. Define the reading paths.
    - Show where different readers should start and how they move from
      repository landing to docs landing to local authority.
-9. Produce the target tree and rollout guidance.
+10. Produce the target tree and rollout guidance.
    - Return the node map, navigation layer map, placement rules, target doc
      tree, target navigation tree, and concrete handoffs for
      `project-doc-record-skill`.
@@ -118,7 +126,7 @@ In practice, that means:
   family should rebalance
 - root and node READMEs should be repaired only to the extent needed to make
   the new reading path visible
-- topic-family containers should be introduced only when they make one owning
+- topic-path containers should be introduced only when they make one owning
   node's local subject easier to read, not just to make the tree look tidy
 
 ## Limits And Boundaries
@@ -151,6 +159,12 @@ for day-to-day note taking.
   docs-only grouping folders are containers by default
 - Root docs role: system purpose, entry, cross-module architecture, shared
   contracts, governance, and top-level indexes
+- Topic-path rule: a local topic path may be one segment such as `parser` or a
+  small tree such as `core/comparable-result`; use the smallest subject path
+  that preserves useful parent-topic and subtopic structure
+- Type-bucket rule: root `docs/plans`, `docs/rfcs`, `docs/guides`, and similar
+  paths are type buckets or indexes by default, not subject containers for one
+  node's local topic tree
 - Root entry rule: use root `README.md` as the repository landing page with a
   brief docs pointer
 - Root README brevity rule: keep docs content in root `README.md` lightweight
@@ -160,16 +174,17 @@ for day-to-day note taking.
   and navigation when that node needs its own entry page
 - Node-local docs role: local current-state, local proposals, local guides,
   local runbooks, and detailed implementation plans
-- Topic-family container rule: when one node or topic has 2 or more live
-  alternative proposals, or mixes proposal, decision, implementation-plan, and
-  current-state docs for the same local subject, group them under
-  `<node>/docs/<topic>/`; treat that folder as a container, not as an
-  ownership node
-- One-off topic rule: do not create `<node>/docs/<topic>/` for one standalone
-  local doc unless sibling alternatives or mixed intents are already expected
+- Topic-path container rule: when one node or local topic path has 2 or more
+  live alternative proposals, or mixes proposal, decision,
+  implementation-plan, and current-state docs for the same local subject,
+  group them under `<node>/docs/<topic_path>/`; treat that folder as a
+  subject container, not as an ownership node
+- One-off topic rule: do not create `<node>/docs/<topic_path>/` for one
+  standalone local doc unless sibling alternatives or mixed intents are
+  already expected
 - Root bucket rule: keep root `docs/rfcs` and `docs/plans` as system-level
-  entry containers or indexes by default, not as the long-term home for one
-  node's local topic family
+  type buckets or indexes by default, not as the long-term home for one
+  node's local topic tree or subtopic family
 - Test-suite docs role: coverage overviews, fixture or harness notes,
   verification contracts, regression matrices, and similar docs whose primary
   subject is the test asset itself
@@ -202,30 +217,35 @@ for day-to-day note taking.
   - Use when deciding what parents summarize, what children keep, and where
     durable purpose versus temporary goals should live.
 
-## Reference: Expected Output Shape
+## Reference: Operator Planning Shape
+
+Use this shape only for operator planning output. Do not reuse these labels as
+reader-facing section titles in concrete repository docs.
 
 ```text
-## Doc System Goal
-## Reader Types
-## Current Discovery Problems
-## Ownership Node Map
-## Navigation Layer Map
-## Repository Landing
-## Docs Landing
-## Doc-Worthy Nodes
-## Entry Points
-## Overview Nodes
-## Authority Nodes
-## Placement Rules
-## Root vs Node Responsibilities
-## Parent Summary / Child Detail Rules
-## Purpose / Goal Placement Rules
-## Reading Paths by Intent
-## Target Doc Tree
-## Target Navigation Tree
-## Suggested Record-Skill Handoffs
-## Rollout Plan
-## Open Questions
+planning note
+- doc_system_goal:
+- reader_types:
+- current_discovery_problems:
+- ownership_node_map:
+- local_topic_tree_map:
+- navigation_layer_map:
+- repository_landing:
+- docs_landing:
+- doc_worthy_nodes:
+- entry_points:
+- overview_nodes:
+- authority_nodes:
+- placement_rules:
+- root_vs_node_responsibilities:
+- parent_summary_child_detail_rules:
+- purpose_goal_placement_rules:
+- reading_paths_by_intent:
+- target_doc_tree:
+- target_navigation_tree:
+- suggested_record_skill_handoffs:
+- rollout_plan:
+- open_questions:
 ```
 
 ## Reference: Constraints
@@ -236,6 +256,9 @@ for day-to-day note taking.
 - Do not create node-local docs where no durable local knowledge exists.
 - Do not treat docs-only grouping folders such as `docs/rfcs`, `docs/guides`,
   or topic buckets as ownership nodes by default.
+- Do not confuse a root type bucket with a node-local subject container.
+- Do not flatten a useful parent-topic and subtopic tree into one generic
+  topic when the narrower subject needs its own readable family.
 - Do not add `docs/README.md` to a tiny or single-intent subtree just for
   symmetry.
 - Do not keep one node's multi-option or mixed-intent doc family in root
@@ -256,6 +279,10 @@ for day-to-day note taking.
 - Verify that placement follows lowest common ancestor rather than type-first
   convenience.
 - Verify that each proposed node corresponds to a real code ownership seam.
+- Verify that the plan distinguishes type buckets from node-local subject
+  containers.
+- Verify that any proposed local topic path preserves useful parent-topic and
+  subtopic structure rather than flattening it away.
 - Verify that verification docs are placed under the tests subtree when the
   tests asset, not the runtime module, is the primary owner.
 - Verify that each doc-worthy node has a real durable purpose.
