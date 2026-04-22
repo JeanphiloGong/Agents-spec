@@ -1,142 +1,102 @@
 # Project Doc Skills
 
-This package contains three related Codex skills for project documentation
-work. Together they move the package from root-docs-first thinking to an
-ownership-tree-first model:
+## Overview
 
-- root `docs/` keeps system-level and cross-module knowledge
-- module, submodule, and component docs live near the code that owns them
-- test coverage, fixture, and verification docs live near the test tree that
-  owns them
-- parent docs summarize and link
-- child docs keep detailed local knowledge
+This package helps a repository move from root-docs-first documentation toward
+an ownership-tree-first system. The aim is to keep the project readable like a
+small book while keeping the most specific knowledge close to the code and
+tests that own it.
 
-## Package Model
+In practice, that means:
 
-The package assumes four placement rules:
+- root docs keep system-level and cross-module knowledge
+- module, submodule, component, and test-suite docs live near their owning
+  nodes
+- parent pages summarize and route
+- child pages keep detailed local knowledge
+- one topic's sibling proposals, decisions, plans, and current-state pages can
+  stay together near the owning node instead of piling up in root `docs/rfcs`
+  or `docs/plans`
 
-1. Place docs at the lowest common ancestor of the thing they describe.
-2. Let parent docs summarize and index, while child docs preserve local detail.
-3. Treat only real code-owned seams as ownership nodes; docs-only grouping
+## Core Model
+
+All three skills share the same documentation model.
+
+1. Place each document at the lowest common ancestor of the thing it
+   describes.
+2. Treat only real code-owned seams as ownership nodes; docs-only grouping
    folders are containers by default, not nodes.
-4. Keep the repository landing page and the documentation landing page
-   separate: root `README.md` briefly points to docs, while `docs/README.md`
-   owns the docs index and reading map.
+3. Keep repository landing and documentation landing separate: root
+   `README.md` briefly points readers toward docs, while `docs/README.md` owns
+   the docs index and reading map.
+4. Let parent pages summarize and route, while child pages preserve detailed
+   local knowledge.
+5. When one local subject accumulates multiple options or mixed-intent docs,
+   use a node-local topic-family container such as `<node>/docs/<topic>/`
+   rather than another loose file in a root type bucket.
 
-## Skills
+## When To Use Each Skill
 
 ### `project-doc-architecture-skill`
 
-- Purpose: design or refactor the repository's docs ownership tree.
-- Use when:
-  - root docs are overloaded
-  - local module detail keeps getting buried in parent docs
-  - test or verification docs keep getting attached to runtime modules
-  - the repo needs a clear root/module/submodule/component/test-suite doc
-    layout
-  - project purpose and node-local purpose are not clearly separated
-- Output boundary:
-  - returns the ownership node map, placement rules, target doc tree, and
-    rollout plan
-  - concrete file creation belongs to `project-doc-record-skill`
+Use this skill when the shape of the docs tree itself needs work. It is the
+right entry point when root docs are overloaded, local detail keeps getting
+buried in parent pages, test docs are attached to the wrong subtree, or the
+repository lacks a clear start-here path.
+
+It produces the ownership node map, placement rules, target doc tree, and
+rollout guidance. Concrete file creation still belongs to
+`project-doc-record-skill`.
 
 ### `project-doc-record-skill`
 
-- Purpose: write one concrete document at the correct ownership node.
-- Use when:
-  - a module, submodule, or component change needs durable docs
-  - a test coverage, fixture, or verification note needs durable docs
-  - you need to decide create versus update without losing child detail
-  - you need to write one purpose doc, proposal, current-state page, guide,
-    contract, or operation note
-- Output boundary:
-  - records one node-local doc wave
-  - updates parent summaries or indexes only as light companion changes
+Use this skill for one concrete documentation wave. It decides where one page
+belongs, whether it should stay standalone or join a node-local topic family,
+which page role fits best, and what light companion updates are needed so the
+new page stays discoverable.
+
+It is the day-to-day writing skill for this package.
 
 ### `project-doc-lifecycle-skill`
 
-- Purpose: evolve one doc family across the ownership tree.
-- Use when:
-  - a proposal was implemented and needs promotion
-  - a parent doc is overloaded and should split
-  - child detail is trapped in the wrong place
-  - supersede, archive, and lineage repair decisions are needed
-- Output boundary:
-  - returns the rebalancing plan and record-skill handoffs
-  - concrete file writing still belongs to `project-doc-record-skill`
+Use this skill when an existing document family has drifted. It is for
+promotion, splitting, supersede handling, lineage repair, or extracting one
+owning node's crowded option set out of root `docs/rfcs` or `docs/plans`.
 
-## Placement Matrix
+It returns the rebalancing decisions and the ordered handoffs that
+`project-doc-record-skill` should execute.
 
-- Repository landing and quick docs pointer
-  - root `README.md`
-- Documentation landing and reading map
-  - root `docs/README.md`
-- Project purpose and system intent
-  - root `README.md` plus system overview pages under `docs/` when needed
-- Project phase goals
-  - system-level planning docs, roadmap docs, or tracked issues
-- Module purpose
-  - `<module>/README.md`
-- Submodule detailed plan
-  - the submodule's own `docs/`
-- Component implementation detail
-  - component-local docs only when the component has durable standalone
-    knowledge
-- Test suite coverage, fixture, or verification docs
-  - the lowest common ancestor under `tests/` that owns those test assets
-- Current state
-  - the node that owns the implemented behavior
-- Execution checklist
-  - issues, PRs, or task tracking, not current-state docs
+## How The Skills Fit Together
 
-## Recommended Workflow
+Most teams should think about the package in this order:
 
-1. Use `project-doc-architecture-skill` to inspect the code tree and docs
-   tree, then design the target ownership-tree layout.
-2. Use `project-doc-record-skill` to place one concrete document at the
-   correct node and preserve local detail.
-3. Use `project-doc-lifecycle-skill` when a doc family needs promotion,
-   splitting, supersede handling, or lineage repair.
-4. If the docs tree is already coherent, most day-to-day work can go directly
-   through `project-doc-record-skill`.
+1. Use `project-doc-architecture-skill` when the repository needs a clearer
+   documentation layout or reading path.
+2. Use `project-doc-record-skill` for normal day-to-day writing once the
+   placement model is clear.
+3. Use `project-doc-lifecycle-skill` when one family becomes historically
+   confusing, overloaded, or poorly linked.
+4. If the docs tree is already coherent, most work can go directly through
+   `project-doc-record-skill`.
 
-## README Rule
+## Placement Principles
 
 - Root `README.md` is the repository landing page, not the full docs index.
-- Root `README.md` should briefly describe the project and point readers to
-  `docs/README.md` for structured documentation.
-- Root `docs/README.md` stays as the global docs entry point and owns the docs
-  reading map.
-- `<node>/README.md` is the default entry point for one module, submodule, or
+- Root `docs/README.md` is the documentation landing page and owns the reading
+  map.
+- `<node>/README.md` is the default entry page for one module, submodule,
   component, or test-suite node.
 - `<node>/docs/` is the node's formal-doc container, not a second default
   homepage.
-- Docs-only grouping folders such as `docs/rfcs/`, `docs/guides/`, or topic
-  buckets like `docs/generation/` are not ownership nodes by default.
-- Only add `<node>/docs/README.md` when that local docs subtree has at least
-  4 durable docs, spans mixed intents, or has a non-obvious reader path that
-  genuinely needs a second index.
-- Do not turn root `README.md` into a long docs reading order, architecture
-  index, or formal-doc inventory by default.
-- Avoid keeping both `<node>/README.md` and `<node>/docs/README.md` as
-  competing summaries of the same node by default.
-
-## Package Roles
-
-- `project-doc-architecture-skill`
-  - derives ownership nodes
-  - defines placement by lowest common ancestor
-  - assigns root versus node-local responsibilities
-  - defines parent-summary and child-detail rules
-- `project-doc-record-skill`
-  - finds the owning node for one document
-  - decides create versus update for that node
-  - keeps detailed local knowledge in the correct child doc
-  - writes the resulting doc wave
-- `project-doc-lifecycle-skill`
-  - detects overloaded parent docs and stale placement
-  - decides promotion, split, supersede, and archive actions
-  - hands concrete writes back to `project-doc-record-skill`
+- `<node>/docs/<topic>/` is a local container for one topic family when that
+  subject has multiple live alternatives or mixed intents.
+- Root `docs/rfcs/`, `docs/guides/`, and similar buckets are containers or
+  indexes by default, not ownership nodes.
+- Add `<node>/docs/README.md` only when the local docs subtree has at least 4
+  durable docs, spans mixed intents, or has a genuinely non-obvious reader
+  path.
+- Keep coverage, fixture, and verification docs under the tests subtree when
+  the tests asset is the primary owner.
 
 ## Example Prompts
 
@@ -172,7 +132,7 @@ decide whether the parent should split into child docs, repair lineage, and
 produce the concrete handoffs that $project-doc-record-skill should execute.
 ```
 
-## Package Layout
+## Reference: Package Layout
 
 ```text
 project-doc-skills/
@@ -191,8 +151,4 @@ project-doc-skills/
     references/
 ```
 
-## Notes
-
-- Each skill is self-contained and keeps its own `references/`.
-- This README is only a package-level entry point; operational details stay in
-  each skill's own `SKILL.md`.
+Operational details stay in each skill's own `SKILL.md` and `references/`.

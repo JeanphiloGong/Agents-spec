@@ -1,0 +1,66 @@
+# Codex-Style Release Notes Template
+
+Use this template when the user says `release template` and means the public
+release notes structure, not tag validation or version bump logic.
+
+Default section order follows the style used in `codex`:
+
+1. `New Features`
+2. `Bug Fixes`
+3. `Documentation`
+4. `Chores`
+5. `Changelog`
+
+Delete empty sections instead of emitting placeholders.
+
+## Template
+
+~~~md
+## New Features
+- <user-facing feature summary> (<refs>)
+- <user-facing feature summary> (<refs>)
+
+## Bug Fixes
+- <behavioral fix summary> (<refs>)
+- <behavioral fix summary> (<refs>)
+
+## Documentation
+- <docs change summary> (<refs>)
+- <docs change summary> (<refs>)
+
+## Chores
+- <internal refactor, infra, or maintenance summary> (<refs>)
+- <internal refactor, infra, or maintenance summary> (<refs>)
+
+## Changelog
+Full Changelog: <from-tag>...<to-tag>
+~~~
+
+## Style Rules
+
+- Summaries should be grouped for humans, not listed one PR per bullet by
+  default.
+- Prefer user-visible language in `New Features` and `Bug Fixes`.
+- Put internal refactors, dependency work, CI stabilization, and code movement
+  into `Chores` unless the repository uses a different label.
+- Use `Documentation` only for release-note-worthy docs changes; otherwise omit
+  the section.
+- Keep each bullet to one sentence when possible.
+- Include issue or PR references only in the style the target repository
+  already uses.
+- If the repository publishes a compare link or changelog range, preserve that
+  format exactly.
+
+## Optional Expansion Rules
+
+- Split `New Features` into multiple bullets only when one combined bullet
+  would become unreadable.
+- Merge related fixes into one bullet when they land one user-facing outcome.
+- If the repository uses a contributor-by-contributor appendix, keep it below
+  the main sections so the public summary stays compact.
+
+## Non-Goals
+
+- This template does not define semver rules.
+- This template does not define tag creation rules.
+- This template does not define publish automation or registry checks.

@@ -3,6 +3,9 @@
 Use this reference when the operator wants an example of how one node-local doc
 wave should be recorded.
 
+These examples show operator planning output, not final document headings. Do
+not copy labels such as `Recording Goal` or `Page Role` into the finished page.
+
 ## Example: Module Purpose Doc
 
 ```text
@@ -46,9 +49,6 @@ wave should be recorded.
   changed
 - footer links: yes
 - neighbor links: maybe to the module current-state page
-
-## Metadata Plan
-- none
 
 ## Body Structure Plan
 - Purpose
@@ -117,9 +117,6 @@ wave should be recorded.
 - indexes: maybe the nearest module or submodule index
 - footer links: yes
 - neighbor links: yes to the nearest parser current-state page if one exists
-
-## Metadata Plan
-- none
 
 ## Body Structure Plan
 - Summary
