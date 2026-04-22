@@ -1,6 +1,6 @@
 ---
 name: project-doc-record-skill
-description: v0.4.11 - Record one concrete documentation artifact at the correct code-owned node with reader-first page choices, stable topic-first filenames, topic-family role priority, reader-facing section titles, single-job page boundaries, node-local topic-family containers, README-vs-docs separation, and preserved local detail so it fits the repository's book-like documentation system.
+description: v0.4.12 - Record one concrete documentation artifact at the correct code-owned node with reader-first page choices, stable topic-first filenames, topic-tree role priority, reader-facing section titles, single-job page boundaries, node-local topic containers, README-vs-docs separation, and preserved local detail so it fits the repository's book-like documentation system.
 ---
 
 # Project Documentation Record Skill
@@ -13,7 +13,7 @@ the local reading context. It is the day-to-day writing skill in this package.
 
 The skill turns the ownership-tree model into one bounded documentation wave.
 It decides where one page belongs, whether it should stay standalone or join a
-node-local topic family, which page role fits best, and what light companion
+node-local topic tree, which page role fits best, and what light companion
 updates are needed so the result remains discoverable.
 
 The final page should read like normal technical prose for readers, not like
@@ -32,8 +32,8 @@ In practice, it helps you:
   when the tests asset itself is the primary subject
 - keep README pages focused on local purpose, boundaries, and logic before
   they mention the docs system around them
-- choose when one topic needs a small node-local family folder instead of
-  another loose sibling file in a root type bucket
+- choose when one local topic path needs a small node-local subject container
+  instead of another loose sibling file in a root type bucket
 
 ## When To Use This Skill
 
@@ -46,7 +46,8 @@ than a repository-wide redesign. Common cases include:
 - you need to write one purpose doc, proposal, current-state page, guide,
   contract, or operation note
 - one local subject now has multiple proposals, decisions, plans, or
-  current-state pages and needs a small topic-family container
+  current-state pages and needs a small topic container, sometimes under a
+  broader parent topic
 
 Typical requests sound like:
 
@@ -64,7 +65,7 @@ order of a repository or module. Those jobs belong to
 
 Every recording wave begins by settling five practical questions: who owns the
 knowledge, what the document is for, what kind of page should carry it, how
-much detail it must retain, and whether it belongs in a small topic family.
+much detail it must retain, and whether it belongs in a small topic tree.
 Those decisions come before writing so the resulting page does not become
 another misplaced summary or root-bucket orphan.
 
@@ -86,22 +87,26 @@ A normal recording pass should work in this order:
 3. Determine lowest common ancestor placement.
    - Place the doc at the lowest node that fully owns the described knowledge
      or change.
-4. Decide whether the wave stays standalone or becomes a topic family.
+4. Decide whether the wave stays standalone or becomes a topic tree.
    - Keep one standalone artifact when the content is a one-off local doc and
      no sibling alternatives or mixed-intent family already exists.
-   - Promote to a topic family once the same node and topic need a second
-     durable page, not only when the folder already feels crowded.
-   - Use a node-local topic-family container such as `<node>/docs/<topic>/`
+   - Promote to a topic container once the same node and topic path need a
+     second durable page, not only when the folder already feels crowded.
+   - Use a node-local topic container such as `<node>/docs/<topic_path>/`
      when the same local subject has 2 or more live alternative proposals, or
      mixes proposal, decision, implementation-plan, and current-state docs.
-   - Treat the topic-family folder as a container for reader navigation, not
-     as a new ownership node.
+   - A topic path may be one segment such as `parser` or a small tree such as
+     `core/comparable-result` when the local subject naturally has parent
+     topics and subtopics.
+   - Treat the topic container as a subject container for reader navigation,
+     not as a new ownership node.
 5. Decide the path shape and filename.
-   - Organize in this order: owning node, then local topic, then page role.
+   - Organize in this order: owning node, then local topic path, then page
+     role.
    - When one local subject still has only one durable page, prefer one stable
-     topic-named file such as `<node>/docs/<topic>.md`.
-   - When one local subject has multiple sibling docs, prefer a topic-family
-     container such as `<node>/docs/<topic>/` and let the child filenames
+     topic-named file such as `<node>/docs/<topic_path>.md`.
+   - When one local subject has multiple sibling docs, prefer a topic
+     container such as `<node>/docs/<topic_path>/` and let the child filenames
      express role, such as `proposal.md`, `implementation-plan.md`, or
      `current-state.md`.
    - Prefer stable, topic-first names over churn-prone names such as
@@ -150,7 +155,7 @@ A normal recording pass should work in this order:
 The result should describe one node-local documentation wave. In the simplest
 case, that means one new or updated file plus a light parent or index repair.
 When the local subject has become crowded, it may also mean introducing a
-topic-family container and a small local reading path.
+topic container and a small local reading path.
 
 The result should not read like a repo-wide cleanup plan. If the wave keeps
 discoverability local and keeps ownership clear, it is small enough. If the
@@ -197,7 +202,17 @@ changes. When a narrower child scope needs its own durable home, create it.
 - Container strategy
   - Whether the wave should stay:
     - one standalone artifact
-    - one node-local topic-family container
+    - one node-local topic container
+- Topic path
+  - The subject path under the owning node:
+    - one segment such as `parser`
+    - a small tree such as `core/comparable-result`
+- Type bucket
+  - A cross-subject sorting path such as:
+    - `docs/plans`
+    - `docs/rfcs`
+    - `docs/guides`
+  - Type buckets are not subject containers by default.
 
 ## Reference: Inputs
 
@@ -241,23 +256,30 @@ changes. When a narrower child scope needs its own durable home, create it.
 - Local docs README rule: only add `<node>/docs/README.md` when that local docs
   subtree has at least 4 durable docs, spans mixed intents, or has a
   non-obvious reader path that truly needs a secondary index
+- Topic-path rule: a local topic path may be one segment such as `parser` or a
+  small tree such as `core/comparable-result`; preserve useful parent-topic
+  and subtopic structure instead of flattening it away
+- Type-bucket rule: root `docs/plans`, `docs/rfcs`, `docs/guides`, and similar
+  paths are type buckets or indexes by default, not subject containers for one
+  node's local topic tree
 - Topic-family rule: when one local subject has 2 or more live alternative
   proposals, or mixes proposal, decision, implementation-plan, and
-  current-state docs, prefer `<node>/docs/<topic>/` over another loose file in
-  root `docs/rfcs` or `docs/plans`
-- Topic-family promotion rule: when the same node and topic need a second
-  durable page, promote to `<node>/docs/<topic>/` rather than continuing to
-  flatten sibling files
+  current-state docs, prefer `<node>/docs/<topic_path>/` over another loose
+  file in root `docs/rfcs` or `docs/plans`
+- Topic-family promotion rule: when the same node and topic path need a second
+  durable page, promote to `<node>/docs/<topic_path>/` rather than continuing
+  to flatten sibling files
 - One-off artifact rule: keep a single durable local doc as one file unless
   sibling alternatives or mixed intents justify a topic-family container
-- Topic-family README rule: add `<node>/docs/<topic>/README.md` when the topic
-  family has 2 or more live alternatives, spans mixed intents, or otherwise
-  needs a local reading order
-- Topic-family role rule: inside `<node>/docs/<topic>/`, `README.md` acts as
-  the reading entry and role map, `decision.md` records accepted conclusions or
-  stable boundaries, `current-state.md` records current implemented truth,
-  `implementation-plan.md` records pending execution, and `proposal.md`
-  records unaccepted suggestions or review-stage options by default
+- Topic-family README rule: add `<node>/docs/<topic_path>/README.md` when the
+  topic family has 2 or more live alternatives, spans mixed intents, or
+  otherwise needs a local reading order
+- Topic-family role rule: inside `<node>/docs/<topic_path>/`, `README.md` acts
+  as the reading entry and role map, `decision.md` records accepted
+  conclusions or stable boundaries, `current-state.md` records current
+  implemented truth, `implementation-plan.md` records pending execution, and
+  `proposal.md` records unaccepted suggestions or review-stage options by
+  default
 - File naming rule: use lowercase kebab case for long-lived topic folders and
   doc filenames
 - Topic-first naming rule: filename should name the local subject before it
@@ -269,12 +291,12 @@ changes. When a narrower child scope needs its own durable home, create it.
   uses that abbreviation as a stable, widely understood term
 - Date-in-name rule: keep dates out of durable doc filenames unless the page is
   inherently time-scoped, such as a log, note, or meeting record
-- Standalone path rule: when a local topic has one durable page, prefer
-  `<node>/docs/<topic>.md`
-- Topic-family path rule: when a local topic has multiple durable sibling docs,
-  prefer `<node>/docs/<topic>/` and let child filenames express page role such
-  as `proposal.md`, `implementation-plan.md`, `current-state.md`, or
-  `decision.md`
+- Standalone path rule: when a local topic path has one durable page, prefer
+  `<node>/docs/<topic_path>.md`
+- Topic-family path rule: when a local topic path has multiple durable sibling
+  docs, prefer `<node>/docs/<topic_path>/` and let child filenames express
+  page role such as `proposal.md`, `implementation-plan.md`,
+  `current-state.md`, or `decision.md`
 - Topic specificity rule: topic folder names should stay specific enough to
   distinguish the local subject within the node; do not over-shorten them just
   because the folder now carries the topic
@@ -299,7 +321,7 @@ changes. When a narrower child scope needs its own durable home, create it.
 - Index rule: update indexes when discoverability changes
 - Root bucket rule: treat root `docs/rfcs` and `docs/plans` as entry
   containers or system-level indexes by default, not as the long-term home for
-  one node's local topic family
+  one node's local topic tree
 - Body structure rule: choose structure from intent, not from one generic
   formal-doc template
 - Single-job rule: each final page should do one clear job; direction notes,
@@ -381,8 +403,9 @@ planning note
 - Do not add `docs/README.md` to a tiny or single-intent subtree just for
   symmetry.
 - Do not keep one node's multi-option or mixed-intent family in root
-  `docs/rfcs` or `docs/plans` by default when a node-local topic family is the
-  clearer home.
+  `docs/rfcs` or `docs/plans` by default when a node-local topic container is
+  the clearer home.
+- Do not confuse a root type bucket with a node-local subject container.
 - Do not create a topic-family container for a one-off local doc that has no
   sibling alternatives or mixed-intent family.
 - Do not create a topic-family container that contains only `README.md` or
@@ -401,6 +424,10 @@ planning note
   filename.
 - Do not name a topic-family folder so broadly that multiple distinct local
   subjects would have to share it.
+- Do not flatten a useful parent-topic and subtopic tree into one generic
+  topic path when the narrower subject needs its own readable family.
+- Do not use a type-bucket name such as `plans` or `rfcs` as the local topic
+  path unless that name is genuinely the subject readers are looking for.
 - Do not let `proposal.md` read like the accepted conclusion by default; if the
   conclusion is accepted, record it in `decision.md`, `current-state.md`, or
   another clearly authoritative page.
@@ -436,10 +463,13 @@ planning note
 - Verify that the chosen node is a real code-owned seam rather than a docs-only
   grouping folder.
 - Verify that the container strategy is explicit and that any topic-family
-  folder is treated as a container under the chosen node rather than as a new
-  node.
+  folder is treated as a subject container under the chosen node rather than
+  as a new node.
 - Verify that topic-family promotion happens once a second durable page exists
-  for the same local topic, rather than continuing to flatten sibling docs.
+  for the same local topic path, rather than continuing to flatten sibling
+  docs.
+- Verify that the path distinguishes a real local topic path from a generic
+  type-bucket name.
 - Verify that the file or folder name is stable, lowercase kebab case, and
   topic-first for its context.
 - Verify that filenames avoid opaque abbreviations unless the abbreviation is
@@ -454,6 +484,8 @@ planning note
   `README.md` or placeholder role files.
 - Verify that the topic-family folder name is specific enough to identify one
   local subject within the node.
+- Verify that the chosen topic path preserves useful parent-topic and subtopic
+  structure when the local subject naturally forms a tree.
 - Verify that topic-family role priority is clear: `README.md` routes, current
   authority pages are explicit, and `proposal.md` is not mistaken for adopted
   truth.

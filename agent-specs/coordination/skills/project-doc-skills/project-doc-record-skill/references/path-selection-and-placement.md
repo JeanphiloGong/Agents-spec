@@ -59,19 +59,24 @@ Use the tests-node `README.md` for:
 
 ## Topic-Family Paths
 
-A topic-family container such as `<node>/docs/<topic>/` is warranted when:
+A topic-family container such as `<node>/docs/<topic_path>/` is warranted when:
 
-- the same node and topic now need a second durable page
+- the same node and topic path now need a second durable page
 - one local subject has 2 or more live alternatives
 - one local subject mixes proposal, decision, implementation-plan, and
   current-state docs
 - readers would understand the local subject more clearly as a small family
   than as another loose file in root `docs/rfcs` or `docs/plans`
 
-Treat the topic-family folder as a container, not as a new ownership node.
+Treat the topic-family folder as a subject container, not as a new ownership
+node.
 Do not create a topic-family folder that contains only `README.md` or empty
 placeholder role pages unless the same wave also creates a concrete second
 durable page.
+
+A `topic_path` may be one segment such as `parser` or a small tree such as
+`core/comparable-result` when the local subject naturally has parent topics
+and subtopics.
 
 ## Practical Decision Rules
 
@@ -85,11 +90,12 @@ durable page.
 - coverage or fixture docs spanning multiple test files => the shared ancestor
   under `tests/`
 - child detail under a broad parent => child path plus parent summary link
-- one local subject with 2 or more live alternatives => `<node>/docs/<topic>/`
+- one local subject with 2 or more live alternatives =>
+  `<node>/docs/<topic_path>/`
 - one local subject with proposal, decision, implementation-plan, and
-  current-state siblings => `<node>/docs/<topic>/`
-- same node and topic gains a second durable page => promote to
-  `<node>/docs/<topic>/`
+  current-state siblings => `<node>/docs/<topic_path>/`
+- same node and topic path gains a second durable page => promote to
+  `<node>/docs/<topic_path>/`
 - one standalone local doc with no sibling alternatives or mixed intents =>
   keep one file at the owning node
 - do not add `<node>/docs/README.md` by default when `<node>/README.md`
@@ -99,6 +105,8 @@ durable page.
   path
 - do not keep one node's topic family in root `docs/rfcs` or `docs/plans` by
   default when the family has a clear owning node
+- do not confuse root `docs/plans`, `docs/rfcs`, or similar type buckets with
+  the local subject container
 - do not treat root `README.md` as the full docs index when `docs/README.md`
   exists
 
@@ -107,26 +115,26 @@ durable page.
 Organize in this order:
 
 1. owning node
-2. local topic
+2. local topic path
 3. page role
 
 ## Default Shapes
 
-When one local topic has one durable page, prefer:
+When one local topic path has one durable page, prefer:
 
-- `<node>/docs/<topic>.md`
+- `<node>/docs/<topic_path>.md`
 
-When one local topic has multiple durable sibling docs, prefer:
+When one local topic path has multiple durable sibling docs, prefer:
 
-- `<node>/docs/<topic>/README.md`
-- `<node>/docs/<topic>/proposal.md`
-- `<node>/docs/<topic>/implementation-plan.md`
-- `<node>/docs/<topic>/current-state.md`
-- `<node>/docs/<topic>/decision.md`
+- `<node>/docs/<topic_path>/README.md`
+- `<node>/docs/<topic_path>/proposal.md`
+- `<node>/docs/<topic_path>/implementation-plan.md`
+- `<node>/docs/<topic_path>/current-state.md`
+- `<node>/docs/<topic_path>/decision.md`
 
 The topic folder names the subject. The child filenames name the role.
 Use a topic name that stays specific enough inside the node. Do not over-shorten
-`<topic>/` until it becomes ambiguous.
+`<topic_path>/` until it becomes ambiguous.
 
 ## Topic-Family Role Priority
 

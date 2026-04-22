@@ -13,7 +13,7 @@ Only real code-owned seams count as ownership nodes:
 - component
 - test-suite
 
-Docs-only grouping folders such as `docs/rfcs`, `docs/guides`, or topic
+Docs-only grouping folders such as `docs/rfcs`, `docs/guides`, or type
 buckets like `docs/generation` are containers by default, not nodes.
 
 ## Place By Lowest Common Ancestor
@@ -103,9 +103,9 @@ Use the node root `README.md` for:
 - node-level summary
 - navigation into child docs
 
-## Topic-Family Containers
+## Topic Containers
 
-Use a node-local topic-family container such as `<node>/docs/<topic>/` when:
+Use a node-local topic container such as `<node>/docs/<topic_path>/` when:
 
 - one local subject has 2 or more live alternative proposals
 - one local subject mixes proposal, decision, implementation-plan, and
@@ -113,7 +113,11 @@ Use a node-local topic-family container such as `<node>/docs/<topic>/` when:
 - the local reading path is clearer as one small family than as many loose
   siblings in a root type bucket
 
-Treat the topic-family folder as a container for navigation, not as a new
+A `topic_path` may be one segment such as `parser` or a small tree such as
+`core/comparable-result` when the local subject naturally has parent topics
+and subtopics.
+
+Treat the topic container as a subject container for navigation, not as a new
 ownership node.
 
 ## Default Rule
@@ -126,8 +130,10 @@ shape of the docs buckets.
 Do not keep all durable docs in root `docs/` when the knowledge clearly
 belongs to one owned subtree.
 Do not keep one node's multi-option or mixed-intent family in root `docs/rfcs`
-or `docs/plans` once a node-local topic-family container is warranted.
+or `docs/plans` once a node-local topic container is warranted.
 Do not promote docs-only grouping folders into ownership nodes just because
 they already exist in the docs tree.
+Do not confuse a root type bucket with the local subject container for one
+node's topic tree.
 Do not attach test coverage or fixture docs to a runtime module when the tests
 subtree is the clearer primary owner.

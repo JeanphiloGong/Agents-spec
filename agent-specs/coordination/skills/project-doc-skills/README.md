@@ -14,9 +14,8 @@ In practice, that means:
   nodes
 - parent pages summarize and route
 - child pages keep detailed local knowledge
-- one topic's sibling proposals, decisions, plans, and current-state pages can
-  stay together near the owning node instead of piling up in root `docs/rfcs`
-  or `docs/plans`
+- one node's topic tree can stay together near the owning node instead of
+  piling up in root `docs/rfcs` or `docs/plans`
 
 ## Core Model
 
@@ -31,9 +30,13 @@ All three skills share the same documentation model.
    the docs index and reading map.
 4. Let parent pages summarize and route, while child pages preserve detailed
    local knowledge.
-5. When one local subject accumulates multiple options or mixed-intent docs,
-   use a node-local topic-family container such as `<node>/docs/<topic>/`
-   rather than another loose file in a root type bucket.
+5. Let a local `topic_path` be either one segment such as `parser` or a small
+   tree such as `core/comparable-result` when the local subject naturally has
+   parent topics and subtopics.
+6. Distinguish type buckets from subject containers: root `docs/plans`,
+   `docs/rfcs`, and `docs/guides` are type buckets or indexes by default,
+   while `<node>/docs/<topic_path>/` is a subject container for one owning
+   node's topic family.
 
 ## When To Use Each Skill
 
@@ -51,7 +54,7 @@ rollout guidance. Concrete file creation still belongs to
 ### `project-doc-record-skill`
 
 Use this skill for one concrete documentation wave. It decides where one page
-belongs, whether it should stay standalone or join a node-local topic family,
+belongs, whether it should stay standalone or join a node-local topic tree,
 which page role fits best, and what light companion updates are needed so the
 new page stays discoverable.
 
@@ -61,7 +64,7 @@ It is the day-to-day writing skill for this package.
 
 Use this skill when an existing document family has drifted. It is for
 promotion, splitting, supersede handling, lineage repair, or extracting one
-owning node's crowded option set out of root `docs/rfcs` or `docs/plans`.
+owning node's crowded topic tree or subtopic family out of root type buckets.
 
 It returns the rebalancing decisions and the ordered handoffs that
 `project-doc-record-skill` should execute.
@@ -88,10 +91,12 @@ Most teams should think about the package in this order:
   component, or test-suite node.
 - `<node>/docs/` is the node's formal-doc container, not a second default
   homepage.
-- `<node>/docs/<topic>/` is a local container for one topic family when that
-  subject has multiple live alternatives or mixed intents.
-- Root `docs/rfcs/`, `docs/guides/`, and similar buckets are containers or
-  indexes by default, not ownership nodes.
+- `<node>/docs/<topic_path>/` is a local subject container for one node's
+  topic tree when that subject has multiple live alternatives, mixed intents,
+  or a useful parent-topic and subtopic split.
+- Root `docs/rfcs/`, `docs/guides/`, `docs/plans/`, and similar paths are type
+  buckets or indexes by default, not ownership nodes or substitute topic
+  containers.
 - Add `<node>/docs/README.md` only when the local docs subtree has at least 4
   durable docs, spans mixed intents, or has a genuinely non-obvious reader
   path.
