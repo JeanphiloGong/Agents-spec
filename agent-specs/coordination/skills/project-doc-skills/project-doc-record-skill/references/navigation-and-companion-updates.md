@@ -40,11 +40,27 @@ symmetry.
 
 ## Add A Topic-Family README When
 
+- the same node and topic now need a second durable page
 - the topic family has 2 or more live alternative proposals
 - the topic family spans mixed intents such as proposal, decision,
   implementation plan, and current-state
 - readers would not know the intended order across sibling docs without a
   local entry page
+
+## Topic-Family Reading Priority
+
+Within one topic family, use this default reading priority unless local context
+clearly needs another order:
+
+1. `README.md` for entry and reading order
+2. `decision.md` when the reader needs the accepted conclusion or boundary
+3. `current-state.md` when the reader needs the current implemented truth
+4. `implementation-plan.md` for pending execution detail
+5. `proposal.md` for review-stage suggestions or alternatives
+
+By default, `proposal.md` is not the adopted conclusion. If a conclusion has
+been accepted, make that visible in `decision.md`, `current-state.md`, or
+another clearly authoritative page.
 
 ## Related-Doc Footers
 

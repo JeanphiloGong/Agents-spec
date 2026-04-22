@@ -1,6 +1,6 @@
 ---
 name: project-doc-record-skill
-description: v0.4.9 - Record one concrete documentation artifact at the correct code-owned node with reader-first page choices, reader-facing section titles, single-job page boundaries, node-local topic-family containers, README-vs-docs separation, and preserved local detail so it fits the repository's book-like documentation system.
+description: v0.4.11 - Record one concrete documentation artifact at the correct code-owned node with reader-first page choices, stable topic-first filenames, topic-family role priority, reader-facing section titles, single-job page boundaries, node-local topic-family containers, README-vs-docs separation, and preserved local detail so it fits the repository's book-like documentation system.
 ---
 
 # Project Documentation Record Skill
@@ -89,47 +89,59 @@ A normal recording pass should work in this order:
 4. Decide whether the wave stays standalone or becomes a topic family.
    - Keep one standalone artifact when the content is a one-off local doc and
      no sibling alternatives or mixed-intent family already exists.
+   - Promote to a topic family once the same node and topic need a second
+     durable page, not only when the folder already feels crowded.
    - Use a node-local topic-family container such as `<node>/docs/<topic>/`
      when the same local subject has 2 or more live alternative proposals, or
      mixes proposal, decision, implementation-plan, and current-state docs.
    - Treat the topic-family folder as a container for reader navigation, not
      as a new ownership node.
-5. Determine the page role.
+5. Decide the path shape and filename.
+   - Organize in this order: owning node, then local topic, then page role.
+   - When one local subject still has only one durable page, prefer one stable
+     topic-named file such as `<node>/docs/<topic>.md`.
+   - When one local subject has multiple sibling docs, prefer a topic-family
+     container such as `<node>/docs/<topic>/` and let the child filenames
+     express role, such as `proposal.md`, `implementation-plan.md`, or
+     `current-state.md`.
+   - Prefer stable, topic-first names over churn-prone names such as
+     `final`, `latest`, `new`, or `v2`.
+6. Determine the page role.
    - Decide whether the artifact is a repository landing README, node entry
      README, docs landing README, or formal doc.
    - If the page is a README that is not a docs landing page, treat it as an
      entry page for the layer itself first, not as a docs index.
-6. Determine the document intent.
+7. Determine the document intent.
    - Choose whether the page is primarily a purpose, proposal, current-state,
      contract, guide, or operation document.
    - Keep one document, one job. If the page needs file change plans,
      execution order, or verification work, treat it as a proposal or
      delivery-plan page rather than as a direction note or high-level summary.
-7. Decide create versus update.
+8. Decide create versus update.
    - Reuse an existing doc only when it already owns the exact same scope.
    - Create a new child doc when updating a parent would blur boundaries or
      erase detail.
-8. Protect the summary/detail split.
+9. Protect the summary/detail split.
    - Parent pages may receive a short summary, pointer, or index update.
    - Child docs retain detailed plans, file change lists, execution order,
      verification slices, ownership splits, and local risks.
-9. Keep README pages reader-first.
+10. Keep README pages reader-first.
    - For repo or node READMEs, explain the layer before the documentation
      around the layer.
    - Use docs-routing-heavy structure only when the page itself is a docs
      landing README.
-10. Decide companion updates.
+11. Decide companion updates.
     - Explicitly decide whether this wave also needs a parent summary update,
       current-state update, section or root index update, topic-family
       `README.md`, footer links, or neighbor links.
-11. Write the document and update only the necessary companions.
+12. Write the document and update only the necessary companions.
     - Match the body to the page role and intent, not only to the file
       extension.
     - Use reader-facing section titles in the final page. Keep operator
       planning labels out of the finished document.
     - Update parent docs or indexes only with concise summaries, links, or
       discovery guidance.
-12. Verify fit.
+13. Verify fit.
     - Confirm node, page role, intent, path, scope boundary, preserved detail,
       and companion updates all match the document's job.
 
@@ -233,11 +245,41 @@ changes. When a narrower child scope needs its own durable home, create it.
   proposals, or mixes proposal, decision, implementation-plan, and
   current-state docs, prefer `<node>/docs/<topic>/` over another loose file in
   root `docs/rfcs` or `docs/plans`
+- Topic-family promotion rule: when the same node and topic need a second
+  durable page, promote to `<node>/docs/<topic>/` rather than continuing to
+  flatten sibling files
 - One-off artifact rule: keep a single durable local doc as one file unless
   sibling alternatives or mixed intents justify a topic-family container
 - Topic-family README rule: add `<node>/docs/<topic>/README.md` when the topic
   family has 2 or more live alternatives, spans mixed intents, or otherwise
   needs a local reading order
+- Topic-family role rule: inside `<node>/docs/<topic>/`, `README.md` acts as
+  the reading entry and role map, `decision.md` records accepted conclusions or
+  stable boundaries, `current-state.md` records current implemented truth,
+  `implementation-plan.md` records pending execution, and `proposal.md`
+  records unaccepted suggestions or review-stage options by default
+- File naming rule: use lowercase kebab case for long-lived topic folders and
+  doc filenames
+- Topic-first naming rule: filename should name the local subject before it
+  names the doc role whenever the file stands alone
+- Stable-name rule: prefer names that can survive status changes; avoid
+  churn-prone suffixes such as `final`, `latest`, `new`, `temp`, or `v2` for
+  durable docs
+- Abbreviation rule: avoid filename abbreviations unless the repository already
+  uses that abbreviation as a stable, widely understood term
+- Date-in-name rule: keep dates out of durable doc filenames unless the page is
+  inherently time-scoped, such as a log, note, or meeting record
+- Standalone path rule: when a local topic has one durable page, prefer
+  `<node>/docs/<topic>.md`
+- Topic-family path rule: when a local topic has multiple durable sibling docs,
+  prefer `<node>/docs/<topic>/` and let child filenames express page role such
+  as `proposal.md`, `implementation-plan.md`, `current-state.md`, or
+  `decision.md`
+- Topic specificity rule: topic folder names should stay specific enough to
+  distinguish the local subject within the node; do not over-shorten them just
+  because the folder now carries the topic
+- Standalone clarity rule: a standalone filename should still communicate its
+  subject when read outside its directory context
 - README priority rule: README pages explain the layer first and the docs
   system second unless the page itself is a docs landing
 - README structure rule: prefer `Purpose`, `Responsibilities or Boundaries`,
@@ -343,6 +385,25 @@ planning note
   clearer home.
 - Do not create a topic-family container for a one-off local doc that has no
   sibling alternatives or mixed-intent family.
+- Do not create a topic-family container that contains only `README.md` or
+  placeholder siblings unless the same wave also creates a concrete second
+  durable page.
+- Do not name durable docs only by role, such as `plan.md` or `proposal.md`,
+  when they stand alone outside a topic-family container.
+- Do not use churn-prone filename suffixes such as `final`, `latest`, `new`,
+  `temp`, or `v2` for long-lived docs.
+- Do not use opaque abbreviations in filenames unless the abbreviation is
+  already stable and repository-wide.
+- Do not put dates into durable document filenames unless the document is
+  inherently time-scoped.
+- Do not use overly broad standalone filenames such as `architecture.md`,
+  `design.md`, or `plan.md` when the topic is not already expressed in the
+  filename.
+- Do not name a topic-family folder so broadly that multiple distinct local
+  subjects would have to share it.
+- Do not let `proposal.md` read like the accepted conclusion by default; if the
+  conclusion is accepted, record it in `decision.md`, `current-state.md`, or
+  another clearly authoritative page.
 - Do not turn root `README.md` into the repository's full docs index, long
   reading order, or detailed formal-doc inventory by default.
 - Do not let README-to-docs relationship explanation dominate a repo or node
@@ -377,6 +438,25 @@ planning note
 - Verify that the container strategy is explicit and that any topic-family
   folder is treated as a container under the chosen node rather than as a new
   node.
+- Verify that topic-family promotion happens once a second durable page exists
+  for the same local topic, rather than continuing to flatten sibling docs.
+- Verify that the file or folder name is stable, lowercase kebab case, and
+  topic-first for its context.
+- Verify that filenames avoid opaque abbreviations unless the abbreviation is
+  already stable in the repository.
+- Verify that a standalone filename remains understandable outside directory
+  context and is not overly broad.
+- Verify that a standalone durable page uses a topic-named filename rather than
+  a bare role name.
+- Verify that a topic-family container is only used when multiple durable
+  sibling docs actually justify it.
+- Verify that a topic-family container is not an empty shell with only
+  `README.md` or placeholder role files.
+- Verify that the topic-family folder name is specific enough to identify one
+  local subject within the node.
+- Verify that topic-family role priority is clear: `README.md` routes, current
+  authority pages are explicit, and `proposal.md` is not mistaken for adopted
+  truth.
 - Verify that test coverage, fixture, or verification docs are owned by the
   appropriate tests subtree when that subtree is the primary subject.
 - Verify that create-versus-update does not collapse a narrower child scope
