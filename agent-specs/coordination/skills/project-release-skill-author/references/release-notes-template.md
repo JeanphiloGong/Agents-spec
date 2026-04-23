@@ -16,48 +16,56 @@ Delete empty sections instead of emitting placeholders.
 ## Template
 
 ~~~md
-## New Features
-- <user-facing feature summary> (<refs>)
-- <user-facing feature summary> (<refs>)
+New Features
+<user-facing feature summary> (<refs>).
+<user-facing feature summary> (<refs>).
 
-## Bug Fixes
-- <behavioral fix summary> (<refs>)
-- <behavioral fix summary> (<refs>)
+Bug Fixes
+<behavioral fix summary> (<refs>).
+<behavioral fix summary> (<refs>).
 
-## Documentation
-- <docs change summary> (<refs>)
-- <docs change summary> (<refs>)
+Documentation
+<docs change summary> (<refs>).
+<docs change summary> (<refs>).
 
-## Chores
-- <internal refactor, infra, or maintenance summary> (<refs>)
-- <internal refactor, infra, or maintenance summary> (<refs>)
+Chores
+<internal refactor, infra, or maintenance summary> (<refs>).
+<internal refactor, infra, or maintenance summary> (<refs>).
 
-## Changelog
+Changelog
 Full Changelog: <from-tag>...<to-tag>
+
+#<pr-number> <PR title> @<author>
+#<pr-number> <PR title> @<author>
 ~~~
 
 ## Style Rules
 
-- Summaries should be grouped for humans, not listed one PR per bullet by
+- Summaries should be grouped for humans, not listed one PR per summary line by
   default.
 - Prefer user-visible language in `New Features` and `Bug Fixes`.
 - Put internal refactors, dependency work, CI stabilization, and code movement
   into `Chores` unless the repository uses a different label.
 - Use `Documentation` only for release-note-worthy docs changes; otherwise omit
   the section.
-- Keep each bullet to one sentence when possible.
-- Include issue or PR references only in the style the target repository
-  already uses.
-- If the repository publishes a compare link or changelog range, preserve that
-  format exactly.
+- Keep each summary line to one sentence when possible.
+- Include issue or PR references only when the operator asks for them or they
+  are already available in the supplied input.
+- In `Changelog`, list every PR included in the release range as one record per
+  PR using `#<pr-number> <PR title> @<author>`.
+- Include author handles in `Changelog` when they are available from the PR
+  records.
+- If the operator supplies a compare link or changelog range, preserve that
+  format exactly above the PR list.
 
 ## Optional Expansion Rules
 
-- Split `New Features` into multiple bullets only when one combined bullet
+- Split `New Features` into multiple summary lines only when one combined line
   would become unreadable.
-- Merge related fixes into one bullet when they land one user-facing outcome.
-- If the repository uses a contributor-by-contributor appendix, keep it below
-  the main sections so the public summary stays compact.
+- Merge related fixes into one summary line when they land one user-facing
+  outcome.
+- Add contributor or author appendices only when the operator explicitly asks
+  for them.
 
 ## Non-Goals
 

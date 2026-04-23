@@ -1,76 +1,92 @@
-# Repo-Specific Release Workflow Template
+# Generic Release Skill Template
 
-Use this template only when the generated release skill needs workflow, tag,
-publish, or post-release execution guidance in addition to release notes.
+Use this template when the generated release skill needs generic tag and hosted
+release guidance in addition to release notes.
 
-If the user asks for a `release template` without further qualification,
-default to `release-notes-template.md`, not this file.
+The generated skill must rely on explicit operator inputs. Do not add
+repository-specific workflow, package publish, version bump, or post-release
+automation.
 
-Replace every placeholder with repository evidence or leave an explicit
-`TODO(repo-verify)` / `BLOCK`.
-
-Do not add a version bump engine, semver policy, or publish path the
-repository does not already document.
+Replace every placeholder with an explicit input, a direct local check, or
+`TODO(user-confirm)` / `BLOCK`.
 
 ## Frontmatter Template
 
 ```md
 ---
-name: <repo>-release-skill
-description: v0.1.0 - Execute and verify the <repo> release flow from
-repository evidence, including tag, release, publish, and post-release checks.
+name: release-skill
+description: v0.1.0 - Prepare and verify tag, release notes, and hosted release creation from explicit operator inputs.
 ---
 ```
 
 ## Required Section Shape
 
 ~~~md
-# <Repo> Release Skill
+# Release Skill
 
 ## Trigger and Scope
 
-Use this skill when <when to use>.
+Use this skill when the operator wants to create or review a straightforward
+tag and hosted release.
 
 In scope:
-- <repo-specific release operations>
+- confirming release tag and target
+- drafting release notes
+- creating or reviewing a hosted release
+- verifying the tag and hosted release exist after execution
 
 Out of scope:
-- version bump policy not evidenced by the repository
-- unrelated CI refactors
-- <other explicit exclusions>
+- version bump policy
+- repository-specific workflow dispatch
+- package-registry publishing
+- post-release automation
+- CI/CD changes
 
 ## Workflow
 
-1. Preflight repository state.
-   - Verify <clean worktree / branch / permissions / manual gate>.
-2. Resolve release version and tag.
-   - Version source: `<file or workflow output>`
-   - Tag rule: `<tag rule>`
-3. Trigger the release path.
-   - Execute `<tag push / workflow dispatch / release script>`.
-4. Watch release execution.
-   - Track `<workflow names / jobs / URLs>`.
-5. Verify hosted release output.
-   - Confirm `<GitHub Release / GitLab Release / artifact store>` result.
-6. Verify downstream publishes.
-   - Confirm `<npm / PyPI / container / package manager>` if applicable.
-7. Verify post-release actions.
-   - Confirm `<branch update / docs deploy / website hook / package mirror>`.
-8. Report result.
-   - Include release identifier, evidence links, failures, and next action.
+1. Collect release inputs.
+   - Tag: `<operator-supplied tag>`
+   - Target: `<operator-supplied commit or branch>`
+   - Release title: `<operator-supplied title>`
+   - Release notes: `<operator-supplied body or generated notes request>`
+   - Hosting platform: `<GitHub / GitLab / other>`
+2. Preflight local state.
+   - Verify the target ref resolves.
+   - Verify the tag does not already exist unless the operator is reviewing an
+     existing release.
+3. Draft release notes.
+   - Use the release notes template.
+   - Omit empty sections.
+   - Include the changelog range when supplied.
+4. Prepare tag creation.
+   - Create only the explicit operator-supplied tag.
+   - Do not infer a tag name from manifests or package files.
+5. Prepare hosted release creation.
+   - Use the explicit title, tag, target, notes, and prerelease/draft setting.
+   - Do not publish packages or trigger repository-specific workflows.
+6. Verify result.
+   - Confirm the tag exists locally or remotely as applicable.
+   - Confirm the hosted release exists when the platform supports verification.
+7. Report result.
+   - Include tag, target, release URL if available, unresolved inputs, and any
+     blocked action.
 
 ## Required Inputs
 
-- release target version or tag: <if operator supplies it>
-- repository root: <default>
-- release mode: <stable / prerelease / alpha> or `TODO(repo-verify)`
+- release tag
+- target commit or branch
+- release title
+- release notes body or generated-notes request
+- release hosting platform
+- prerelease or draft status, when supported
 
 ## Defaults
 
-- trigger path: <default trigger>
-- release evidence sources: <default evidence sources>
+- versioning behavior: no version bump or version detection
+- publish behavior: no package-registry publishing
+- workflow behavior: no repository-specific workflow dispatch
 - unknown handling:
-  - `TODO(repo-verify)` for non-blocking detail
+  - `TODO(user-confirm)` for non-blocking detail
   - `BLOCK` for missing safety-critical facts
 
 ## Output Format
@@ -78,39 +94,29 @@ Out of scope:
 ```text
 ## Release Request
 ## Preflight
-## Trigger
+## Release Notes
+## Tag
+## Hosted Release
 ## Verification
-## Publish Status
-## Post-Release Status
 ## Unknowns
 ## Final Decision
 ```
 
 ## Guardrails
 
-- Do not execute when version source or tag rule is unknown.
-- Do not publish twice to immutable channels.
-- Do not guess manual approval steps or secrets.
-- Do not report success until all required publish targets are checked or
-  explicitly waived by repository policy.
+- Do not create, move, or overwrite tags unless the operator explicitly asks.
+- Do not guess version numbers, tag formats, release targets, or prerelease
+  status.
+- Do not publish packages.
+- Do not trigger repository-specific workflows.
+- Do not report success until the tag and hosted release are verified or the
+  missing verification is explicitly reported.
 
 ## Verification Hooks
 
-- Tag and version agreement verified against `<source>`.
-- Release workflow or script completion verified.
-- Downstream publish targets verified or omitted with reason.
-- Post-release side effects verified or omitted with reason.
+- Tag and target are explicit.
+- Tag existence or non-existence was checked.
+- Release notes contain no empty template sections.
+- Hosted release creation uses only explicit inputs.
+- Package publish, workflow dispatch, and post-release automation are absent.
 ~~~
-
-## Codex Phase Mapping
-
-Use the following lifecycle only as a structural reference:
-
-1. Preflight and tag gate
-2. Build or artifact staging
-3. Hosted release creation
-4. Downstream registry publication
-5. Post-release updates
-
-Delete phases the repository does not use. Do not keep empty sections just to
-match `codex`.

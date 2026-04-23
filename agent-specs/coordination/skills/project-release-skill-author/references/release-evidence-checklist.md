@@ -1,91 +1,52 @@
-# Release Evidence Checklist
+# Release Input Checklist
 
-Collect only the evidence needed to author the repository's release skill.
+Collect only the inputs needed to author a generic tag and hosted-release
+skill. Do not inspect repository-specific release workflows, package publish
+scripts, or post-release automation.
 
-## Primary Evidence Sources
+## Required Inputs
 
-- release workflows under `.github/workflows/`, `.gitlab-ci.yml`, or equivalent
-- release helper scripts under `scripts/`, `tools/`, `hack/`, or equivalent
-- release docs in `README`, `docs/`, `CHANGELOG`, `RELEASING`, or equivalent
-- manifests or config files that the release path reads directly
+### Release Target
 
-## Facts to Extract
+- What commit or branch should the release tag point to?
+- Does the target ref resolve locally?
+- Is the target expected to be pushed before release creation?
 
-### Release Notes Shape
+### Tag
 
-- What public section headings does the repository use in release notes?
-- Does it group changes by user-facing outcome, technical area, or commit type?
-- Does it include a `Full Changelog` or compare range line?
-- Are PR numbers, issue numbers, or author attributions shown inline?
-
-### Trigger and Entry
-
-- How is a release started?
-- Is the release triggered by tag push, workflow dispatch, script, or manual
-  UI action?
-- Which workflow or script is authoritative?
-
-### Tag Rule
-
-- What tag format is required?
-- Are prerelease tags allowed?
-- Is the tag immutable once published?
-
-### Version Source
-
-- Which file or workflow output defines the release version?
-- Must the tag match a manifest version exactly?
-- Is there more than one package version to coordinate?
-
-### Release Notes Source
-
-- Are release notes taken from the tag message, commit message, changelog, or
-  generated artifact?
-- Is there a required template or body format?
-
-### Build and Artifact Staging
-
-- Which jobs or scripts build release artifacts?
-- Which platforms or bundles are required?
-- Which artifact names are published?
+- What exact tag should be created or reviewed?
+- Does the tag already exist locally?
+- Does the tag already exist on the remote when a remote is available?
+- Is this a new tag creation or a review of an existing tag?
 
 ### Hosted Release
 
-- Is there a GitHub Release, GitLab Release, or other hosted release page?
-- Which assets are attached?
-- Is prerelease versus stable behavior explicit?
+- Which hosting platform should be used?
+- What release title should be used?
+- Should the hosted release be draft, prerelease, or final?
+- Should assets be attached, or is this a notes-only release?
 
-### Downstream Publication
+### Release Notes
 
-- Which registries or package channels are published?
-- Which channels are stable-only versus prerelease-capable?
-- Are there retry or idempotency rules for already-published versions?
+- Did the operator provide release notes, or should the skill draft them?
+- What changelog range or compare link should be shown?
+- Which PR records are included in the release range, including PR number,
+  title, and author handle when available?
+- Which release note sections are non-empty?
+- Are issue numbers or additional author attributions requested outside the
+  changelog PR list?
 
-### Post-Release Side Effects
+### Safety Checks
 
-- Does release update a branch, deploy docs, notify another system, or trigger
-  a website hook?
-- Which of those actions are required versus best-effort?
-
-### Manual Gates and Permissions
-
-- Are there environment approvals, human sign-offs, or protected branches?
-- Which secrets, roles, or tokens are required conceptually?
-- Do not record secret values; record only the existence of the dependency.
-
-### Failure and Recovery
-
-- What makes the release unsafe to retry?
-- Which publish targets are immutable?
-- Is rollback or hotfix behavior documented?
+- Is there an explicit operator instruction to create the tag?
+- Is there an explicit operator instruction to create the hosted release?
+- Is any action blocked by a missing tag, target, title, notes, or platform?
 
 ## Output Discipline
 
-- Convert repository facts into release-skill steps only after locating
-  evidence.
-- Convert release-note structure into reusable section rules only after
-  locating evidence.
-- Mark non-critical gaps as `TODO(repo-verify)`.
+- Convert only explicit inputs and direct local checks into release-skill steps.
+- Mark non-critical gaps as `TODO(user-confirm)`.
 - Mark safety-critical gaps as `BLOCK`.
-- When no authoritative release path exists, say so directly instead of
-  fabricating one.
+- When an operator input is missing, say so directly instead of fabricating it.
+- Do not add package publish, workflow dispatch, post-release automation, or
+  version bump behavior.
