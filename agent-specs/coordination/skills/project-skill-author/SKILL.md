@@ -1,6 +1,6 @@
 ---
 name: project-skill-author
-description: v0.1.7 - Create a project-specific Codex skill package with native Codex defaults and master-grade governance; use when building reusable skill folders, onboarding skills, coordination skills, or general project skills that should ship as native Codex skills (not API-only).
+description: v0.1.8 - Create a project-specific Codex skill package with native Codex defaults and master-grade governance; use when building reusable skill folders, onboarding skills, coordination skills, or general project skills that should ship as native Codex skills (not API-only), including optional paired reviewer skills for high-freedom outputs.
 ---
 
 # Project Skill Author
@@ -39,6 +39,26 @@ runtime and produce a Codex-compatible skill package by default.
 - Maintain a clear separation between “guidance” and “evidence.”
 - Keep `SKILL.md` lean; move long Codex-native rules and domain libraries into
   `references/`.
+- Do not default every capability to a creator/reviewer pair.
+- Split a capability into paired skills only when production and acceptance are
+  materially different phases with stable, reusable quality criteria.
+
+## Optional Paired Skill Pattern
+
+- Start with one skill by default.
+- Add a paired reviewer skill when the output is high freedom, quality is not
+  obvious at a glance, small misses materially reduce value, or the likely
+  failure modes are clear enough to encode as an acceptance gate.
+- Keep a single skill when the work is mechanical, format-bound, or easy to
+  judge as correct/incorrect without nuanced review.
+- Add a third shaping or publishing skill only when already-accepted output
+  still needs a distinct packaging step.
+- Good candidates for paired skills include tutorials, blog posts, architecture
+  writing, prompt or skill design, code explanations, solution proposals, and
+  complex analysis.
+- Weak candidates for paired skills include file renames, frontmatter fills,
+  fixed-format conversions, title normalization, simple routing, and other
+  short deterministic transforms.
 
 ## Reference Map (Read As Needed)
 
@@ -82,6 +102,9 @@ runtime and produce a Codex-compatible skill package by default.
    - Read only the relevant sections from
      `references/domain-workflow-library.md`.
    - Map each domain to a high-signal workflow and explicitly note why it fits.
+   - Decide whether the capability should stay single-skill or split into
+     production and acceptance skills; only split when the acceptance gate is
+     meaningfully different from generation.
 3. Define the skill name and placement.
    - Use a lowercase hyphen name under 64 chars.
    - Default placement is `skills/<skill-name>` unless a project path is
@@ -178,6 +201,8 @@ runtime and produce a Codex-compatible skill package by default.
 - Role charter: required when the skill defines a reusable long-lived actor.
 - Role golden rules: required for role-like skills; default to 12 concise
   `Why / How / Check` rules unless the role is too small to justify that many.
+- Pairing mode: default to a single skill; add a reviewer skill only when the
+  acceptance phase has distinct quality gates worth reusing across tasks.
 
 ## Failure Modes to Avoid
 
@@ -202,6 +227,10 @@ runtime and produce a Codex-compatible skill package by default.
 - Missing domain-specific risk controls or validation gates.
 - Shipping a skill without verification or example usage.
 - Omitting audit trails for high-risk workflows.
+- Mechanically creating a reviewer skill for every capability without a real
+  acceptance-stage need.
+- Forcing one skill to both generate and accept high-freedom output when the
+  failure modes are subtle but predictable.
 
 ## Output Tiers (Pick One)
 
