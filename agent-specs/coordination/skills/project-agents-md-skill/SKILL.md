@@ -1,6 +1,6 @@
 ---
 name: project-agents-md-skill
-description: v0.1.0 - Create or update a project-level AGENTS.md with explicit scope boundaries, approval rules, and execution constraints; use when starting a repository or redefining its AI operating contract.
+description: v0.1.1 - Create or update a project-level AGENTS.md with explicit scope boundaries, approval rules, and execution constraints; use when starting a repository or redefining its AI operating contract.
 ---
 
 # Project AGENTS.md Skill
@@ -52,10 +52,6 @@ Out of scope:
 8. Record risks and open questions.
    - Surface missing allowed directories, unclear test strategy, or approval
      gaps instead of guessing.
-9. Validate the result.
-   - Run the checks in `references/acceptance-criteria.md`.
-   - Ensure the final file is project-specific, auditable, and
-     non-contradictory.
 
 ## Required Inputs
 
@@ -78,7 +74,6 @@ Out of scope:
 ## Bundled Resources
 
 - `references/AGENTS.template.md`
-- `references/acceptance-criteria.md`
 - `references/domain-philosophy-library.md`
 
 ## Output Format
@@ -108,15 +103,3 @@ Out of scope:
 - Do not make `AGENTS.md` the source of truth for product scope that belongs
   in specs, issues, or other project docs.
 - Do not mark the work complete without naming verification status.
-
-## Verification Hooks
-
-- Verify existing repository instructions were inspected before proposing
-  replacements.
-- Verify every high-risk directory or action has an explicit approval rule.
-- Verify each selected domain philosophy maps to a real project risk or
-  constraint.
-- Verify the 12 golden rules are operational and measurable, not slogans.
-- Verify testing expectations and `not run` behavior are explicit.
-- Verify risks and open questions capture missing scope boundaries instead of
-  guessing.
