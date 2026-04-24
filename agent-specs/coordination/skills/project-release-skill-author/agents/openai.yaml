@@ -1,4 +1,0 @@
-interface:
-  display_name: "Project Release Skill Author"
-  short_description: "v0.1.2 - Design generic tag and release skills"
-  default_prompt: "Use $project-release-skill-author to create or update a generic release skill package for explicit tag, release notes, and hosted release operations."

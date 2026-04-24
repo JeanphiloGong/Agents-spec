@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Release Skill"
+  short_description: "v0.2.0 - Execute tag and hosted release operations"
+  default_prompt: "Use $project-release-skill to prepare, execute, and verify a straightforward release from explicit tag, target, notes, and hosting-platform inputs."

@@ -1,10 +1,16 @@
-# Release Input Checklist
+# Release Execution Checklist
 
-Collect only the inputs needed to author a generic tag and hosted-release
-skill. Do not inspect repository-specific release workflows, package publish
-scripts, or post-release automation.
+Collect only the inputs and local checks needed to execute or review a
+straightforward tag and hosted release. Do not inspect repository-specific
+release workflows, package publish scripts, or post-release automation.
 
 ## Required Inputs
+
+### Release Mode
+
+- Is this request `execute` or `review_only`?
+- Did the operator explicitly ask to create the tag?
+- Did the operator explicitly ask to create the hosted release?
 
 ### Release Target
 
@@ -17,7 +23,6 @@ scripts, or post-release automation.
 - What exact tag should be created or reviewed?
 - Does the tag already exist locally?
 - Does the tag already exist on the remote when a remote is available?
-- Is this a new tag creation or a review of an existing tag?
 
 ### Hosted Release
 
@@ -36,15 +41,15 @@ scripts, or post-release automation.
 - Are issue numbers or additional author attributions requested outside the
   changelog PR list?
 
-### Safety Checks
+### Verification
 
-- Is there an explicit operator instruction to create the tag?
-- Is there an explicit operator instruction to create the hosted release?
-- Is any action blocked by a missing tag, target, title, notes, or platform?
+- How will tag creation be verified?
+- How will hosted release creation be verified on the chosen platform?
+- Is any verification blocked by missing platform access or missing inputs?
 
 ## Output Discipline
 
-- Convert only explicit inputs and direct local checks into release-skill steps.
+- Convert only explicit inputs and direct local checks into release steps.
 - Mark non-critical gaps as `TODO(user-confirm)`.
 - Mark safety-critical gaps as `BLOCK`.
 - When an operator input is missing, say so directly instead of fabricating it.
