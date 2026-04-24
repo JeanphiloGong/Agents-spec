@@ -1,4 +1,4 @@
-# Acceptance Criteria for Project Release Skill
+# Acceptance Criteria for Tag Release Skill
 
 Use these checks before trusting the skill to execute or review a release.
 
@@ -18,12 +18,16 @@ Use these checks before trusting the skill to execute or review a release.
   are explicit.
 - Changelog includes the compare range followed by every PR record as
   `#<pr-number> <PR title> @<author>` when author handles are available.
+- Changelog PR records come from the release target range or explicit operator
+  input, not from ad hoc branch splitting inside the release skill.
 - Tag creation depends on an explicit operator-supplied tag.
 - Hosted release creation depends on explicit operator-supplied title, notes,
   target, and platform.
 - Review-only mode returns prepared release output without claiming execution.
 - Version bump or detection logic is absent.
 - Package publish, workflow dispatch, and post-release automation are absent.
+- Branch splitting, review branch creation, and PR or MR publication are
+  absent.
 
 ## Unknown Handling Checks
 
@@ -44,3 +48,5 @@ Use these checks before trusting the skill to execute or review a release.
 - Which release-notes section is still empty and should be omitted?
 - Did package publish, workflow dispatch, post-release automation, or skill
   package generation appear anywhere in the final skill?
+- Did branch splitting or PR/MR publication appear in the release flow instead
+  of being handed off to `split-pr-publish-skill`?

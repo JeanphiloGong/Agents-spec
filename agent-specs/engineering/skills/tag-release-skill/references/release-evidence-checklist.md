@@ -17,6 +17,9 @@ release workflows, package publish scripts, or post-release automation.
 - What commit or branch should the release tag point to?
 - Does the target ref resolve locally?
 - Is the target expected to be pushed before release creation?
+- If the candidate changes came from a mixed development branch, were they
+  already split and merged through PRs or MRs, or did the operator explicitly
+  supply the release target and PR records?
 
 ### Tag
 
@@ -37,6 +40,8 @@ release workflows, package publish scripts, or post-release automation.
 - What changelog range or compare link should be shown?
 - Which PR records are included in the release range, including PR number,
   title, and author handle when available?
+- Are the PR records from the release target range or explicitly supplied by
+  the operator?
 - Which release note sections are non-empty?
 - Are issue numbers or additional author attributions requested outside the
   changelog PR list?
@@ -50,6 +55,8 @@ release workflows, package publish scripts, or post-release automation.
 ## Output Discipline
 
 - Convert only explicit inputs and direct local checks into release steps.
+- Do not infer PR split boundaries or create review branches; use
+  `split-pr-publish-skill` for that work before release execution.
 - Mark non-critical gaps as `TODO(user-confirm)`.
 - Mark safety-critical gaps as `BLOCK`.
 - When an operator input is missing, say so directly instead of fabricating it.

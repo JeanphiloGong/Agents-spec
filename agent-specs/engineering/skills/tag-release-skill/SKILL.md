@@ -1,9 +1,9 @@
 ---
-name: project-release-skill
-description: v0.2.0 - Prepare, execute, and verify straightforward tag and hosted release operations from explicit operator inputs.
+name: tag-release-skill
+description: v0.1.0 - Prepare, execute, and verify straightforward tag and hosted release operations from explicit operator inputs.
 ---
 
-# Project Release Skill
+# Tag Release Skill
 
 ## Trigger and Scope
 
@@ -26,6 +26,8 @@ In scope:
   are missing
 
 Out of scope:
+- splitting mixed development branches into PRs or MRs
+- creating review branches for unrelated change slices
 - inventing version bump rules, semver policy, or tag formats
 - inspecting or encoding repository-specific workflow, publish, or post-release
   rules
@@ -39,6 +41,17 @@ Out of scope:
   operator's supplied tag, target, notes, and hosting-platform inputs.
 - Audience: maintainers, release managers, and engineers who need a direct
   Codex-native helper for tag and hosted-release execution.
+
+## PR Split Handoff
+
+- Use `split-pr-publish-skill` first when the release candidate still lives on
+  a mixed development branch and needs to become multiple traceable PRs or MRs.
+- Use this skill after the intended changes have landed in the release target
+  branch or after the operator supplies an explicit release target and PR record
+  list.
+- This skill may consume PR records for the release notes `Changelog`, but it
+  does not infer split boundaries, create review branches, or publish PRs or
+  MRs.
 
 ## Release Notes Policy
 
@@ -115,6 +128,7 @@ Out of scope:
 - release title
 - release notes body or generated-notes request
 - changelog range or compare link
+- PR records for the changelog, when release notes are generated
 - release hosting platform
 - draft or prerelease status when supported
 - execution mode: `execute` or `review_only`

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tag Release"
+  short_description: "v0.1.0 - Execute tag and hosted release operations"
+  default_prompt: "Use $tag-release-skill to prepare, execute, and verify a straightforward release from explicit tag, target, notes, and hosting-platform inputs."
