@@ -1,6 +1,6 @@
 ---
 name: tag-release-skill
-description: v0.1.1 - Prepare, execute, and verify straightforward tag and hosted release operations from explicit operator inputs.
+description: v0.1.2 - Prepare, execute, and verify straightforward tag and hosted release operations from explicit operator inputs.
 ---
 
 # Tag Release Skill
@@ -68,6 +68,8 @@ Out of scope:
 - Keep the summary sections human-readable rather than one PR per line.
 - In `Changelog`, list every PR record in the release range after the compare
   range.
+- Format every `Changelog` record as a Markdown bullet with `- ` so hosted
+  release pages render commit, PR, or MR records as a readable list.
 - Do not add package publish or post-release sections.
 - Do not add version detection or version bump logic.
 
@@ -105,7 +107,8 @@ Out of scope:
    - Use `references/release-notes-template.md`.
    - Omit empty sections.
    - Keep summary sections grouped for humans.
-   - Keep `Changelog` as compare range plus one line per PR record.
+   - Keep `Changelog` as compare range plus one `- ` bullet per PR, MR, or
+     direct commit record.
 4. Create or validate the tag.
    - Create only the explicit operator-supplied tag.
    - Do not infer a tag from manifests or package files.
@@ -209,7 +212,7 @@ Out of scope:
 - Verify the tag, target, title, notes, and hosting platform are explicit.
 - Verify the release notes section headings and changelog format are explicit.
 - Verify `Changelog` includes the compare range plus every PR record supplied
-  for the release.
+  for the release, with each record formatted as a `- ` Markdown bullet.
 - Verify every executed action depends on explicit operator input or direct
   local checks.
 - Verify package publish, workflow dispatch, and post-release automation are

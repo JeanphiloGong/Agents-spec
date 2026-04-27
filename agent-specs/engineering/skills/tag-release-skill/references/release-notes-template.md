@@ -59,6 +59,8 @@ Full Changelog: <from-tag>...<to-tag>
   PR using `- #<pr-number> <PR title> @<author>`.
 - Include author handles in `Changelog` when they are available from the PR
   records.
+- For direct commits without PR records, use the same bullet form, for example
+  `- <short_sha> <subject> @<author> (direct commit)`.
 - If the operator supplies a compare link or changelog range, preserve that
   format exactly above the PR list.
 

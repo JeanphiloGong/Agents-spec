@@ -18,6 +18,8 @@ Use these checks before trusting the skill to execute or review a release.
   changelog PR record format are explicit.
 - Changelog includes the compare range followed by every PR record as
   `- #<pr-number> <PR title> @<author>` when author handles are available.
+- Changelog also uses `- ` Markdown bullets for MR records and direct commit
+  records, such as `- <short_sha> <subject> @<author> (direct commit)`.
 - Changelog PR records come from the release target range or explicit operator
   input, not from ad hoc branch splitting inside the release skill.
 - Tag creation depends on an explicit operator-supplied tag.
