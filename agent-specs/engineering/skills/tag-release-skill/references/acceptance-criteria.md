@@ -14,10 +14,10 @@ Use these checks before trusting the skill to execute or review a release.
 
 - The skill uses the `codex` release notes section shape only as structure, not
   as copied implementation detail.
-- Release notes categories, summary-line style, and changelog PR record format
-  are explicit.
+- Release notes categories, Markdown heading style, summary bullet style, and
+  changelog PR record format are explicit.
 - Changelog includes the compare range followed by every PR record as
-  `#<pr-number> <PR title> @<author>` when author handles are available.
+  `- #<pr-number> <PR title> @<author>` when author handles are available.
 - Changelog PR records come from the release target range or explicit operator
   input, not from ad hoc branch splitting inside the release skill.
 - Tag creation depends on an explicit operator-supplied tag.

@@ -1,6 +1,6 @@
 ---
 name: tag-release-skill
-description: v0.1.0 - Prepare, execute, and verify straightforward tag and hosted release operations from explicit operator inputs.
+description: v0.1.1 - Prepare, execute, and verify straightforward tag and hosted release operations from explicit operator inputs.
 ---
 
 # Tag Release Skill
@@ -62,6 +62,9 @@ Out of scope:
   - `Documentation`
   - `Chores`
   - `Changelog`
+- Format release-note sections as second-level Markdown headings
+  (`## Bug Fixes`) so hosted release pages render them as real sections.
+- Format summary items as bullets under each section heading.
 - Keep the summary sections human-readable rather than one PR per line.
 - In `Changelog`, list every PR record in the release range after the compare
   range.
