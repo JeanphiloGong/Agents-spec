@@ -1,6 +1,6 @@
 ---
 name: split-pr-publish-skill
-description: v0.1.1 - Analyze one source branch diff, split independent change slices into separate branches, and open one GitHub PR or GitLab MR per slice when personal work was developed together on one branch.
+description: v0.1.2 - Analyze one source branch diff, split independent change slices into separate branches, and open one GitHub PR or GitLab MR per slice when personal work was developed together on one branch.
 ---
 
 # Split PR Publish Skill
@@ -139,6 +139,10 @@ Large-diff rule:
    - Choose `parallel`, `stacked`, or `blocked`.
 4. Validate the split plan.
    - Run the checks in `references/acceptance-criteria.md`.
+   - Challenge any slice whose apparent boundary is "all docs", "all chores",
+     one top-level path, or another broad bucket.
+   - Require each challenged slice to prove independent intent, verification,
+     and rollback before branch creation.
    - If any slice mixes unrelated changes in one file, stop and surface the
      blocker instead of guessing.
 5. Confirm execution path.
@@ -176,6 +180,9 @@ Large-diff rule:
   verification, and rollback boundaries.
 - Use change type such as feature, bugfix, documentation, or chore as PR label
   or title metadata, not as the primary split boundary.
+- Treat docs-only, chore-only, config-only, generated-only, and path-only
+  slices as suspect until they pass the bucket split challenge in
+  `references/split-heuristics.md`.
 - Keep tests with the code they validate.
 - Keep docs with the feature or module they describe when ownership is clear.
 - Keep generated files with the source slice that regenerates them.
@@ -206,6 +213,12 @@ Large-diff rule:
   - intent:
   - verification:
   - rollback_boundary:
+  - boundary_evidence:
+    - primary_boundary:
+    - verification_evidence:
+    - rollback_evidence:
+    - ownership_evidence:
+    - change_type_metadata:
   - files:
   - dependencies:
   - change_type:

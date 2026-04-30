@@ -38,6 +38,29 @@ Use these questions before accepting a slice:
 - Are module or path boundaries supporting the intent, or merely convenient?
 - Is the change type only a label, or is it being misused as the split reason?
 
+## Bucket Split Challenge
+
+Run this challenge before accepting any slice that looks like a broad bucket,
+including "all docs", "all chores", "all config", "all generated files", or
+"everything under one top-level path".
+
+A broad-bucket slice passes only when all of these are true:
+
+- it names one independent user or system intent, not just a file type or path
+- it has its own verification check that does not rely on unrelated slices
+- it can be reverted without reverting unrelated outcomes
+- docs, tests, generated files, and configs are not detached from the code or
+  source slice they describe, validate, or regenerate
+- any dependency on another split branch is explicit and makes the topology
+  `stacked`, not falsely `parallel`
+
+If the slice fails the challenge:
+
+- move owned docs, tests, generated files, or configs back to their owning code
+  slice when ownership is clear
+- split the bucket into smaller intent units when the diff supports it
+- return `blocked` when ownership or interleaved hunks cannot be proven safely
+
 ## Strong Signals for One Slice
 
 - changed files together deliver one clear user or system intent
@@ -126,6 +149,10 @@ Each slice proposal should name:
 - intent
 - verification check
 - rollback boundary
+- boundary evidence for the primary intent, verification, rollback, ownership,
+  and change type metadata
+- bucket split challenge outcome when the slice is docs-only, chore-only,
+  config-only, generated-only, path-only, or otherwise broad-bucket shaped
 - scope
 - owning paths
 - change type as metadata only

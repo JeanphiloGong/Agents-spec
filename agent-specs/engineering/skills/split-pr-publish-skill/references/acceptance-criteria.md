@@ -8,6 +8,9 @@
   boundary, scope, branch name, and file set.
 - The split rationale follows the required order: intent, verification,
   rollback, ownership evidence, then change type metadata.
+- Every slice includes boundary evidence showing the primary intent,
+  verification evidence, rollback evidence, ownership evidence, and change
+  type metadata.
 - Module, package, or path boundaries are treated as supporting evidence rather
   than the only split rationale.
 - The result states whether it stopped at plan, executed branches, or
@@ -33,6 +36,11 @@
   replace the required intent, verification, and rollback rationale.
 - Large commit gaps or noisy history do not justify grouping changes by broad
   buckets such as all docs, all chores, or one top-level path.
+- Docs-only, chore-only, config-only, generated-only, and path-only slices pass
+  the bucket split challenge before branch creation or publication.
+- Docs that describe a code slice stay with that owning code slice unless an
+  independent docs intent, verification check, and rollback boundary are
+  explicitly proven.
 
 ## Publish Safety Criteria
 
