@@ -6,6 +6,8 @@
 - The split topology is one of `parallel`, `stacked`, or `blocked`.
 - Every proposed slice has a clear intent, verification check, rollback
   boundary, scope, branch name, and file set.
+- The split rationale follows the required order: intent, verification,
+  rollback, ownership evidence, then change type metadata.
 - Module, package, or path boundaries are treated as supporting evidence rather
   than the only split rationale.
 - The result states whether it stopped at plan, executed branches, or
@@ -29,6 +31,8 @@
   the same file.
 - Change type labels such as feature, bugfix, documentation, or chore do not
   replace the required intent, verification, and rollback rationale.
+- Large commit gaps or noisy history do not justify grouping changes by broad
+  buckets such as all docs, all chores, or one top-level path.
 
 ## Publish Safety Criteria
 

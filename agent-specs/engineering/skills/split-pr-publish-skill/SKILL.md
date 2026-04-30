@@ -1,6 +1,6 @@
 ---
 name: split-pr-publish-skill
-description: v0.1.0 - Analyze one source branch diff, split independent change slices into separate branches, and open one GitHub PR or GitLab MR per slice when personal work was developed together on one branch.
+description: v0.1.1 - Analyze one source branch diff, split independent change slices into separate branches, and open one GitHub PR or GitLab MR per slice when personal work was developed together on one branch.
 ---
 
 # Split PR Publish Skill
@@ -107,6 +107,18 @@ Default policy:
 4. Return `blocked` when changes overlap in the same file or shared config with
    no safe automatic ownership rule.
 
+Large-diff rule:
+
+- A large branch gap, long commit range, or noisy commit history does not
+  loosen the split criteria.
+- Always apply the primary boundary order from
+  `references/split-heuristics.md`: user or system intent first, then
+  verification boundary, rollback boundary, ownership evidence, and change type
+  metadata last.
+- Do not shortcut large ranges by grouping all docs, all chores, or all files
+  under one path unless that group is one independently reviewable,
+  verifiable, and revertible intent unit.
+
 ## Workflow
 
 1. Resolve repository boundary and diff target.
@@ -157,6 +169,8 @@ Default policy:
 
 - Prefer user or system intent over module boundaries and commit history when
   the source branch contains mixed work.
+- Apply the boundary order in `references/split-heuristics.md` even when the
+  source and target differ by many commits.
 - A slice should be independently reviewable, verifiable, and revertible.
 - Module or package roots are strong evidence only when they align with intent,
   verification, and rollback boundaries.

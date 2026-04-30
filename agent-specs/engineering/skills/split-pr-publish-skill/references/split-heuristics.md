@@ -4,7 +4,7 @@ Use these rules before proposing or executing any split plan.
 
 ## Primary Boundary Order
 
-Prefer boundaries in this order:
+Apply boundaries in this required order:
 
 1. user or system intent, such as "add X capability", "fix Y behavior", or
    "migrate Z storage path"
@@ -15,9 +15,15 @@ Prefer boundaries in this order:
 5. change type such as feature, bugfix, documentation, or chore only as label
    or title metadata
 
-Do not use release-note categories as the primary PR split rule. They describe
-what kind of change it is; they do not prove the PR is independently
-reviewable, verifiable, or revertible.
+Do not skip or reorder this sequence because the source branch has many
+commits, a noisy history, or a large file count. A large diff still requires
+intent first, then verification, then rollback, with ownership evidence and
+change type used only after those boundaries are clear.
+
+Do not use release-note categories, file type groups, or broad buckets such as
+"all documentation" as the primary PR split rule. They describe what kind of
+change it is; they do not prove the PR is independently reviewable, verifiable,
+or revertible.
 
 ## Master PR Boundary Standard
 
@@ -52,6 +58,10 @@ Examples:
   bugfix because verification and rollback differ.
 - A docs update that documents a newly added capability may stay with the
   feature PR; an independent docs cleanup can be its own PR.
+- A branch that is 50 commits ahead of the target should still be split by the
+  required boundary order. Do not collect every documentation change into one
+  docs PR unless those documentation changes form one independent docs intent
+  with its own verification and rollback boundary.
 
 ## Signals That Require `stacked`
 
