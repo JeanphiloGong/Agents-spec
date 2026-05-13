@@ -38,6 +38,17 @@ Refs:
 
 This structure is mandatory. Do not add extra sections.
 
+Each required body section must appear exactly once:
+
+- one `Why:`
+- one `What:`
+- one `Impact:`
+- one `Tests:`
+- one `Refs:`
+
+When more than one validation command ran, keep a single `Tests:` section and
+list each command as its own bullet. Never create a second `Tests:` heading.
+
 ## Subject Rules
 
 Structured subject output is required.
@@ -176,6 +187,9 @@ Refs:
 ### Tests
 
 - State what actually ran.
+- Use exactly one `Tests:` section.
+- Put every test, compile command, lint command, manual check, or skipped-test
+  reason as a bullet under that single section.
 - If tests did not run, use one of these forms:
   - `not run (manual run pending)`
   - `not run (docs-only change)`
@@ -195,5 +209,9 @@ Refs:
 ## Format Rules
 
 - Follow the exact section order shown above.
+- Include each required section exactly once.
 - Do not add extra sections.
+- Do not repeat a section heading to list another item.
+- Combine multiple test commands under one `Tests:` heading as separate
+  bullets.
 - Single-line commit messages are not allowed.
