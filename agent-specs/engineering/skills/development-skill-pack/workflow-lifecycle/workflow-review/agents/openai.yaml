@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Review"
+  short_description: "v0.1.0 - Review changes before merge"
+  default_prompt: "Use $workflow-review to review this change for correctness, maintainability, risk, and missing tests before merge."

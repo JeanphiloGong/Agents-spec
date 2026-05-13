@@ -1,6 +1,6 @@
 ---
-name: code-simplification
-description: Simplifies code for clarity. Use when refactoring code for clarity without changing behavior. Use when code works but is harder to read, maintain, or extend than it should be. Use when reviewing code that has accumulated unnecessary complexity.
+name: workflow-simplify
+description: v0.1.0 - Simplifies code for clarity. Use when refactoring code for clarity without changing behavior. Use when code works but is harder to read, maintain, or extend than it should be. Use when reviewing code that has accumulated unnecessary complexity.
 ---
 
 # Code Simplification

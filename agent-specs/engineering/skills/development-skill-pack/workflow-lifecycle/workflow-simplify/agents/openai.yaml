@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Simplify"
+  short_description: "v0.1.0 - Simplify working code without behavior changes"
+  default_prompt: "Use $workflow-simplify to reduce complexity in this working code while preserving existing behavior."
