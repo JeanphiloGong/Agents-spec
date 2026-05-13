@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Spec"
+  short_description: "v0.1.0 - Define scope and acceptance before coding"
+  default_prompt: "Use $workflow-spec to define the goals, scope, boundaries, and acceptance criteria for this change before implementation."

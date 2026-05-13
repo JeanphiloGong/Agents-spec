@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Plan"
+  short_description: "v0.1.0 - Break a spec into verifiable tasks"
+  default_prompt: "Use $workflow-plan to break this spec into ordered, small, independently verifiable implementation tasks."

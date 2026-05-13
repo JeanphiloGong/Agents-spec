@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Test"
+  short_description: "v0.1.0 - Prove behavior changes with tests"
+  default_prompt: "Use $workflow-test to write or update tests that prove this behavior before or while changing implementation."

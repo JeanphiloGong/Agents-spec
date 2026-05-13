@@ -1,4 +1,0 @@
-interface:
-  display_name: "Split PR Publish"
-  short_description: "v0.1.0 - Split one mixed branch into reviewable PRs"
-  default_prompt: "Use $split-pr-publish-skill to analyze the diff between a source branch and a target branch, propose safe split slices, and optionally create one branch and one PR or MR per slice."

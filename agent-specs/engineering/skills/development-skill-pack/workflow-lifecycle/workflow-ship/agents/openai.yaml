@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Ship"
+  short_description: "v0.1.0 - Prepare release, rollout, and rollback"
+  default_prompt: "Use $workflow-ship to prepare the release checklist, rollout plan, monitoring, and rollback path for this change."
