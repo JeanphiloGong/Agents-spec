@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.2.1 - Draft, split, and execute atomic scoped Git commits with issue traceability and structured Why/What/Impact/Tests/Refs bodies; use when preparing final commits, reviewing commit wording, or enforcing repo commit conventions.
+description: v0.2.2 - Draft, split, and execute atomic scoped Git commits with issue traceability and structured Why/What/Impact/Tests/Refs bodies; use when preparing final commits, reviewing commit wording, or enforcing repo commit conventions.
 ---
 
 # Git Commit Skill
@@ -61,6 +61,8 @@ Use this skill for prompts such as:
 - commit standard: Conventional Commits unless the repository explicitly uses
   another convention
 - commit body format: exact `Why / What / Impact / Tests / Refs`
+- section rule: each required body section appears exactly once; multiple
+  checks are bullets under the single `Tests` section
 - execution mode: full commit execution for normal commit-stage work
 - split policy: atomic save-point commits, based on
   `commit-execution-policy.md`
@@ -111,6 +113,9 @@ Use this skill for prompts such as:
 6. Build the body.
    - Use the exact section order:
      `Why`, `What`, `Impact`, `Tests`, `Refs`.
+   - Include each required section exactly once.
+   - If multiple commands or checks ran, list them as separate bullets under
+     the single `Tests` section.
    - Keep rationale and impact explicit.
    - Read `references/commit-message-standard.md` when you need the section
      quality bar or full examples.
@@ -164,6 +169,10 @@ Use this skill for prompts such as:
   confirmation.
 - Do not continue to commit execution when `issue-gate-skill` returns `BLOCK`.
 - Do not write single-line commit messages.
+- Do not duplicate body sections; `Why`, `What`, `Impact`, `Tests`, and `Refs`
+  must each appear exactly once.
+- Do not create a second `Tests` section for another command; add another
+  bullet under the existing `Tests` section.
 - Do not squash independent save points into one broad commit merely for speed.
 - Do not accumulate verified increments into a giant end-of-task commit.
 - Do not split tightly coupled code, tests, and docs when they form one
