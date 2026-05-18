@@ -1,6 +1,6 @@
 ---
 name: project-doc-record-skill
-description: v0.4.12 - Record one concrete documentation artifact at the correct code-owned node with reader-first page choices, stable topic-first filenames, topic-tree role priority, reader-facing section titles, single-job page boundaries, node-local topic containers, README-vs-docs separation, and preserved local detail so it fits the repository's book-like documentation system.
+description: v0.4.13 - Record one concrete piece of durable project knowledge at the correct code-owned node; use for current-state explanations, accepted decisions, contracts, guides, operations notes, or long-lived direction with reader-first page choices, stable topic-first filenames, topic-tree role priority, README-vs-docs separation, and preserved local detail.
 ---
 
 # Project Documentation Record Skill
@@ -9,7 +9,9 @@ description: v0.4.12 - Record one concrete documentation artifact at the correct
 
 Use this skill when one concrete piece of durable project knowledge needs to
 be written into repository docs at the right ownership node and connected to
-the local reading context. It is the day-to-day writing skill in this package.
+the local reading context. Durable knowledge includes current state, accepted
+decisions, contracts, guides, operations notes, and long-lived system
+direction. It is the day-to-day writing skill in this package.
 
 The skill turns the ownership-tree model into one bounded documentation wave.
 It decides where one page belongs, whether it should stay standalone or join a
@@ -43,18 +45,26 @@ than a repository-wide redesign. Common cases include:
 - a module, submodule, or component change needs durable docs
 - a test coverage, fixture, or verification note needs durable docs
 - you need to decide create versus update without losing child detail
-- you need to write one purpose doc, proposal, current-state page, guide,
-  contract, or operation note
-- one local subject now has multiple proposals, decisions, plans, or
-  current-state pages and needs a small topic container, sometimes under a
-  broader parent topic
+- you need to write one purpose doc, accepted decision, current-state page,
+  guide, contract, operation note, or long-lived direction page
+- one local subject now has multiple durable decisions, current-state pages,
+  guides, contracts, operations notes, or long-lived direction pages and needs
+  a small topic container, sometimes under a broader parent topic
 
 Typical requests sound like:
 
 - "write the right doc for this module change"
-- "where should this submodule plan live, and write it"
+- "where should this accepted decision or current-state explanation live, and
+  write it"
 - "should this be a new child doc or an update to the parent doc?"
-- "record this detailed implementation plan without losing the file list"
+- "record the stable system direction that future maintainers need to know"
+
+Do not use this skill to archive `workflow-plan` outputs, task breakdowns,
+one-off implementation plans, issue acceptance checklists, or transient
+execution sequencing. Keep that material in issues, PR/MR descriptions,
+planning artifacts, or comments unless it has become stable system knowledge,
+an accepted design decision, a current-state explanation, a contract, a guide,
+an operation note, or long-lived roadmap direction.
 
 Do not use this skill for redesigning the overall docs tree, deciding
 lifecycle progression for an entire doc family, or repairing the full reading
@@ -73,7 +83,7 @@ A normal recording pass should work in this order:
 
 1. Inspect local docs around the relevant code node.
    - Look at root `README.md`, root `docs/README.md`, the nearest node
-     `README.md`, nearby `*/docs/`, current local plans, and local
+     `README.md`, nearby `*/docs/`, current accepted direction, and local
      current-state pages.
    - If architecture or lifecycle guidance exists for this scope, read the
      parts that constrain placement, role, or linkage.
@@ -93,8 +103,9 @@ A normal recording pass should work in this order:
    - Promote to a topic container once the same node and topic path need a
      second durable page, not only when the folder already feels crowded.
    - Use a node-local topic container such as `<node>/docs/<topic_path>/`
-     when the same local subject has 2 or more live alternative proposals, or
-     mixes proposal, decision, implementation-plan, and current-state docs.
+     when the same local subject has 2 or more durable sibling docs, or mixes
+     accepted decisions, current-state docs, guides, contracts, operations
+     notes, and long-lived direction.
    - A topic path may be one segment such as `parser` or a small tree such as
      `core/comparable-result` when the local subject naturally has parent
      topics and subtopics.
@@ -107,8 +118,8 @@ A normal recording pass should work in this order:
      topic-named file such as `<node>/docs/<topic_path>.md`.
    - When one local subject has multiple sibling docs, prefer a topic
      container such as `<node>/docs/<topic_path>/` and let the child filenames
-     express role, such as `proposal.md`, `implementation-plan.md`, or
-     `current-state.md`.
+     express role, such as `decision.md`, `current-state.md`, `guide.md`, or
+     `operations.md`.
    - Prefer stable, topic-first names over churn-prone names such as
      `final`, `latest`, `new`, or `v2`.
 6. Determine the page role.
@@ -117,19 +128,22 @@ A normal recording pass should work in this order:
    - If the page is a README that is not a docs landing page, treat it as an
      entry page for the layer itself first, not as a docs index.
 7. Determine the document intent.
-   - Choose whether the page is primarily a purpose, proposal, current-state,
-     contract, guide, or operation document.
-   - Keep one document, one job. If the page needs file change plans,
-     execution order, or verification work, treat it as a proposal or
-     delivery-plan page rather than as a direction note or high-level summary.
+   - Choose whether the page is primarily a purpose, accepted decision,
+     current-state, contract, guide, operation, or long-lived direction
+     document.
+   - Keep one document, one job. If the page needs file change plans, execution
+     order, or verification work, first ask whether that material belongs in an
+     issue, PR/MR, or planning artifact instead of durable docs. Record it here
+     only when it is intentionally long-lived project knowledge.
 8. Decide create versus update.
    - Reuse an existing doc only when it already owns the exact same scope.
    - Create a new child doc when updating a parent would blur boundaries or
      erase detail.
 9. Protect the summary/detail split.
    - Parent pages may receive a short summary, pointer, or index update.
-   - Child docs retain detailed plans, file change lists, execution order,
-     verification slices, ownership splits, and local risks.
+   - Child docs retain detailed stable knowledge when it is durable. Transient
+     task lists, issue acceptance checklists, and one-off execution order stay
+     in issues, PR/MRs, or planning artifacts by default.
 10. Keep README pages reader-first.
    - For repo or node READMEs, explain the layer before the documentation
      around the layer.
@@ -183,11 +197,12 @@ changes. When a narrower child scope needs its own durable home, create it.
 - Document intent
   - What the page primarily does:
     - `purpose`
-    - `proposal`
+    - `decision`
     - `current-state`
     - `contract`
     - `guide`
     - `operation`
+    - `long-lived-direction`
 - Page role
   - What kind of page carries the content:
     - `repo landing README`
@@ -198,7 +213,7 @@ changes. When a narrower child scope needs its own durable home, create it.
   - How much detail the page must retain:
     - parent summary or index
     - normal node-local durable doc
-    - detailed child implementation plan
+    - detailed child stable knowledge
 - Container strategy
   - Whether the wave should stay:
     - one standalone artifact
@@ -217,8 +232,8 @@ changes. When a narrower child scope needs its own durable home, create it.
 ## Reference: Inputs
 
 - Project or repository name
-- The concrete change, purpose, plan, current-state fact, contract, guide, or
-  operation content to record
+- The concrete durable purpose, current-state fact, accepted decision,
+  contract, guide, operation note, or long-lived direction to record
 - Relevant code path or ownership area if known
 - Any known related parent doc, child doc, issue, current-state page, or
   lifecycle guidance
@@ -262,24 +277,25 @@ changes. When a narrower child scope needs its own durable home, create it.
 - Type-bucket rule: root `docs/plans`, `docs/rfcs`, `docs/guides`, and similar
   paths are type buckets or indexes by default, not subject containers for one
   node's local topic tree
-- Topic-family rule: when one local subject has 2 or more live alternative
-  proposals, or mixes proposal, decision, implementation-plan, and
-  current-state docs, prefer `<node>/docs/<topic_path>/` over another loose
-  file in root `docs/rfcs` or `docs/plans`
+- Topic-family rule: when one local subject has 2 or more durable sibling docs,
+  or mixes accepted decisions, current-state docs, guides, contracts,
+  operations notes, and long-lived direction, prefer
+  `<node>/docs/<topic_path>/` over another loose file in root `docs/rfcs` or
+  `docs/plans`
 - Topic-family promotion rule: when the same node and topic path need a second
   durable page, promote to `<node>/docs/<topic_path>/` rather than continuing
   to flatten sibling files
 - One-off artifact rule: keep a single durable local doc as one file unless
   sibling alternatives or mixed intents justify a topic-family container
 - Topic-family README rule: add `<node>/docs/<topic_path>/README.md` when the
-  topic family has 2 or more live alternatives, spans mixed intents, or
+  topic family has 2 or more durable sibling pages, spans mixed intents, or
   otherwise needs a local reading order
 - Topic-family role rule: inside `<node>/docs/<topic_path>/`, `README.md` acts
   as the reading entry and role map, `decision.md` records accepted
   conclusions or stable boundaries, `current-state.md` records current
-  implemented truth, `implementation-plan.md` records pending execution, and
-  `proposal.md` records unaccepted suggestions or review-stage options by
-  default
+  implemented truth, `guide.md` records reader workflows, `operations.md`
+  records operational knowledge, and `direction.md` records long-lived
+  evolution direction by default
 - File naming rule: use lowercase kebab case for long-lived topic folders and
   doc filenames
 - Topic-first naming rule: filename should name the local subject before it
@@ -295,8 +311,8 @@ changes. When a narrower child scope needs its own durable home, create it.
   `<node>/docs/<topic_path>.md`
 - Topic-family path rule: when a local topic path has multiple durable sibling
   docs, prefer `<node>/docs/<topic_path>/` and let child filenames express
-  page role such as `proposal.md`, `implementation-plan.md`,
-  `current-state.md`, or `decision.md`
+  page role such as `decision.md`, `current-state.md`, `guide.md`,
+  `operations.md`, or `direction.md`
 - Topic specificity rule: topic folder names should stay specific enough to
   distinguish the local subject within the node; do not over-shorten them just
   because the folder now carries the topic
@@ -308,8 +324,10 @@ changes. When a narrower child scope needs its own durable home, create it.
   `Main Flow`, `Key Areas or Child Nodes`, and optional `Related Docs`
 - Parent-summary rule: parent docs summarize and link, but do not keep child
   detail by default
-- Child-detail rule: file change plans, execution slices, verification slices,
-  ownership boundaries, and local risks stay in the child doc
+- Child-detail rule: stable child-scope knowledge, ownership boundaries, and
+  durable local risks stay in the child doc; transient file change plans,
+  execution slices, verification slices, and issue acceptance checklists stay
+  in issues, PR/MRs, or planning artifacts by default
 - Tests-ownership rule: docs about test suites, fixtures, harnesses, golden
   data, verification contracts, or coverage gaps belong under the owning
   `tests/` subtree by default, not under the runtime module they exercise
@@ -325,8 +343,8 @@ changes. When a narrower child scope needs its own durable home, create it.
 - Body structure rule: choose structure from intent, not from one generic
   formal-doc template
 - Single-job rule: each final page should do one clear job; direction notes,
-  implementation plans, current-state pages, guides, and contracts should not
-  blur together by default
+  decisions, current-state pages, guides, and contracts should not blur
+  together by default
 - Reader-title rule: final document headings should read like normal chapter
   or section names for readers, not like control labels, schema keys, or
   review fields
@@ -345,8 +363,8 @@ changes. When a narrower child scope needs its own durable home, create it.
   - Use when deciding create versus update, parent summary versus child detail,
     and whether one topic has become its own local family.
 - `references/body-structure-by-intent.md`
-  - Use when shaping prose for purpose, proposal, current-state, contract,
-    guide, or operation pages.
+  - Use when shaping prose for purpose, decision, current-state, contract,
+    guide, operation, or long-lived direction pages.
 - `references/navigation-and-companion-updates.md`
   - Use when deciding which parent, index, related-doc, or local README
     updates are actually needed.
@@ -392,8 +410,11 @@ planning note
 - Do not place a doc before the ownership node is explicit.
 - Do not append child module or component detail into a broader parent doc when
   that would erase scope boundaries.
-- Do not sacrifice file change plans, execution slices, verification slices, or
-  local risks just to reduce file count.
+- Do not sacrifice durable local risks or stable child-scope knowledge just to
+  reduce file count.
+- Do not archive `workflow-plan` task lists, one-off implementation plans, issue
+  acceptance checklists, or transient execution sequencing in repository docs by
+  default.
 - Do not use root `docs/` for local module detail unless the knowledge is
   truly cross-module.
 - Do not attach a test coverage or fixture overview to a runtime module docs
@@ -411,7 +432,7 @@ planning note
 - Do not create a topic-family container that contains only `README.md` or
   placeholder siblings unless the same wave also creates a concrete second
   durable page.
-- Do not name durable docs only by role, such as `plan.md` or `proposal.md`,
+- Do not name durable docs only by role, such as `decision.md` or `guide.md`,
   when they stand alone outside a topic-family container.
 - Do not use churn-prone filename suffixes such as `final`, `latest`, `new`,
   `temp`, or `v2` for long-lived docs.
@@ -428,9 +449,9 @@ planning note
   topic path when the narrower subject needs its own readable family.
 - Do not use a type-bucket name such as `plans` or `rfcs` as the local topic
   path unless that name is genuinely the subject readers are looking for.
-- Do not let `proposal.md` read like the accepted conclusion by default; if the
-  conclusion is accepted, record it in `decision.md`, `current-state.md`, or
-  another clearly authoritative page.
+- Do not keep unaccepted proposals or pending implementation plans in docs by
+  default; use issues, PR/MRs, or planning artifacts unless the material is
+  explicitly long-lived project knowledge.
 - Do not turn root `README.md` into the repository's full docs index, long
   reading order, or detailed formal-doc inventory by default.
 - Do not let README-to-docs relationship explanation dominate a repo or node
@@ -444,11 +465,11 @@ planning note
 - Do not copy operator planning labels such as `Recording Goal`, `Page Role`,
   `Create or Update Decision`, or `Body Structure Plan` into the final page.
 - Do not mix direction-only prose with implementation-plan sections such as
-  `File Change Plan`, `Execution Order`, or `Verification` unless the page is
-  explicitly a proposal or delivery-plan document.
+  `File Change Plan`, `Execution Order`, or `Verification` unless those details
+  have durable value beyond the immediate issue or PR/MR.
 - Do not describe a document as only directional or high-level once it already
   contains concrete file changes, execution ordering, rollout slices, or test
-  expectations.
+  expectations; move transient execution detail back to issues or PR/MRs.
 - Do not let parent updates become the only durable home of child detail.
 - Do not silently perform repo-wide editorial repair here; use
   `project-doc-lifecycle-skill` when the reading path itself is broken.
@@ -486,24 +507,24 @@ planning note
   local subject within the node.
 - Verify that the chosen topic path preserves useful parent-topic and subtopic
   structure when the local subject naturally forms a tree.
-- Verify that topic-family role priority is clear: `README.md` routes, current
-  authority pages are explicit, and `proposal.md` is not mistaken for adopted
-  truth.
+- Verify that topic-family role priority is clear: `README.md` routes and
+  current authority pages such as `decision.md` and `current-state.md` are
+  explicit.
 - Verify that test coverage, fixture, or verification docs are owned by the
   appropriate tests subtree when that subtree is the primary subject.
 - Verify that create-versus-update does not collapse a narrower child scope
   into a broader parent doc.
-- Verify that detailed implementation artifacts remain preserved when they
-  matter to the document's job.
+- Verify that durable child-scope knowledge remains preserved when it matters
+  to the document's job.
 - Verify that the document has one clear job and that its body structure
   matches that job.
 - Verify that top-level section titles are reader-facing names rather than
   control labels, template keys, or review fields.
 - Verify that operator planning labels were translated into natural document
   sections instead of being copied into the final page.
-- Verify that a direction note does not also contain implementation-plan
-  sections such as `File Change Plan`, `Execution Order`, or `Verification`
-  unless the page is explicitly a proposal or delivery-plan doc.
+- Verify that `workflow-plan` outputs, task lists, issue acceptance checklists,
+  and transient implementation sequencing stayed in issues, PR/MRs, planning
+  artifacts, or comments unless they became durable project knowledge.
 - Verify that the resulting page has the minimum linkage needed to be
   discoverable in context.
 - Verify that any repo or node README answers what this layer is and how it

@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.18 - Check, create, and link GitHub or GitLab issues for tracked work before implementation and before commit preparation; use when a repo requires issue-backed traceability, canonical upstream issue confirmation, product-facing parent issue framing, child issue drafting for engineering detail, fork-vs-upstream issue targeting, or commit Refs output.
+description: v0.1.20 - Check, draft, create, and link GitHub or GitLab issues for tracked work; use when turning approved workflow-plan tasks into mapped issue-backed acceptance work items, confirming canonical issue traceability before implementation or commit preparation, framing product-facing parent issues, drafting engineering child issues, targeting canonical repos, or producing commit Refs output.
 ---
 
 # Issue Gate Skill
@@ -12,6 +12,7 @@ issue and the agent needs to:
 
 - confirm whether the canonical issue already exists
 - draft and create the issue when missing
+- turn approved plan tasks into issue-backed acceptance work items
 - emit a deterministic commit `Refs` bridge before commit preparation
 
 Preferred timing:
@@ -22,6 +23,7 @@ Preferred timing:
 In scope:
 - issue existence check
 - issue draft generation
+- plan-task handoff review and issue grouping
 - issue creation after dry-run and human confirmation
 - issue link output for commit `Refs`
 
@@ -30,6 +32,7 @@ Out of scope:
 - PR creation or merge workflows
 - release notes generation
 - replacing code review, project planning, or release management
+- archiving transient implementation plans in repository docs
 
 ## Core Purpose
 
@@ -38,6 +41,9 @@ Out of scope:
   post-implementation repair step.
 - Use task-level traceability by default: one issue may cover multiple related
   commits for the same tracked work.
+- Treat issues as the execution and acceptance record for planned work; reserve
+  docs for stable knowledge, accepted decisions, current state, contracts,
+  guides, operations notes, or long-lived direction.
 - Keep the business purpose in the issue even when a linked commit only
   advances, investigates, or partially implements the work.
 - Keep commit flow human-controlled with automation guardrails.
@@ -63,6 +69,7 @@ Use this skill for requests such as:
 - "commit 前帮我确认 issue，并给我一行 `Refs`"
 - "这个改动是给 upstream 的，不要在 fork 里重复建 issue"
 - "根据当前分支和改动范围，自动帮我起一个 issue 草稿"
+- "把 workflow-plan 里的可验收 task 转成 issue 草稿"
 
 ## Input Policy (Auto-First)
 
@@ -92,6 +99,9 @@ One of:
 - `repo_override`: explicit `<owner>/<repo>` or `<group>/<repo>` issue target
 - `audience_profile`: `leadership|cross_functional|engineering_only`
 - `issue_level`: `parent_requirement|delivery_task|implementation_task`
+- `plan_task_handoff`: approved workflow-plan task list with acceptance and
+  verification details
+- `task_issue_policy`: `per_deliverable_task|grouped_by_phase|reuse_parent_only`
 
 ## Fixed Defaults
 
@@ -114,6 +124,9 @@ One of:
 - `issue_level=parent_requirement`
 - `quality_bar=master_grade`
 - `implementation_detail_mode=defer-unless-explicitly-requested`
+- `plan_handoff_mode=issue-ready-tasks-only`
+- `task_issue_policy=group-by-independent-delivery-slice`
+- `plan_task_mapping_required=on`
 
 ## Traceability Granularity
 
@@ -125,6 +138,38 @@ One of:
   task, fix, or delivery slice.
 - Do not create a new issue per commit unless repository-specific policy
   explicitly requires that behavior.
+
+## Plan Task Handoff
+
+- When an approved `workflow-plan` task list is supplied, treat it as issue
+  source material, not as a repository documentation artifact.
+- Validate that each issue-ready task has a clear outcome, acceptance criteria,
+  verification method, and dependency notes before drafting issues from it.
+- Do not mechanically create one issue per plan task. Create or group issues by
+  independently reviewable, assignable, and verifiable delivery slices.
+- Always emit a `Plan Task Issue Mapping` when plan tasks are supplied. Do not
+  collapse multiple plan tasks into one parent issue without mapping every task
+  to `child_issue`, `grouped_child_issue`, or `parent_only`.
+- If a plan task is not mapped to a child or grouped child issue, state the
+  concrete reason it is not independently issue-worthy.
+- Prefer a product-facing parent issue for the overall requirement and linked
+  `delivery_task` or `implementation_task` issues for execution-ready slices
+  only when those child issues add useful traceability.
+- Keep temporary sequencing, file-by-file work plans, and task churn in the
+  planning artifact, issue body/comments, or PR/MR discussion. Do not route
+  that transient material into project docs by default.
+
+### Plan Task Mapping Decisions
+
+- `child_issue`: use when one plan task is independently reviewable,
+  assignable, and verifiable.
+- `grouped_child_issue`: use when several plan tasks form one coherent delivery
+  slice and share the same acceptance surface.
+- `parent_only`: use only when the task is too small, preparatory, mechanical,
+  or inseparable from the parent requirement to justify a separate issue.
+- For multi-task plans, default to considering child issues first. A single
+  parent-only issue is acceptable only when the mapping explains why each task
+  should not become or join a child issue.
 
 ## Canonical Issue Location and Lifecycle
 
@@ -451,10 +496,16 @@ Read `references/issue-templates.md` when you need:
      `implementation_task`
    - draft the child issue with the engineering child issue template
    - keep the parent issue free of implementation-heavy detail
+   - if `plan_task_handoff` exists, derive and emit `Plan Task Issue Mapping`
+     before finalizing `child_issue_needed`
+   - if the mapping contains any `child_issue` or `grouped_child_issue`, set
+     `child_issue_needed=yes` and draft the mapped child issue set unless the
+     operator explicitly requests parent-only tracking
 8. Emit dry-run plan:
    - exact check/create/link command plan
    - expected artifacts (`issue_id`, `issue_url`, `refs_line`)
    - parent draft preview (`title` and `body`)
+   - plan task issue mapping when `plan_task_handoff` exists
    - child draft preview when `child_issue_needed=yes`
    - parent/child creation order and link plan
 9. Wait for human confirmation.
@@ -504,6 +555,15 @@ Read `references/issue-templates.md` when you need:
 - title:
 - draft_preview:
 - link_to_parent:
+
+## Plan Task Issue Mapping
+- task:
+- decision: parent_only | child_issue | grouped_child_issue
+- issue_level: parent_requirement | delivery_task | implementation_task | n/a
+- grouping_key:
+- acceptance_source:
+- rationale:
+- child_issue_title:
 
 ## Draft Decision
 - audience_profile:
@@ -567,6 +627,9 @@ happy-path example of the full required flow.
   the more likely source of truth.
 - Do not silently create a child issue without showing the draft and creation
   plan in dry-run output first.
+- Do not receive a `workflow-plan` task list and skip `Plan Task Issue Mapping`.
+- Do not mark a multi-task plan `child_issue_needed=no` unless every task is
+  explicitly mapped to `parent_only` with a concrete rationale.
 - Do not leave required engineering detail stranded in the parent issue body if
   a child issue is the clearer execution layer.
 - Do not wrap issue references in backticks when the output is meant to keep

@@ -39,9 +39,9 @@ Use root `README.md` for:
 Use node-local docs for:
 
 - local current-state
-- local proposals
+- local accepted decisions
 - local guides and runbooks
-- detailed implementation plans
+- local contracts and long-lived direction
 - test-suite-local coverage, fixture, harness, and verification docs when the
   tests subtree owns the knowledge
 
@@ -62,9 +62,9 @@ Use the tests-node `README.md` for:
 A topic-family container such as `<node>/docs/<topic_path>/` is warranted when:
 
 - the same node and topic path now need a second durable page
-- one local subject has 2 or more live alternatives
-- one local subject mixes proposal, decision, implementation-plan, and
-  current-state docs
+- one local subject has 2 or more durable sibling pages
+- one local subject mixes accepted decisions, current-state docs, guides,
+  contracts, operations notes, and long-lived direction
 - readers would understand the local subject more clearly as a small family
   than as another loose file in root `docs/rfcs` or `docs/plans`
 
@@ -90,10 +90,11 @@ and subtopics.
 - coverage or fixture docs spanning multiple test files => the shared ancestor
   under `tests/`
 - child detail under a broad parent => child path plus parent summary link
-- one local subject with 2 or more live alternatives =>
+- one local subject with 2 or more durable sibling pages =>
   `<node>/docs/<topic_path>/`
-- one local subject with proposal, decision, implementation-plan, and
-  current-state siblings => `<node>/docs/<topic_path>/`
+- one local subject with accepted decisions, current-state, guides, contracts,
+  operations notes, and long-lived direction siblings =>
+  `<node>/docs/<topic_path>/`
 - same node and topic path gains a second durable page => promote to
   `<node>/docs/<topic_path>/`
 - one standalone local doc with no sibling alternatives or mixed intents =>
@@ -127,10 +128,11 @@ When one local topic path has one durable page, prefer:
 When one local topic path has multiple durable sibling docs, prefer:
 
 - `<node>/docs/<topic_path>/README.md`
-- `<node>/docs/<topic_path>/proposal.md`
-- `<node>/docs/<topic_path>/implementation-plan.md`
-- `<node>/docs/<topic_path>/current-state.md`
 - `<node>/docs/<topic_path>/decision.md`
+- `<node>/docs/<topic_path>/current-state.md`
+- `<node>/docs/<topic_path>/guide.md`
+- `<node>/docs/<topic_path>/operations.md`
+- `<node>/docs/<topic_path>/direction.md`
 
 The topic folder names the subject. The child filenames name the role.
 Use a topic name that stays specific enough inside the node. Do not over-shorten
@@ -144,13 +146,18 @@ Use a topic name that stays specific enough inside the node. Do not over-shorten
   decision page exists
 - `current-state.md`: current implemented truth when the system already has a
   live state to describe
-- `implementation-plan.md`: pending execution plan; not the current truth
-- `proposal.md`: review-stage suggestion or unaccepted option; not adopted by
-  default
+- `guide.md`: stable reader workflow
+- `operations.md`: diagnosis, recovery, or intervention knowledge
+- `direction.md`: long-lived evolution direction
 
 If both `decision.md` and `current-state.md` exist, they serve different jobs:
 `decision.md` records what was chosen, while `current-state.md` records what is
 currently true in the system.
+
+Do not create `proposal.md`, `implementation-plan.md`, or similar pending-work
+docs by default. Keep workflow-plan outputs, task lists, issue acceptance
+checklists, and one-off execution sequencing in issues, PR/MRs, planning
+artifacts, or comments unless they have become durable project knowledge.
 
 ## Filename Rules
 
@@ -163,8 +170,8 @@ currently true in the system.
   `v2`.
 - Keep dates out of durable doc filenames unless the document is inherently
   time-scoped, such as a note, log, or meeting record.
-- If a durable doc stands alone, do not name it only `plan.md`,
-  `proposal.md`, or `current-state.md`; include the topic in the filename.
+- If a durable doc stands alone, do not name it only `decision.md`, `guide.md`,
+  or `current-state.md`; include the topic in the filename.
 - If a durable doc stands alone, do not use overly broad names such as
   `architecture.md`, `design.md`, or `plan.md`; the subject should still be
   clear outside directory context.

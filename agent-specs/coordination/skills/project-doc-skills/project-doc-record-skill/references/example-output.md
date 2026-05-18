@@ -39,7 +39,7 @@ not copy labels such as `Recording Goal` or `Page Role` into the finished page.
 
 ## Scope Boundary Decision
 - keep only module purpose, boundary, and child links here
-- do not add child implementation plans
+- do not add transient child task plans
 - do not create `graph/docs/README.md` just to mirror the local docs folders
 
 ## Immediate Companion Updates
@@ -75,12 +75,12 @@ not copy labels such as `Recording Goal` or `Page Role` into the finished page.
   missing authority page
 ```
 
-## Example: Child Plan Must Stay Separate
+## Example: Child Current-State Doc Must Stay Separate
 
 ```text
 ## Recording Goal
-- Record a detailed parser submodule implementation plan without losing the file
-  change list.
+- Record the parser submodule's durable batch-normalization behavior without
+  losing parser-local constraints.
 
 ## Ownership Node
 - node: `submodule`
@@ -91,25 +91,26 @@ not copy labels such as `Recording Goal` or `Page Role` into the finished page.
 - `formal doc`
 
 ## Document Intent
-- `proposal`
+- `current-state`
 
 ## Why This Node
-- the parser submodule owns this implementation change, so the plan belongs
-  under `graph/query/parser` rather than inside the broader query RFC
+- the parser submodule owns this behavior, so the current-state explanation
+  belongs under `graph/query/parser` rather than inside the broader query
+  overview
 
 ## Primary Artifact
-- path: `graph/query/parser/docs/batch-normalization-plan.md`
-- type: proposal plan
+- path: `graph/query/parser/docs/batch-normalization.md`
+- type: current-state explanation
 
 ## Create or Update Decision
 - create new
-- reason: appending this content to the parent query RFC would blur scope and
-  erase parser-local detail
+- reason: appending this content to the parent query overview would blur scope
+  and erase parser-local detail
 
 ## Scope Boundary Decision
 - parent doc keeps: one short summary and link
-- child doc keeps: file change plan, execution slices, verification, and local
-  risks
+- child doc keeps: parser-local behavior, constraints, verification signals,
+  and durable risks
 
 ## Immediate Companion Updates
 - parent summary: yes
@@ -121,20 +122,21 @@ not copy labels such as `Recording Goal` or `Page Role` into the finished page.
 ## Body Structure Plan
 - Summary
 - Scope
-- Proposed Change
-- File Change Plan
-- Verification
+- Current Behavior
+- Constraints
+- Verification Signals
 - Risks
 
 ## Linkage Notes
-- link to parent RFC
+- link to parent query overview
 - link to nearest local current-state page if one exists
 
 ## Index Update Plan
 - update the nearest parent or local index with one stable link
 
 ## Follow-up Docs
-- create or refresh parser current-state when the proposal becomes implemented
+- create or refresh a contract doc only if downstream callers depend on this
+  behavior
 ```
 
 ## Counterexample To Avoid

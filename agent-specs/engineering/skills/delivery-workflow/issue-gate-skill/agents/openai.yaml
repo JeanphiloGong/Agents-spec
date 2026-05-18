@@ -1,4 +1,4 @@
 interface:
   display_name: "Issue Gate"
-  short_description: "v0.1.18 - Check, create, and link issues for tracked work"
-  default_prompt: "Use $issue-gate-skill to confirm or create the canonical issue for this tracked change and produce the commit Refs bridge before commit preparation."
+  short_description: "v0.1.20 - Map planned work into traceable acceptance issues"
+  default_prompt: "Use $issue-gate-skill to map approved workflow-plan tasks into issue-backed acceptance work items, emit a Plan Task Issue Mapping before deciding parent-only versus child issues, confirm or create the canonical issue for this tracked change, and produce the commit Refs bridge before commit preparation."

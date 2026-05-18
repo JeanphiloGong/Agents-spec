@@ -1,6 +1,6 @@
 ---
 name: workflow-plan
-description: v0.1.0 - Breaks work into ordered tasks. Use when you have a spec or clear requirements and need to break work into implementable tasks. Use when a task feels too large to start, when you need to estimate scope, or when parallel work is possible.
+description: v0.1.1 - Breaks work into ordered, verifiable tasks with issue handoff guidance. Use when you have a spec or clear requirements and need to break work into implementable tasks, estimate scope, identify parallel work, or prepare issue-backed acceptance tracking.
 ---
 
 # Planning and Task Breakdown
@@ -101,6 +101,47 @@ Each task follows this structure:
 - `tests/path/to/test.ts`
 
 **Estimated scope:** [Small: 1-2 files | Medium: 3-5 files | Large: 5+ files]
+
+**Issue handoff:**
+- issue_candidate: yes | no
+- suggested_issue_level: parent_requirement | delivery_task | implementation_task | n/a
+- grouping_key: [shared delivery slice, phase, or "standalone"]
+- acceptance_summary: [one sentence describing what an issue must verify]
+- issue_rationale: [why this should become a separate issue, be grouped, or stay parent-only]
+```
+
+### Step 4.5: Prepare Issue Handoff
+
+When the plan may be passed to `issue-gate-skill`, add an `Issue Handoff`
+section after the task list. This is not issue creation; it is a routing map
+that lets issue-gate decide whether to create a parent issue, child issues, or
+grouped child issues.
+
+Use these defaults:
+
+- Mark a task `issue_candidate: yes` when it is independently reviewable,
+  assignable, and verifiable.
+- Mark a task `issue_candidate: no` when it is only a tiny preparatory step,
+  purely mechanical cleanup, or cannot be accepted independently.
+- Use `delivery_task` for execution-ready slices that can be understood without
+  deep code contracts.
+- Use `implementation_task` only when the issue needs internal contracts,
+  dataflow, migration sequencing, or module-level implementation detail.
+- Use the same `grouping_key` for tasks that should be grouped into one issue.
+- If multiple tasks are listed but no child issue is recommended, explain why
+  each task should stay covered by the parent requirement.
+
+Issue handoff format:
+
+```markdown
+## Issue Handoff
+
+- parent_issue_needed: yes | no
+- task_issue_policy: per_deliverable_task | grouped_by_phase | reuse_parent_only
+
+| Task | issue_candidate | suggested_issue_level | grouping_key | acceptance_summary | issue_rationale |
+|------|-----------------|-----------------------|--------------|--------------------|-----------------|
+| Task 1 | yes | delivery_task | standalone | ... | ... |
 ```
 
 ### Step 5: Order and Checkpoint
@@ -183,6 +224,14 @@ If a task is L or larger, it should be broken into smaller tasks. An agent perfo
 
 ## Open Questions
 - [Question needing human input]
+
+## Issue Handoff
+- parent_issue_needed: yes/no
+- task_issue_policy: per_deliverable_task | grouped_by_phase | reuse_parent_only
+
+| Task | issue_candidate | suggested_issue_level | grouping_key | acceptance_summary | issue_rationale |
+|------|-----------------|-----------------------|--------------|--------------------|-----------------|
+| Task 1 | yes/no | delivery_task | standalone | ... | ... |
 ```
 
 ## Parallelization Opportunities
@@ -207,6 +256,7 @@ When multiple agents or sessions are available:
 - Starting implementation without a written task list
 - Tasks that say "implement the feature" without acceptance criteria
 - No verification steps in the plan
+- No issue handoff guidance when the plan will be used for tracked work
 - All tasks are XL-sized
 - No checkpoints between tasks
 - Dependency order isn't considered
@@ -217,6 +267,8 @@ Before starting implementation, confirm:
 
 - [ ] Every task has acceptance criteria
 - [ ] Every task has a verification step
+- [ ] Every task has issue handoff guidance or an explicit reason issue
+      handoff is unnecessary
 - [ ] Task dependencies are identified and ordered correctly
 - [ ] No task touches more than ~5 files
 - [ ] Checkpoints exist between major phases
