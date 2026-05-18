@@ -22,7 +22,7 @@ discovery and reading order without moving child detail back into parent docs.
 
 - a new document changes what readers should discover first
 - a current-state page is created or materially changed
-- a proposal becomes an active tracked change
+- an accepted decision or long-lived direction becomes the current authority
 - a new guide, contract, or runbook becomes part of the normal workflow
 
 ## Add A Node-Local Docs Index When
@@ -30,8 +30,8 @@ discovery and reading order without moving child detail back into parent docs.
 Treat `<node>/docs/README.md` as warranted only when:
 
 - the subtree has at least 4 durable docs
-- the subtree spans mixed intents such as proposals, current-state pages, and
-  guides
+- the subtree spans mixed intents such as decisions, current-state pages,
+  guides, contracts, operations notes, and long-lived direction
 - the reader path is non-obvious enough that the node root `README.md` cannot
   navigate it cleanly
 
@@ -41,9 +41,9 @@ symmetry.
 ## Add A Topic-Family README When
 
 - the same node and topic now need a second durable page
-- the topic family has 2 or more live alternative proposals
-- the topic family spans mixed intents such as proposal, decision,
-  implementation plan, and current-state
+- the topic family has 2 or more durable sibling pages
+- the topic family spans mixed intents such as decision, current-state, guide,
+  contract, operations, and long-lived direction
 - readers would not know the intended order across sibling docs without a
   local entry page
 
@@ -55,12 +55,14 @@ clearly needs another order:
 1. `README.md` for entry and reading order
 2. `decision.md` when the reader needs the accepted conclusion or boundary
 3. `current-state.md` when the reader needs the current implemented truth
-4. `implementation-plan.md` for pending execution detail
-5. `proposal.md` for review-stage suggestions or alternatives
+4. `guide.md` when the reader needs to perform a normal workflow
+5. `operations.md` when the reader needs diagnosis, recovery, or intervention
+6. `direction.md` when the reader needs long-lived evolution direction
 
-By default, `proposal.md` is not the adopted conclusion. If a conclusion has
-been accepted, make that visible in `decision.md`, `current-state.md`, or
-another clearly authoritative page.
+Keep workflow-plan outputs, task lists, issue acceptance checklists, and
+one-off execution sequencing out of topic-family docs by default. Use issues,
+PR/MRs, planning artifacts, or comments unless the material has become durable
+project knowledge.
 
 ## Related-Doc Footers
 
@@ -79,8 +81,7 @@ ambiguous:
 
 ```text
 ## Doc Lineage
-- Proposed by:
-- Decided by:
+- Decision source:
 - Current state in:
 - Contract defined in:
 - Related guide:

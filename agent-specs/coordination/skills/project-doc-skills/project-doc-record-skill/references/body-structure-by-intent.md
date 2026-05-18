@@ -8,10 +8,11 @@ README pages that are not docs landings should explain the layer first and the
 documentation system second. Formal docs should be shaped by their job, not by
 their filename alone.
 
-One document should do one job. If a page includes `File Change Plan`,
-`Execution Order`, `Verification`, or similar delivery detail, treat it as a
-proposal or delivery-plan document rather than as a pure direction note or
-high-level summary.
+One document should do one job. Do not archive workflow-plan outputs, issue
+acceptance checklists, or one-off execution sequencing here by default. If a
+page includes `File Change Plan`, `Execution Order`, `Verification`, or similar
+delivery detail, first route that detail to issues, PR/MRs, or planning
+artifacts unless it has durable value beyond the immediate change.
 
 Use reader-facing headings in the final page. Avoid control-language or
 schema-like section titles such as `Role`, `Document Role`, `Target Shape`,
@@ -68,24 +69,25 @@ Prefer:
 - Doc Categories
 - Related Nodes
 
-## Proposal Or Delivery-Plan Documents
+## Long-Lived Direction Documents
 
-Use this shape when the reader needs to understand a proposed or planned
-change and what must happen to implement it.
+Use this shape when the reader needs to understand durable evolution direction
+that remains useful beyond one issue, PR/MR, or implementation session.
 
-If the page includes file changes, execution order, or verification work, do
-not present it as only a direction note. Its structure should make the
-implementation character obvious.
+If the page includes file changes, execution order, or verification work, keep
+only the parts that explain long-lived direction, durable constraints, or
+accepted sequencing. Move transient task lists and issue acceptance detail back
+to issues, PR/MRs, or planning artifacts.
 
 Prefer:
 
 - Summary
 - Context
 - Scope
-- Proposed Change
-- File Change Plan
-- Execution Order
-- Verification
+- Direction
+- Durable Constraints
+- Milestones or Decision Points
+- Verification Signals
 - Risks
 
 ## Current-State Documents

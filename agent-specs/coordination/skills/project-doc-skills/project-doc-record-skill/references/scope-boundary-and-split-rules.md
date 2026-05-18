@@ -15,9 +15,14 @@ before deciding whether to reuse a parent page or create a new local artifact.
 - reuse would mix different ownership nodes
 - reuse would mix parent summary and child detail
 - the narrower scope needs its own local source of truth
-- the content carries file change plans, execution slices, verification detail,
-  ownership splits, or local risks that do not belong in the parent
+- the content carries durable child-scope knowledge, ownership splits, or local
+  risks that do not belong in the parent
 - the current file is already too broad to stay readable
+
+Do not create a new local document only to archive workflow-plan outputs,
+task breakdowns, issue acceptance checklists, or one-off execution sequencing.
+Keep those in issues, PR/MRs, planning artifacts, or comments unless they have
+become durable project knowledge.
 
 ## Keep In The Parent
 
@@ -27,18 +32,16 @@ before deciding whether to reuse a parent page or create a new local artifact.
 
 ## Keep In The Child
 
-- file change plans
-- execution order or slices
-- verification slices
+- stable child-scope knowledge
 - component or submodule risks
 - local ownership boundaries
-- implementation detail that would clutter a parent summary
+- durable implementation context that would clutter a parent summary
 
 ## Prefer A Topic-Family Container When
 
-- the same local subject now has 2 or more live alternative proposals
-- the same local subject mixes proposal, decision, implementation-plan, and
-  current-state pages
+- the same local subject now has 2 or more durable sibling pages
+- the same local subject mixes accepted decisions, current-state pages, guides,
+  contracts, operations notes, and long-lived direction
 - readers would understand the subject more easily as one node-local family
   under `<node>/docs/<topic>/` than as loose siblings in root `docs/rfcs` or
   `docs/plans`

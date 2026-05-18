@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.18 - Check, create, and link GitHub or GitLab issues for tracked work before implementation and before commit preparation; use when a repo requires issue-backed traceability, canonical upstream issue confirmation, product-facing parent issue framing, child issue drafting for engineering detail, fork-vs-upstream issue targeting, or commit Refs output.
+description: v0.1.19 - Check, draft, create, and link GitHub or GitLab issues for tracked work; use when turning approved workflow-plan tasks into issue-backed acceptance work items, confirming canonical issue traceability before implementation or commit preparation, framing product-facing parent issues, drafting engineering child issues, targeting canonical repos, or producing commit Refs output.
 ---
 
 # Issue Gate Skill
@@ -12,6 +12,7 @@ issue and the agent needs to:
 
 - confirm whether the canonical issue already exists
 - draft and create the issue when missing
+- turn approved plan tasks into issue-backed acceptance work items
 - emit a deterministic commit `Refs` bridge before commit preparation
 
 Preferred timing:
@@ -22,6 +23,7 @@ Preferred timing:
 In scope:
 - issue existence check
 - issue draft generation
+- plan-task handoff review and issue grouping
 - issue creation after dry-run and human confirmation
 - issue link output for commit `Refs`
 
@@ -30,6 +32,7 @@ Out of scope:
 - PR creation or merge workflows
 - release notes generation
 - replacing code review, project planning, or release management
+- archiving transient implementation plans in repository docs
 
 ## Core Purpose
 
@@ -38,6 +41,9 @@ Out of scope:
   post-implementation repair step.
 - Use task-level traceability by default: one issue may cover multiple related
   commits for the same tracked work.
+- Treat issues as the execution and acceptance record for planned work; reserve
+  docs for stable knowledge, accepted decisions, current state, contracts,
+  guides, operations notes, or long-lived direction.
 - Keep the business purpose in the issue even when a linked commit only
   advances, investigates, or partially implements the work.
 - Keep commit flow human-controlled with automation guardrails.
@@ -63,6 +69,7 @@ Use this skill for requests such as:
 - "commit 前帮我确认 issue，并给我一行 `Refs`"
 - "这个改动是给 upstream 的，不要在 fork 里重复建 issue"
 - "根据当前分支和改动范围，自动帮我起一个 issue 草稿"
+- "把 workflow-plan 里的可验收 task 转成 issue 草稿"
 
 ## Input Policy (Auto-First)
 
@@ -92,6 +99,9 @@ One of:
 - `repo_override`: explicit `<owner>/<repo>` or `<group>/<repo>` issue target
 - `audience_profile`: `leadership|cross_functional|engineering_only`
 - `issue_level`: `parent_requirement|delivery_task|implementation_task`
+- `plan_task_handoff`: approved workflow-plan task list with acceptance and
+  verification details
+- `task_issue_policy`: `per_deliverable_task|grouped_by_phase|reuse_parent_only`
 
 ## Fixed Defaults
 
@@ -114,6 +124,8 @@ One of:
 - `issue_level=parent_requirement`
 - `quality_bar=master_grade`
 - `implementation_detail_mode=defer-unless-explicitly-requested`
+- `plan_handoff_mode=issue-ready-tasks-only`
+- `task_issue_policy=group-by-independent-delivery-slice`
 
 ## Traceability Granularity
 
@@ -125,6 +137,21 @@ One of:
   task, fix, or delivery slice.
 - Do not create a new issue per commit unless repository-specific policy
   explicitly requires that behavior.
+
+## Plan Task Handoff
+
+- When an approved `workflow-plan` task list is supplied, treat it as issue
+  source material, not as a repository documentation artifact.
+- Validate that each issue-ready task has a clear outcome, acceptance criteria,
+  verification method, and dependency notes before drafting issues from it.
+- Do not mechanically create one issue per plan task. Create or group issues by
+  independently reviewable, assignable, and verifiable delivery slices.
+- Prefer a product-facing parent issue for the overall requirement and linked
+  `delivery_task` or `implementation_task` issues for execution-ready slices
+  only when those child issues add useful traceability.
+- Keep temporary sequencing, file-by-file work plans, and task churn in the
+  planning artifact, issue body/comments, or PR/MR discussion. Do not route
+  that transient material into project docs by default.
 
 ## Canonical Issue Location and Lifecycle
 
