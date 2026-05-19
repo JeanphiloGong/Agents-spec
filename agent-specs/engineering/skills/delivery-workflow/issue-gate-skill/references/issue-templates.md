@@ -11,6 +11,7 @@ or validating template-specific required fields.
 - [Engineering Child Issue Template](#engineering-child-issue-template)
 - [Task / Maintenance Template](#task--maintenance-template)
 - [Investigation / Spike Template](#investigation--spike-template)
+- [Issue Title Prefix Rule](#issue-title-prefix-rule)
 - [Template Validation Rule](#template-validation-rule)
 - [Template-to-Command Mapping Examples](#template-to-command-mapping-examples)
 - [Existing Issue => link for commit](#existing-issue--link-for-commit)
@@ -26,6 +27,24 @@ or validating template-specific required fields.
 - When referencing related issues in rendered markdown, use plain `#123`,
   `owner/repo#123`, or a full URL in normal prose; do not wrap the issue
   reference itself in backticks if the link should stay clickable.
+
+## Issue Title Prefix Rule
+
+New issue titles must use `<prefix>: <short title>`. Resolve `prefix` from
+`change_type` before selecting the create command:
+
+- `feat|integration|workflow|api` => `feat`
+- `fix|bugfix|incident` => `bugfix`
+- `hotfix` => `hotfix`
+- `docs` => `docs`
+- `refactor` => `refactor`
+- `test` => `test`
+- `tooling` => `tooling`
+- `config` => `config`
+- `chore` => `chore`
+- `spike|research|proposal|investigation` => `proposal`
+
+Existing issue titles without this prefix should warn, not block reuse.
 
 ## Bug / Incident Template
 
@@ -315,6 +334,7 @@ Template:
 ## Template Validation Rule
 
 - Resolve `template_family` and `issue_level` first.
+- Resolve and validate the issue title prefix from `change_type` before create.
 - Validate semantic required fields against the selected template family, not
   against a single fixed heading set.
 - Validate issue quality as well as field presence: clear problem statement,
@@ -326,6 +346,8 @@ Template:
 - Validation output must include the resolved `template_family` and
   `issue_level`.
 - Validation output must distinguish:
+  - `title_prefix`
+  - `title_prefix_warnings`
   - `missing_required_fields`
   - `missing_recommended_fields`
   - `overspecification_warnings`
@@ -454,11 +476,11 @@ EOF
 )"
 ```
 
-### `bugfix|hotfix|incident` => Bug / Incident Template => create
+### `fix|bugfix|hotfix|incident` => Bug / Incident Template => create
 
 ```bash
 gh issue create \
-  --title "bugfix: <short bug title>" \
+  --title "<resolved-prefix>: <short bug title>" \
   --body "$(cat <<'EOF'
 ## 🐛 问题概述
 <problem summary>
@@ -494,7 +516,7 @@ EOF
 
 ```bash
 glab issue create \
-  --title "bugfix: <short bug title>" \
+  --title "<resolved-prefix>: <short bug title>" \
   --description "$(cat <<'EOF'
 ## 🐛 问题概述
 <problem summary>
@@ -532,7 +554,7 @@ EOF
 
 ```bash
 gh issue create \
-  --title "chore: <short task title>" \
+  --title "<resolved-prefix>: <short task title>" \
   --body "$(cat <<'EOF'
 ## 📦 影响模块
 - 涉及的服务 / 模块 / 仓库：<module>
@@ -567,7 +589,7 @@ EOF
 
 ```bash
 glab issue create \
-  --title "chore: <short task title>" \
+  --title "<resolved-prefix>: <short task title>" \
   --description "$(cat <<'EOF'
 ## 📦 影响模块
 - 涉及的服务 / 模块 / 仓库：<module>

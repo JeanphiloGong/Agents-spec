@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.20 - Check, draft, create, and link GitHub or GitLab issues for tracked work; use when turning approved workflow-plan tasks into mapped issue-backed acceptance work items, confirming canonical issue traceability before implementation or commit preparation, framing product-facing parent issues, drafting engineering child issues, targeting canonical repos, or producing commit Refs output.
+description: v0.1.21 - Check, draft, create, and link GitHub or GitLab issues for tracked work; use when turning approved workflow-plan tasks into mapped issue-backed acceptance work items, confirming canonical issue traceability before implementation or commit preparation, framing product-facing parent issues, drafting engineering child issues, targeting canonical repos, or producing commit Refs output.
 ---
 
 # Issue Gate Skill
@@ -127,6 +127,7 @@ One of:
 - `plan_handoff_mode=issue-ready-tasks-only`
 - `task_issue_policy=group-by-independent-delivery-slice`
 - `plan_task_mapping_required=on`
+- `issue_title_prefix_policy=required_for_new_warning_for_existing`
 
 ## Traceability Granularity
 
@@ -231,6 +232,30 @@ One of:
 - If you need to show a literal commit bridge line like ISSUE: #123, keep that
   output as plain text rather than inline-code issue syntax.
 
+## Issue Title Prefix Rule
+
+- New issue drafts must render titles as `<prefix>: <short title>`.
+- Resolve `prefix` from `change_type`, not from the broader
+  `template_family`, before dry-run preview and before any create command.
+- Prefix mapping:
+  - `feat|integration|workflow|api` => `feat`
+  - `fix|bugfix|incident` => `bugfix`
+  - `hotfix` => `hotfix`
+  - `docs` => `docs`
+  - `refactor` => `refactor`
+  - `test` => `test`
+  - `tooling` => `tooling`
+  - `config` => `config`
+  - `chore` => `chore`
+  - `spike|research|proposal|investigation` => `proposal`
+- Repository-specific title conventions may override this mapping only when
+  the repository policy or template is explicit. State the override in the
+  dry-run output.
+- If `change_type` cannot be inferred confidently, ask the human to confirm the
+  prefix before creating an issue.
+- Do not block reuse of an existing issue solely because its title lacks a
+  recognized prefix. Reuse it and emit a `title_prefix_warning` instead.
+
 ## Platform Selection
 
 1. If `platform_hint` is `gh` or `glab`, use that platform.
@@ -277,6 +302,8 @@ surface, remote-detection commands, or automation caveats.
 ## Auto Draft Rules
 
 - If no `existing_issue_id`, auto-generate `issue_title` and `issue_body`.
+- For new issue drafts, derive and apply the required title prefix before
+  previewing or creating the issue.
 - Draft source priority:
   1. current task prompt or context
   2. branch and commit intent
@@ -294,6 +321,10 @@ surface, remote-detection commands, or automation caveats.
   Brevity is secondary unless the operator explicitly asks for compression.
 - Draft must respect template-required fields by the resolved
   `template_family` and `issue_level`.
+- Draft title must respect the Issue Title Prefix Rule. If an inferred or
+  user-supplied new issue title lacks a valid prefix, rewrite it before
+  dry-run output and state the rewrite. If the prefix cannot be resolved
+  confidently, block creation and ask for confirmation.
 - If any required field cannot be inferred:
   - insert an explicit TODO placeholder
   - keep `confirm_before_create=on` and require human confirmation
@@ -420,15 +451,25 @@ Read `references/issue-templates.md` when you need:
 - Resolve `template_family` and `issue_level` first.
 - Validate semantic required fields against the selected template family, not a
   single fixed heading set.
+- Validate new issue titles against the Issue Title Prefix Rule.
 - Validate issue quality as well as field presence: clear problem statement,
   explicit target outcome, bounded scope, testable acceptance, and
   audience-appropriate detail.
 - If template-required fields are missing:
   - `gate_mode=required` => `BLOCK`
   - `gate_mode=recommended` => `PASS_WITH_WARNING`
+- If a create-ready draft is missing a valid title prefix or has a conflicting
+  title prefix:
+  - rewrite the title before dry-run output when the correct prefix is clear
+  - `gate_mode=required` => `BLOCK` when the correct prefix is not clear
+  - `gate_mode=recommended` => `PASS_WITH_WARNING` when the correct prefix is
+    not clear
 - Validation output must include:
   - `template_family`
   - `issue_level`
+  - `title_prefix`
+  - `title_prefix_source`
+  - `title_prefix_warnings`
   - `child_issue_needed`
   - `child_issue_type`
   - `missing_required_fields`
@@ -481,6 +522,7 @@ Read `references/issue-templates.md` when you need:
    - verify `existing_issue_id`, or search the resolved target repo and prepare
      a new draft from context only when no matching issue exists
 6. Draft or verify issue content:
+   - ensure new issue titles use the required `<prefix>: <short title>` format
    - ensure the draft explains why now, what outcome is expected, what is in or
      out of scope, how success is judged, and whether any material dependency
      or risk must be named
@@ -546,6 +588,9 @@ Read `references/issue-templates.md` when you need:
 - issue_id:
 - issue_url:
 - title_source: user_input | auto_draft
+- title_prefix:
+- title_prefix_source: change_type | repo_policy | user_input | n/a
+- title_prefix_warnings:
 
 ## Parent Issue Draft
 - title:
