@@ -1,6 +1,6 @@
 ---
 name: reference-core-impl-skill
-description: v0.1.4 - Distill a feature or system core into a runnable minimal-complete reference sample before `main` integration; use it when production code or an AI draft is too noisy to learn from safely, then hand off to human-led main landing.
+description: v0.1.5 - Distill a feature or system core through a step-verified runnable reference cycle before `main` integration; use it when production code or an AI draft is too noisy to learn from safely, then hand off to human-led main landing.
 ---
 
 # Reference Core Implementation Skill
@@ -78,8 +78,6 @@ Typical trigger prompts:
   - read when project placement is unclear or the sample might accidentally land in a production-imported path
 - `references/mapping-back-to-main-checklist.md`
   - read before finalizing the mapping section so the handoff back to production modules stays concrete
-- `references/acceptance-criteria.md`
-  - read during acceptance review and before proposing the next rewrite step
 - `references/worked-example-mini-langgraph.md`
   - read when the feature is graph-runner, orchestration, or scheduler shaped
 - `references/worked-example-mini-viim.md`
@@ -100,33 +98,55 @@ A reference sample is acceptable only if all of these are true:
 
 If any of these are missing, the sample is either incomplete or too abstract.
 
-## Workflow
+## Reference Core Cycle
 
-1. State the system slice and the user-visible/core-visible success condition.
-2. State required inputs that are still missing; stop and ask for them only when the missing item would make the sample misleading or unsafe.
-3. Separate core invariants from production constraints.
-4. Define the smallest boundary that still preserves the real core.
-5. Choose the minimum runtime model:
-   - in-memory state
-   - fake adapters
-   - synchronous loop unless async behavior is itself core
-6. Resolve the sample placement strategy in the target project repo.
-7. Define the sample structure:
-   - essential types/state
-   - core loop or public entrypoints
-   - essential helper contracts
-8. Produce a runnable minimal-complete sample within the line/file budget.
-9. Add a colocated `README.md` using the reference template when the sample is meant to persist in the project repo.
-10. Validate it with one happy path and one important failure or edge case.
-11. Run acceptance review against `references/acceptance-criteria.md` and record pass/fail evidence.
-12. List deferred constraints, adapters, and production-only policies.
-13. Map the sample back to the real codebase:
-   - which modules own the equivalent behavior
-   - which abstractions must be reintroduced
-   - which tests should be ported first
-14. Recommend the next step:
-   - use `human-led-main-landing-skill` to land the learned core on `main`, or
-   - iterate once more if the sample still hides the real invariant.
+Build the sample as a small proof loop, not as a review report. Do not advance
+past a step until its verification condition is satisfied or the gap is named
+as an open risk.
+
+1. Identify Core
+   - State the feature/system slice and the user-visible or core-visible
+     success condition.
+   - Mark each required input as `provided`, `inferred`, or `missing`.
+   - Name the defining invariant, ordering rule, or state transition.
+   - verify: one core invariant is explicit and no missing input would make the
+     sample misleading or unsafe.
+2. Strip Production Boundaries
+   - Separate what stays in the reference from what belongs only in production.
+   - Replace storage, network, framework, auth, logging, and rollout concerns
+     with fakes or deferred notes unless they define the core behavior.
+   - verify: `Included In Reference` and `Deferred To Production` are both
+     concrete and non-overlapping.
+3. Choose Sample Shape
+   - Pick the smallest runtime model that preserves the invariant.
+   - Prefer one file and in-memory state unless another file materially improves
+     teachability.
+   - Resolve placement as persisted under `examples/reference-core/<feature-slug>/`
+     or explicitly ephemeral.
+   - verify: the planned sample fits the file/line budget and has a safe
+     production-import barrier.
+4. Build Runnable Sample
+   - Produce the minimal-complete sample with real domain names and only the
+     helpers needed to reveal the core flow.
+   - Add a colocated `README.md` from the template when persisting the sample.
+   - verify: a happy-path command or inline test runs one meaningful end-to-end
+     path.
+5. Prove Boundary
+   - Add one boundary, failure, or invariant-breaking example.
+   - State what the sample proves and what it does not prove.
+   - verify: the boundary/failure check is executable or directly testable and
+     fails visibly if the defining invariant is broken.
+6. Map Back
+   - Name the production modules, boundaries, adapters, and tests that should
+     receive the learned core next.
+   - identify which production constraints must be reintroduced first.
+   - verify: another engineer can find the target production files and first
+     landing test without reopening the sample design discussion.
+7. Handoff
+   - Recommend `human-led-main-landing-skill` for integrating the learned core,
+     or one more reference iteration when the sample still hides the invariant.
+   - verify: the next human rewrite step is a concrete action, not a generic
+     "continue implementation" instruction.
 
 ## Minimal Sample Design Rules (Required)
 
@@ -239,19 +259,17 @@ Interpretation:
 
 ## Output Format
 
-```
-## Core Goal
-## Missing Inputs / Assumptions
-## Minimal Boundary
+```text
+## Core Slice
+## Assumptions / Missing Inputs
+## Included In Reference
+## Deferred To Production
 ## Suggested Project Placement
-## Minimal Complete Sample
+## Runnable Sample
 ## Reference README Outline
-## Included Invariants
-## Deferred Constraints
 ## Validation
-## Acceptance Review
 ## Mapping Back To Main
-## Next Human Rewrite Step
+## Next Landing Step
 ## Open Risks / Unknowns
 ```
 
@@ -260,73 +278,30 @@ Interpretation:
 Every non-trivial run must make these items explicit:
 
 - whether each required input was provided, inferred, or still missing
+- the defining invariant, ordering rule, or state transition
 - one happy-path validation command or test
 - one important failure or boundary validation
 - one sentence on what the sample proves
 - one sentence on what the sample does **not** prove
-- pass/fail evidence against `references/acceptance-criteria.md`
+- concrete deferred production constraints
 - the exact production modules or boundaries that the sample maps back to next
+- the next human rewrite or landing step
 
 ## Iteration Loop (Required)
 
-- Run acceptance review using `references/acceptance-criteria.md` and record pass/fail evidence.
 - Capture the highest-impact gap in the sample (for example: invariant missing, runtime too noisy, boundary not faithful).
 - Define one next-iteration change that makes the sample more teachable without making it production-heavy.
 - Name the one verification step that proves the next iteration improved the sample.
 
-## Reinforcement Plan (Required)
+## Skill Maintenance Mode
 
-This section applies only when improving the skill package itself. It does
-not apply to ordinary use of the skill for generating a reference sample.
-
-### Goals
-
-- Improve first-pass usability of minimal-complete samples.
-- Reduce recurring failure modes such as pseudo-samples, overgrown mini-projects, and missing production mappings.
-- Promote worked examples that consistently help humans reimplement the core unaided.
-
-### Operating Rules
-
-- Reinforcement runs only when explicitly enabled.
-- Each round must target one concrete failure mode in the skill.
-- Each round must produce a small, auditable change set plus verification notes.
-
-### Reinforcement Mode Gate
+This section applies only when improving the skill package itself. It does not
+apply to ordinary reference-sample generation.
 
 - Default: off.
 - Enable only with an explicit signal such as `reinforcement=on`.
-- Do not auto-enable because a single sample was weak; capture the gap first.
-
-### Audit Baseline
-
-Each reinforcement round must produce:
-- a Git commit containing only that round's changes
-- an audit record in `references/reinforcement-audit.jsonl`
-- validation via `python scripts/validate_reinforcement_audit.py references/reinforcement-audit.jsonl`
-
-### Four-Step Reinforcement Cycle
-
-1) Plan
-   - objective
-   - acceptance criteria
-   - scope in / scope out
-   - evidence inputs
-   - exit condition
-2) Change
-   - failure mode targeted
-   - files changed
-   - guardrail or workflow updates
-   - rollback plan
-3) Verify
-   - checks run
-   - evidence
-   - negative tests
-   - decision
-4) Reflect
-   - improvements
-   - tradeoffs/risks
-   - next highest-impact refinement
-   - next action owner/date
+- If enabled, keep the change to one failure mode and validate audit records
+  with `python scripts/validate_reinforcement_audit.py references/reinforcement-audit.jsonl`.
 
 ## Guardrails
 
