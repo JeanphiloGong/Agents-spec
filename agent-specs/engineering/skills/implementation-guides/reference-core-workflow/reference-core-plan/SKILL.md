@@ -1,6 +1,6 @@
 ---
 name: reference-core-plan
-description: v0.1.2 - Plan a runnable reference-core learning module before building it. Use when a noisy production feature, AI draft, or architecture-heavy flow needs one extracted chain, invariant, scenario-fit src architecture, included/deferred boundary, placement, and validation plan.
+description: v0.1.3 - Plan a runnable reference-core learning module before building it. Use when a noisy production feature, AI draft, architecture-heavy flow, or teaching-plan handoff needs one extracted chain, invariant, scenario-fit src architecture, included/deferred boundary, placement, and validation plan.
 ---
 
 # Reference Core Plan
@@ -11,7 +11,8 @@ Plan one runnable reference-core learning module before writing code. The plan
 identifies the exact chain to learn, defining invariant, visible steps,
 scenario-fit `src/` architecture, included reference behavior, deferred
 production constraints, git-reviewable module layout, safe project placement,
-and validation targets that `reference-core-build` will implement.
+teaching-asset constraints when provided, and validation targets that
+`reference-core-build` will implement.
 
 Use this skill to avoid copying production complexity into a smaller folder or
 building a module that does not teach the real chain.
@@ -23,6 +24,7 @@ building a module that does not teach the real chain.
 - The chain entrypoint, invariant, `src/` architecture, module layout, or
   placement is not yet explicit.
 - A learning module must map back to production modules later.
+- A `reference-core-teaching-plan` output should shape the module plan.
 
 **When NOT to use:** writing the module, reviewing a completed module,
 production landing, tutorial-only derivation, or final integration patches.
@@ -31,6 +33,11 @@ production landing, tutorial-only derivation, or final integration patches.
 
 1. Identify Learning Chain
    - Name the feature, system slice, and one-sentence chain mastery goal.
+   - If a `reference-core-teaching-plan` handoff exists, carry forward its
+     lineage gate, from-zero promise, and asset constraints.
+   - If the handoff says the selected chain is blocked by missing prerequisite
+     work, plan the prerequisite asset instead or stop for the blocking open
+     question.
    - State the chain as `entry input -> key state/data -> decisions ->
      transitions -> output`.
    - Mark required inputs as `provided`, `inferred`, or `missing`.
@@ -45,6 +52,8 @@ production landing, tutorial-only derivation, or final integration patches.
      deferred unless they define the core behavior.
 4. Choose Module Layout and Placement
    - Pick runtime, directory layout, dependency policy, and module path.
+   - Include README sections, traces, fixtures, or staged examples required by
+     the teaching promise when one exists.
    - Prefer `examples/reference-core/<feature-slug>/` unless context proves a
      safer alternative.
    - Verify: the path is outside production-imported code by default.
@@ -79,6 +88,10 @@ production landing, tutorial-only derivation, or final integration patches.
   confirmation before persisting files.
 - If the user wants a teaching guide instead of a runnable module, use
   `from-scratch-tutorial-workflow`.
+- If `reference-core-teaching-plan` marks the chain
+  `blocked-by-missing-prerequisite`, do not plan the current chain as if it can
+  start from zero. Switch to the prerequisite asset or ask for the missing base
+  evidence.
 
 ## Reference Map
 
@@ -86,6 +99,9 @@ production landing, tutorial-only derivation, or final integration patches.
   Read when choosing `src_architecture`, especially if the chain could be
   chain-first, state-machine, pipeline, DDD-inspired, ports/adapters,
   event-sourced, projection-based, or custom.
+- `reference-core-teaching-plan` output
+  Read when the human wants the learning module to support a blog, nano
+  project, tutorial, source-reading note, or personal knowledge-base entry.
 
 ## Output Format
 
@@ -97,6 +113,21 @@ production landing, tutorial-only derivation, or final integration patches.
 - Chain mastery goal:
 - Chain trace:
 - Inputs:
+
+## Teaching Asset Constraints
+- lineage_verdict:
+- base_asset:
+- base_asset_status:
+- starts_from:
+- example_should_begin_with:
+- from_zero_sentence:
+- asset_type:
+- must_show:
+- must_run:
+- must_test:
+- must_trace:
+- must_explain:
+- exclusions:
 
 ## Defining Invariant
 - ...
@@ -149,6 +180,10 @@ production landing, tutorial-only derivation, or final integration patches.
 ## Red Flags
 
 - The plan lacks a chain trace or defining invariant.
+- A provided teaching promise is ignored or not reflected in module
+  requirements.
+- A provided lineage gate is ignored, especially when it blocks on missing
+  prerequisite work.
 - Included and deferred concerns overlap.
 - No boundary or failure check is planned.
 - The suggested path is inside production-imported code.
@@ -165,6 +200,9 @@ production landing, tutorial-only derivation, or final integration patches.
 - [ ] Required inputs are marked as `provided`, `inferred`, or `missing`.
 - [ ] The learning chain is explicit as entry, state/data, decisions,
       transitions, and output.
+- [ ] Teaching asset constraints are carried forward when provided.
+- [ ] Lineage constraints are carried forward when provided, including base
+      asset, starts-from point, and prerequisite status.
 - [ ] The defining invariant is explicit.
 - [ ] Included and deferred concerns are concrete and non-overlapping.
 - [ ] Module layout is git-reviewable and has a production-import barrier.

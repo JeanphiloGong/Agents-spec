@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reference Core Teaching Plan"
+  short_description: "v0.1.0 - Gate and plan a from-zero teaching asset"
+  default_prompt: "Use $reference-core-teaching-plan to turn an already selected core chain into a module lineage gate, blocking prerequisite questions when needed, a from-zero teaching promise, nano-project or blog asset target, and concrete constraints for $reference-core-plan before building the learning module."
