@@ -1,0 +1,4 @@
+interface:
+  display_name: "From-Scratch Tutorial Build"
+  short_description: "v0.1.0 - Build a connected from-scratch implementation tutorial"
+  default_prompt: "Use $from-scratch-tutorial-build to turn an approved from-scratch tutorial plan into a complete markdown guide. For every step, perform Add/Replace, Step Check, Verify, Freeze This Version, and Still Lacks, using $from-scratch-implementation-skill as the core builder when implementation logic is needed."
