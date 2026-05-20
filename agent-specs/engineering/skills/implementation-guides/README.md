@@ -11,7 +11,8 @@ move toward `main`.
 | User situation | Skill | Purpose |
 | --- | --- | --- |
 | Learn the core from first principles before trusting final code | [`from-scratch-tutorial-build`](from-scratch-tutorial-workflow/from-scratch-tutorial-build/SKILL.md) | Derive one feature or method through connected code versions that add to or replace the previous version until the final step yields complete code. |
-| Production code or an AI draft is too noisy to learn from safely | [`reference-core-build`](reference-core-workflow/reference-core-build/SKILL.md) | Build a runnable learning module that extracts the chain, preserves the defining invariant, and is ready for review and map-back. |
+| A project, module, or AI draft has multiple unclear core logic chains | [`reference-core-scan`](reference-core-workflow/reference-core-scan/SKILL.md) | Inventory candidate chains and recommend the first extraction target. |
+| A selected production chain or AI draft is too noisy to learn from safely | [`reference-core-build`](reference-core-workflow/reference-core-build/SKILL.md) | Build a runnable learning module that extracts the chain, preserves the defining invariant, and is ready for review and map-back. |
 | AI draft or reference output needs to land on `main` under human control | [`human-led-main-landing-skill`](human-led-main-landing-skill/SKILL.md) | Plan one human-led, main-first wave with `Human-Owned` logic, AI reference boundaries, verification, and `commit_when` checkpoints. |
 
 ## From-Scratch Tutorial Workflow
@@ -24,7 +25,8 @@ for planning, building, reviewing, and simplifying tutorial artifacts.
 
 `reference-core-workflow/` is the package for runnable reference-core learning
 modules. It contains lifecycle skills for planning, building, reviewing, and
-mapping an extracted chain back to production. `reference-core-build` is the
+mapping an extracted chain back to production. It also includes a scan skill for
+inventorying candidate chains before planning. `reference-core-build` is the
 only builder entrypoint.
 
 ## Operating Order
@@ -41,6 +43,7 @@ $from-scratch-tutorial-simplify
 Use this path when the work is a tutorial-writing workflow.
 
 ```text
+$reference-core-scan
 $reference-core-plan
 $reference-core-build
 $reference-core-review

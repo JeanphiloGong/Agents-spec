@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reference Core Scan"
+  short_description: "v0.1.0 - Inventory core learning chains"
+  default_prompt: "Use $reference-core-scan to inspect a project, module, subsystem, or AI draft, identify candidate core logic chains, compare invariants and learning value, and recommend the first chain to hand off to $reference-core-plan."
