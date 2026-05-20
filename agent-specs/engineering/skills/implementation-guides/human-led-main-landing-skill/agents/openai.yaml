@@ -1,4 +1,4 @@
 interface:
   display_name: "Human-Led Main Landing"
-  short_description: "v0.1.20 - Plan one human-led main-first landing wave"
+  short_description: "v0.1.21 - Plan one human-led main-first landing wave"
   default_prompt: "Use $human-led-main-landing-skill to plan and land one smallest useful main-first wave on `main`, keep `Human-Owned` core logic under explicit human control, and define verification plus `commit_when` checkpoints."
