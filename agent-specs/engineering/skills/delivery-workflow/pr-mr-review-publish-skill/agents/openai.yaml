@@ -1,0 +1,4 @@
+interface:
+  display_name: "PR/MR Review Publish"
+  short_description: "v0.1.1 - Publish evidence-backed PR/MR review verdicts"
+  default_prompt: "Use $pr-mr-review-publish-skill to resolve a GitHub PR or GitLab MR target, normalize evidence-backed findings, decide approve/comment/block, and optionally publish the review through gh or glab."

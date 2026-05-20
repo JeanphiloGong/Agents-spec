@@ -1,34 +1,60 @@
 ---
 name: pr-mr-review-publish-skill
-description: v0.1.0 - Evaluate GitHub PRs or GitLab MRs, normalize review findings, and optionally publish review comments or verdicts via gh/glab.
+description: v0.1.1 - Evaluate GitHub PRs or GitLab MRs, normalize evidence-backed review findings, and optionally publish review comments or verdicts via gh/glab. Use when a target PR/MR needs a merge recommendation, review body, or publish-safe review action.
 ---
 
 # PR/MR Review Publish Skill
 
-## Trigger and Scope
+## Overview
 
-Use this skill when you need to:
-- evaluate a GitHub PR or GitLab MR after manual review or AI review
-- turn review findings into a standard merge recommendation
-- publish the final review comment or verdict without manual copy/paste
+Convert PR/MR review judgment into one auditable review artifact and optionally
+publish it. This skill resolves the target, normalizes findings by severity,
+decides `approve`, `comment`, or `block`, checks the draft against acceptance
+criteria, and publishes through `gh` or `glab` only when the target and verdict
+are safe.
 
-In scope:
-- PR/MR summary review
-- findings normalization and severity ranking
-- merge recommendation (`approve`, `comment`, `block`)
-- direct publishing through `gh` or `glab`
+The skill separates review evidence from publication mechanics. It does not
+auto-fix code, invent metadata, or turn style preferences into blocking
+findings.
 
-Out of scope:
-- deep exploratory code review with no defined target or diff boundary
-- auto-fixing code
-- issue creation or commit drafting
+## When to Use
 
-## Core Purpose
+- A GitHub PR or GitLab MR needs a normalized review summary.
+- Prior manual or AI findings need a consistent merge recommendation.
+- The operator wants to publish a final review comment or verdict.
+- A local diff review needs the same output shape without a remote target.
+- GitHub/GitLab review commands need to be chosen safely by platform.
 
-- Separate review judgment from comment formatting.
-- Produce one auditable review artifact with evidence, verdict, and next action.
-- Keep GitHub and GitLab publication flows consistent.
-- Avoid manual copy/paste when the operator wants the review published.
+**When NOT to use:** broad exploratory review with no target or diff boundary,
+auto-fixing code, issue creation, commit drafting, CI debugging, line-level
+inline review workflows, or publishing comments before the target is resolved.
+Use code review or CI skills for deeper investigation and fixes.
+
+## Reference Map
+
+- `references/acceptance-criteria.md`
+  Use before returning or publishing the review artifact.
+- `references/publish-command-reference.md`
+  Use when selecting `gh` or `glab` commands and file-backed review bodies.
+
+## Required Inputs
+
+Provide one target form:
+
+- `pr_url` or `mr_url`
+- `pr_number` or `mr_number` plus `repo`
+- `base_ref...head_ref` when only a local diff review is needed
+
+Provide one execution mode:
+
+- `draft-only`
+- `publish`
+
+Optional but strongly recommended:
+
+- `decision` (`approve`, `comment`, `block`, or `auto`)
+- `findings` from a prior review pass
+- `summary_context` such as PR title, intent, or scope
 
 ## Fixed Defaults
 
@@ -42,75 +68,66 @@ Out of scope:
 - `inline_comment_mode=off`
 - `evidence_required=on`
 
-## Required Inputs
-
-Provide one target form:
-- `pr_url` or `mr_url`
-- `pr_number` or `mr_number` plus `repo`
-- `base_ref...head_ref` when only a local diff review is needed
-
-Provide one execution mode:
-- `draft-only`
-- `publish`
-
-Optional but strongly recommended:
-- `decision` (`approve`, `comment`, `block`, or `auto`)
-- `findings` from a prior review pass
-- `summary_context` such as PR title, intent, or scope
-
-## Decision Model
-
-Use these platform-neutral decisions:
-
-- `approve`
-  - no blocking findings remain
-  - remaining comments are informational or minor follow-ups
-- `comment`
-  - no blocking findings remain
-  - review still contains non-blocking concerns, questions, or follow-ups
-- `block`
-  - one or more findings materially affect correctness, safety, contract behavior, or merge readiness
-
-Platform mapping:
-- GitHub:
-  - `approve` => `gh pr review --approve`
-  - `comment` => `gh pr review --comment`
-  - `block` => `gh pr review --request-changes`
-- GitLab:
-  - `approve` => `glab mr approve` and optionally `glab mr note`
-  - `comment` => `glab mr note`
-  - `block` => `glab mr note`
-  - GitLab does not have a direct `request changes` CLI equivalent; blocking feedback is expressed through the note body, and `glab mr revoke` may be used when approval must be removed
-
-## Workflow
+## The Operating Loop
 
 1. Resolve target and platform.
    - Prefer PR/MR URL when available.
    - If only a number is provided, require or infer `repo`.
-   - If no remote target exists, operate on the explicit local diff boundary only.
-2. Resolve review source.
+   - If no remote target exists, operate only on the explicit local diff
+     boundary.
+   - Keep mode as `draft-only` while target resolution is ambiguous.
+2. Resolve the review source.
    - Use provided findings first when the operator already reviewed the code.
-   - If findings are not provided and code inspection is requested, inspect the target diff and extract findings before drafting the review.
+   - If findings are not provided and code inspection is requested, inspect the
+     target diff and extract findings before drafting the review.
+   - Do not discard operator-provided findings just because local inspection
+     found fewer issues.
 3. Normalize findings.
-   - Classify each item as `blocking`, `non-blocking`, `question`, or `follow-up`.
-   - Attach evidence: file, behavior, contract, test gap, or uncertainty note.
-4. Decide the verdict.
-   - Default to `block` when any blocking finding exists.
-   - Default to `comment` when only non-blocking items or questions exist.
-   - Use `approve` only when no blocking findings remain and the review is merge-safe.
-5. Draft one standard review artifact.
+   - Classify each item as `blocking`, `non-blocking`, `question`, or
+     `follow-up`.
+   - Attach concrete evidence: file, behavior, contract, test gap, or
+     uncertainty note.
    - Keep findings ordered by severity.
-   - Keep the merge recommendation explicit.
-   - Keep open questions and follow-ups separate from blocking findings.
+4. Decide the verdict.
+   - Use `block` when any blocking finding materially affects correctness,
+     safety, contract behavior, or merge readiness.
+   - Use `comment` when only non-blocking concerns, questions, or follow-ups
+     remain.
+   - Use `approve` only when no blocking findings remain and the review is
+     merge-safe.
+5. Draft one standard review artifact.
+   - Put findings before the merge recommendation.
+   - Keep open questions and follow-up actions separate from blocking
+     findings.
+   - Say explicitly when there are no findings.
 6. Run acceptance review.
    - Check the draft against `references/acceptance-criteria.md`.
-   - If the draft fails acceptance, revise before publishing.
-7. Publish when `mode=publish`.
+   - Revise before publishing or returning when acceptance fails.
+   - Name the highest-risk remaining gap.
+7. Publish only when safe and requested.
+   - Read `references/publish-command-reference.md`.
    - Write the final body to a file.
-   - Use the platform-specific command from `references/publish-command-reference.md`.
-   - If network or sandbox restrictions block `gh` or `glab`, request escalation and rerun the same command.
-8. Report result.
-   - Always return the final verdict, whether publication happened, the command family used, and the highest-risk remaining gap.
+   - Use the selected platform command family.
+   - For GitLab blocking feedback, use a note and optional approval revoke;
+     do not pretend `request changes` exists as a native CLI state.
+8. Report the result.
+   - Include target, platform, mode, findings, verdict, publication status,
+     acceptance result, highest-risk gap, and next step.
+
+## Decision Points
+
+- If the target PR/MR or local diff boundary is ambiguous, stay in
+  `draft-only` and report the missing target fact.
+- If any blocking finding remains, verdict is `block`; never publish it as an
+  approval.
+- If all findings are non-blocking or questions, verdict is `comment`.
+- If there are no findings and no material unknowns, verdict may be `approve`.
+- If CI state is unknown, do not fabricate it; decide whether the code review
+  verdict can stand without CI.
+- If the platform is GitLab, map blocking feedback to `glab mr note` and use
+  `glab mr revoke` only when removing a prior approval is required.
+- If the operator requested inline comments, confirm a line-level workflow;
+  otherwise publish a summary review.
 
 ## Review Comment Template
 
@@ -132,9 +149,46 @@ Use this structure for the review body:
 ```
 
 Rules:
+
 - If there are no findings, say that explicitly.
 - Findings must come before summary or praise.
 - Do not hide a blocking issue inside `Open Questions`.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The target number is probably in this repo." | Publishing to the wrong PR/MR is worse than returning a draft. Resolve the target first. |
+| "This style preference bothers me, so it should block." | Blocking findings require correctness, safety, contract, test, or repository-rule impact. |
+| "GitLab can request changes like GitHub." | GitLab CLI does not expose that review state; use notes and optional approval revoke. |
+| "The operator provided findings, but my quick scan did not see them." | Preserve provided findings unless you can disprove them with evidence. |
+| "Publishing a draft review is harmless." | Published comments affect collaborators; run acceptance checks first. |
+
+## Red Flags
+
+- The target PR/MR or repo is unresolved while `mode=publish`.
+- A blocking finding has no file, behavior, contract, test-gap, or uncertainty
+  evidence.
+- The artifact starts with praise or summary before findings.
+- `approve` appears while any blocking finding remains.
+- GitHub `request-changes` semantics are described as native GitLab CLI
+  behavior.
+- CI status, PR metadata, or diff status is invented.
+- Operator-provided findings disappear without explicit evidence.
+
+## Verification
+
+- [ ] Target PR/MR or local diff boundary is explicit, or result remains
+      `draft-only`.
+- [ ] Platform is resolved to GitHub, GitLab, or local-only.
+- [ ] Every blocking finding has concrete evidence.
+- [ ] Findings appear before merge recommendation.
+- [ ] Verdict uses exactly `approve`, `comment`, or `block`.
+- [ ] `approve` is not used while blocking findings remain.
+- [ ] Draft passes `references/acceptance-criteria.md`.
+- [ ] Publish command family matches the selected platform when publication is
+      requested.
+- [ ] Output states whether publication happened.
 
 ## Output Format
 
@@ -168,28 +222,16 @@ Rules:
 - ...
 ```
 
-## Acceptance and Iteration Loop
-
-- Before finalizing, review the artifact against `references/acceptance-criteria.md`.
-- If acceptance fails, revise the draft before publishing or returning it.
-- Always name the highest-risk remaining gap in the final output, even when the review is publishable.
-- Always include one next-step action:
-  - publish the review
-  - answer an open question
-  - rerun review on a narrower diff
-  - follow up after code changes land
-
-## References
-
-- `references/acceptance-criteria.md`
-- `references/publish-command-reference.md`
-
 ## Guardrails
 
 - Do not publish anything until the target PR/MR is resolved unambiguously.
 - Do not approve when a blocking finding remains unresolved.
 - Do not fabricate PR/MR metadata, diff status, or CI state.
-- Do not present stylistic preferences as blocking unless they affect correctness, safety, or a repository rule.
-- Do not assume GitLab has a first-class `request changes` CLI action; use `note` and optional `revoke` semantics instead.
-- Do not default to inline line comments; use summary review comments unless the operator explicitly asks for line-level review behavior.
-- Do not discard operator-provided findings just because a local diff inspection found fewer issues.
+- Do not present stylistic preferences as blocking unless they affect
+  correctness, safety, or a repository rule.
+- Do not assume GitLab has a first-class `request changes` CLI action; use
+  `note` and optional `revoke` semantics instead.
+- Do not default to inline line comments; use summary review comments unless
+  the operator explicitly asks for line-level review behavior.
+- Do not discard operator-provided findings just because a local diff
+  inspection found fewer issues.
