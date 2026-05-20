@@ -1,6 +1,6 @@
 ---
 name: human-led-main-landing-skill
-description: v0.1.21 - Plan one human-led, main-first landing wave from an AI draft or worktree. Use when the human must keep `Human-Owned` core logic on `main`, treat AI output as reference only, and define verification plus reversible `commit_when` checkpoints.
+description: v0.1.22 - Plan one human-led, main-first landing wave from an AI draft or worktree. Use when the human must keep `Human-Owned` core logic on `main`, treat AI output as reference only, and define verification plus reversible `commit_when` checkpoints.
 ---
 
 # Human-Led Main Landing Skill (One-Wave, Main-First)
@@ -30,7 +30,7 @@ final-code-only requests with no reasoning or ownership control, post-hoc diff
 summaries, code review, or broad multi-wave planning. Use
 `from-scratch-tutorial-build` when the user mainly wants to learn core
 logic step by step; use `reference-core-plan` and `reference-core-build` when
-the core is too noisy to learn safely before landing.
+the core chain is too noisy to learn safely before landing.
 
 ## The Main-First Landing Operating Loop
 
@@ -62,7 +62,7 @@ next wave.
      are human-controlled.
 5. Derive Before Landing
    - For noisy or novel core behavior, run `reference-core-plan` and
-     `reference-core-build` first.
+     `reference-core-build` first to extract a runnable learning module.
    - For `Human-Owned` steps that need step-by-step reasoning, run
      `from-scratch-tutorial-build` before coding on `main`.
    - Verify: every `Human-Owned` step names its reasoning source.
@@ -138,7 +138,8 @@ Default for:
   `mode=triage`, but still begin with the wave goal, control split, and human
   checkpoints.
 - If the core behavior is novel, architecture-heavy, or too noisy, run
-  `reference-core-plan` and `reference-core-build` before this landing plan.
+  `reference-core-plan` and `reference-core-build` before this landing plan so
+  the landing work starts from a mastered chain.
 - If a `Human-Owned` step lacks a reasoning path, run
   `from-scratch-tutorial-build` before coding.
 - If the proposed change starts with schema or model work, verify that the

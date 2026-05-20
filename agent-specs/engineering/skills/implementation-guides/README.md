@@ -11,7 +11,7 @@ move toward `main`.
 | User situation | Skill | Purpose |
 | --- | --- | --- |
 | Learn the core from first principles before trusting final code | [`from-scratch-tutorial-build`](from-scratch-tutorial-workflow/from-scratch-tutorial-build/SKILL.md) | Derive one feature or method through connected code versions that add to or replace the previous version until the final step yields complete code. |
-| Production code or an AI draft is too noisy to learn from safely | [`reference-core-build`](reference-core-workflow/reference-core-build/SKILL.md) | Build a runnable minimal-complete reference sample that preserves the defining invariant before review and map-back. |
+| Production code or an AI draft is too noisy to learn from safely | [`reference-core-build`](reference-core-workflow/reference-core-build/SKILL.md) | Build a runnable learning module that extracts the chain, preserves the defining invariant, and is ready for review and map-back. |
 | AI draft or reference output needs to land on `main` under human control | [`human-led-main-landing-skill`](human-led-main-landing-skill/SKILL.md) | Plan one human-led, main-first wave with `Human-Owned` logic, AI reference boundaries, verification, and `commit_when` checkpoints. |
 
 ## From-Scratch Tutorial Workflow
@@ -22,10 +22,10 @@ for planning, building, reviewing, and simplifying tutorial artifacts.
 
 ## Reference Core Workflow
 
-`reference-core-workflow/` is the package for runnable core reference samples.
-It contains lifecycle skills for planning, building, reviewing, and mapping a
-minimal-complete sample back to production. `reference-core-build` is the only
-builder entrypoint.
+`reference-core-workflow/` is the package for runnable reference-core learning
+modules. It contains lifecycle skills for planning, building, reviewing, and
+mapping an extracted chain back to production. `reference-core-build` is the
+only builder entrypoint.
 
 ## Operating Order
 
@@ -48,7 +48,7 @@ $reference-core-map-back
 ```
 
 Use this path when noisy production code or an AI draft needs a gated runnable
-reference sample before landing.
+learning module before landing.
 
 ```text
 $reference-core-build
@@ -57,8 +57,8 @@ $reference-core-map-back
 $human-led-main-landing-skill
 ```
 
-Use this when the core slice is already explicit and the sample can be built
-without a separate planning pass.
+Use this when the chain, invariant, module layout, and validation checks are
+already explicit enough to build without a separate planning pass.
 
 Use `$from-scratch-tutorial-build`, `$reference-core-build`, and
 `$human-led-main-landing-skill` together only when the work needs both
@@ -69,7 +69,7 @@ landing on `main`.
 
 - Use `from-scratch-tutorial-build` for tutorial-first reasoning, not production
   landing.
-- Use `reference-core-build` for runnable core samples, not final production
-  patches.
+- Use `reference-core-build` for runnable learning modules, not final
+  production patches.
 - Use `human-led-main-landing-skill` for one verified main-first landing wave,
   not broad multi-wave migration planning.

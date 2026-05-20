@@ -4,7 +4,7 @@
 
 Produce a small runnable graph-execution engine that is teachable in one sitting, while preserving the ideas that make LangGraph-like systems interesting.
 
-## Include In The Reference Sample
+## Include In The Reference Module
 
 - a typed/shared state object
 - a node registry
@@ -33,12 +33,11 @@ Produce a small runnable graph-execution engine that is teachable in one sitting
 ## Why This Is Minimal-Complete
 
 - The core question is graph-driven state evolution, not framework wiring.
-- A human who reimplements this sample learns node contracts, routing, and termination.
-- The sample is still faithful enough that production concerns can be layered back later.
+- A human who reimplements this module learns node contracts, routing, and termination.
+- The module is still faithful enough that production concerns can be layered back later.
 
 ## First Mapping Back To Main
 
 - map `run_graph` to the production orchestration boundary
 - map node callables to real workflow steps/tools
 - reintroduce checkpointing only after the in-memory graph is understood
-

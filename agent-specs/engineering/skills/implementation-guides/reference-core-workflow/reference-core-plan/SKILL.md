@@ -1,77 +1,101 @@
 ---
 name: reference-core-plan
-description: v0.1.0 - Plan a runnable reference-core sample before building it. Use when a noisy production feature, AI draft, or architecture-heavy flow needs a core slice, invariant, included/deferred boundary, placement, and validation plan.
+description: v0.1.2 - Plan a runnable reference-core learning module before building it. Use when a noisy production feature, AI draft, or architecture-heavy flow needs one extracted chain, invariant, scenario-fit src architecture, included/deferred boundary, placement, and validation plan.
 ---
 
 # Reference Core Plan
 
 ## Overview
 
-Plan one runnable minimal-complete reference sample before writing code. The
-plan identifies the core slice, defining invariant, included reference behavior,
-deferred production constraints, safe project placement, and validation targets
-that `reference-core-build` will implement.
+Plan one runnable reference-core learning module before writing code. The plan
+identifies the exact chain to learn, defining invariant, visible steps,
+scenario-fit `src/` architecture, included reference behavior, deferred
+production constraints, git-reviewable module layout, safe project placement,
+and validation targets that `reference-core-build` will implement.
 
 Use this skill to avoid copying production complexity into a smaller folder or
-building a sample that does not prove the real invariant.
+building a module that does not teach the real chain.
 
 ## When to Use
 
 - Production code or an AI draft is too noisy to learn from directly.
-- The human wants a reference sample plan before code is written.
-- The core invariant, sample boundary, or placement is not yet explicit.
-- A reference sample must map back to production modules later.
+- The human wants to extract one chain before code is written.
+- The chain entrypoint, invariant, `src/` architecture, module layout, or
+  placement is not yet explicit.
+- A learning module must map back to production modules later.
 
-**When NOT to use:** writing the sample, reviewing a completed sample,
+**When NOT to use:** writing the module, reviewing a completed module,
 production landing, tutorial-only derivation, or final integration patches.
 
 ## The Planning Loop
 
-1. Identify Core Slice
-   - Name the feature, system slice, and one-sentence core behavior goal.
+1. Identify Learning Chain
+   - Name the feature, system slice, and one-sentence chain mastery goal.
+   - State the chain as `entry input -> key state/data -> decisions ->
+     transitions -> output`.
    - Mark required inputs as `provided`, `inferred`, or `missing`.
-   - Verify: no missing input would change the sample's core boundary.
+   - Verify: no missing input would change the chain boundary.
 2. Name the Defining Invariant
    - State the ordering rule, state transition, data invariant, or core loop
-     the sample must preserve.
-   - Verify: a sample that breaks this rule would visibly fail.
+     the module must preserve.
+   - Verify: a module that breaks this rule would visibly fail.
 3. Split Included vs Deferred
    - List what belongs in the reference and what remains production-only.
    - Verify: storage, network, auth, logging, rollout, and config concerns are
      deferred unless they define the core behavior.
-4. Choose Sample Shape and Placement
-   - Pick runtime, file budget, dependency policy, and sample path.
+4. Choose Module Layout and Placement
+   - Pick runtime, directory layout, dependency policy, and module path.
    - Prefer `examples/reference-core/<feature-slug>/` unless context proves a
      safer alternative.
    - Verify: the path is outside production-imported code by default.
-5. Plan Validation
+5. Choose Scenario-Fit `src/` Architecture
+   - Choose the simplest internal `src/` layout that keeps the extracted chain
+     understandable for this scenario.
+   - Prefer chain-first files for small algorithms, state machines, schedulers,
+     parsers, caches, editor loops, and graph runners.
+   - Use DDD-inspired `domain/` and `application/` only when business entities,
+     rules, and invariants would otherwise blur together.
+   - Add `ports/`, `adapters/`, or `projections/` only when external
+     boundaries, fake gateways, or read/write views are part of understanding
+     the chain.
+   - Verify: every proposed `src/` directory has a job in the learning chain;
+     no directory exists just to resemble production architecture.
+6. Plan Validation
    - Define one happy path and one boundary or failure check.
-   - State what the sample will prove and not prove.
+   - State what the module will prove and not prove.
    - Verify: `reference-core-build` can execute or directly test both checks.
-6. Prepare Map-Back Notes
+7. Prepare Map-Back Notes
    - Name likely production modules, boundaries, adapters, and first landing
      tests.
    - Verify: `reference-core-map-back` has concrete targets to refine.
 
 ## Decision Points
 
-- If the defining invariant is unknown, ask before planning the sample unless
+- If the defining invariant is unknown, ask before planning the module unless
   repository evidence makes it explicit.
 - If a production boundary is part of the core behavior, keep the smallest
   faithful version in the reference and explain why.
-- If safe placement is unclear, choose an ephemeral sample and ask for
+- If safe placement is unclear, choose an ephemeral module and ask for
   confirmation before persisting files.
-- If the user wants a teaching guide instead of a runnable sample, use
+- If the user wants a teaching guide instead of a runnable module, use
   `from-scratch-tutorial-workflow`.
+
+## Reference Map
+
+- `references/source-architecture-selection.md`
+  Read when choosing `src_architecture`, especially if the chain could be
+  chain-first, state-machine, pipeline, DDD-inspired, ports/adapters,
+  event-sourced, projection-based, or custom.
 
 ## Output Format
 
 ```markdown
 # Reference Core Plan: <Feature>
 
-## Core Slice
+## Learning Chain
 - Feature:
-- Core behavior goal:
+- Chain mastery goal:
+- Chain trace:
 - Inputs:
 
 ## Defining Invariant
@@ -83,12 +107,19 @@ production landing, tutorial-only derivation, or final integration patches.
 ## Deferred To Production
 - ...
 
-## Sample Shape and Placement
+## Module Layout and Placement
 - runtime:
-- file_budget:
+- directory_layout:
+- required_files:
+- src_architecture:
+  - style: chain-first | ddd-inspired | ports-and-adapters | custom
+  - src_layout:
+  - why_this_fits:
+  - upgrade_triggers_not_used:
 - dependency_policy:
 - suggested_path:
 - production_import_barrier:
+- git_review_boundary:
 
 ## Validation Plan
 - happy_path:
@@ -110,30 +141,41 @@ production landing, tutorial-only derivation, or final integration patches.
 
 | Rationalization | Reality |
 |---|---|
-| "The sample can discover the invariant while being built." | If the invariant is unclear, the sample may prove the wrong thing. |
+| "The module can discover the invariant while being built." | If the invariant is unclear, the module may prove the wrong thing. |
 | "Copying production code is the fastest plan." | Copying preserves incidental complexity instead of isolating the core. |
-| "Placement can be decided later." | Placement determines whether the sample can accidentally become production-importable. |
+| "Placement can be decided later." | Placement determines whether the module can accidentally become production-importable. |
+| "DDD is a good default." | Architecture should follow the chain pressure; full DDD can hide small mechanisms. |
 
 ## Red Flags
 
-- The plan lacks a defining invariant.
+- The plan lacks a chain trace or defining invariant.
 - Included and deferred concerns overlap.
 - No boundary or failure check is planned.
 - The suggested path is inside production-imported code.
+- The layout is a loose file instead of a reviewable module directory without
+  justification.
+- `src_architecture` is missing, generic, or copied from production without
+  explaining why it fits the chain.
+- DDD, adapters, or projections appear without business-rule or boundary
+  pressure.
 - Map-back targets are absent.
 
 ## Verification
 
 - [ ] Required inputs are marked as `provided`, `inferred`, or `missing`.
+- [ ] The learning chain is explicit as entry, state/data, decisions,
+      transitions, and output.
 - [ ] The defining invariant is explicit.
 - [ ] Included and deferred concerns are concrete and non-overlapping.
-- [ ] Sample placement has a production-import barrier.
+- [ ] Module layout is git-reviewable and has a production-import barrier.
+- [ ] `src_architecture` names a scenario-fit style, concrete `src/` layout,
+      rationale, and rejected upgrade triggers.
 - [ ] Happy-path and boundary/failure validation are planned.
 - [ ] Map-back starting points are named.
 
 ## Guardrails
 
-- Do not write sample code during planning.
+- Do not write module code during planning.
 - Do not invent invariants or production modules without evidence.
 - Do not plan production patches.
-- Do not place samples in production-imported paths by default.
+- Do not place modules in production-imported paths by default.

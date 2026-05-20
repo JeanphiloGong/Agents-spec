@@ -2,7 +2,9 @@
 
 ## Default Rule
 
-Persist the reference sample in the target project repository so it evolves with the real codebase, but keep it outside the production runtime tree.
+Persist the reference core learning module in the target project repository so
+it evolves with the real codebase, but keep it outside the production runtime
+tree.
 
 ## Default Location
 
@@ -13,9 +15,9 @@ This should be the first choice unless the project already has a stronger conven
 ## Allowed Alternatives
 
 - `docs/reference-core/<feature-slug>/`
-  - use when the sample is documentation-first and only lightly runnable
+  - use when the module is documentation-first and only lightly runnable
 - `playground/reference-core/<feature-slug>/`
-  - use when the sample is exploratory, operator-owned, or intentionally non-supported
+  - use when the module is exploratory, operator-owned, or intentionally non-supported
 
 ## Avoid By Default
 
@@ -25,16 +27,19 @@ This should be the first choice unless the project already has a stronger conven
 - `internal/`
 - any path consumed by production imports or release packaging
 
-## Required Companion Files
+## Required Module Files
 
-Every persisted sample should ship with:
+Every persisted module should ship with:
 - `README.md`
-- the minimal sample code
-- any tiny input/test fixture needed to run the sample
+- `src/` or an explicitly justified single source file
+- `tests/` or an inline test command with a clear reason
+- any tiny input fixture or trace needed to understand the chain
 
 ## README Must Explain
 
-- what the sample proves
+- the extracted chain from input to output
+- what the module proves
+- why the `src/` architecture fits this scenario
 - which invariants are preserved
 - which production concerns were deferred
 - how to run or validate it
@@ -42,8 +47,7 @@ Every persisted sample should ship with:
 
 ## Exception Rule
 
-If the sample should **not** live in the project repository, the output must state:
+If the module should **not** live in the project repository, the output must state:
 - why it is ephemeral
 - where it should live temporarily
 - when it should be deleted or promoted
-

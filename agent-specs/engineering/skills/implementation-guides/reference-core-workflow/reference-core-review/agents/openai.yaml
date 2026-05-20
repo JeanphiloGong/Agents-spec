@@ -1,4 +1,4 @@
 interface:
   display_name: "Reference Core Review"
-  short_description: "v0.1.0 - Review runnable reference-core samples"
-  default_prompt: "Use $reference-core-review to check whether a reference-core sample is runnable, minimal-complete, invariant-preserving, safely placed outside production imports, and ready for map-back."
+  short_description: "v0.1.2 - Review reference-core learning modules"
+  default_prompt: "Use $reference-core-review to check whether a reference-core learning module is runnable, chain-complete, invariant-preserving, scenario-fit in src architecture, git-reviewable, safely placed outside production imports, and ready for map-back."

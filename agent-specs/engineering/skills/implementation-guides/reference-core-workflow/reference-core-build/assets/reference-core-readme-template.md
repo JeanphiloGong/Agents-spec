@@ -1,10 +1,25 @@
-# <Feature Name> Reference Core
+# <Feature Name> Reference Core Module
 
 ## Purpose
 
-This sample exists to teach and validate the core behavior of `<feature/system>` without the full production environment.
+This module exists to extract, teach, and validate one important chain from
+`<feature/system>` without the full production environment.
 
-## What This Sample Proves
+It should be complete enough for another engineer to run it, review it in git,
+and explain the chain back. It does not need blog polish unless publication is
+explicitly requested.
+
+## Extracted Chain
+
+```text
+entry input
+-> key state/data
+-> decision points
+-> transitions
+-> output
+```
+
+## What This Module Proves
 
 - ...
 - ...
@@ -19,6 +34,25 @@ This sample exists to teach and validate the core behavior of `<feature/system>`
 - ...
 - ...
 
+## Module Layout
+
+```text
+.
+├── README.md
+├── src/
+├── tests/
+├── fixtures/   # optional
+└── traces/     # optional
+```
+
+## Source Architecture
+
+- style: chain-first | ddd-inspired | ports-and-adapters | custom
+- why this fits:
+- directories:
+  - `src/<path>`:
+- upgrade triggers intentionally not used:
+
 ## How To Run
 
 ```bash
@@ -32,11 +66,12 @@ This sample exists to teach and validate the core behavior of `<feature/system>`
 
 ## Mapping Back To Main
 
-- sample entrypoint -> `<production module/path>`
-- sample state/model -> `<production module/path>`
+- module entrypoint -> `<production module/path>`
+- module state/model -> `<production module/path>`
+- module tests -> `<test path/name>`
 - first production test to port -> `<test path/name>`
 
 ## Notes
 
-- This is a reference artifact, not production source of truth.
-- Do not import this sample into production runtime code by default.
+- This is a learning module, not production source of truth.
+- Do not import this module into production runtime code by default.

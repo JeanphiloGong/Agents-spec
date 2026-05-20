@@ -2,9 +2,9 @@
 
 ## Goal
 
-Produce a tiny editor-like sample that teaches the core Vi/Vim-style interaction model without terminal/UI noise.
+Produce a tiny editor-like module that teaches the core Vi/Vim-style interaction model without terminal/UI noise.
 
-## Include In The Reference Sample
+## Include In The Reference Module
 
 - editor state: buffer, cursor, mode
 - at least `normal` and `insert` modes
@@ -32,7 +32,7 @@ Produce a tiny editor-like sample that teaches the core Vi/Vim-style interaction
 ## Why This Is Minimal-Complete
 
 - The core is modal state and command interpretation, not terminal plumbing.
-- A human who can rebuild this sample understands mode transitions and edit semantics.
+- A human who can rebuild this module understands mode transitions and edit semantics.
 - Production rendering and IO can be layered back after the mental model is solid.
 
 ## First Mapping Back To Main
@@ -40,4 +40,3 @@ Produce a tiny editor-like sample that teaches the core Vi/Vim-style interaction
 - map `handle_key` to the real input dispatch boundary
 - map `EditorState` to the production editor session model
 - reintroduce rendering and file adapters only after modal semantics are stable
-
