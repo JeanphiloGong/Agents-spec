@@ -1,16 +1,16 @@
 ---
 name: project-skill-author
-description: v0.1.9 - Author reusable Codex-native skills with development-pack-style operating loops, trigger-quality metadata, misuse defenses, and verification; use when creating or upgrading project skills, onboarding skills, coordination skills, role skills, or reusable skill packages that should ship as native Codex skills.
+description: v0.1.10 - Author and decompose reusable Codex-native skills with development-pack-style operating loops, trigger-quality metadata, misuse defenses, and verification; use when creating, upgrading, or splitting project skills, onboarding skills, coordination skills, role skills, or reusable skill packages.
 ---
 
 # Project Skill Author
 
 ## Overview
 
-Design or upgrade reusable project skills so they behave like executable
-operating manuals, not one-off prompts or policy dumps. A good skill tells the
-agent when to use it, what loop to follow, how to avoid common failure modes,
-and how to verify the result before handing work back.
+Design, upgrade, or decompose reusable project skills so they behave like
+executable operating manuals, not one-off prompts or policy dumps. A good skill
+tells the agent when to use it, what loop to follow, how to avoid common
+failure modes, and how to verify the result before handing work back.
 
 Default to Codex-native packages. Preserve trigger-quality frontmatter,
 `agents/openai.yaml`, progressive disclosure through `references/`, and explicit
@@ -26,6 +26,11 @@ verification.
   teams.
 - Adding reviewer or acceptance skills when generation and quality review are
   materially different reusable workflows.
+- Deciding whether an existing skill should stay single, move material into
+  references, or split into a reusable skill package.
+- Refactoring an overgrown skill into lifecycle skills such as plan, build,
+  review, simplify, ship, or map-back when those phases can be invoked
+  independently.
 
 **When NOT to use:** one-off prompts, local task notes, single-use scripts,
 pure API integration wrappers, or documentation that does not need agent
@@ -41,6 +46,8 @@ execution behavior.
 - Keep `SKILL.md` lean; move long reference material into `references/`.
 - Prefer one skill by default; split only when workflows or acceptance gates are
   genuinely different.
+- Split by distinct triggers, workflows, outputs, and verification, not by file
+  length alone.
 - Do not invent tools, APIs, metadata fields, or platform capabilities.
 - Treat Codex metadata as part of the package contract, not decoration.
 
@@ -53,7 +60,8 @@ Collect the concrete situations the skill must handle before drafting structure.
 - Identify the project purpose, target users, and primary outcomes.
 - Capture at least two realistic trigger prompts when possible.
 - Name the current failure mode the skill should prevent.
-- Decide whether the user needs creation, upgrade, review, or packaging work.
+- Decide whether the user needs creation, upgrade, review, packaging, or
+  package-splitting work.
 
 If the mission is unclear, ask for the smallest missing input that would change
 the skill boundary. Do not ask for details that can be inferred from the target
@@ -74,6 +82,8 @@ Define the always-loaded trigger layer first.
 
 Derive the workflow from field practice in the skill's domain.
 
+- Choose the structure first: one skill, one skill with references, paired
+  skills, or a multi-skill package.
 - Start with an overview that explains the behavior the skill creates.
 - Write an operating loop with concrete steps the agent can follow.
 - Put decision points where agent behavior commonly branches.
@@ -201,6 +211,83 @@ verification.
 - If official tooling is unavailable, create the compatible structure manually
   and note the fallback.
 
+## Skill Package Split Mode
+
+Use `split_package` mode when an existing skill has grown into multiple
+reusable workflows, distinct acceptance gates, or lifecycle phases that users
+will call separately.
+
+Do not split a skill merely because `SKILL.md` is long. Try references first
+when the workflow is still one closed loop and the heavy material is examples,
+schemas, policy detail, or reusable templates.
+
+### Split Signals
+
+Split into a package when several of these are true:
+
+- Users can naturally invoke phases independently with different trigger
+  phrases.
+- Each phase has a different output format, verification standard, or failure
+  mode.
+- The workflow has durable lifecycle stages such as `plan`, `build`, `review`,
+  `simplify`, `ship`, or `map-back`.
+- One phase can block, fail, or be revised without invalidating the others.
+- A package routing table would reduce confusion about which skill to call.
+- A reviewer or simplifier needs a different acceptance workflow from the
+  generator.
+
+Keep one skill when several of these are true:
+
+- The skill is one atomic execution loop, even if it has many steps.
+- Later steps depend on staged evidence from earlier steps and should not be
+  called separately.
+- The main issue is body length, not competing triggers or outputs.
+- Long material can move to `references/` without changing the public skill
+  surface.
+- Splitting would create forwarding skills, duplicate builders, or compatibility
+  residue.
+- Users would need to remember more skill names without gaining a clearer
+  workflow boundary.
+
+### Split Package Workflow
+
+1. Audit the Current Skill
+   - List trigger phrases, modes, outputs, verification checks, references, and
+     recurring failure modes.
+   - Verify: each candidate phase has evidence from real use, not only a naming
+     idea.
+2. Decide the Structure
+   - Choose among `single_skill`, `single_skill_with_references`,
+     `paired_skill`, and `multi_skill_package`.
+   - Verify: the chosen structure is simpler than the alternatives for the
+     expected user prompt.
+3. Name the Package and Skills
+   - Use a package name for the domain and skill names for independent actions.
+   - Use lifecycle suffixes only when the phase can be called directly.
+   - Verify: every public skill name has a concrete "when to use" trigger.
+4. Allocate Responsibilities
+   - Give each skill one owner workflow, one output contract when possible, and
+     its own verification.
+   - Move shared examples, schemas, and templates into the owning skill's
+     `references/` or package-level routing material when justified.
+   - Verify: no two skills claim to be the same builder, reviewer, or gate.
+5. Remove Legacy Residue
+   - Delete old wrapper skills, forwarding prompts, stale metadata, and
+     duplicate references unless the user explicitly approves a temporary
+     migration path.
+   - Verify: repository search finds no stale old skill names in current
+     routing docs or metadata.
+6. Update Routing and Metadata
+   - Add or update `agents/openai.yaml` for each Codex-facing skill.
+   - Create a package README only when multiple sibling skills need routing or
+     the user asks for package-level navigation.
+   - Verify: routing docs point to the new canonical skill names.
+7. Validate the Package
+   - Run the Codex-native compatibility checklist for every skill.
+   - Forward-test at least one realistic prompt per public skill.
+   - Verify: each skill can execute without silently depending on a deleted
+     legacy skill.
+
 ## Optional Paired Skill Pattern
 
 - Start with one skill by default.
@@ -260,6 +347,8 @@ safety boundaries.
 | "This should support every domain." | A generic workflow usually produces generic output. Pick the domains that materially affect execution. |
 | "Put every detail in SKILL.md so it is always loaded." | Large bodies dilute the trigger and waste context. Put heavy material in references. |
 | "Create a reviewer skill by default." | Paired skills are useful only when generation and acceptance are stable, distinct workflows. |
+| "The skill is long, so it should become a package." | Length alone is a reference-splitting signal. Package splits require distinct triggers, outputs, or acceptance gates. |
+| "Keep the old skill as a wrapper so nothing breaks." | Compatibility residue preserves ambiguity. Remove the old entry unless the user explicitly approves a temporary migration. |
 
 ## Red Flags
 
@@ -275,6 +364,9 @@ safety boundaries.
 - The package invents tools, APIs, metadata fields, or platform behavior.
 - Role-like behavior is scattered through prose instead of captured in a
   charter.
+- A split package leaves an old forwarding skill or duplicate canonical
+  builder.
+- Package skills have lifecycle names but cannot be invoked independently.
 
 ## Verification
 
@@ -295,6 +387,12 @@ Before considering a skill package complete, confirm:
 - [ ] No secrets, invented capabilities, or unsupported metadata are present.
 - [ ] Role-like skills include an AGENTS-style charter.
 - [ ] At least one realistic trigger prompt can be mapped through the workflow.
+- [ ] If `split_package` was used, the single-skill vs reference vs package
+      decision is recorded.
+- [ ] If a package was split, every public skill has its own trigger, workflow,
+      metadata, and verification.
+- [ ] No stale legacy skill names, wrapper prompts, or duplicate builders remain
+      unless an explicit temporary migration path was approved.
 
 ## References
 
@@ -315,6 +413,7 @@ Before considering a skill package complete, confirm:
 ## Skill Name and Placement
 ## Runtime Compatibility
 ## Trigger and Scope
+## Package Split Decision
 ## Operating Loop Plan
 ## Package Layout
 ## Resources
@@ -336,3 +435,8 @@ Before considering a skill package complete, confirm:
   executable operating loop.
 - Do not create auxiliary README, changelog, or install docs by default.
 - Do not create paired skills without a distinct reusable acceptance workflow.
+- Do not split a skill solely because it is long.
+- Do not create package skills that only forward to another skill.
+- Do not leave duplicate canonical builders, stale metadata, or old skill names
+  after a package split unless the user explicitly approved a temporary
+  migration.
