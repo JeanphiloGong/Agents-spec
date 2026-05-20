@@ -68,7 +68,7 @@ work.
 - If the output should be a runnable mini-project, use `reference-core-impl-skill`
   instead.
 - If the user asks for the full guide immediately, use
-  `from-scratch-tutorial-build` or `from-scratch-implementation-skill`.
+  `from-scratch-tutorial-build`.
 
 ## Output Format
 
@@ -103,7 +103,7 @@ work.
 - ...
 
 ## Build Handoff
-- recommended_builder: from-scratch-tutorial-build | from-scratch-implementation-skill
+- recommended_builder: from-scratch-tutorial-build
 - notes:
 ```
 

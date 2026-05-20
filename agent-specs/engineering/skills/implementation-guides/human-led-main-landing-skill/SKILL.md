@@ -28,7 +28,7 @@ for the production result.
 **When NOT to use:** tutorial-first teaching with no landing context,
 final-code-only requests with no reasoning or ownership control, post-hoc diff
 summaries, code review, or broad multi-wave planning. Use
-`from-scratch-implementation-skill` when the user mainly wants to learn core
+`from-scratch-tutorial-build` when the user mainly wants to learn core
 logic step by step; use `reference-core-impl-skill` when the core is too noisy
 to learn safely before landing.
 
@@ -63,7 +63,7 @@ next wave.
 5. Derive Before Landing
    - For noisy or novel core behavior, run `reference-core-impl-skill` first.
    - For `Human-Owned` steps that need step-by-step reasoning, run
-     `from-scratch-implementation-skill` before coding on `main`.
+     `from-scratch-tutorial-build` before coding on `main`.
    - Verify: every `Human-Owned` step names its reasoning source.
 6. Land on `main` in Small Steps
    - Land the core boundary or contract skeleton first.
@@ -139,7 +139,7 @@ Default for:
 - If the core behavior is novel, architecture-heavy, or too noisy, run
   `reference-core-impl-skill` before this landing plan.
 - If a `Human-Owned` step lacks a reasoning path, run
-  `from-scratch-implementation-skill` before coding.
+  `from-scratch-tutorial-build` before coding.
 - If the proposed change starts with schema or model work, verify that the
   current wave truly requires it.
 - If the plan needs multiple waves to be useful, shrink the current wave until
@@ -222,7 +222,7 @@ Suggested reviewer roles when used:
 - `output_style=wave-plan-first`
 - `plan_horizon=this-wave-only`
 - `integration_strategy=human-led-main-first`
-- `teaching_subroutine=from-scratch-implementation-skill-when-needed`
+- `teaching_subroutine=from-scratch-tutorial-build-when-needed`
 - `agent_mode=single|multi(optional)`
 - `human_core_reimplementation=default-on`
 
@@ -307,7 +307,7 @@ Before finishing, confirm:
 - [ ] The plan distinguishes AI reference material from `main` landing work.
 - [ ] Every landing step includes `owner`, `done_when`, and `commit_when`.
 - [ ] Every `Human-Owned` step names its reasoning source: requirements,
-      `reference-core-impl-skill`, or `from-scratch-implementation-skill`.
+      `reference-core-impl-skill`, or `from-scratch-tutorial-build`.
 - [ ] The verification section names a concrete test, script, or manual check
       for this wave.
 - [ ] The output ends after one wave with a one-line next-wave pointer.
@@ -318,7 +318,7 @@ Before finishing, confirm:
 - Do not treat the AI diff as the source of truth.
 - Do not default to copying the AI core algorithm into `main`; reimplement the
   `Human-Owned` path from explicit reasoning and use
-  `from-scratch-implementation-skill` when needed.
+  `from-scratch-tutorial-build` when needed.
 - Do not start from schema or model work unless the current wave truly
   requires it.
 - Do not output a full multi-wave roadmap unless explicitly requested.

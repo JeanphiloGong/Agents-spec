@@ -9,10 +9,9 @@ a production patch, runnable reference sample, or landing plan.
 | Workflow step | Skill | Purpose |
 | --- | --- |
 | Plan the teaching route | [`from-scratch-tutorial-plan`](from-scratch-tutorial-plan/SKILL.md) | Define reader, goal, teaching pressures, code-version checkpoints, and verification before writing. |
-| Build the tutorial | [`from-scratch-tutorial-build`](from-scratch-tutorial-build/SKILL.md) | Execute the tutorial step loop and call the core implementation builder when needed. |
+| Build the tutorial | [`from-scratch-tutorial-build`](from-scratch-tutorial-build/SKILL.md) | Build the guide through connected code versions, helper contracts, checks, and final-code traceability. |
 | Review tutorial quality | [`from-scratch-tutorial-review`](from-scratch-tutorial-review/SKILL.md) | Check for skipped reasoning, disconnected code versions, unexplained helpers, weak checks, and final-code drift. |
 | Simplify the guide | [`from-scratch-tutorial-simplify`](from-scratch-tutorial-simplify/SKILL.md) | Reduce repetition and prose weight without breaking the teaching chain. |
-| Core implementation builder | [`from-scratch-implementation-skill`](from-scratch-implementation-skill/SKILL.md) | Derive one feature or method through connected code versions until the final step yields complete code. |
 
 ## Codex Usage
 
@@ -25,8 +24,8 @@ $from-scratch-tutorial-review
 $from-scratch-tutorial-simplify
 ```
 
-Use `$from-scratch-implementation-skill` directly when the human only needs the
-guide body and the teaching route is already clear.
+Use `$from-scratch-tutorial-build` directly when the human only needs the guide
+body and the teaching route is already clear.
 
 ## Boundaries
 
