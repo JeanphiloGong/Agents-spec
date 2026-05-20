@@ -1,68 +1,123 @@
 ---
 name: from-scratch-implementation-skill
-description: v0.1.2 - Produce a document-first, from-scratch implementation guide that derives one feature or method from behavior and invariants into step-by-step structure, helper contracts, small code fragments, and verification; use it when the human wants to learn how to build the core logic rather than trust final code.
+description: v0.1.3 - Teach one feature or method from first principles through a document-first implementation ladder. Use when the human wants to learn how to build core logic from behavior, constraints, invariants, helper contracts, small code fragments, and verification before trusting final code.
 ---
 
 # From-Scratch Implementation Skill
 
-## Trigger and Scope
+## Overview
 
-Use this skill when the user wants a tutorial-first implementation guide for one
-feature, method, or coherent core slice and wants the reasoning preserved as a
-durable markdown artifact instead of a short chat reply.
+Produce a tutorial-first markdown guide that derives one feature, method, or
+coherent core slice from external behavior into implementation structure. The
+goal is not to dump final code. The goal is to make the internal model, helper
+contracts, mutation boundaries, and verification steps feel necessary from the
+requirements.
 
-Primary fit:
-- the user asks how to implement something from scratch
-- the user wants each step to explain why, how to think, and what to code next
+Use this skill when reasoning must be preserved as a durable artifact the human
+can revisit, extend, or use to reimplement the core logic by hand.
+
+## When to Use
+
+- The user asks how to implement something from scratch.
+- The user wants each step to explain why, how to think, and what to code next.
 - AI already produced draft code but the human does not want to trust-copy the
-  core logic
-- the human wants a recorded derivation artifact that can be reused later
-- the request is small enough to teach as one coherent path
+  core logic.
+- The human wants a recorded derivation artifact that can be reused later.
+- The request is small enough to teach as one coherent path.
+- A `Human-Owned` step in `human-led-main-landing-skill` needs explicit
+  reasoning before coding.
 
-In scope:
-- deriving internal structure from external behavior and invariants
-- explaining why a data structure, helper, or state variable is necessary
-  before presenting it
-- sequencing implementation from contract to primitives to full assembly
-- teaching with one worked example or trace
-- ending with the next smallest implementation step the human can execute
-- returning the result as a complete markdown guide by default
+**When NOT to use:** one-wave landing plans, broad multi-wave delivery plans,
+final-code-only requests with no teaching intent, diff migration, commit
+sequencing, or runnable mini-project extraction better handled by
+`reference-core-impl-skill`.
 
-Out of scope:
-- one-wave landing or integration planning on `main`
-- broad multi-wave delivery plans
-- final-code-only requests with no teaching intent
-- diff migration and commit sequencing
+## The From-Scratch Operating Loop
 
-Use `human-led-main-landing-skill` when there is real landing or integration
-context on `main`.
+Teach one abstraction layer at a time. Do not introduce a helper, data
+structure, or full implementation before the requirement pressure that makes it
+necessary is visible.
 
-## Core Purpose
+1. State Behavior
+   - Name the feature goal, intended reader, and user-visible behavior.
+   - Identify the external contract before any internal structure.
+   - Verify: the reader can say what must happen without seeing code.
+2. Name Constraints and Invariants
+   - State hard constraints such as `O(1)`, ordering rules, API or UX contract,
+     failure behavior, consistency rules, and mutation boundaries.
+   - Verify: at least one constraint explains why a naive implementation may
+     fail.
+3. Question the Naive Shape
+   - Ask the first "why is the simple shape insufficient?" question.
+   - Use that pressure to derive the first internal model, state variable, or
+     data structure.
+   - Verify: the data structure follows from an operation or invariant, not
+     from preference.
+4. Sketch the Public Surface
+   - Name the public methods, handler boundary, or service surface before
+     helper bodies.
+   - Define helper contracts only after the public behavior needs them.
+   - Verify: each helper has a caller, input, output, and mutation boundary.
+5. Build the Ladder
+   - Write the `From Scratch` section as numbered steps using the step contract.
+   - Introduce one new pressure, helper, structure, or mutation rule per step.
+   - Verify: no step solves the whole feature or jumps ahead to final code.
+6. Assemble the Core Slice
+   - Combine the previously justified fragments into the public methods or core
+     slice.
+   - Add a reference implementation only after derivation and assembly, and
+     only when it materially helps.
+   - Verify: the guide teaches "why this structure" before "how do I code it."
+7. Close With Practice
+   - Walk one concrete example end to end.
+   - List common mistakes, verification checks, and the next smallest step the
+     human can execute alone.
+   - Verify: the output is a complete markdown guide, not a short chat answer.
 
-Teach one smallest coherent implementation path before helper noise or final
-code distracts from the reasoning, and preserve that reasoning as a markdown
-artifact the human can revisit.
+## Step Contract
 
-This skill exists to help you:
-- state external behavior first
-- name hard constraints and invariants explicitly
-- derive the internal model or data structures from those constraints
-- make helper contracts feel necessary rather than arbitrary
-- show a build order the human can follow without trusting the AI layout
-- leave behind a reusable from-scratch implementation guide instead of a
-  disposable reply
+Every numbered step inside the `From Scratch` section should answer the same
+teaching questions:
 
-## Default Operating Model
+- `Question`
+- `Why This Matters`
+- `How To Think`
+- `What To Write Now`
+- `Small Code Fragment` when code is introduced
+- `What To Verify`
 
-- The output is a teaching artifact, not a merge plan.
-- The default artifact is a complete markdown document, even when returned in
-  chat.
-- The explanation starts from behavior and constraints, not from final code.
-- Stay at one abstraction level at a time: public contract first, helper
-  mechanics second.
-- Prefer one worked example over many shallow examples.
-- If AI code already exists, treat it as evidence and comparison material, not
-  the source of truth.
+Rules:
+- Each step introduces only one new pressure, structure, helper, or mutation
+  rule.
+- Do not solve the whole feature in one step.
+- Do not present the full implementation before the ladder is complete.
+- When code is introduced, keep it fragment-sized until the assembly section.
+
+See `references/from-scratch-document-ladder.md` for the detailed ladder and
+anti-patterns.
+
+## Decision Points
+
+- If the user wants a runnable mini-project rather than an inline walkthrough,
+  use `reference-core-impl-skill` first.
+- If there is real landing or integration context on `main`, hand off to
+  `human-led-main-landing-skill` and use this skill only for `Human-Owned`
+  derivation steps.
+- If constraints are missing but the goal is clear, infer lightweight
+  assumptions and label them before teaching.
+- If missing constraints would change the data structure or public contract,
+  ask before drafting the guide.
+- If the user asks for a terse answer, compress the guide but keep behavior,
+  constraints, from-scratch progression, and verification.
+
+## Required Inputs
+
+- feature or method goal in one sentence
+- optional constraints or invariants
+- optional current code, AI draft, or code shape
+- optional preferred output depth if the user wants quicker or stricter
+  coaching
+- optional output path if the guide should be written to a file
 
 ## Fixed Defaults
 
@@ -75,100 +130,6 @@ This skill exists to help you:
 - `step_shape=question-why-think-write-verify`
 - `code_generation=optional-after-derivation`
 - `agent_mode=single|multi(optional)`
-
-## Artifact Policy (Required)
-
-- Return one self-contained markdown guide by default, not a short advisory
-  reply.
-- If no output path is provided, still format the response as a durable
-  markdown document the user can store or extend later.
-- If the user provides a note path or document path, write the same guide there
-  when the environment permits.
-- Compress only when the user explicitly asks for a terse answer; even then,
-  keep the markdown headings and from-scratch progression.
-
-## Mode Selection and Handoff (Required)
-
-- Choose this skill by default when there is no landing context yet and the
-  user mainly wants to learn or derive the design.
-- Use this skill as a nested subroutine inside `human-led-main-landing-skill`
-  for `Human-Owned` steps that need explicit reasoning before coding.
-- Run `reference-core-impl-skill` first when the better teaching artifact is a
-  runnable minimal-complete sample rather than an inline walkthrough.
-
-## From-Scratch Teaching Sequence (Required)
-
-Teach the implementation in this order:
-
-1. State the external behavior first.
-2. Name the hard constraints and invariants.
-3. Ask the first "why is the naive shape insufficient?" question.
-4. Derive the first internal model, state variable, or data structure from that
-   pressure.
-5. Sketch the public methods first and name helper contracts before helper
-   bodies.
-6. Introduce only the smallest primitive or helper needed for the next step.
-7. Show what state changes, what stays stable, and what the caller must still
-   do.
-8. Assemble the public methods from those primitives.
-9. Walk one concrete example end to end.
-10. End with the next smallest implementation step or exercise.
-
-The explanation must make the data-structure choice feel inevitable from the
-requirements. Do not jump straight to helper internals without first showing
-the constraint that forces them.
-
-## Step Contract (Required)
-
-Every numbered step inside the `From Scratch` section should answer the same
-teaching questions.
-
-Each step should contain:
-- `Question`
-- `Why This Matters`
-- `How To Think`
-- `What To Write Now`
-- `Small Code Fragment` when code is introduced
-- `What To Verify`
-
-Rules:
-- each step should introduce only one new pressure, structure, helper, or
-  mutation rule
-- do not solve the whole feature in one step
-- do not present the full implementation before the ladder is complete
-- when code is introduced, keep it fragment-sized until the assembly section
-
-See `references/from-scratch-document-ladder.md` for the detailed ladder and
-anti-patterns.
-
-## Workflow
-
-1. State the feature goal, intended reader, and user-visible behavior.
-2. Name the hard constraints such as `O(1)`, invariants, API or UX contract,
-   failure behavior, and mutation boundaries.
-3. If existing code or an AI draft exists, extract only the evidence that
-   matters and ignore incidental helper layout.
-4. Derive the internal model, state, or data structures from those
-   constraints.
-5. Sketch the public surface first, such as `get` or `put`, or one
-   handler/service boundary.
-6. Build the `From Scratch` section as a numbered ladder using the required
-   step contract.
-7. Summarize the helper contracts after they have been justified by the ladder.
-8. Assemble the core slice from the previously introduced fragments.
-9. Add a reference implementation only after the derivation and assembly are
-   complete, and only when it materially helps.
-10. End with verification checks, common mistakes, and the next smallest step
-    the human can execute alone.
-
-## Required Inputs (Minimal)
-
-- feature or method goal in one sentence
-- optional constraints or invariants
-- optional current code, AI draft, or code shape
-- optional preferred output depth if the user wants quicker or stricter
-  coaching
-- optional output path if the guide should be written to a file
 
 ## Output Format
 
@@ -231,16 +192,48 @@ anti-patterns.
 - `references/from-scratch-document-ladder.md`
 - `references/worked-example-lrucache.md`
 
-## Worked Example Reference
+Use `references/worked-example-lrucache.md` when the user needs a concrete
+example of deriving a data structure from requirements. Use
+`references/from-scratch-document-ladder.md` when the guide risks jumping too
+quickly from requirement to helper internals.
 
-- See `references/worked-example-lrucache.md` for a successful example of
-  deriving `dict + doubly linked list` from `LRUCache` requirements using the
-  full document-first format.
-- Use that example specifically for `Human-Owned` rewrites where AI already has
-  a candidate implementation but the human wants to rebuild the core logic with
-  full understanding.
-- Use `reference-core-impl-skill` first when the better teaching artifact is a
-  runnable mini-project rather than an inline explanation.
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The final code will teach the idea." | Final code hides the reasoning path; derive the structure before showing full code. |
+| "I'll explain helpers first so the solution is easier." | Helpers should feel forced by behavior and invariants, not introduced as arbitrary machinery. |
+| "The user asked for implementation, so skip the contract." | The external contract is what makes the implementation choices defensible. |
+| "One big step is shorter." | A large step prevents the human from seeing which pressure created which structure. |
+| "The AI draft already has a good layout." | Existing helper layout is evidence, not the source of truth. Re-derive the core path. |
+
+## Red Flags
+
+- A data structure appears before the external contract and hard constraints.
+- A helper is recommended before its caller, purpose, and mutation boundary are
+  explained.
+- The `From Scratch` section is missing or not numbered.
+- A step contains multiple new ideas, helpers, or state changes.
+- Full reference code appears before the assembly section.
+- The guide never walks a concrete example end to end.
+- The output ends without a verification checklist or next small step.
+- AI draft structure is copied instead of re-derived from requirements.
+
+## Verification
+
+Before finishing, confirm:
+
+- [ ] The output is a complete markdown guide, not a short chat-style answer.
+- [ ] The external contract and hard constraints appear before any data
+      structure is proposed.
+- [ ] The `From Scratch` section is present and uses numbered steps.
+- [ ] Each step answers `Question`, `Why This Matters`, `How To Think`,
+      `What To Write Now`, and `What To Verify`.
+- [ ] Each helper contract has an explicit purpose and mutation or return
+      boundary.
+- [ ] The guide teaches "why this structure" before "how do I code it."
+- [ ] The guide includes one concrete example or trace.
+- [ ] The guide ends with one concrete next step the human could execute alone.
 
 ## Guardrails
 
@@ -259,17 +252,3 @@ anti-patterns.
 - When AI code already exists, do not treat the existing helper layout as
   authoritative. Re-derive the core path from requirements first.
 - Do not output secrets, tokens, or PII.
-
-## Verification Hooks
-
-- Verify the output is a complete markdown guide, not a short chat-style answer.
-- Verify the external contract and hard constraints are stated before any data
-  structure is proposed.
-- Verify the `From Scratch` section is present and uses numbered steps.
-- Verify each step answers `Question`, `Why This Matters`, `How To Think`,
-  `What To Write Now`, and `What To Verify`.
-- Verify each helper contract has an explicit purpose and mutation or return
-  boundary.
-- Verify the output teaches "why this structure" before "how do I code it."
-- Verify the guide ends with one concrete next step the human could execute
-  alone.
