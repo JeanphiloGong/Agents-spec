@@ -1,6 +1,6 @@
 ---
 name: reference-core-plan
-description: v0.1.3 - Plan a runnable reference-core learning module before building it. Use when a noisy production feature, AI draft, architecture-heavy flow, or teaching-plan handoff needs one extracted chain, invariant, scenario-fit src architecture, included/deferred boundary, placement, and validation plan.
+description: v0.1.4 - Plan a runnable reference-core learning module before building it. Use when a noisy production feature, AI draft, architecture-heavy flow, or teaching-plan handoff needs one extracted chain, invariant, scenario-fit src architecture, included/deferred boundary, placement, and validation plan.
 ---
 
 # Reference Core Plan
@@ -94,6 +94,9 @@ production landing, tutorial-only derivation, or final integration patches.
   evidence.
 - If a teaching-plan handoff lacks `real_world_zero` or `engineering_zero`,
   ask for the missing zero point before planning the module shape.
+- If a teaching-plan handoff puts the current-chain behavior inside
+  `engineering_zero`, split the base mechanism from `current_chain_adds` before
+  planning the module layout.
 
 ## Reference Map
 
@@ -120,6 +123,8 @@ production landing, tutorial-only derivation, or final integration patches.
 - real_world_zero:
 - engineering_zero:
 - current_chain_position:
+- current_chain_adds:
+- base_current_split:
 - lineage_verdict:
 - base_asset:
 - base_asset_status:

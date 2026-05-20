@@ -1,6 +1,6 @@
 ---
 name: reference-core-teaching-plan
-description: v0.1.0 - Turn an already selected core chain into a from-zero teaching promise and module lineage gate before planning the learning module. Use when the human wants the extracted chain to become a blog, nano project, tutorial, or personal knowledge asset, especially when the chain may depend on an earlier nano module version.
+description: v0.1.1 - Turn an already selected core chain into a from-zero teaching promise and module lineage gate before planning the learning module. Use when the human wants the extracted chain to become a blog, nano project, tutorial, or personal knowledge asset, especially when the chain may depend on an earlier nano module version.
 ---
 
 # Reference Core Teaching Plan
@@ -23,10 +23,12 @@ satisfy.
 "From zero" does not mean every selected chain can start from an empty
 directory. The skill first defines the zero point: the real-world situation
 that creates the problem and the smallest engineering mechanism that addresses
-it. Then it places the chain on a module lineage: standalone first module,
-inline `v0` setup, extension of an existing asset, or blocked by missing
-prerequisite work. If a selected chain is really `v1` or `v2`, the skill should
-surface that before producing a full teaching plan.
+it before the selected chain's special behavior is added. Then it separates
+that zero point from the current-chain capability and places the chain on a
+module lineage: standalone first module, inline `v0` setup, extension of an
+existing asset, or blocked by missing prerequisite work. If a selected chain is
+really `v1` or `v2`, the skill should surface that before producing a full
+teaching plan.
 
 ## When to Use
 
@@ -55,39 +57,52 @@ module, or production landing.
    - Verify: this is a chosen chain, not an inventory task.
 2. Define The Zero Point
    - State the real-world situation that makes this chain necessary.
-   - State the smallest engineering mechanism that can address the situation.
+   - State the smallest engineering mechanism that can address the situation
+     before the selected chain's named capability is added.
+   - List the current-chain capability separately from the zero mechanism.
+   - Verify: `engineering_zero` does not already contain the selected chain's
+     core behavior.
+3. Split Base Mechanism From Current Capability
+   - State what the base mechanism must do before this chain starts.
+   - State what the selected chain adds on top of that base.
+   - State which examples must begin from the base mechanism's final state.
    - Name where the selected chain sits relative to that zero point:
      first mechanism, inline setup, extension, or later production mapping.
    - Verify: the teaching path starts from a concrete problem and a minimal
-     mechanism, not from a mid-system implementation detail.
-3. Run The Lineage Gate
+     mechanism, not from a mid-system implementation detail or a zero point
+     that already contains the current chain.
+4. Run The Lineage Gate
    - Decide whether the chain is `standalone-first`, `inline-v0-then-current`,
      `extends-existing-asset`, or `blocked-by-missing-prerequisite`.
+   - Use `standalone-first` only when the selected chain is the first useful
+     mechanism, not when it adds gating, dedupe, fan-out, projection,
+     retry/resume, caching, indexing, ranking, authorization, synchronization,
+     or other behavior to a base mechanism.
    - Name the base asset, previous version, current version, and next extension
      when a lineage exists.
    - Ask whether the base asset has already been built, where it lives, and
      what evidence proves it is runnable or readable.
    - Verify: the selected chain is not a middle step disguised as a standalone
      "from zero" topic.
-4. Stop On Missing Prerequisites
+5. Stop On Missing Prerequisites
    - If the base module is required but not built, output blocking open
      questions and prerequisite work instead of a full teaching plan.
    - Redirect the next skill to the prerequisite asset's
      `reference-core-teaching-plan`, `reference-core-plan`, or
      `reference-core-build`.
    - Verify: current work cannot proceed until the prerequisite is explicit.
-5. Define The Teaching Promise
+6. Define The Teaching Promise
    - Convert the chain into a sentence: "from zero implement a `<mini-system>`".
    - If the chain is an extension, phrase the promise as "start from
      `<base-asset>` and add `<capability>`".
    - Name possible `nano-*`, `mini-*`, or article title candidates.
    - Verify: the promise is teachable with its required setup visible.
-6. Choose Asset Shape
+7. Choose Asset Shape
    - Choose `nano-project`, `blog`, `tutorial`, `source-reading-note`,
      `personal-kb`, or a hybrid.
    - Explain why that shape fits the chain and the human's goal.
    - Verify: the shape produces motivation without forcing unnecessary polish.
-7. Derive Module Constraints
+8. Derive Module Constraints
    - List what the learning module must show, run, test, trace, and explain to
      support the promise.
    - Decide whether the module needs fixtures, traces, diagrams, or staged code
@@ -95,7 +110,7 @@ module, or production landing.
    - State whether examples begin from an empty project, an inline `v0`, or the
      previous module's final result.
    - Verify: every required artifact supports the teaching promise.
-8. Shape The Plan Handoff
+9. Shape The Plan Handoff
    - Produce constraints for `reference-core-plan`: chain scope, module shape,
      zero point, lineage status, base asset, `src_architecture` bias, required
      tests, required traces, README sections, exclusions, and done conditions.
@@ -107,6 +122,15 @@ module, or production landing.
 - If the chain is not selected yet, run `reference-core-scan` first.
 - If the real-world zero or engineering zero is unknown, ask the smallest
   blocking question before producing a full teaching plan.
+- If `engineering_zero` includes the selected chain's named behavior, rewrite
+  it as a smaller base mechanism and move that behavior to
+  `current_chain_adds`.
+- If the selected chain adds behavior to a base mechanism, prefer
+  `inline-v0-then-current` when the base can be built inside the same asset, or
+  `blocked-by-missing-prerequisite` when the base should be its own asset.
+- If the selected chain includes words like gate, dedupe, fan-out, resume,
+  retry, projection, cache, index, rank, auth, sync, or migration, test whether
+  those are current-chain additions rather than the engineering zero.
 - If the chain requires a base asset and the base asset status is unknown, ask
   the blocking question before producing a full plan.
 - If the chain requires a base asset that is not built, stop and output
@@ -143,6 +167,8 @@ Use this blocking format when the lineage gate finds missing prerequisite work:
 - real_world_zero:
 - engineering_zero:
 - current_chain_position:
+- current_chain_adds:
+- base_current_split:
 - why_this_zero_is_not_enough_for_current_chain:
 
 ## Lineage Gate
@@ -184,6 +210,8 @@ Use this full format only after the lineage gate passes:
 - real_world_zero:
 - engineering_zero:
 - current_chain_position:
+- current_chain_adds:
+- base_current_split:
 - why_this_zero_is_enough:
 
 ## Lineage Gate
@@ -230,6 +258,8 @@ Use this full format only after the lineage gate passes:
 - real_world_zero:
 - engineering_zero:
 - current_chain_position:
+- current_chain_adds:
+- base_current_split:
 - module_lineage:
 - base_asset:
 - starts_from:
@@ -256,8 +286,33 @@ Use this full format only after the lineage gate passes:
 | "A serious asset needs production completeness." | A from-zero asset needs the learnable core, not all production constraints. |
 | "Scan should decide the asset." | Scan inventories chains; this skill shapes a selected chain into a teaching target. |
 | "From zero means starting from an empty repo." | The zero point is the real-world problem plus the smallest useful mechanism, which may require a prior module. |
+| "The engineering zero can include all the mechanism I want to teach." | That hides the lineage decision. Put the base mechanism in `engineering_zero` and the selected-chain behavior in `current_chain_adds`. |
 | "This chain can be called from zero if I explain enough background." | If the chain starts in the middle of a system, name the required base asset or make it an inline `v0`. |
 | "The previous module probably exists somewhere." | Lineage needs evidence: a path, artifact, test, README, or explicit decision to build the prerequisite first. |
+
+## Failure Case
+
+If the selected chain is `trigger(mode) -> resolve run plan -> scope dedupe ->
+ensure prepare -> downstream queued/running -> finalize prepare -> fan-out`,
+do not set:
+
+```markdown
+- engineering_zero: mode, run_plan, run_record, prepare ready, pending downstream
+- extraction_verdict: standalone-first
+```
+
+That answer already includes the selected chain inside the zero point. A better
+split is:
+
+```markdown
+- engineering_zero: minimal pipeline runner: trigger -> plan -> run task -> record state
+- current_chain_adds: run slot dedupe, prepare gate, downstream waiting, pending fan-out
+- extraction_verdict: inline-v0-then-current | blocked-by-missing-prerequisite
+```
+
+Use `inline-v0-then-current` only when the minimal runner can be built as the
+first stage inside the same asset. Use `blocked-by-missing-prerequisite` when
+the minimal runner should be completed as its own asset before this chain.
 
 ## Red Flags
 
@@ -265,6 +320,10 @@ Use this full format only after the lineage gate passes:
 - No zero point appears before the lineage gate.
 - The zero point is just a title, technology, or production component name
   rather than a real-world problem and minimal mechanism.
+- `engineering_zero` already contains the selected chain's special behavior,
+  such as gating, dedupe, fan-out, resume, projection, indexing, caching, or
+  synchronization.
+- `current_chain_adds` is missing or duplicates `engineering_zero`.
 - No lineage gate appears before the teaching promise.
 - A middle-layer chain is presented as standalone without a base asset, inline
   `v0`, or blocking open question.
@@ -280,6 +339,8 @@ Use this full format only after the lineage gate passes:
 - [ ] Exactly one selected chain is in scope.
 - [ ] The zero point names the real-world problem and smallest engineering
       mechanism.
+- [ ] The base mechanism and selected-chain capability are separated.
+- [ ] `engineering_zero` does not already contain `current_chain_adds`.
 - [ ] The lineage gate decides whether the chain is standalone, inline `v0`,
       extends an existing asset, or is blocked by missing prerequisite work.
 - [ ] Missing base work produces blocking open questions and prerequisite work,
@@ -298,5 +359,8 @@ Use this full format only after the lineage gate passes:
 - Do not let production completeness replace from-zero teachability.
 - Do not let "zero" mean an empty repo by default; define the business scenario
   and minimal logic mechanism first.
+- Do not put the current chain's special behavior inside `engineering_zero`.
+  Move it to `current_chain_adds` and decide whether the base is inline `v0` or
+  prerequisite work.
 - Do not pretend an extension chain is standalone. Name the base asset, inline
   it as `v0`, or block on prerequisite work.
