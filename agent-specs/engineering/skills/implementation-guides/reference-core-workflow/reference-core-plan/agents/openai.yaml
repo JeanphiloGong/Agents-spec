@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reference Core Plan"
+  short_description: "v0.1.0 - Plan a runnable reference-core sample"
+  default_prompt: "Use $reference-core-plan to plan one runnable minimal-complete reference sample by naming the core slice, defining invariant, included and deferred boundaries, safe placement, validation checks, and map-back starting points before writing sample code."

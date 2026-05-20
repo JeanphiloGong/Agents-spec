@@ -19,7 +19,7 @@ Invoke a skill by its `name` from the target `SKILL.md`. For example:
 
 ```text
 $git-commit-skill
-$reference-core-impl-skill
+$reference-core-build
 $code-review-and-quality
 ```
 

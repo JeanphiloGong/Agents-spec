@@ -29,8 +29,8 @@ for the production result.
 final-code-only requests with no reasoning or ownership control, post-hoc diff
 summaries, code review, or broad multi-wave planning. Use
 `from-scratch-tutorial-build` when the user mainly wants to learn core
-logic step by step; use `reference-core-impl-skill` when the core is too noisy
-to learn safely before landing.
+logic step by step; use `reference-core-plan` and `reference-core-build` when
+the core is too noisy to learn safely before landing.
 
 ## The Main-First Landing Operating Loop
 
@@ -61,7 +61,8 @@ next wave.
    - Verify: core semantics, invariants, contracts, security, and data meaning
      are human-controlled.
 5. Derive Before Landing
-   - For noisy or novel core behavior, run `reference-core-impl-skill` first.
+   - For noisy or novel core behavior, run `reference-core-plan` and
+     `reference-core-build` first.
    - For `Human-Owned` steps that need step-by-step reasoning, run
      `from-scratch-tutorial-build` before coding on `main`.
    - Verify: every `Human-Owned` step names its reasoning source.
@@ -137,7 +138,7 @@ Default for:
   `mode=triage`, but still begin with the wave goal, control split, and human
   checkpoints.
 - If the core behavior is novel, architecture-heavy, or too noisy, run
-  `reference-core-impl-skill` before this landing plan.
+  `reference-core-plan` and `reference-core-build` before this landing plan.
 - If a `Human-Owned` step lacks a reasoning path, run
   `from-scratch-tutorial-build` before coding.
 - If the proposed change starts with schema or model work, verify that the
@@ -307,7 +308,7 @@ Before finishing, confirm:
 - [ ] The plan distinguishes AI reference material from `main` landing work.
 - [ ] Every landing step includes `owner`, `done_when`, and `commit_when`.
 - [ ] Every `Human-Owned` step names its reasoning source: requirements,
-      `reference-core-impl-skill`, or `from-scratch-tutorial-build`.
+      `reference-core-build`, or `from-scratch-tutorial-build`.
 - [ ] The verification section names a concrete test, script, or manual check
       for this wave.
 - [ ] The output ends after one wave with a one-line next-wave pointer.

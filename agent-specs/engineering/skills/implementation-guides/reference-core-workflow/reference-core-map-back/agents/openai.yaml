@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reference Core Map Back"
+  short_description: "v0.1.0 - Map reference-core samples back to production"
+  default_prompt: "Use $reference-core-map-back to convert a validated reference-core sample into concrete production modules, boundaries, first landing tests, fake-to-production mappings, and a handoff to $human-led-main-landing-skill without writing the production patch."

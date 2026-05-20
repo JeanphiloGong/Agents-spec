@@ -65,8 +65,8 @@ work.
   the smallest missing behavior or constraint.
 - If the human already supplied a clear teaching route, keep the plan short and
   focus on version checkpoints.
-- If the output should be a runnable mini-project, use `reference-core-impl-skill`
-  instead.
+- If the output should be a runnable mini-project, use `reference-core-plan` and
+  `reference-core-build` instead.
 - If the user asks for the full guide immediately, use
   `from-scratch-tutorial-build`.
 
