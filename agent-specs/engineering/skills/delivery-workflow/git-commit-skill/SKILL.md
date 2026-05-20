@@ -1,54 +1,44 @@
 ---
 name: git-commit-skill
-description: v0.2.2 - Draft, split, and execute atomic scoped Git commits with issue traceability and structured Why/What/Impact/Tests/Refs bodies; use when preparing final commits, reviewing commit wording, or enforcing repo commit conventions.
+description: v0.2.3 - Draft, split, and execute atomic scoped Git commits with issue traceability and structured Why/What/Impact/Tests/Refs bodies. Use when preparing final commits, reviewing commit wording, staging approved files, or enforcing repository commit conventions.
 ---
 
 # Git Commit Skill
 
-## Trigger and Scope
+## Overview
 
-Use this skill when the user needs help with commit-stage work, including:
+Prepare commit-stage work as a verified, traceable save point. This skill
+decides whether the current diff should be committed, split, or only drafted;
+then it stages only approved in-scope files and writes a repository-quality
+commit message with `Why / What / Impact / Tests / Refs`.
 
-- drafting a final commit message
-- reviewing or correcting commit wording
-- deciding whether changes should be split into multiple commits
-- staging approved files and executing `git commit`
-- enforcing repository commit conventions and traceability rules
+Use the existing commit-message and execution references for details. The
+always-loaded behavior is: inspect first, preserve unrelated changes, verify
+traceability, commit one logical slice at a time, and report exactly what
+happened.
 
-In scope:
-- commit wording and split advice
-- final commit execution for approved in-scope files
-- pre-commit traceability checks through `issue-gate-skill`
-- commit body construction with structured `Why / What / Impact / Tests / Refs`
+## When to Use
 
-Out of scope:
-- inventing task scope after implementation is already done
-- auto-fixing code review findings or CI failures
-- force-pushing, amending history, or rewriting published commits unless the
-  user explicitly asks
-- staging unrelated user changes by default
+- The user asks to commit, stage, or prepare final commit wording.
+- The current work needs a Conventional Commit subject and structured body.
+- A mixed diff needs split advice before staging.
+- A repository requires issue traceability before commit.
+- The user wants wording-only review without executing `git commit`.
 
-## Core Purpose
+**When NOT to use:** implementation work, CI repair, code review fixes,
+force-pushes, rebases, published-history rewrites, or issue creation that is
+not part of commit traceability. Use `issue-gate-skill` directly for standalone
+issue mapping, and use review or CI skills for review/CI failures.
 
-- Preserve traceability from task or issue to commit.
-- Produce clear, reviewable commit messages that explain why the change exists.
-- Treat commits as verified save points, not as one final packaging step.
-- Keep changes small, atomic, reviewable, and revertible.
-- Use the existing message template as the output format while borrowing git
-  workflow discipline from `git-workflow-and-versioning`.
-
-## Bundled Resources
+## Reference Map
 
 - `references/commit-message-standard.md`
-  Read when writing the subject, body, or examples for the commit message.
+  Read when writing the subject, body, examples, or section quality checks.
 - `references/commit-execution-policy.md`
-  Read when deciding atomic commit boundaries, save-point cadence, staging
-  policy, pre-commit hygiene, issue-gate interaction, or worktree/sandbox
-  handling.
+  Read when deciding atomic boundaries, save-point cadence, staging policy,
+  pre-commit hygiene, issue-gate interaction, or worktree handling.
 
-## Concrete Trigger Examples
-
-Use this skill for prompts such as:
+## Trigger Examples
 
 - "帮我把这次改动提交掉"
 - "先看一下这些修改要不要拆成两个 commit"
@@ -75,68 +65,103 @@ Use this skill for prompts such as:
 - mixed authorship files: ask once before staging
 - low-risk traceability fallback: `Refs: - n/a`
 
-## Workflow
+## The Operating Loop
 
-1. Clarify operating mode.
-   - Distinguish between:
-     - full commit-stage execution
-     - wording-only review
-     - split planning without execution
-   - If the user asks for a normal commit-stage outcome, default to full
-     execution.
-2. Inspect branch, worktree, and current diff.
+1. Classify the requested commit mode.
+   - Use `execute` for normal commit-stage requests.
+   - Use `draft_only` when the user only wants wording.
+   - Use `split_only` when the user only wants commit boundary advice.
+2. Inspect branch, worktree, and diff before staging.
    - Read `references/commit-execution-policy.md`.
-   - Run the branch/worktree check described there.
-   - Treat commits as save points in this order:
-     `worktree -> issue -> implement verified slice -> issue-gate -> commit`.
-   - If the diff is mixed, keep unrelated changes out of the staged scope.
-3. Run pre-commit traceability gate when required.
+   - Run the branch/worktree checks described there.
+   - Identify in-scope files, unrelated dirty files, generated files, and
+     mixed-authorship files.
+   - Treat the save-point order as:
+     `worktree -> issue -> verified slice -> issue-gate -> commit`.
+3. Run traceability gate when required.
    - Use `issue-gate-skill` with `input_mode=auto-infer-first`.
-   - If the gate returns `BLOCK`, stop commit output and surface the blocker.
-   - If the gate returns `refs_line`, prefer that value in `Refs`.
-4. Size and split the work before staging.
-   - Target about 100 changed lines per commit or PR.
-   - Treat about 300 changed lines as acceptable only for one logical change.
-   - Treat about 1000 changed lines or more as a split trigger unless the diff
-     is generated or structurally inseparable.
+   - If the gate returns `BLOCK`, stop before staging or committing.
+   - If the gate returns `refs_line`, use that value in `Refs`.
+4. Decide whether the diff must split.
    - Separate feature work, refactors, formatting, dependencies, generated
-     artifacts, and unrelated docs into different commits.
-   - Use stack, file-group, horizontal, or vertical splitting when the diff is
-     too large.
+     artifacts, and unrelated docs unless the execution policy says they are
+     inseparable.
    - Keep tightly coupled code, tests, and docs together when they form one
      reviewable and revertible save point.
-5. Resolve the subject line.
+   - Use stack, file-group, horizontal, or vertical splitting when the diff is
+     too large or mixed by intent.
+5. Write the subject and body.
    - Choose the commit type and optional scope.
-   - Write one sentence in imperative mood.
-   - Read `references/commit-message-standard.md` when you need the detailed
-     subject checklist, type hints, or examples.
-6. Build the body.
-   - Use the exact section order:
-     `Why`, `What`, `Impact`, `Tests`, `Refs`.
-   - Include each required section exactly once.
-   - If multiple commands or checks ran, list them as separate bullets under
-     the single `Tests` section.
-   - Keep rationale and impact explicit.
-   - Read `references/commit-message-standard.md` when you need the section
-     quality bar or full examples.
-7. Decide execution path.
-   - wording-only or split-only request:
-     - return the draft message and split advice without staging or committing
-   - full execution:
-     - commit one verified slice at a time
-     - stage only the approved in-scope files for that slice
-     - run the required pre-commit hygiene checks from
-       `commit-execution-policy.md`
-     - write the final message to a file
-     - run `git commit -F <file>`
-     - report commit hash, staged file scope, traceability, and remaining
-       unstaged scope
-8. Report the result.
-   - Include the final message or draft preview.
-   - Include whether execution happened.
-   - Include traceability status and `Refs`.
+   - Keep the subject imperative and one sentence.
+   - Use the exact body section order: `Why`, `What`, `Impact`, `Tests`,
+     `Refs`.
+   - Put multiple commands or checks as bullets under the single `Tests`
+     section.
+6. Execute the selected path.
+   - For `draft_only` or `split_only`, return the draft or split plan without
+     staging.
+   - For `execute`, stage only approved in-scope files for one slice, run the
+     required hygiene checks, write the final message to a file, and run
+     `git commit -F <file>`.
+7. Report the save point.
+   - Include commit hash when committed.
+   - Include staged scope, traceability status, tests status, and any remaining
+     unstaged scope.
 
-## Output Contract
+## Decision Points
+
+- If the worktree contains unrelated dirty files, keep them unstaged and name
+  them in the result.
+- If one file mixes in-scope and unrelated edits, ask once before staging that
+  file or require a narrower patch.
+- If `issue-gate-skill` returns `BLOCK`, stop commit execution and report the
+  blocker.
+- If traceability is optional and no canonical issue applies, use
+  `Refs: - n/a`; do not invent an issue.
+- If the diff is one logical change around 300 changed lines, one commit is
+  acceptable when the verification and rollback boundary are still clear.
+- If the diff is around 1000 changed lines or mixes unrelated concerns, split
+  unless the content is generated or structurally inseparable.
+- If the user asked for wording-only output, do not stage files even when the
+  message is ready.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "All the files are already dirty, so staging everything is fastest." | Dirty is not the same as in scope. Stage only approved files for the current save point. |
+| "The issue is obvious, so I can write a plausible Refs line." | Traceability must come from `issue-gate-skill`, repository evidence, or `n/a`; never invent issue links. |
+| "This is just docs, so a one-line commit is fine." | Repository history still needs Why, What, Impact, Tests, and Refs. |
+| "The diff is large but it is easier to review as one commit." | Large mixed commits hide intent and rollback boundaries; split unless the change is one inseparable unit. |
+| "I can add another Tests section for the second command." | The body has one `Tests` section with multiple bullets. |
+
+## Red Flags
+
+- `git add .` or broad staging appears while unrelated dirty files exist.
+- The commit body lacks one of `Why`, `What`, `Impact`, `Tests`, or `Refs`.
+- The same required section appears more than once.
+- The subject explains cause and effect instead of the action.
+- `Refs` names an issue that was not verified or supplied.
+- Independent feature, refactor, formatting, dependency, or generated-file
+  changes are bundled together for speed.
+- Tests are marked as "not requested" instead of giving a real operational
+  reason.
+
+## Verification
+
+- [ ] Branch, worktree, and diff were inspected before staging.
+- [ ] Staged files are limited to the approved in-scope slice.
+- [ ] Split decision is recorded with size and concern rationale.
+- [ ] Traceability is verified through `issue-gate-skill`, repository evidence,
+      explicit user input, or `Refs: - n/a`.
+- [ ] Commit message has exactly one `Why`, `What`, `Impact`, `Tests`, and
+      `Refs` section in that order.
+- [ ] Required pre-commit hygiene checks from
+      `references/commit-execution-policy.md` were run or explicitly blocked.
+- [ ] Execution result reports commit hash, test status, and remaining
+      unstaged scope.
+
+## Output Format
 
 ```text
 ## Commit Mode
