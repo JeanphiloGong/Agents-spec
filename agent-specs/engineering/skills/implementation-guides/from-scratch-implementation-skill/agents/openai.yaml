@@ -1,4 +1,4 @@
 interface:
   display_name: "From-Scratch Implementation"
-  short_description: "v0.1.3 - Write a from-scratch implementation guide"
-  default_prompt: "Use $from-scratch-implementation-skill to produce a markdown from-scratch implementation guide for one feature or method, deriving behavior and invariants into step-by-step structure, helper contracts, small code fragments, assembly, and verification before writing or trusting final code."
+  short_description: "v0.1.4 - Write a connected incremental from-scratch implementation guide"
+  default_prompt: "Use $from-scratch-implementation-skill to produce a markdown from-scratch implementation guide for one feature or method, deriving behavior and invariants into connected code versions. Each step must add to or replace the previous version, state what the new version can do and still lacks, and let the final step yield the complete code without a separate final code block that adds new logic."

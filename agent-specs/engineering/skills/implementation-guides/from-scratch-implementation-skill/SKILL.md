@@ -1,6 +1,6 @@
 ---
 name: from-scratch-implementation-skill
-description: v0.1.3 - Teach one feature or method from first principles through a document-first implementation ladder. Use when the human wants to learn how to build core logic from behavior, constraints, invariants, helper contracts, small code fragments, and verification before trusting final code.
+description: v0.1.4 - Teach one feature or method from first principles through a connected incremental implementation ladder. Use when the human wants core logic built from behavior, constraints, invariants, helper contracts, code versions, and verification before trusting final code.
 ---
 
 # From-Scratch Implementation Skill
@@ -8,10 +8,10 @@ description: v0.1.3 - Teach one feature or method from first principles through 
 ## Overview
 
 Produce a tutorial-first markdown guide that derives one feature, method, or
-coherent core slice from external behavior into implementation structure. The
+coherent core slice from external behavior into connected code versions. The
 goal is not to dump final code. The goal is to make the internal model, helper
-contracts, mutation boundaries, and verification steps feel necessary from the
-requirements.
+contracts, mutation boundaries, and final runnable implementation grow from the
+requirements one version at a time.
 
 Use this skill when reasoning must be preserved as a durable artifact the human
 can revisit, extend, or use to reimplement the core logic by hand.
@@ -36,7 +36,8 @@ sequencing, or runnable mini-project extraction better handled by
 
 Teach one abstraction layer at a time. Do not introduce a helper, data
 structure, or full implementation before the requirement pressure that makes it
-necessary is visible.
+necessary is visible. Once code growth starts, every step must connect to the
+previous version.
 
 1. State Behavior
    - Name the feature goal, intended reader, and user-visible behavior.
@@ -58,23 +59,32 @@ necessary is visible.
      helper bodies.
    - Define helper contracts only after the public behavior needs them.
    - Verify: each helper has a caller, input, output, and mutation boundary.
-5. Build the Ladder
-   - Write the `From Scratch` section as numbered steps using the step contract.
-   - Introduce one new pressure, helper, structure, or mutation rule per step.
-   - Verify: no step solves the whole feature or jumps ahead to final code.
-6. Assemble the Core Slice
-   - Combine the previously justified fragments into the public methods or core
-     slice.
-   - Add a reference implementation only after derivation and assembly, and
-     only when it materially helps.
-   - Verify: the guide teaches "why this structure" before "how do I code it."
-7. Close With Practice
-   - Walk one concrete example end to end.
+5. Start the Smallest Working Version
+   - Create the smallest skeleton or partial version that can be reasoned about
+     as code.
+   - State what this version can do and what it still lacks.
+   - Verify: the first code version is connected to the contract and is not an
+     isolated code block.
+6. Grow Through Connected Versions
+   - Write the `From Scratch` section as numbered steps using the connected
+     build contract.
+   - Each step solves one concrete problem by adding to or replacing part of the
+     previous version.
+   - Verify: every step states what changed, what the new version can do, and
+     what still lacks.
+7. Let the Final Step Become the Complete Code
+   - The last meaningful build step should yield the complete runnable version
+     when the user needs code.
+   - Do not add a separate final code section that introduces new logic.
+   - Verify: the final code contains no unexplained state, helper, branch, or
+     mutation rule.
+8. Close With Practice
+   - Walk one concrete example or trace end to end.
    - List common mistakes, verification checks, and the next smallest step the
      human can execute alone.
-   - Verify: the output is a complete markdown guide, not a short chat answer.
+   - Verify: the output is a complete markdown guide, not a short chat response.
 
-## Step Contract
+## Connected Build Contract
 
 Every numbered step inside the `From Scratch` section should answer the same
 teaching questions:
@@ -82,16 +92,24 @@ teaching questions:
 - `Question`
 - `Why This Matters`
 - `How To Think`
-- `What To Write Now`
-- `Small Code Fragment` when code is introduced
+- `Previous Version Can`
+- `Add or Replace`
+- `Code Change`
+- `Now This Version Can`
+- `Still Lacks`
 - `What To Verify`
 
 Rules:
 - Each step introduces only one new pressure, structure, helper, or mutation
   rule.
 - Do not solve the whole feature in one step.
-- Do not present the full implementation before the ladder is complete.
-- When code is introduced, keep it fragment-sized until the assembly section.
+- Do not present disconnected code blocks that cannot be related to the previous
+  version.
+- When replacing code, show the old shape briefly and the new code explicitly.
+- In `Add or Replace`, use connector wording in substance:
+  `In the previous version, add ...` or `Replace this part with ...`.
+- The final complete code must come from the last connected step, not from a
+  separate unexplained section.
 
 See `references/from-scratch-document-ladder.md` for the detailed ladder and
 anti-patterns.
@@ -107,7 +125,7 @@ anti-patterns.
   assumptions and label them before teaching.
 - If missing constraints would change the data structure or public contract,
   ask before drafting the guide.
-- If the user asks for a terse answer, compress the guide but keep behavior,
+- If the user asks for a terse response, compress the guide but keep behavior,
   constraints, from-scratch progression, and verification.
 
 ## Required Inputs
@@ -127,8 +145,9 @@ anti-patterns.
 - `document_shape=from-scratch-implementation-guide`
 - `implementation_style=contract-first-with-explicit-helper-boundaries`
 - `plan_horizon=one-method-or-one-coherent-slice`
-- `step_shape=question-why-think-write-verify`
-- `code_generation=optional-after-derivation`
+- `step_shape=question-why-think-previous-add-now-lacks-verify`
+- `code_generation=connected-version-growth`
+- `final_code_policy=last-step-yields-complete-code`
 - `agent_mode=single|multi(optional)`
 
 ## Output Format
@@ -153,25 +172,25 @@ anti-patterns.
 - Question:
 - Why This Matters:
 - How To Think:
-- What To Write Now:
-- Small Code Fragment:
+- Previous Version Can:
+- Add or Replace:
+- Code Change:
+- Now This Version Can:
+- Still Lacks:
 - What To Verify:
 
 ### Step 2: ...
 - Question:
 - Why This Matters:
 - How To Think:
-- What To Write Now:
-- Small Code Fragment:
+- Previous Version Can:
+- Add or Replace:
+- Code Change:
+- Now This Version Can:
+- Still Lacks:
 - What To Verify:
 
 ## Helper Contracts
-- ...
-
-## Assemble the Core Slice
-- ...
-
-## Reference Implementation (Optional)
 - ...
 
 ## Common Mistakes
@@ -206,6 +225,7 @@ quickly from requirement to helper internals.
 | "The user asked for implementation, so skip the contract." | The external contract is what makes the implementation choices defensible. |
 | "One big step is shorter." | A large step prevents the human from seeing which pressure created which structure. |
 | "The AI draft already has a good layout." | Existing helper layout is evidence, not the source of truth. Re-derive the core path. |
+| "I'll add a separate final code block after the tutorial." | The final code must grow out of the last connected step and must not smuggle in new logic. |
 
 ## Red Flags
 
@@ -214,7 +234,11 @@ quickly from requirement to helper internals.
   explained.
 - The `From Scratch` section is missing or not numbered.
 - A step contains multiple new ideas, helpers, or state changes.
-- Full reference code appears before the assembly section.
+- A step does not say what the previous version could do and what the new
+  version can do.
+- Code blocks are standalone explanations rather than additions or
+  replacements to the previous version.
+- A separate final code block introduces logic not grown through the steps.
 - The guide never walks a concrete example end to end.
 - The output ends without a verification checklist or next small step.
 - AI draft structure is copied instead of re-derived from requirements.
@@ -223,16 +247,20 @@ quickly from requirement to helper internals.
 
 Before finishing, confirm:
 
-- [ ] The output is a complete markdown guide, not a short chat-style answer.
+- [ ] The output is a complete markdown guide, not a short chat-style response.
 - [ ] The external contract and hard constraints appear before any data
       structure is proposed.
 - [ ] The `From Scratch` section is present and uses numbered steps.
 - [ ] Each step answers `Question`, `Why This Matters`, `How To Think`,
-      `What To Write Now`, and `What To Verify`.
+      `Previous Version Can`, `Add or Replace`, `Code Change`,
+      `Now This Version Can`, `Still Lacks`, and `What To Verify`.
 - [ ] Each helper contract has an explicit purpose and mutation or return
       boundary.
+- [ ] Every code step is an addition to or replacement of the previous version.
 - [ ] The guide teaches "why this structure" before "how do I code it."
 - [ ] The guide includes one concrete example or trace.
+- [ ] The final complete code, when present, comes from the last connected step
+      and introduces no new logic.
 - [ ] The guide ends with one concrete next step the human could execute alone.
 
 ## Guardrails
@@ -247,8 +275,9 @@ Before finishing, confirm:
 - Keep one new idea per step in the `From Scratch` ladder.
 - Call out mutation boundaries explicitly: what state changes, what does not,
   and what the caller must still do.
-- Do not place the full reference implementation before `Assemble the Core
-  Slice`.
+- Do not add disconnected explanation/code/explanation blocks; each code
+  step must name what it adds to or replaces in the previous version.
+- Do not add a separate final code section that contains new logic.
 - When AI code already exists, do not treat the existing helper layout as
   authoritative. Re-derive the core path from requirements first.
 - Do not output secrets, tokens, or PII.

@@ -10,7 +10,7 @@ move toward `main`.
 
 | User situation | Skill | Purpose |
 | --- | --- | --- |
-| Learn the core from first principles before trusting final code | [`from-scratch-implementation-skill`](from-scratch-implementation-skill/SKILL.md) | Derive one feature or method from behavior, constraints, invariants, helper contracts, small code fragments, and verification. |
+| Learn the core from first principles before trusting final code | [`from-scratch-implementation-skill`](from-scratch-implementation-skill/SKILL.md) | Derive one feature or method through connected code versions that add to or replace the previous version until the final step yields complete code. |
 | Production code or an AI draft is too noisy to learn from safely | [`reference-core-impl-skill`](reference-core-impl-skill/SKILL.md) | Build a runnable minimal-complete reference sample that preserves the defining invariant and maps back to production. |
 | AI draft or reference output needs to land on `main` under human control | [`human-led-main-landing-skill`](human-led-main-landing-skill/SKILL.md) | Plan one human-led, main-first wave with `Human-Owned` logic, AI reference boundaries, verification, and `commit_when` checkpoints. |
 
