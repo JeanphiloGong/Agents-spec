@@ -1,4 +1,4 @@
 interface:
   display_name: "Reference Core Plan"
   short_description: "v0.1.3 - Plan a reference-core learning module"
-  default_prompt: "Use $reference-core-plan to plan one runnable learning module by carrying forward any $reference-core-teaching-plan lineage gate and teaching constraints, stopping or switching to prerequisite work when the selected chain is blocked, then naming the extracted chain, defining invariant, scenario-fit src architecture, module layout, included and deferred boundaries, safe placement, validation checks, and map-back starting points before writing module code."
+  default_prompt: "Use $reference-core-plan to plan one runnable learning module by carrying forward any $reference-core-teaching-plan zero point, lineage gate, and teaching constraints, stopping or switching to prerequisite work when the selected chain is blocked, then naming the extracted chain, defining invariant, scenario-fit src architecture, module layout, included and deferred boundaries, safe placement, validation checks, and map-back starting points before writing module code."

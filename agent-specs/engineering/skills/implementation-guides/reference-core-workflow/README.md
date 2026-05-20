@@ -62,6 +62,8 @@ After map-back, use `human-led-main-landing-skill` for controlled integration on
   single-chain planning.
 - Use `reference-core-teaching-plan` when the selected chain should become a
   blog, nano project, tutorial, or personal knowledge asset.
+- Treat "from zero" as the real-world problem plus the smallest useful
+  engineering mechanism, not automatically as an empty repository.
 - Let `reference-core-teaching-plan` stop the current chain when it is really a
   later version that depends on a missing base module.
 - Use `from-scratch-tutorial-workflow` when the output is a teaching guide

@@ -34,7 +34,7 @@ production landing, tutorial-only derivation, or final integration patches.
 1. Identify Learning Chain
    - Name the feature, system slice, and one-sentence chain mastery goal.
    - If a `reference-core-teaching-plan` handoff exists, carry forward its
-     lineage gate, from-zero promise, and asset constraints.
+     zero point, lineage gate, from-zero promise, and asset constraints.
    - If the handoff says the selected chain is blocked by missing prerequisite
      work, plan the prerequisite asset instead or stop for the blocking open
      question.
@@ -92,6 +92,8 @@ production landing, tutorial-only derivation, or final integration patches.
   `blocked-by-missing-prerequisite`, do not plan the current chain as if it can
   start from zero. Switch to the prerequisite asset or ask for the missing base
   evidence.
+- If a teaching-plan handoff lacks `real_world_zero` or `engineering_zero`,
+  ask for the missing zero point before planning the module shape.
 
 ## Reference Map
 
@@ -115,6 +117,9 @@ production landing, tutorial-only derivation, or final integration patches.
 - Inputs:
 
 ## Teaching Asset Constraints
+- real_world_zero:
+- engineering_zero:
+- current_chain_position:
 - lineage_verdict:
 - base_asset:
 - base_asset_status:
