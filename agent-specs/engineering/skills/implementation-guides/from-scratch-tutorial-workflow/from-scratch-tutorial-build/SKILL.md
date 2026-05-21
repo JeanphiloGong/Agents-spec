@@ -137,6 +137,10 @@ previous version.
    - Name the next gap as a concrete defect in the frozen version.
    - Run the internal per-step quality gate before drafting the next step.
    - Expose only reader-facing checkpoints in the tutorial body.
+   - If the human wants Git history for each document checkpoint, hand off to
+     `single-doc-checkpoint-commit-skill` after this freeze is verified. Keep
+     `Pressure / Naive / Break / Change / Check / Freeze / Still lacks / Next`
+     in the commit message rather than dumping them into public tutorial prose.
    - Verify: the next step can only continue from this version, not a hidden
      rewrite.
 8. Continue Step-by-Step
@@ -217,6 +221,9 @@ Public voice rules:
 - If simplification is needed after the guide works, hand off to
   `from-scratch-tutorial-simplify`.
 - If quality is uncertain, hand off to `from-scratch-tutorial-review`.
+- If the user asks to save a verified single-document tutorial checkpoint in
+  Git history, use `single-doc-checkpoint-commit-skill` instead of
+  `git-commit-skill`.
 
 ## Fixed Defaults
 
@@ -229,6 +236,7 @@ Public voice rules:
 - `source_fact_policy=separate-supplied-from-inferred`
 - `step_depth_policy=complete-one-step-before-next-step`
 - `public_voice_policy=natural-tutorial-not-checklist`
+- `checkpoint_commit_policy=single-doc-freeze-fields-in-commit-message`
 
 ## Output Format
 
@@ -309,6 +317,7 @@ examples.
 | "The headings are required, so the output should show all of them." | The headings are obligations, not necessarily public prose; the tutorial should read naturally. |
 | "The scenario is optional because the code is clear." | Without the scenario, the tutorial teaches an implementation shape without explaining why it exists. |
 | "The compressed model can be inferred." | Norvig-style compression must be explicit so the reader knows what is essential and what is deferred. |
+| "Git history needs the same fields, so the tutorial body should show them." | Use `single-doc-checkpoint-commit-skill` to record fields in the commit message while keeping the document readable. |
 
 ## Red Flags
 
@@ -392,6 +401,9 @@ examples.
 - Do not output internal self-review fields in the public tutorial body.
 - Do not mechanically output every internal field label unless the user asks
   for structured output.
+- Do not use normal code-commit flow for a single tutorial document checkpoint;
+  use `single-doc-checkpoint-commit-skill` when the user wants the freeze in
+  Git history.
 - Do not say "store X in a map or list" without explaining what operation must
   stay `O(1)` or what invariant it protects.
 - Do not optimize prose during the first build if it risks dropping checks or

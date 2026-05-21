@@ -124,6 +124,9 @@ general code review, production merge review, or publishing metadata review.
      revision issues.
    - Treat a public guide that merely lists internal fields as a revision issue,
      even if the fields are technically filled.
+   - If the author wants structured freeze metadata preserved in Git, confirm
+     that it belongs in a `single-doc-checkpoint-commit-skill` commit message
+     rather than in the public tutorial body.
    - Verify: publishability feedback is not used to hide blocking correctness
      findings.
 11. Produce Verdict
@@ -181,6 +184,7 @@ Specific severity calibration:
 | "All required headings are present, so the guide passes." | Headings are not enough; the guide must read like a real lesson with scenario, compression, pressure, code, checks, and freeze points. |
 | "The scenario is not needed because this is an implementation tutorial." | The scenario is what makes the implementation pressure real. |
 | "Problem compression is obvious from the code." | The compressed model must be explicit so the reader can separate core logic from deferred noise. |
+| "The freeze fields must appear in the tutorial so Git history can preserve them." | The freeze fields can live in a single-document checkpoint commit message; the tutorial body should remain reader-facing. |
 
 ## Red Flags
 
@@ -213,6 +217,8 @@ Specific severity calibration:
   reader-facing guide.
 - The tutorial publicly dumps internal field labels when natural teaching prose
   would be clearer.
+- The tutorial uses public template fields as a substitute for a
+  single-document checkpoint commit message.
 - The public tutorial contains `Step Self-Review` or yes/no self-audit bullets.
 
 ## Verification
@@ -234,6 +240,8 @@ Specific severity calibration:
 - [ ] The final meaningful step was checked as an assembled complete
       checkpoint.
 - [ ] Public prose was checked for tutorial voice rather than checklist voice.
+- [ ] Single-document checkpoint metadata, when requested, was routed to
+      `single-doc-checkpoint-commit-skill` rather than public tutorial prose.
 - [ ] Verdict is `pass`, `revise`, or `block`.
 
 ## Guardrails

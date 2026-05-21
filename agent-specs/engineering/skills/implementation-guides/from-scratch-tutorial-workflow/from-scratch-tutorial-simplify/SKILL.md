@@ -60,6 +60,11 @@ Internal self-review is not protected public content. If a tutorial includes
 `Before Moving On`, or `Try This` language while preserving the actual teaching
 check.
 
+When the human wants Git history for each freeze, preserve the structure by
+using `single-doc-checkpoint-commit-skill` after simplification or review. Do
+not keep template fields in public prose just because they are useful for
+checkpoint commit messages.
+
 ## When to Use
 
 - A from-scratch tutorial has passed or mostly passed review but feels heavy.
@@ -94,6 +99,8 @@ the guide shorter.
    - Prefer concrete verbs, shorter bullets, and direct reader-facing language.
    - Convert checklist-like field repetition into natural tutorial prose when
      doing so does not remove required content.
+   - Move the need for structured checkpoint fields to the commit workflow when
+     appropriate; do not make the document body carry commit metadata.
    - Keep source facts and assumptions clear.
    - Verify: no ambiguity is introduced.
 5. Preserve Code Traceability
@@ -144,6 +151,7 @@ When editing a file directly, keep this report brief and include changed paths.
 | "Step Self-Review should stay because it is accurate." | It is internal scaffolding; public tutorials should use reader-facing checkpoints. |
 | "Scenario and compression can be shortened away." | They are the reason the tutorial is not just a code walkthrough. |
 | "Removing field labels removes the structure." | The structure can remain as natural prose plus checkpoints. |
+| "The commit needs the fields, so they must stay in the document." | The single-document checkpoint commit message can hold those fields. |
 
 ## Red Flags
 
@@ -159,6 +167,8 @@ When editing a file directly, keep this report brief and include changed paths.
 - The final assembled checkpoint is shortened into a partial snippet.
 - Source facts and assumptions are merged together.
 - Simplification changes code behavior.
+- Template fields stay in public prose only to support checkpoint commit
+  metadata.
 
 ## Verification
 
@@ -188,6 +198,8 @@ When editing a file directly, keep this report brief and include changed paths.
   prior version.
 - Do not preserve `Step Self-Review` as public prose; convert it to a
   reader-facing checkpoint when simplifying for publication.
+- Do not keep internal checkpoint fields in public prose just to make future
+  commit messages easier.
 - Do not remove patch/checkpoint labels or make the final checkpoint
   incomplete.
 - Do not collapse multiple version steps into one unless the user explicitly
