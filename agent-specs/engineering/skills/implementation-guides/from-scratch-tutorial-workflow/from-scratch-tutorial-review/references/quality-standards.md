@@ -21,7 +21,7 @@ Review in this order:
 
 A from-scratch tutorial must combine three standards:
 
-- Nystrom: a complete engineering chain grows version by version, and every
+- Nystrom: a complete engineering chain grows checkpoint by checkpoint, and every
   meaningful step leaves behind a working system piece.
 - Karpathy: code appears early, stays runnable, and each new line is justified
   by behavior it unlocks.
@@ -33,12 +33,12 @@ Check for:
 - real scenario before implementation details
 - explicit problem compression with included and deferred scope
 - a small complete model that preserves the central invariant
-- connected runnable versions, not isolated snippets
+- connected runnable checkpoints, not isolated snippets
 - final assembled checkpoint, not scattered code pieces
 
 Finding severity:
 
-- `block` when the final code cannot be reached through connected versions.
+- `block` when the final code cannot be reached through connected checkpoints.
 - `revise` when the guide lacks real scenario, problem compression, or a small
   complete model.
 - `revise` when code appears only late or appears early but does not stay
@@ -46,7 +46,7 @@ Finding severity:
 
 ## 1. Executable Continuity
 
-Every code version must be runnable from the visible previous version.
+Every code checkpoint must be runnable from the visible previous baseline.
 
 Check for:
 
@@ -77,7 +77,7 @@ function object.
 
 ## 2. Defect-Driven Teaching Depth
 
-Each step must explain why the previous version is insufficient before it adds
+Each step must explain why the previous baseline is insufficient before it adds
 new structure.
 
 Before the defect statement, the step should show a pressure example: a small
@@ -101,12 +101,12 @@ Weak `What Breaks` says only:
 - "production needs more"
 
 Weak steps also jump directly from a heading to a fix without showing what the
-reader experiences in the naive version.
+reader experiences in the naive baseline.
 
 Finding severity:
 
 - `block` when a core step introduces a helper, data structure, state machine,
-  or public API without a concrete previous-version defect.
+  or public API without a concrete previous-baseline defect.
 - `revise` when the defect exists but is too generic to teach why this exact
   change follows.
 - `revise` when the step has a concrete defect but no pressure example.
@@ -122,7 +122,7 @@ Check for:
 - every step declares `Code Change Target`, such as `current script`,
   `models.py`, `runner.py`, or `src/<package>/...`
 - a `patch` shows one local addition or replacement from the visible previous
-  version
+  baseline
 - a `checkpoint` shows the complete current runnable file, module, or script
 - the final meaningful step in a code tutorial is a checkpoint
 - the final checkpoint contains no logic that was not explained earlier
@@ -248,7 +248,7 @@ Recommended reader-facing alternatives:
 
 - `Step Self-Review` -> `Checkpoint` or `Before Moving On`
 - `What To Verify` -> `Try This`
-- `Freeze This Version` -> `Version Checkpoint`
+- `Freeze This Checkpoint` -> `Checkpoint`
 
 ## Review Output Calibration
 
@@ -262,5 +262,5 @@ Do not say a tutorial passes merely because:
 - the final code is correct
 - the narrative sounds plausible
 
-The review passes only when a reader can move from one visible version to the
-next without hidden code, hidden state, or unexplained behavior choices.
+The review passes only when a reader can move from one visible checkpoint to
+the next without hidden code, hidden state, or unexplained behavior choices.

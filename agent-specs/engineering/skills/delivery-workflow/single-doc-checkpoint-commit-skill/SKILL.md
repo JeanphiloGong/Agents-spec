@@ -14,17 +14,17 @@ message.
 
 The commit is not a normal code commit. Its job is to make the learning ladder
 recoverable from Git history: what pressure this checkpoint answered, what the
-previous version could do, what broke, what changed, how it was checked, what
+previous baseline could do, what broke, what changed, how it was checked, what
 is now frozen, what still lacks, and what comes next.
 
 ## When to Use
 
-- A single Markdown tutorial document has completed one `Freeze This Version`,
+- A single Markdown tutorial document has completed one `Freeze This Checkpoint`,
   `Checkpoint`, or equivalent reader-facing freeze.
 - A from-scratch tutorial step should be saved as a document-history
   checkpoint.
 - A learning asset document needs a Git save point after one coherent teaching
-  version.
+  checkpoint.
 - The document body should stay natural and human-readable, while structured
   teaching metadata should be captured in the commit message.
 

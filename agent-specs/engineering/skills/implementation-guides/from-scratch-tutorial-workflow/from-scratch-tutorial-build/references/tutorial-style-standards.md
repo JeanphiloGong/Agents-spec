@@ -24,12 +24,12 @@ resulting style should be:
 
 ```text
 small real pressure
--> naive runnable version
+-> naive runnable baseline
 -> concrete thing that breaks
 -> one new requirement
 -> one code change
 -> check the new behavior
--> freeze the new version
+-> freeze the new checkpoint
 ```
 
 ## Pressure Example First
@@ -99,7 +99,7 @@ This works for three entries. Now ask what happens when `get(9999)` runs in a
 
 Why this is strong:
 
-- The reader sees the naive version run.
+- The reader sees the naive baseline run.
 - The pressure is a concrete operation.
 - The new structure is forced by that operation.
 
@@ -130,7 +130,7 @@ Use reader-facing section names:
 - `Checkpoint`
 - `Before Moving On`
 - `Try This`
-- `Version Checkpoint`
+- `Checkpoint`
 
 Do not output internal quality gates such as:
 
@@ -143,7 +143,7 @@ Avoid long repeated public field lists such as:
 
 - `Question`
 - `Pressure Example`
-- `Naive or Previous Version`
+- `Naive or Previous Baseline`
 - `What Breaks`
 - `New Requirement`
 

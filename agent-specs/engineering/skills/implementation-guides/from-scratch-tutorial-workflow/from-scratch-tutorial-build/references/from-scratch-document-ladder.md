@@ -18,7 +18,7 @@ with connected code growth.
 The output should read like a reusable implementation notebook, not like a
 short response and not like a final-code dump.
 
-The guide must grow through connected code versions. Do not alternate between
+The guide must grow through connected code checkpoints. Do not alternate between
 standalone concept prose, unrelated code blocks, and a late complete-code dump.
 Write one problem, one concrete defect, one code change, one check, one new
 capability, and one remaining gap at a time. Finish that step before drafting
@@ -26,7 +26,7 @@ the next step. Mark every code change as a `patch` or `checkpoint`, and make
 the last meaningful code step an assembled complete checkpoint.
 
 Before the defect statement, show a pressure example: a tiny input, trace, call
-site, or extension that makes the naive version's weakness visible.
+site, or extension that makes the naive baseline's weakness visible.
 
 Prefer this order:
 
@@ -49,7 +49,7 @@ quality questions, not mandatory public field labels:
 
 - `Question`
 - `Pressure Example`
-- `Naive or Previous Version`
+- `Naive or Previous Baseline`
 - `What Breaks`
 - `New Requirement`
 - `Add or Replace`
@@ -58,8 +58,8 @@ quality questions, not mandatory public field labels:
 - `Code Change`
 - `Why This Change Works`
 - `Step Check`
-- `Now This Version Can`
-- `Freeze This Version`
+- `Now This Checkpoint Can`
+- `Freeze This Checkpoint`
 - `Still Lacks`
 - `What To Verify`
 - `Checkpoint` or `Before Moving On`
@@ -83,25 +83,25 @@ On` sections.
 Use code change roles consistently:
 
 - `patch`: a local addition or replacement applied to the previous visible
-  version.
+  checkpoint.
 - `checkpoint`: the complete current runnable unit for the named target.
 
 The final meaningful code step must be a `checkpoint`. It should include the
 imports, types, helpers, and public API needed for the target to run. It must
 not include logic that earlier steps did not explain.
 
-Every code step should be connected to the previous version. Use these
+Every code step should be connected to the previous baseline. Use these
 connectors in substance:
 
-1. `The previous version can ...`
+1. `The previous baseline can ...`
 2. `What breaks is ...`
 3. `Therefore the new requirement is ...`
-4. `In the previous version, add ...`
+4. `In the previous baseline, add ...`
 5. `Code Change Type: patch/checkpoint`
 6. `Code Change Target: ...`
 7. `This works because ...`
-8. `Check this version by ...`
-9. `Freeze this version as ...`
+8. `Check this checkpoint by ...`
+9. `Freeze this checkpoint as ...`
 10. `It still lacks ...`
 
 Do not use a vague teaching pressure. "This is not scalable" is not enough.
@@ -117,7 +117,7 @@ Use:
 - `Checkpoint`
 - `Before Moving On`
 - `Try This`
-- `Version Checkpoint`
+- `Checkpoint`
 
 Do not output:
 
@@ -130,7 +130,7 @@ Also avoid public output that is only a repeated field list:
 
 - `Question`
 - `Pressure Example`
-- `Naive or Previous Version`
+- `Naive or Previous Baseline`
 - `What Breaks`
 - `New Requirement`
 
@@ -145,7 +145,7 @@ read like a lesson.
 - Ask what must already be true for that behavior to work.
 - Show the first pressure example before naming the defect.
 - If code appears, it should be the smallest useful skeleton or note that can
-  become the first version.
+  become the first checkpoint.
 
 ### Step 2: Name the first concrete defect in the naive shape
 
@@ -158,7 +158,7 @@ read like a lesson.
 
 - Explain why the structure exists.
 - State what operation or invariant it protects.
-- Add or replace exactly one piece of the previous version.
+- Add or replace exactly one piece of the previous baseline.
 
 ### Step 4: Define the smaller subproblem or boundary
 
@@ -184,7 +184,7 @@ read like a lesson.
 ### Step 8: Complete the public method or core slice
 
 - Combine the already introduced pieces.
-- This should be a connected step that grows from the previous version.
+- This should be a connected step that grows from the previous baseline.
 
 ### Step 9: Walk one trace end to end
 
@@ -205,14 +205,14 @@ read like a lesson.
 - The reader can explain why each helper exists.
 - The reader can say what each state variable protects.
 - The reader understands why a simpler structure would fail.
-- Each `What Breaks` section names a concrete defect in the previous version.
+- Each `What Breaks` section names a concrete defect in the previous baseline.
 - Each `Why This Change Works` section points back to that defect.
 - The reader can implement the next step without re-reading the whole guide.
 - Every code block is either an addition to or replacement of the previous
-  version.
+  checkpoint.
 - Every code block says whether it is a patch or checkpoint and names its
   target.
-- The final code is the last version's assembled checkpoint, not a detached
+- The final code is the last connected checkpoint, not a detached
   dump and not a puzzle assembled from earlier snippets.
 
 ## Anti-Patterns
@@ -228,13 +228,13 @@ Do not do these in from-scratch mode:
 - write all steps in one thin pass instead of completing and checking one step
   before the next
 - duplicate the same code after the connected build already produced it
-- present standalone code blocks that do not update a previous version
+- present standalone code blocks that do not update a previous baseline
 - add a separate final code block that contains new logic
 - call a partial class or helper snippet a checkpoint
 - end with a patch when the reader needs complete runnable code
 - omit the code change type or target
-- omit what the current version can do and what it still lacks
-- omit what broke in the previous version
+- omit what the current checkpoint can do and what it still lacks
+- omit what broke in the previous baseline
 - output internal self-review fields as public tutorial prose
 
 ## Full-Code Policy

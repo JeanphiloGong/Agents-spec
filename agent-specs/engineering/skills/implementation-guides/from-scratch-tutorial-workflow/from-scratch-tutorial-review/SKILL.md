@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-review
-description: v0.2.0 - Review from-scratch tutorials against Nystrom/Karpathy/Norvig standards and the tutorial increment cycle. Use when checking a draft for missing real scenario, weak problem compression, missing core model or invariants, template-like public prose, missing pressure, vague breaks, disconnected naive/change/check/freeze steps, unclear patch/checkpoint roles, public self-review leakage, unexplained helpers, silent semantic choices, or final-code drift before accepting it.
+description: v0.3.0 - Review from-scratch tutorials against task-first planning, Nystrom/Karpathy/Norvig standards, and the tutorial increment cycle. Use when checking a draft or plan for missing real scenario, weak problem compression, missing core model or invariants, template-like public prose, missing pressure, vague breaks, disconnected task/checkpoint continuity, unclear patch/checkpoint roles, public self-review leakage, unexplained helpers, silent semantic choices, or final-code drift before accepting it.
 ---
 
 # From-Scratch Tutorial Review
@@ -20,7 +20,7 @@ or read like an internal generation artifact.
 
 Review every draft against:
 
-- **Nystrom complete engineering chain** - connected working versions, not
+- **Nystrom complete engineering chain** - connected working checkpoints, not
   scattered concept notes.
 - **Karpathy runnable from-zero coding** - code appears early, remains runnable,
   and grows because behavior forces it.
@@ -36,7 +36,7 @@ runnable code, or natural reader-facing teaching prose.
 ```text
 +------------------------------------------------+
 |                                                |
-|  Pressure -> Naive version -> Break -> Change  |
+|  Pressure -> Naive baseline -> Break -> Change |
 |      ^                                |        |
 |      +------ Freeze <- Check <--------+        |
 |                 |                              |
@@ -47,14 +47,14 @@ runnable code, or natural reader-facing teaching prose.
 ```
 
 Review every numbered step against that cycle. A step passes only when the
-reader can see the pressure, understand the current version, name what breaks,
-apply one change, check that change, and continue from the frozen version.
+reader can see the pressure, understand the current baseline, name what breaks,
+apply one change, check that change, and continue from the frozen checkpoint.
 
 ## When to Use
 
-- A from-scratch tutorial draft needs acceptance review.
+- A from-scratch tutorial draft or task-first plan needs acceptance review.
 - A guide may have skipped reasoning, hidden helper contracts, or disconnected
-  code versions.
+  code checkpoints.
 - The final code must be checked against the incremental steps.
 - A simplification pass needs a quality baseline before editing.
 
@@ -82,21 +82,27 @@ general code review, production merge review, or publishing metadata review.
    - Verify: the guide teaches the core idea, not production mapping or a
      shapeless toy.
 3. Check Increment Continuity
-   - For each numbered step, compare the previous version, add/replace action,
-     code change type, code change target, current capability, freeze
-     statement, and remaining gap.
+   - If a task-first plan is present, compare each tutorial build task's
+     dependencies, acceptance criteria, verification, document target, code
+     change type, checkpoint commit policy, and resulting section.
+   - If any task requests checkpoint history, confirm the plan has a
+     `Checkpoint Commit Handoff` section and routes the task to
+     `single-doc-checkpoint-commit-skill`.
+   - For each numbered tutorial step, compare the previous reader baseline,
+     add/replace action, code change type, code change target, current
+     capability, freeze statement, and remaining gap.
    - Read `references/quality-standards.md` and check executable continuity.
-   - Verify: every step can only depend on code already introduced, and every
+   - Verify: every task can only depend on satisfied dependencies and every
      step check would run from visible state.
 4. Check Defect-Driven Teaching Depth
    - Inspect pressure examples, `What Breaks`, `New Requirement`, and
      `Why This Change Works`.
    - Verify: every step names a concrete defect in the naive or previous
-     version before introducing the next structure, and the reader sees a
+     baseline before introducing the next structure, and the reader sees a
      pressure example before the fix.
 5. Check Step Evidence
    - Inspect `Step Check` and `What To Verify`.
-   - Verify: checks prove the current version's named defect was addressed,
+   - Verify: checks prove the current checkpoint's named defect was addressed,
      not the final solution.
 6. Check Semantic Choice Visibility
    - Look for behavior choices that appear silently: copying vs mutating,
@@ -144,11 +150,14 @@ Specific severity calibration:
 
 - `block`: final runnable code must be stitched from scattered snippets, a core
   helper or semantic rule appears only in the final checkpoint, or a core step
-  introduces a structure without a visible previous-version break.
+  introduces a structure without a visible previous-baseline break.
 - `revise`: a non-trivial tutorial lacks a real scenario, problem compression,
   core model, invariants, verification matrix, or natural reader-facing prose.
 - `revise`: the draft has all field labels but reads like a compliance
   checklist instead of a tutorial.
+- `revise`: the plan still uses an old row-based step table as the main build
+  handoff instead of task-level acceptance criteria, verification, and
+  dependencies.
 
 ## Output Format
 
@@ -173,10 +182,10 @@ Specific severity calibration:
 | Rationalization | Reality |
 |---|---|
 | "The final code is correct, so the tutorial is fine." | A from-scratch tutorial can fail even when the code works. |
-| "A missing step check is only a documentation issue." | Step checks prove the version ladder is real. |
+| "A missing step check is only a documentation issue." | Step checks prove the task ladder is real. |
 | "The reader can infer why the helper exists." | The tutorial must make helper pressure explicit. |
 | "Review should summarize first." | Findings come first so required fixes are visible. |
-| "The step has a `Why This Matters` line, so the rationale is covered." | The rationale must name concrete defects in the current version and show why the next change follows. |
+| "The step has a `Why This Matters` line, so the rationale is covered." | The rationale must name concrete defects in the current baseline and show why the next change follows. |
 | "The final tests pass, so intermediate snippets are fine." | Tutorial steps must be executable from visible state; final tests do not prove connected continuity. |
 | "Copying context is a small implementation detail." | Silent semantic choices can change the behavior the tutorial taught earlier. |
 | "The reader can stitch together the final code." | The final step must provide an assembled checkpoint so the delivered code is copyable and reviewable. |
@@ -185,24 +194,31 @@ Specific severity calibration:
 | "The scenario is not needed because this is an implementation tutorial." | The scenario is what makes the implementation pressure real. |
 | "Problem compression is obvious from the code." | The compressed model must be explicit so the reader can separate core logic from deferred noise. |
 | "The freeze fields must appear in the tutorial so Git history can preserve them." | The freeze fields can live in a single-document checkpoint commit message; the tutorial body should remain reader-facing. |
+| "The old step table already lists every step." | Build planning needs task dependencies, acceptance criteria, verification, document targets, and checkpoint handoff. |
 
 ## Red Flags
 
-- A step lacks `Naive or Previous Version`, `What Breaks`, `New Requirement`,
-  `Add or Replace`, `Step Check`, `Freeze This Version`, or `Still Lacks`.
+- A step lacks `Naive or Previous Baseline`, `What Breaks`, `New Requirement`,
+  `Add or Replace`, `Step Check`, `Freeze This Checkpoint`, or `Still Lacks`.
 - A non-trivial engineering tutorial lacks real scenario, problem compression,
   core model, invariants, or verification matrix.
 - The scenario only describes a production module instead of who needs the
   technique and what pressure they experience.
 - The compressed model is either too toy-like to preserve the core invariant or
   too production-shaped to teach in one sitting.
+- The plan uses an old row-based step table as the main structure instead of a
+  Tutorial Build Task List.
+- Tutorial build tasks lack acceptance criteria, dependencies, verification,
+  document targets, or checkpoint commit policy.
+- A task requests checkpoint history, but there is no `Checkpoint Commit
+  Handoff` table or it routes to the normal code commit flow.
 - A step's rationale is generic and does not explain what breaks in the naive
-  or previous version.
+  or previous baseline.
 - A step names a defect without showing a concrete pressure example first.
 - The guide advances to the next step without a reader-facing checkpoint or
   equivalent visible learning pause.
 - A code block cannot be explained as an addition to or replacement of the
-  previous version.
+  previous baseline.
 - A step check depends on stale state, hidden setup, or a registry that was not
   updated after a function or helper changed.
 - A `Code Change` block does not say whether it is a patch or checkpoint.
@@ -227,14 +243,14 @@ Specific severity calibration:
 - [ ] Nystrom/Karpathy/Norvig standards were checked.
 - [ ] Real scenario, problem compression, core model, invariants, and
       verification matrix were checked.
-- [ ] Version continuity was checked step by step.
+- [ ] Task continuity and checkpoint continuity were checked step by step.
 - [ ] Executable continuity was checked against the quality standards
       reference.
 - [ ] Code change type and target were checked for every step.
 - [ ] Pressure examples were checked before defect statements and fixes.
-- [ ] Teaching depth was checked for concrete previous-version defects.
+- [ ] Teaching depth was checked for concrete previous-baseline defects.
 - [ ] Meaningful semantic choices were checked for explanation and evidence.
-- [ ] Step checks were reviewed for relevance to the current version.
+- [ ] Step checks were reviewed for relevance to the current checkpoint.
 - [ ] Helper necessity and mutation boundaries were checked.
 - [ ] Final-code drift was checked.
 - [ ] The final meaningful step was checked as an assembled complete
@@ -242,6 +258,8 @@ Specific severity calibration:
 - [ ] Public prose was checked for tutorial voice rather than checklist voice.
 - [ ] Single-document checkpoint metadata, when requested, was routed to
       `single-doc-checkpoint-commit-skill` rather than public tutorial prose.
+- [ ] Checkpoint Commit Handoff was checked when any task requested document
+      history.
 - [ ] Verdict is `pass`, `revise`, or `block`.
 
 ## Guardrails

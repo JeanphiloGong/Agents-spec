@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-plan
-description: v0.2.0 - Plan a from-scratch tutorial through Nystrom/Karpathy/Norvig standards and the tutorial increment cycle. Use when the human wants a teaching path with real scenario, problem compression, core model, invariants, pressure examples, naive versions, concrete breaks, one patch/checkpoint change per step, step checks, freeze points, and a final assembled checkpoint before drafting.
+description: v0.3.0 - Plan a from-scratch tutorial as ordered, verifiable writing tasks through Nystrom/Karpathy/Norvig standards and the tutorial increment cycle. Use when the human wants a task-first tutorial plan with real scenario, problem compression, core model, invariants, dependency graph, acceptance criteria, verification, checkpoint commit handoff, and build-ready task breakdown before drafting.
 ---
 
 # From-Scratch Tutorial Plan
@@ -10,34 +10,35 @@ description: v0.2.0 - Plan a from-scratch tutorial through Nystrom/Karpathy/Norv
 Design the teaching route for one from-scratch implementation tutorial before
 writing the guide. The plan explains who the reader is, what real scenario the
 topic solves, how the real problem is compressed into a small complete model,
-what pressures force each structure, which code versions should exist, and how
-each version will be checked.
+what pressures force each structure, and which ordered writing tasks will
+produce the tutorial without hidden jumps.
 
 Use this skill to prevent tutorials from jumping straight from requirements to
-finished code, becoming disconnected concept notes, or producing steps whose
-only explanation is a vague "why this matters" sentence.
+finished code, becoming disconnected concept notes, or producing a table that
+the builder fills mechanically. The output is a task plan for writing the
+tutorial, not the tutorial body and not a row-based matrix.
 
 ## Teaching Standard
 
 Every plan must satisfy three teaching pressures:
 
 - **Nystrom complete engineering chain** - plan a connected project path where
-  every version leaves a working system piece.
+  every checkpoint leaves a working system piece.
 - **Karpathy runnable from-zero coding** - code should appear early, stay
   runnable, and grow only when behavior forces it.
 - **Norvig small complete problem compression** - compress the real scenario
   into the smallest model that still teaches the core idea.
 
 Do not treat these as stylistic inspiration. They are acceptance criteria for
-the plan. If the route lacks a real scenario, a compressed model, a runnable
-version ladder, or a final assembled checkpoint, the plan is incomplete.
+the plan. If the route lacks a real scenario, a compressed model, an ordered
+task ladder, or a final assembled checkpoint task, the plan is incomplete.
 
 ## The Tutorial Increment Cycle
 
 ```text
 +------------------------------------------------+
 |                                                |
-|  Pressure -> Naive version -> Break -> Change  |
+|  Pressure -> Naive baseline -> Break -> Change |
 |      ^                                |        |
 |      +------ Freeze <- Check <--------+        |
 |                 |                              |
@@ -47,15 +48,20 @@ version ladder, or a final assembled checkpoint, the plan is incomplete.
 +------------------------------------------------+
 ```
 
-Plan each step as one full pass through the cycle:
+Plan each tutorial-writing task that drafts a from-scratch step as one full
+pass through the cycle:
 
 1. **Pressure** - what small input, trace, call site, or extension makes the
    current weakness visible?
-2. **Naive version** - what does the reader have at this point?
-3. **Break** - what exactly can that version not do?
+2. **Naive baseline** - what does the reader have at this point?
+3. **Break** - what exactly can the current baseline not do?
 4. **Change** - what one thing should be added or replaced?
 5. **Check** - how will the reader prove this one change worked?
 6. **Freeze** - what is the new baseline and next visible gap?
+
+The plan should not expose this as an old table-driven ladder. Use it inside
+individual build tasks as acceptance criteria, verification, and optional
+single-document checkpoint commit metadata.
 
 ## When to Use
 
@@ -66,6 +72,8 @@ Plan each step as one full pass through the cycle:
   verification before drafting.
 - A tutorial draft risks skipping why a structure, helper, or state variable is
   necessary.
+- The human wants a plan that can be executed task-by-task like
+  `workflow-plan`, but for a document/tutorial deliverable.
 
 **When NOT to use:** production implementation plans, runnable reference sample
 planning, landing plans, final-code-only answers, or formatting/publishing
@@ -94,7 +102,7 @@ work.
      invariant, and not a production copy full of noise.
 4. Define Core Model and Invariants
    - Name the 3-5 concepts the implementation manipulates.
-   - List invariants that every version or final checkpoint must protect.
+   - List invariants that every checkpoint must protect.
    - Verify: no data structure appears before a behavior, invariant, or
      operation creates the need.
 5. Capture External Contract
@@ -107,41 +115,52 @@ work.
    - Prefer universal examples or source-independent scenarios; do not bake the
      user's current production module into the skill's reusable standards.
    - Verify: the example can be reused later as a step check.
-7. Plan Tutorial Increments
-   - List the smallest skeleton and each later version as cycle passes.
-   - For every version, plan pressure, naive version, break, one change, check,
-     and freeze.
-   - Mark the change as `patch` or `checkpoint`, and name the target.
-   - Make the next question arise from the frozen version's visible gap, not
-     from a final-code outline.
-   - Verify: each version changes one pressure, structure, helper, or mutation
-     rule forced by a visible defect.
-8. Plan Helper Contracts
+7. Map the Tutorial Dependency Graph
+   - Order the teaching dependencies from scenario to final assembled
+     checkpoint.
+   - Show which concept or code capability must be understood before the next
+     task can be written.
+   - Verify: the graph starts from reader-visible pressure and does not start
+     from a final class layout.
+8. Plan Tutorial Build Tasks
+   - Write ordered tasks with description, acceptance criteria, verification,
+     dependencies, expected document section, code-change role, and checkpoint
+     commit handoff.
+   - For tasks that draft a from-scratch step, include the internal teaching
+     fields: pressure, naive, break, change, check, freeze, still lacks, next.
+   - Mark whether each task needs a single-document checkpoint commit after it
+     is written and reviewed.
+   - Add a package-level `Checkpoint Commit Handoff` table when any task should
+     create document history.
+   - Verify: every task is small enough to draft, check, and freeze in one
+     focused pass.
+9. Plan Helper Contracts
    - Introduce helpers only after a planned step creates the need.
    - State each helper's caller, input, output, and mutation boundary.
    - Verify: no helper exists only because it appears in a known final answer.
-9. Plan Verification Matrix
+10. Plan Verification Matrix
    - Include happy path, invalid input, failure path, boundary case, and one
      representative state or event trace when relevant.
-   - Tie each verification item to a planned step or final invariant.
+   - Tie each verification item to a planned task or final invariant.
    - Verify: final validation is not only "run all tests".
-10. Define Review Risks
+11. Define Review Risks
    - List where the tutorial could jump, hide logic, or smuggle final code.
-   - Add checkpoints for those risks.
+   - Add task-level checkpoints for those risks.
    - Verify: the plan can be handed to `from-scratch-tutorial-build`.
 
-## Step Planning Contract
+## Tutorial Task Contract
 
-Every planned step must be a complete teaching unit, not a row that merely
-names the next code edit.
+Every planned task must be a complete writing unit, not a row that merely names
+the next concept. A task can draft setup material, one from-scratch tutorial
+step, a final assembled checkpoint, or verification/supporting sections.
 
-For each step:
+For each tutorial-step drafting task:
 
-- `Naive or Previous Version` states the exact code or mental model the reader
+- `Naive or Previous Baseline` states the exact code or mental model the reader
   currently has.
 - `Pressure Example` shows the concrete input, trace, call site, or extension
-  that makes the current version's weakness visible before naming the defect.
-- `Break` names what that version cannot explain, observe, protect,
+  that makes the current baseline's weakness visible before naming the defect.
+- `Break` names what that baseline cannot explain, observe, protect,
   or let the caller do.
 - `New Requirement` translates that break into the next requirement.
 - `Add or Replace` changes exactly one thing in response to that pressure.
@@ -149,8 +168,10 @@ For each step:
   complete current runnable unit.
 - `Code Change Target` names the file, module, script, or snippet the reader
   changes.
-- `Step Check` proves the defect was addressed in the current version.
+- `Step Check` proves the defect was addressed in the current checkpoint.
 - `Freeze or Next Gap` states the new baseline and the next visible defect.
+- `Checkpoint Commit` says whether this task should be saved by
+  `single-doc-checkpoint-commit-skill` after review.
 
 If `Break` could apply to any tutorial, the step is not planned well
 enough. For example, "ordinary function calls are not scalable" is too vague;
@@ -160,17 +181,41 @@ depends on key position" is concrete.
 If `Pressure Example` is missing, the step will read like a template. The plan
 must show what the reader experiences before the tutorial names the defect.
 
-For code tutorials, the final planned step must be `Code Change Type:
+For code tutorials, the final code task must have `Code Change Type:
 checkpoint` and must name the complete target it assembles, such as `runner.py`
-or `current script`. The final checkpoint may include code introduced earlier,
-but it must not add unexplained logic.
+or `current script`. The final checkpoint task may include code introduced
+earlier, but it must not add unexplained logic.
+
+Every task must include:
+
+- `Description`
+- `Acceptance criteria`
+- `Verification`
+- `Dependencies`
+- `Document target`
+- `Estimated scope`
+- `Checkpoint commit`
+
+Use `Checkpoint commit: yes` only for tasks that freeze a meaningful tutorial
+step or final assembled checkpoint. Do not create a checkpoint commit for
+planning-only, preface-only, or cleanup-only tasks unless the human explicitly
+wants that document history.
+
+When any task has `Checkpoint commit: yes`, add a `Checkpoint Commit Handoff`
+section after the task list. This mirrors `workflow-plan` issue handoff, but
+for single-document learning checkpoints:
+
+- use `single-doc-checkpoint-commit-skill`, not the normal code commit flow
+- keep `Pressure / Naive / Break / Change / Check / Freeze / Still lacks /
+  Next` in the commit message
+- keep the public tutorial body reader-facing and free of commit metadata
 
 ## Decision Points
 
 - If requirements are too vague to choose data structures or examples, ask for
   the smallest missing behavior or constraint.
-- If the human already supplied a clear teaching route, keep the plan short and
-  focus on version checkpoints.
+- If the human already supplied a clear teaching route, keep the plan short but
+  still output executable writing tasks.
 - If the output should be a runnable mini-project, use `reference-core-plan` and
   `reference-core-build` instead.
 - If the user asks for the full guide immediately, use
@@ -212,17 +257,103 @@ but it must not add unexplained logic.
 - Why this example:
 - Reuse as check:
 
-## Version Plan
-| Step | Question | Pressure Example | Naive or Previous Version | Break | New Requirement | Add or Replace | Code Change Type | Code Change Target | Step Check | Freeze or Next Gap |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | ... | ... | ... | ... | ... | ... | patch/checkpoint | ... | ... | ... |
+## Tutorial Dependency Graph
+```text
+real scenario
+-> compressed model
+-> teaching example
+-> naive runnable baseline
+-> first forced structure
+-> next forced structure
+-> final assembled checkpoint
+```
+
+## Tutorial Build Task List
+
+### Phase 1: Reader Contract
+
+#### Task 1: Establish scenario and compressed model
+
+**Description:** One paragraph explaining what this writing task accomplishes.
+
+**Acceptance criteria:**
+- [ ] ...
+
+**Verification:**
+- [ ] ...
+
+**Dependencies:** None
+
+**Document target:** `from-scratch-tutorial.md` section name or file path
+
+**Code change role:** prose-only | patch | checkpoint
+
+**Code change target:** n/a | current snippet | complete file/module
+
+**Estimated scope:** XS | S | M | L
+
+**Checkpoint commit handoff:**
+- checkpoint_commit: yes | no
+- freeze_summary: one sentence, only when checkpoint_commit is yes
+- single_doc_commit_skill: yes | no
+
+### Phase 2: From-Scratch Step Ladder
+
+#### Task 2: Draft <first tutorial step>
+
+**Description:** Draft one complete step in the tutorial increment cycle.
+
+**Acceptance criteria:**
+- [ ] Pressure appears before the fix.
+- [ ] Naive or previous baseline is visible.
+- [ ] Break is concrete and source-independent.
+- [ ] One change is introduced.
+- [ ] Step check proves this task's break was addressed.
+- [ ] Reader-facing checkpoint freezes the new baseline.
+
+**Verification:**
+- [ ] ...
+
+**Dependencies:** Task 1
+
+**Document target:** `## From Scratch` / `### Step N: ...`
+
+**Code change role:** patch | checkpoint | prose-only
+
+**Code change target:** current snippet | complete file/module | n/a
+
+**Estimated scope:** XS | S | M | L
+
+**Checkpoint commit handoff:**
+- checkpoint_commit: yes | no
+- single_doc_commit_skill: yes | no
+- freeze_fields_for_commit_message:
+  - Pressure:
+  - Naive:
+  - Break:
+  - Change:
+  - Check:
+  - Freeze:
+  - Still lacks:
+  - Next:
+
+### Checkpoint: After Phase 2
+- [ ] ...
+
+## Checkpoint Commit Handoff
+- document_checkpoint_policy: per_meaningful_freeze | final_checkpoint_only | none
+- commit_skill: single-doc-checkpoint-commit-skill
+
+| Task | checkpoint_commit | checkpoint_name | freeze_summary | commit_rationale |
+| --- | --- | --- | --- | --- |
+| Task 2 | yes | ... | ... | ... |
 
 ## Helper Contracts To Introduce
 | Helper | First Needed In | Purpose | Inputs | Output/Mutation |
 | --- | --- | --- | --- | --- |
 
 ## Verification Matrix
-| Case | What It Proves | Planned Step Or Invariant |
+| Case | What It Proves | Planned Task Or Invariant |
 | --- | --- | --- |
 | happy path | ... | ... |
 | invalid input | ... | ... |
@@ -235,6 +366,7 @@ but it must not add unexplained logic.
 
 ## Build Handoff
 - recommended_builder: from-scratch-tutorial-build
+- task_execution_order:
 - notes:
 ```
 
@@ -244,12 +376,13 @@ but it must not add unexplained logic.
 |---|---|
 | "The tutorial can discover the path while writing." | Planning prevents hidden jumps and repeated rewrites. |
 | "The helper names are obvious from the final code." | Helpers must be forced by behavior and invariants, not copied from a memorized solution. |
-| "A plan should stay high level." | Tutorial plans need concrete version checkpoints or the build will drift. |
+| "A plan should stay high level." | Tutorial plans need concrete writing tasks or the build will drift. |
 | "The step question already implies the defect." | The defect must be stated explicitly so the builder can teach why the next change is necessary. |
-| "The builder can decide code shape later." | Patch/checkpoint boundaries are part of the teaching plan; they determine whether readers patch or copy a complete version. |
+| "The builder can decide code shape later." | Patch/checkpoint boundaries are part of the teaching plan; they determine whether readers patch a baseline or copy a complete checkpoint. |
 | "The defect statement is enough." | The plan needs a pressure example so the reader can feel why the defect matters before seeing the fix. |
-| "The real scenario can wait for the article draft." | Without the scenario, the version ladder tends to explain code shape instead of user-visible pressure. |
+| "The real scenario can wait for the article draft." | Without the scenario, the task ladder tends to explain code shape instead of user-visible pressure. |
 | "The compressed model is obvious." | Problem compression is the Norvig part of the skill; it must be explicit before code structure is planned. |
+| "A table of steps is enough." | The builder needs task acceptance criteria, dependencies, verification, and checkpoint handoff to write reliably. |
 
 ## Red Flags
 
@@ -259,18 +392,25 @@ but it must not add unexplained logic.
   reason someone would need the technique.
 - The compressed problem drops the central invariant or keeps too much
   production noise.
-- Version steps do not say what the previous version can do or what concrete
-  defect remains.
-- A version row lacks a pressure example.
+- The plan uses an old row-based step table as the main build handoff.
+- Tutorial tasks do not say what the previous reader baseline is or what
+  concrete defect remains.
+- A tutorial-step task lacks a pressure example.
 - A step's `Break` is generic, motivational, or copied from the final
-  architecture instead of observed in the current version.
-- A version row lacks `Code Change Type` or `Code Change Target`.
-- The final code step is not planned as an assembled checkpoint.
-- A step adds multiple helpers or mutation rules at once.
+  architecture instead of observed in the current baseline.
+- A tutorial-step task lacks `Code Change Type` or `Code Change Target`.
+- A task lacks acceptance criteria, verification, dependencies, or document
+  target.
+- The final code task is not planned as an assembled checkpoint.
+- A task adds multiple helpers or mutation rules at once.
 - The plan has no small example or trace.
 - The plan has no verification matrix beyond a generic test command.
-- The final step is planned as a separate code dump instead of the last
-  connected version.
+- The final checkpoint is planned as a separate code dump instead of a task
+  connected to prior tasks.
+- Checkpoint commit metadata is missing when the human asked for document
+  history.
+- A task says `Checkpoint commit: yes`, but the plan has no `Checkpoint Commit
+  Handoff` section.
 
 ## Verification
 
@@ -278,12 +418,18 @@ but it must not add unexplained logic.
 - [ ] Real scenario, problem compression, core model, and invariants are
       explicit.
 - [ ] Supplied facts and inferred assumptions are separated.
-- [ ] The version plan includes pressure example, naive or previous version,
+- [ ] The tutorial dependency graph is explicit and ordered.
+- [ ] The tutorial build task list includes acceptance criteria, verification,
+      dependencies, document target, estimated scope, and checkpoint commit
+      policy for every task.
+- [ ] If any task needs document history, `Checkpoint Commit Handoff` routes it
+      to `single-doc-checkpoint-commit-skill`.
+- [ ] Tutorial-step tasks include pressure example, naive or previous baseline,
       break, new requirement, add/replace, code change type, code change
       target, step check, and freeze or next gap.
-- [ ] Each step's question follows from the previous version's visible break.
-- [ ] The final code step is planned as a complete assembled checkpoint.
-- [ ] Each helper has a first-needed step and mutation or return boundary.
+- [ ] Each task follows from its dependencies and previous visible break.
+- [ ] The final code task is planned as a complete assembled checkpoint.
+- [ ] Each helper has a first-needed task and mutation or return boundary.
 - [ ] Verification matrix covers happy path, invalid input, failure path,
       boundary case, and representative trace when relevant.
 - [ ] Review risks identify likely jumps or final-code drift.
@@ -295,7 +441,8 @@ but it must not add unexplained logic.
 - Do not invent constraints, examples, or source facts.
 - Do not skip real scenario, problem compression, core model, or invariants for
   non-trivial tutorials.
+- Do not output an old row-based step table as the main plan.
 - Do not plan a detached final implementation section.
-- Do not plan a final step that forces the reader to stitch scattered snippets
+- Do not plan a final task that forces the reader to stitch scattered snippets
   into the final code.
 - Keep the plan scoped to one tutorial, not a broad course outline.

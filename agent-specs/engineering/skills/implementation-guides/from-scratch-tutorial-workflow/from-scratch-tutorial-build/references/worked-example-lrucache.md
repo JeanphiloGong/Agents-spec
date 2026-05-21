@@ -1,9 +1,9 @@
 # Worked Example: `LRUCache` From Scratch
 
-This example shows the version-ladder mechanics for the skill: the
-implementation grows through connected code versions. Each step explains what
-concretely breaks in the previous version, changes one thing, marks the code
-change as a patch or checkpoint, checks that change, freezes the new version,
+This example shows the task-ladder mechanics for the skill: the
+implementation grows through connected code checkpoints. Each step explains what
+concretely breaks in the previous baseline, changes one thing, marks the code
+change as a patch or checkpoint, checks that change, freezes the new checkpoint,
 and states what still lacks. The step starts from a small pressure example
 rather than a memorized final structure.
 
@@ -96,19 +96,19 @@ def get(key):
 
 This works for three entries. Now imagine `get(9999)` in a 10,000-entry cache.
 The number of checks depends on where the key appears.
-- Naive or Previous Version: nothing yet; the most obvious starting point is a
+- Naive or Previous Baseline: nothing yet; the most obvious starting point is a
   list ordered by recency.
 - What Breaks: a list can preserve recency order, but `get(key)` must scan
   entries until it finds the key, so lookup is not `O(1)`.
 - New Requirement: the first structure must give direct key-to-entry lookup in
   `O(1)`.
-- Add or Replace: create the first version by adding the direct-lookup need.
+- Add or Replace: create the first checkpoint by adding the direct-lookup need.
 - Code Change Type: patch
 - Code Change Target: design note
 - Code Change:
 
 ```python
-# Version 1 need:
+# Checkpoint 1 need:
 # key -> entry lookup in O(1)
 ```
 
@@ -116,8 +116,8 @@ The number of checks depends on where the key appears.
   constraint: every later design must support direct lookup.
 - Step Check: explain why finding key `9999` in a 10,000-item list depends on
   position, while direct lookup does not.
-- Now This Version Can: explain why direct lookup is required.
-- Freeze This Version: v1 is the direct-lookup requirement.
+- Now This Checkpoint Can: explain why direct lookup is required.
+- Freeze This Checkpoint: checkpoint 1 is the direct-lookup requirement.
 - Still Lacks: ordered recency updates and eviction.
 - What To Verify: explain why a list alone makes `get(key)` too slow.
 - Checkpoint: one defect was named, one requirement was added, and the
@@ -135,13 +135,13 @@ put(2, "b")
 get(1)
 put(3, "c")  # Which key is least recently used?
 ```
-- Naive or Previous Version: v1 says the cache needs direct key lookup, so a
-  plain map is the smallest concrete structure.
+- Naive or Previous Baseline: checkpoint 1 says the cache needs direct key
+  lookup, so a plain map is the smallest concrete structure.
 - What Breaks: a map can find a key, but it does not preserve "least recently
   used" order, so eviction would need extra tracking or a scan.
 - New Requirement: add direct key lookup as real state, while keeping the
   ordered-recency problem visible.
-- Add or Replace: in the previous version, add a map as the first concrete
+- Add or Replace: in the previous baseline, add a map as the first concrete
   state.
 - Code Change Type: patch
 - Code Change Target: `LRUCache.__init__`
@@ -158,8 +158,8 @@ class LRUCache:
   intentionally exposes the next defect: order is still missing.
 - Step Check: after `put(1, 1)` and `put(2, 2)`, explain why `self.cache`
   cannot tell which key is least recently used.
-- Now This Version Can: store something reachable by key in `O(1)`.
-- Freeze This Version: v2 is a map-backed cache skeleton.
+- Now This Checkpoint Can: store something reachable by key in `O(1)`.
+- Freeze This Checkpoint: checkpoint 2 is a map-backed cache skeleton.
 - Still Lacks: a node shape and an order structure for recency.
 - What To Verify: explain why a map alone cannot remove the least recently used
   entry without extra work.
@@ -169,13 +169,13 @@ class LRUCache:
 ### Step 3: Why should the map store nodes instead of values?
 
 - Question: what should `cache[key]` point to?
-- Naive or Previous Version: v2 can map a key to something in `O(1)`, but that
-  "something" has not been defined.
+- Naive or Previous Baseline: checkpoint 2 can map a key to something in
+  `O(1)`, but that "something" has not been defined.
 - What Breaks: if the map stores only values, `get(key)` can return the value
   but cannot move the corresponding item inside a recency order in `O(1)`.
 - New Requirement: store entry objects that hold both the value and the links
   needed for future recency movement.
-- Add or Replace: replace the map-only skeleton with a version that also
+- Add or Replace: replace the map-only skeleton with a checkpoint that also
   defines the node shape.
 - Code Change Type: patch
 - Code Change Target: current script
@@ -200,9 +200,9 @@ class LRUCache:
   detached value.
 - Step Check: given `node = cache[key]`, verify the node has `value`, `prev`,
   and `next`, so later code can both return the value and relink the node.
-- Now This Version Can: represent a cache entry that carries value and list
+- Now This Checkpoint Can: represent a cache entry that carries value and list
   links.
-- Freeze This Version: v3 is a map from keys to movable nodes.
+- Freeze This Checkpoint: checkpoint 3 is a map from keys to movable nodes.
 - Still Lacks: list sentinels and mutation helpers.
 - What To Verify: explain why eviction still needs the `key` on the node.
 - Checkpoint: the defect was value-only storage; the one change was a
@@ -211,8 +211,8 @@ class LRUCache:
 ### Step 4: What is the smallest runnable skeleton?
 
 - Question: what list shape lets every insertion and removal avoid edge cases?
-- Naive or Previous Version: v3 has movable nodes, but no actual recency list
-  for those nodes to live in.
+- Naive or Previous Baseline: checkpoint 3 has movable nodes, but no actual
+  recency list for those nodes to live in.
 - What Breaks: without stable list boundaries, insertion and removal need
   separate cases for empty list, front, back, and middle nodes.
 - New Requirement: create sentinel `head` and `tail` nodes so every real node
@@ -246,8 +246,9 @@ class LRUCache:
   list: there is always a node before and after any real node position.
 - Step Check: in a new cache, assert `cache.head.next is cache.tail` and
   `cache.tail.prev is cache.head`.
-- Now This Version Can: maintain an empty recency list with stable boundaries.
-- Freeze This Version: v4 is a map plus an empty sentinel recency list.
+- Now This Checkpoint Can: maintain an empty recency list with stable boundaries.
+- Freeze This Checkpoint: checkpoint 4 is a map plus an empty sentinel recency
+  list.
 - Still Lacks: helpers that mutate the list.
 - What To Verify: `head.next is tail` and `tail.prev is head` in the empty
   cache.
@@ -257,14 +258,14 @@ class LRUCache:
 ### Step 5: What helper is forced first?
 
 - Question: which mutation unlocks moving and eviction?
-- Naive or Previous Version: v4 has stable list boundaries, but no way to
-  remove an existing node from the list.
+- Naive or Previous Baseline: checkpoint 4 has stable list boundaries, but no
+  way to remove an existing node from the list.
 - What Breaks: both "move this key to most recent" and "evict the least recent
   key" first need to detach a known node; duplicating that pointer mutation in
   each operation risks inconsistent links.
 - New Requirement: add one helper that detaches a known node by reconnecting
   its previous and next neighbors.
-- Add or Replace: in the previous version, add `_remove(node)`.
+- Add or Replace: in the previous baseline, add `_remove(node)`.
 - Code Change Type: patch
 - Code Change Target: `LRUCache`
 - Code Change:
@@ -290,8 +291,9 @@ class LRUCache:
   recency movement and eviction.
 - Step Check: for `a <-> b <-> c`, after `_remove(b)`, assert `a.next is c`
   and `c.prev is a`.
-- Now This Version Can: detach a known node from the list.
-- Freeze This Version: v5 can remove a known node from the recency list.
+- Now This Checkpoint Can: detach a known node from the list.
+- Freeze This Checkpoint: checkpoint 5 can remove a known node from the
+  recency list.
 - Still Lacks: adding nodes to the most-recent position.
 - What To Verify: after removal, neighboring nodes point to each other.
 - Checkpoint: the step introduced one helper forced by one repeated
@@ -300,13 +302,13 @@ class LRUCache:
 ### Step 6: How do we mark a node most recently used?
 
 - Question: where should a newly used node go?
-- Naive or Previous Version: v5 can remove a node, but it cannot place a node
-  into a consistent "most recent" position.
+- Naive or Previous Baseline: checkpoint 5 can remove a node, but it cannot
+  place a node into a consistent "most recent" position.
 - What Breaks: without one recency convention, `get`, `put`, and eviction may
   disagree about which end of the list is most recent.
 - New Requirement: define the front of the list, right after `head`, as the
   most-recent position and add helpers for inserting or moving there.
-- Add or Replace: in the previous version, add `_add_front(node)` and
+- Add or Replace: in the previous baseline, add `_add_front(node)` and
   `_move_front(node)`.
 - Code Change Type: patch
 - Code Change Target: `LRUCache`
@@ -330,8 +332,9 @@ class LRUCache:
   convention.
 - Step Check: after `_add_front(node)`, assert `cache.head.next is node` and
   `node.prev is cache.head`.
-- Now This Version Can: add or move a node to the most-recent position.
-- Freeze This Version: v6 can maintain most-recent order for known nodes.
+- Now This Checkpoint Can: add or move a node to the most-recent position.
+- Freeze This Checkpoint: checkpoint 6 can maintain most-recent order for
+  known nodes.
 - Still Lacks: removing the least-recently-used node.
 - What To Verify: after `_add_front(node)`, `head.next` is that node.
 - Checkpoint: the new requirement follows from the missing recency
@@ -340,12 +343,13 @@ class LRUCache:
 ### Step 7: How do we evict in `O(1)`?
 
 - Question: where is the least recently used node now?
-- Naive or Previous Version: v6 keeps the most recent node near `head`.
+- Naive or Previous Baseline: checkpoint 6 keeps the most recent node near
+  `head`.
 - What Breaks: capacity eviction still needs a way to identify and remove the
   least recent node without scanning the list.
 - New Requirement: use the opposite sentinel edge, `tail.prev`, as the
   least-recent node and add a helper that removes it.
-- Add or Replace: in the previous version, add `_pop_lru()`.
+- Add or Replace: in the previous baseline, add `_pop_lru()`.
 - Code Change Type: patch
 - Code Change Target: `LRUCache`
 - Code Change:
@@ -357,14 +361,14 @@ class LRUCache:
         return node
 ```
 
-- Why This Change Works: the recency convention from v6 makes the least recent
-  node a constant-time pointer lookup.
+- Why This Change Works: the recency convention from checkpoint 6 makes the
+  least recent node a constant-time pointer lookup.
 - Step Check: after adding nodes `1` then `2` to the front, `_pop_lru()` should
   return node `1`.
-- Now This Version Can: remove and return the least-recently-used node in
+- Now This Checkpoint Can: remove and return the least-recently-used node in
   `O(1)`.
-- Freeze This Version: v7 has all internal list primitives needed for LRU
-  behavior.
+- Freeze This Checkpoint: checkpoint 7 has all internal list primitives needed
+  for LRU behavior.
 - Still Lacks: public `get` and `put`.
 - What To Verify: `_pop_lru()` returns the node before `tail`.
 - Checkpoint: eviction was the defect; `_pop_lru` solves only that
@@ -375,13 +379,13 @@ class LRUCache:
 - Question: what should happen when the key exists?
 - Pressure Example: after `put(1, "a")` and `put(2, "b")`, a caller expects
   `get(1)` to both return `"a"` and make key `1` more recent than key `2`.
-- Naive or Previous Version: v7 has internal primitives but no public read
-  method.
+- Naive or Previous Baseline: checkpoint 7 has internal primitives but no
+  public read method.
 - What Breaks: callers cannot use the cache contract yet; they need `get(key)`
   to return `-1` for misses and update recency for hits.
 - New Requirement: add public `get` by composing lookup, move-to-front, and
   return.
-- Add or Replace: in the previous version, add public `get`.
+- Add or Replace: in the previous baseline, add public `get`.
 - Code Change Type: patch
 - Code Change Target: `LRUCache`
 - Code Change:
@@ -399,8 +403,9 @@ class LRUCache:
   move helper to keep read behavior and recency behavior together.
 - Step Check: after keys `1` and `2` exist, `get(1)` returns the value for `1`
   and moves key `1` ahead of key `2`.
-- Now This Version Can: read existing keys and update recency.
-- Freeze This Version: v8 supports public reads and recency updates.
+- Now This Checkpoint Can: read existing keys and update recency.
+- Freeze This Checkpoint: checkpoint 8 supports public reads and recency
+  updates.
 - Still Lacks: insert, update, and capacity eviction.
 - What To Verify: a successful read updates recency without changing the value.
 - Checkpoint: the public read defect is addressed without adding write
@@ -417,13 +422,13 @@ put(1, "new")  # update existing
 put(2, "b")    # insert with room
 put(3, "c")    # insert and evict when full
 ```
-- Naive or Previous Version: v8 can read existing keys, but nothing can create
-  or update cache entries.
+- Naive or Previous Baseline: checkpoint 8 can read existing keys, but nothing
+  can create or update cache entries.
 - What Breaks: the cache contract is incomplete without `put`; writes must
   handle existing keys, new keys with room, and new keys that exceed capacity.
 - New Requirement: add public `put` with those three cases, reusing the
   already frozen helpers.
-- Add or Replace: in the previous version, add public `put`; this step now
+- Add or Replace: in the previous baseline, add public `put`; this step now
   produces the complete class.
 - Code Change Type: checkpoint
 - Code Change Target: current script
@@ -493,11 +498,12 @@ class LRUCache:
 ```
 
 - Why This Change Works: each branch maps to one write case, and each branch
-  reuses helpers whose pointer behavior was introduced in earlier versions.
+  reuses helpers whose pointer behavior was introduced in earlier checkpoints.
 - Step Check: with capacity `2`, run `put(1, 1)`, `put(2, 2)`, `get(1)`,
   `put(3, 3)`, then verify `get(2) == -1`.
-- Now This Version Can: run the complete `LRUCache` behavior.
-- Freeze This Version: v9 is the complete connected implementation.
+- Now This Checkpoint Can: run the complete `LRUCache` behavior.
+- Freeze This Checkpoint: checkpoint 9 is the complete connected
+  implementation.
 - Still Lacks: only platform-specific wrapper or tests if the caller needs
   them.
 - What To Verify: `put(1,1)`, `put(2,2)`, `get(1)`, `put(3,3)` should evict key

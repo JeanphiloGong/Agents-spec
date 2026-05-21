@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-simplify
-description: v0.2.0 - Simplify a working from-scratch tutorial without breaking Nystrom/Karpathy/Norvig standards or the tutorial increment cycle. Use when a guide is correct but too repetitive, wordy, checklist-like, or hard to scan, while real scenario, problem compression, core model, invariants, pressure, naive version, break, one patch/checkpoint change, check, freeze, final assembled checkpoint, and helper boundaries must be preserved.
+description: v0.3.0 - Simplify a working from-scratch tutorial without breaking task/checkpoint continuity, Nystrom/Karpathy/Norvig standards, or the tutorial increment cycle. Use when a guide is correct but too repetitive, wordy, checklist-like, or hard to scan, while real scenario, problem compression, core model, invariants, pressure, naive baseline, break, one patch/checkpoint change, check, freeze, final assembled checkpoint, and helper boundaries must be preserved.
 ---
 
 # From-Scratch Tutorial Simplify
@@ -10,12 +10,13 @@ description: v0.2.0 - Simplify a working from-scratch tutorial without breaking 
 Simplify a completed from-scratch tutorial while preserving its teaching
 behavior. The goal is not shorter at any cost. The goal is a guide that is
 easier to follow without losing external contract, teaching pressure,
-connected code versions, step checks, freeze points, helper boundaries, or
+connected code checkpoints, step checks, freeze points, helper boundaries, or
 final-code traceability.
 
 Preserve the teaching standard:
 
-- Nystrom complete engineering chain: connected working versions remain intact.
+- Nystrom complete engineering chain: connected working checkpoints remain
+  intact.
 - Karpathy runnable from-zero coding: code still appears early and stays
   runnable.
 - Norvig small complete problem compression: the real scenario, compressed
@@ -26,7 +27,7 @@ Preserve the teaching standard:
 ```text
 +------------------------------------------------+
 |                                                |
-|  Pressure -> Naive version -> Break -> Change  |
+|  Pressure -> Naive baseline -> Break -> Change |
 |      ^                                |        |
 |      +------ Freeze <- Check <--------+        |
 |                 |                              |
@@ -37,10 +38,10 @@ Preserve the teaching standard:
 ```
 
 Simplify prose around the cycle, not the cycle itself. Every step must still
-show pressure, naive version, break, one change, check, and freeze.
+show pressure, naive baseline, break, one change, check, and freeze.
 
 Defect-driven depth is protected content. Do not shorten away the explanation
-of what breaks in the naive or previous version, why the new requirement
+of what breaks in the naive or previous baseline, why the new requirement
 follows, or how the step check proves that one defect was addressed.
 
 Scenario and compression are protected content. Do not delete who uses the
@@ -79,14 +80,14 @@ the guide shorter.
 ## The Simplification Loop
 
 1. Establish the Baseline
-   - Identify reader goal, external contract, version steps, helper contracts,
-     and final code.
+   - Identify reader goal, external contract, tutorial tasks or steps, helper
+     contracts, and final code.
    - Verify: the current tutorial is complete enough to simplify.
 2. Protect Required Fields
-   - Preserve `Question`, `Pressure Example`, `Naive or Previous Version`,
+   - Preserve `Question`, `Pressure Example`, `Naive or Previous Baseline`,
      `What Breaks`, `New Requirement`, `Add or Replace`, `Code Change`,
      `Why This Change Works`, `Code Change Type`, `Code Change Target`, `Step
-     Check`, `Now This Version Can`, `Freeze This Version`, `Still Lacks`, and
+     Check`, `Now This Checkpoint Can`, `Freeze This Checkpoint`, `Still Lacks`, and
      `What To Verify` when present.
    - Preserve real scenario, problem compression, core model, invariants, and
      verification matrix when present.
@@ -115,8 +116,8 @@ the guide shorter.
 
 ## Decision Points
 
-- If a guide has broken version continuity, use `from-scratch-tutorial-review`
-  or rebuild before simplifying.
+- If a guide has broken task or checkpoint continuity, use
+  `from-scratch-tutorial-review` or rebuild before simplifying.
 - If simplification would remove a step check, keep the check and shorten
   surrounding prose instead.
 - If code needs behavior changes, stop and ask whether this is now a build
@@ -143,11 +144,11 @@ When editing a file directly, keep this report brief and include changed paths.
 | Rationalization | Reality |
 |---|---|
 | "Shorter is clearer." | Removing pressure, checks, or gaps makes the guide harder to learn from. |
-| "The freeze line is repetitive." | Freeze lines prevent hidden rewrites between versions. |
-| "Step checks can move to the end." | End-only verification loses per-version evidence. |
+| "The freeze line is repetitive." | Freeze lines prevent hidden rewrites between checkpoints. |
+| "Step checks can move to the end." | End-only verification loses per-checkpoint evidence. |
 | "Code can be compacted while simplifying prose." | Code behavior changes belong to build, not simplify. |
 | "What Breaks is obvious after simplification." | The defect explanation is the teaching engine; preserve it explicitly. |
-| "Patch/checkpoint labels are mechanical noise." | They tell the reader whether to apply a local edit or copy a complete version. |
+| "Patch/checkpoint labels are mechanical noise." | They tell the reader whether to apply a local edit or copy a complete checkpoint. |
 | "Step Self-Review should stay because it is accurate." | It is internal scaffolding; public tutorials should use reader-facing checkpoints. |
 | "Scenario and compression can be shortened away." | They are the reason the tutorial is not just a code walkthrough. |
 | "Removing field labels removes the structure." | The structure can remain as natural prose plus checkpoints. |
@@ -163,7 +164,7 @@ When editing a file directly, keep this report brief and include changed paths.
 - A step loses `Code Change Type` or `Code Change Target`.
 - The real scenario, compressed model, core model, invariants, or verification
   matrix are removed from a non-trivial tutorial.
-- Final code no longer traces to prior versions.
+- Final code no longer traces to prior checkpoints.
 - The final assembled checkpoint is shortened into a partial snippet.
 - Source facts and assumptions are merged together.
 - Simplification changes code behavior.
@@ -176,7 +177,7 @@ When editing a file directly, keep this report brief and include changed paths.
 - [ ] Real scenario, problem compression, core model, invariants, and
       verification matrix remain intact when relevant.
 - [ ] Nystrom/Karpathy/Norvig standards are preserved.
-- [ ] Concrete previous-version defects and defect-to-change explanations are
+- [ ] Concrete previous-baseline defects and defect-to-change explanations are
       preserved.
 - [ ] Pressure examples are preserved or rewritten into clearer reader-facing
       examples.
@@ -195,12 +196,12 @@ When editing a file directly, keep this report brief and include changed paths.
 - Do not change code behavior as part of prose simplification.
 - Do not remove concrete examples or traces when they are the only evidence.
 - Do not compress a step so far that it no longer explains what breaks in the
-  prior version.
+  prior checkpoint.
 - Do not preserve `Step Self-Review` as public prose; convert it to a
   reader-facing checkpoint when simplifying for publication.
 - Do not keep internal checkpoint fields in public prose just to make future
   commit messages easier.
 - Do not remove patch/checkpoint labels or make the final checkpoint
   incomplete.
-- Do not collapse multiple version steps into one unless the user explicitly
+- Do not collapse multiple tutorial steps into one unless the user explicitly
   asks for a shorter non-teaching summary.

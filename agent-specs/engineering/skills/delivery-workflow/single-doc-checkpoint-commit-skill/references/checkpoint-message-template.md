@@ -11,10 +11,10 @@ Pressure:
 - <the small reader-visible pressure this checkpoint answers>
 
 Naive:
-- <what the previous document version or mental model could do>
+- <what the previous document baseline or mental model could do>
 
 Break:
-- <what the previous version could not explain, observe, protect, or support>
+- <what the previous baseline could not explain, observe, protect, or support>
 
 Change:
 - <the one document/tutorial change introduced in this checkpoint>
@@ -68,7 +68,7 @@ Next:
 ## Example
 
 ```text
-docs(tutorial): freeze v2 workflow resolution
+docs(tutorial): freeze workflow resolution checkpoint
 
 Pressure:
 - A caller should trigger one named pipeline mode instead of hand-coding steps.
@@ -80,13 +80,13 @@ Break:
 - The caller still owned step-order knowledge and there was no reusable plan.
 
 Change:
-- Add mode-to-workflow resolution as the v2 checkpoint.
+- Add mode-to-workflow resolution as the workflow-resolution checkpoint.
 
 Check:
 - `standard` resolves to `["prepare", "enrich"]`; unknown mode fails early.
 
 Freeze:
-- v2 now teaches external intent to internal workflow list.
+- This checkpoint now teaches external intent to internal workflow list.
 
 Still lacks:
 - Handler execution.
