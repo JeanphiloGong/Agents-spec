@@ -1,15 +1,23 @@
 # Worked Example: `LRUCache` From Scratch
 
-This example shows the preferred output style for the skill: a reusable
-markdown guide where the implementation grows through connected code versions.
-Each step explains what concretely breaks in the previous version, changes one
-thing, marks the code change as a patch or checkpoint, checks that change,
-freezes the new version, and states what still lacks. The step starts from a
-small pressure example rather than a memorized final structure.
+This example shows the version-ladder mechanics for the skill: the
+implementation grows through connected code versions. Each step explains what
+concretely breaks in the previous version, changes one thing, marks the code
+change as a patch or checkpoint, checks that change, freezes the new version,
+and states what still lacks. The step starts from a small pressure example
+rather than a memorized final structure.
+
+This is a structured reference, not the preferred public prose style. When
+building a real tutorial, translate these fields into natural teaching prose,
+code blocks, and reader-facing checkpoints unless the human asks for a
+structured audit-style guide.
 
 ## Contents
 
 - Reader and Goal
+- Real Scenario
+- Problem Compression
+- Core Model
 - External Contract
 - Constraints and Invariants
 - From Scratch
@@ -24,6 +32,37 @@ small pressure example rather than a memorized final structure.
   `LRUCache` template blindly.
 - Goal: derive the core structure and helper boundaries from the behavior and
   `O(1)` requirement.
+
+## Real Scenario
+
+A cache sits between a slow data source and a caller that repeatedly asks for
+recent items. The caller wants old results to be reused quickly, but the cache
+cannot grow forever. When space runs out, it should discard the item that has
+not been used for the longest time.
+
+The outside observer sees only two operations: `get(key)` and `put(key,
+value)`. The implementation must preserve recency without asking the caller to
+manage ordering.
+
+## Problem Compression
+
+- Full-world problem: production caches involve concurrency, expiration,
+  memory pressure, serialization, metrics, and backing stores.
+- Compressed tutorial model: one in-memory fixed-capacity cache with integer
+  keys and values.
+- Included: lookup, insert, update, recency movement, eviction, and the data
+  structure invariant that makes these operations `O(1)`.
+- Deferred: TTL, locks, async loading, persistence, and distributed eviction.
+- Why this compression is complete: LRU's core idea is the coupling between
+  direct key lookup and recency order; the compressed model keeps exactly that
+  pressure.
+
+## Core Model
+
+- `key -> node` map for direct lookup.
+- Doubly linked recency list for oldest/newest order.
+- Sentinel boundaries that make insert and remove uniform.
+- Capacity rule that evicts the least recent node.
 
 ## External Contract
 

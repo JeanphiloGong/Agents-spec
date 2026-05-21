@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-build
-description: v0.1.5 - Build a from-scratch tutorial through the tutorial increment cycle. Use when turning a reader goal, external contract, teaching example, and version plan into a guide where each step shows pressure, naive code, what breaks, one patch/checkpoint change, a check, a freeze, and a final assembled checkpoint.
+description: v0.2.0 - Build a from-scratch tutorial through Nystrom/Karpathy/Norvig standards and the tutorial increment cycle. Use when turning a reader goal, real scenario, problem compression, core model, invariants, external contract, teaching example, and version plan into a natural guide where each step shows pressure, naive code, what breaks, one patch/checkpoint change, a check, a freeze, and a final assembled checkpoint.
 ---
 
 # From-Scratch Tutorial Build
@@ -11,6 +11,22 @@ Build a from-scratch implementation tutorial one complete teaching increment
 at a time. The goal is not to dump final code. The goal is to let the reader
 feel a small pressure, see the naive version break, make one code change, check
 that change, freeze the version, and then continue.
+
+## Teaching Standard
+
+Every built tutorial must satisfy:
+
+- **Nystrom complete engineering chain** - the guide grows as a connected
+  project, and every meaningful step leaves the reader with a working system
+  piece.
+- **Karpathy runnable from-zero coding** - code appears early, stays runnable,
+  and every new line is justified by behavior it unlocks.
+- **Norvig small complete problem compression** - the real problem is reduced
+  to a small complete model that can be held in one sitting.
+
+This is not a style preference. If a draft lacks a real scenario, a compressed
+problem, a runnable version ladder, or a final assembled checkpoint, repair it
+before continuing.
 
 ## The Tutorial Increment Cycle
 
@@ -45,6 +61,12 @@ Self-review is internal. Public tutorial output uses `Checkpoint`,
 `Before Moving On`, or `Try This`; it does not output `Step Self-Review` or
 yes/no compliance bullets.
 
+The build fields are internal obligations, not mandatory public headings. The
+published guide should read like a teacher explaining a project, with
+paragraphs, code, and reader-facing checkpoints. Only use literal field labels
+such as `Question` or `Code Change Type` when the human asks for a structured
+audit format or when the target audience benefits from explicit scaffolding.
+
 ## When to Use
 
 - A `from-scratch-tutorial-plan` output is ready to draft.
@@ -66,19 +88,28 @@ necessary is visible. Once code growth starts, every step must connect to the
 previous version.
 
 1. Load the Plan or Scope
-   - Read reader goal, external contract, teaching example, version plan,
-     helper contracts, and review risks.
+   - Read reader goal, real scenario, problem compression, core model,
+     invariants, external contract, teaching example, version plan, helper
+     contracts, verification matrix, and review risks.
+   - Always read `references/tutorial-style-standards.md` before drafting a
+     non-trivial tutorial.
    - If no plan exists, infer lightweight assumptions only when they do not
      change the public contract or data structure.
    - Verify: the tutorial is scoped to one method, feature, or coherent core
      slice.
-2. Draft the Contract First
-   - Write reader goal, supplied facts, inferred assumptions, constraints, and
-     the teaching example before internal structure.
-   - Verify: the reader can understand the problem before seeing code.
-3. Derive the First Pressure
-   - Read `references/tutorial-style-standards.md` when a step risks reading
-     like a filled template.
+2. Draft the Scenario and Compression First
+   - Write the real scenario: who calls or uses this, why they need it, and
+     what they observe.
+   - Write the compressed problem: what smaller model the tutorial implements,
+     what it includes, and what it deliberately leaves out.
+   - Write the core model and invariants before code structure.
+   - Verify: the reader understands why this thing exists before seeing helpers
+     or internal classes.
+3. Draft the Contract
+   - Write supplied facts, inferred assumptions, constraints, and the teaching
+     example before internal structure.
+   - Verify: the behavior is clear before data structures appear.
+4. Derive the First Pressure
    - Start each step with a pressure example: a concrete input, trace, call
      site, or small extension that makes the weakness visible.
    - Show the naive or previous version as the reader currently understands it.
@@ -86,7 +117,7 @@ previous version.
      diagnosis, invariant, or extension it cannot support.
    - Verify: the defect is visible in the current version, not imported from
      the final design.
-4. Build One Complete Step
+5. Build One Complete Step
    - Translate the defect into one new requirement.
    - Add to or replace exactly one part of the previous version.
    - Declare `Code Change Type: patch` or `Code Change Type: checkpoint`.
@@ -95,12 +126,12 @@ previous version.
    - Explain why the change addresses the named defect.
    - Verify: the step introduces one pressure, structure, helper, or mutation
      rule.
-5. Run the Step Check
+6. Run the Step Check
    - Add a tiny assertion, trace, manual check, or compile/run check that fits
      the current version.
    - Verify: the check proves the named defect is addressed, not the final
      solution.
-6. Freeze and Self-Review the Step
+7. Freeze and Self-Review the Step
    - State what this version can do now.
    - State that this version is the baseline for the next step.
    - Name the next gap as a concrete defect in the frozen version.
@@ -108,14 +139,14 @@ previous version.
    - Expose only reader-facing checkpoints in the tutorial body.
    - Verify: the next step can only continue from this version, not a hidden
      rewrite.
-7. Continue Step-by-Step
+8. Continue Step-by-Step
    - Repeat the full step loop for the next planned version.
    - Do not outline all code versions first and then fill them thinly.
    - Do not produce the full tutorial body in one pass unless the tutorial has
      only one numbered step.
    - Verify: each completed step would still teach correctly if read alone with
      the prior steps.
-8. Finish Without a Detached Code Dump
+9. Finish Without a Detached Code Dump
    - Let the last meaningful step yield the complete assembled checkpoint when
      code is needed.
    - If the tutorial builds real code, the final step's `Code Change Type` must
@@ -127,7 +158,7 @@ previous version.
 ## Connected Build Contract
 
 Every numbered step inside `## From Scratch` follows the increment cycle. Use
-these fields when the user wants a structured guide:
+these fields internally, or publicly when the user wants a structured guide:
 
 - `Question`
 - `Pressure Example`
@@ -160,6 +191,15 @@ Cycle rules:
 - The internal self-review checks pressure, one change, check, freeze, and next
   gap before moving on, but those compliance bullets are not public output.
 
+Public voice rules:
+- Prefer natural paragraphs and code over long repeated field labels.
+- Use reader-facing labels such as `Checkpoint`, `Try This`, or `Before Moving
+  On`.
+- Do not publish `Step Self-Review` or yes/no compliance bullets.
+- Do not hide the required content; translate the fields into readable prose.
+- If the guide starts to read like a checklist, rewrite the step before moving
+  on.
+
 ## Decision Points
 
 - If no plan exists and the tutorial has multiple possible teaching paths, use
@@ -182,11 +222,13 @@ Cycle rules:
 
 - `build_mode=connected-version-tutorial`
 - `step_loop=pressure-naive-break-change-check-freeze`
-- `implementation_style=contract-first-with-explicit-helper-boundaries`
+- `teaching_standard=nystrom-chain+karpathy-coding+norvig-compression`
+- `implementation_style=scenario-and-contract-first-with-explicit-helper-boundaries`
 - `final_code_policy=last-step-yields-assembled-checkpoint`
 - `code_change_policy=patch-or-checkpoint-with-explicit-target`
 - `source_fact_policy=separate-supplied-from-inferred`
 - `step_depth_policy=complete-one-step-before-next-step`
+- `public_voice_policy=natural-tutorial-not-checklist`
 
 ## Output Format
 
@@ -194,6 +236,15 @@ Cycle rules:
 # <Topic> From Scratch
 
 ## Reader and Goal
+- ...
+
+## Real Scenario
+- ...
+
+## Problem Compression
+- ...
+
+## Core Model and Invariants
 - ...
 
 ## External Contract
@@ -206,22 +257,10 @@ Cycle rules:
 
 ## From Scratch
 ### Step 1: <one concrete problem>
-- Question:
-- Pressure Example:
-- Naive or Previous Version:
-- What Breaks:
-- New Requirement:
-- Add or Replace:
-- Code Change Type: patch | checkpoint
-- Code Change Target:
-- Code Change:
-- Why This Change Works:
-- Step Check:
-- Now This Version Can:
-- Freeze This Version:
-- Still Lacks:
-- What To Verify:
-- Checkpoint:
+Explain the pressure in prose, show the naive or previous version, name what
+breaks, make one patch or checkpoint change, check it, and freeze this version.
+Use reader-facing labels such as `Checkpoint` or `Try This` instead of dumping
+the internal field list unless structured output is requested.
 
 ## Helper Contracts
 - ...
@@ -248,9 +287,10 @@ Cycle rules:
 Use `references/worked-example-lrucache.md` when the user needs a concrete
 example of deriving a data structure from requirements. Use
 `references/from-scratch-document-ladder.md` when the guide risks jumping too
-quickly from requirement to helper internals. Use
-`references/tutorial-style-standards.md` when the guide feels template-driven
-or needs general bad/good examples.
+quickly from requirement to helper internals. Always read
+`references/tutorial-style-standards.md` before drafting non-trivial tutorials;
+use it again when the guide feels template-driven or needs general bad/good
+examples.
 
 ## Common Rationalizations
 
@@ -266,6 +306,9 @@ or needs general bad/good examples.
 | "The reader can assemble the final code from earlier snippets." | The final step must provide an assembled runnable checkpoint, or the tutorial has not delivered code. |
 | "Code Change means whatever code is useful to show." | Code Change must be either a patch or checkpoint with an explicit target. |
 | "Step Self-Review helps readers trust the guide." | It is an internal quality gate; public tutorials should use reader-facing checkpoints instead. |
+| "The headings are required, so the output should show all of them." | The headings are obligations, not necessarily public prose; the tutorial should read naturally. |
+| "The scenario is optional because the code is clear." | Without the scenario, the tutorial teaches an implementation shape without explaining why it exists. |
+| "The compressed model can be inferred." | Norvig-style compression must be explicit so the reader knows what is essential and what is deferred. |
 
 ## Red Flags
 
@@ -279,6 +322,10 @@ or needs general bad/good examples.
   resolves the named defect.
 - Several steps read like a generated outline with short bullets instead of
   complete teaching sections.
+- The guide has the required fields but reads like an internal checklist rather
+  than a tutorial.
+- The guide lacks a real scenario, problem compression, core model, invariants,
+  or verification matrix for a non-trivial engineering topic.
 - A step's `Code Change` does not say whether it is a patch or checkpoint.
 - A `patch` has no target or does not identify what it changes from the
   previous version.
@@ -299,7 +346,11 @@ or needs general bad/good examples.
 
 - [ ] The guide starts with reader goal, external contract, constraints, and
       teaching example.
-- [ ] Every numbered step uses the build loop fields.
+- [ ] The guide includes real scenario, problem compression, core model, and
+      invariants before internal structure.
+- [ ] The guide follows the Nystrom/Karpathy/Norvig teaching standard.
+- [ ] Every numbered step satisfies the build loop obligations, whether they
+      are written as natural prose or explicit fields.
 - [ ] Each step was completed and self-reviewed before the next step was
       drafted.
 - [ ] Every step includes a pressure example before introducing the fix.
@@ -322,10 +373,14 @@ or needs general bad/good examples.
       small step.
 - [ ] Public tutorial output uses reader-facing checkpoints, not
       `Step Self-Review`.
+- [ ] Public tutorial output reads as natural teaching prose, not a compliance
+      checklist.
 
 ## Guardrails
 
 - Do not invent source facts, constraints, examples, or behavior.
+- Do not skip real scenario, problem compression, core model, or invariants for
+  non-trivial tutorials.
 - Do not continue from hidden code that was not shown in the previous version.
 - Do not add a detached final implementation section.
 - Do not leave the reader to assemble the final code from scattered snippets.
@@ -335,6 +390,8 @@ or needs general bad/good examples.
 - Do not proceed to the next step until the current step's pressure, break, one
   change, check, freeze, next gap, and internal self-review all pass.
 - Do not output internal self-review fields in the public tutorial body.
+- Do not mechanically output every internal field label unless the user asks
+  for structured output.
 - Do not say "store X in a map or list" without explaining what operation must
   stay `O(1)` or what invariant it protects.
 - Do not optimize prose during the first build if it risks dropping checks or

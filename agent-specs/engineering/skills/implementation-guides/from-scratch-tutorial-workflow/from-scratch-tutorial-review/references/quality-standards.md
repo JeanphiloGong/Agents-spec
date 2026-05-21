@@ -8,13 +8,41 @@ cannot catch.
 
 Review in this order:
 
-1. executable continuity
-2. defect-driven teaching depth
-3. code change role clarity and final checkpoint completeness
-4. semantic choice visibility
-5. evidence quality
-6. engineering tutorial completeness
-7. reader-facing publishability
+1. teaching standard fit
+2. executable continuity
+3. defect-driven teaching depth
+4. code change role clarity and final checkpoint completeness
+5. semantic choice visibility
+6. evidence quality
+7. engineering tutorial completeness
+8. reader-facing publishability
+
+## 0. Teaching Standard Fit
+
+A from-scratch tutorial must combine three standards:
+
+- Nystrom: a complete engineering chain grows version by version, and every
+  meaningful step leaves behind a working system piece.
+- Karpathy: code appears early, stays runnable, and each new line is justified
+  by behavior it unlocks.
+- Norvig: the real problem is compressed into a small complete model that can
+  be understood in one sitting.
+
+Check for:
+
+- real scenario before implementation details
+- explicit problem compression with included and deferred scope
+- a small complete model that preserves the central invariant
+- connected runnable versions, not isolated snippets
+- final assembled checkpoint, not scattered code pieces
+
+Finding severity:
+
+- `block` when the final code cannot be reached through connected versions.
+- `revise` when the guide lacks real scenario, problem compression, or a small
+  complete model.
+- `revise` when code appears only late or appears early but does not stay
+  runnable.
 
 ## 1. Executable Continuity
 
@@ -205,12 +233,16 @@ Check for:
 - missing "when not to use this" boundary
 - missing final mental model or recap
 - overly broad next-step promises that distract from the tutorial checkpoint
+- public output that merely lists internal fields instead of teaching through
+  prose, code, and reader-facing checkpoints
 
 Finding severity:
 
 - `suggestion` when publishability issues do not affect correctness.
 - `revise` when internal scaffolding makes the tutorial hard to learn from.
 - `revise` when `Step Self-Review` appears in public tutorial text.
+- `revise` when the guide has all required field labels but reads like a
+  compliance checklist rather than a lesson.
 
 Recommended reader-facing alternatives:
 

@@ -1,4 +1,4 @@
 interface:
   display_name: "From-Scratch Tutorial Plan"
-  short_description: "v0.1.4 - Plan tutorials through the increment cycle"
-  default_prompt: "Use $from-scratch-tutorial-plan to plan one from-scratch implementation tutorial before drafting it. Define the reader goal, external contract, teaching example, and each tutorial increment as Pressure -> Naive version -> Break -> Change -> Check -> Freeze. For each step, name the patch or checkpoint target, final assembled checkpoint, helper contracts, review risks, and build handoff."
+  short_description: "v0.2.0 - Plan Nystrom/Karpathy/Norvig tutorials"
+  default_prompt: "Use $from-scratch-tutorial-plan to plan one from-scratch implementation tutorial before drafting it. Apply the Nystrom/Karpathy/Norvig standard: define reader goal, real scenario, problem compression, core model, invariants, external contract, teaching example, verification matrix, and each tutorial increment as Pressure -> Naive version -> Break -> Change -> Check -> Freeze. For each step, name the patch or checkpoint target, final assembled checkpoint, helper contracts, review risks, and build handoff."

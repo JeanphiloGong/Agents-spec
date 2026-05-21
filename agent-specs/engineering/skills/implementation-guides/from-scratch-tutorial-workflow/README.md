@@ -4,8 +4,26 @@ This package contains workflow skills for producing implementation tutorials
 from first principles. Use it when the deliverable is a teaching artifact, not
 a production patch, runnable reference sample, or landing plan.
 
-The package standard is the tutorial increment cycle: build one complete
-teaching step, check it, freeze it, then continue from that frozen version.
+The package standard is:
+
+```text
+Nystrom complete engineering chain
++ Karpathy runnable from-zero coding
++ Norvig small complete problem compression
+```
+
+That means:
+
+- **Nystrom chain** - the guide grows as a connected project, one working
+  version at a time. Every meaningful step leaves behind a usable system piece.
+- **Karpathy coding** - code appears early, stays runnable, and every new line
+  is justified by behavior it unlocks.
+- **Norvig compression** - the real problem is reduced to a small complete
+  model that can be understood in one sitting without production noise.
+
+The execution mechanism for that standard is the tutorial increment cycle:
+build one complete teaching step, check it, freeze it, then continue from that
+frozen version.
 
 ```text
 +------------------------------------------------+
@@ -34,14 +52,23 @@ Internal self-review is required during generation, but public tutorial output
 must use reader-facing checkpoints instead of `Step Self-Review` compliance
 sections.
 
+Before the step ladder starts, every non-trivial tutorial must define:
+
+- the real scenario: who calls this thing, why they need it, and what they see
+- the compressed problem: the smallest model that still teaches the core idea
+- the core model: the few concepts the implementation manipulates
+- the invariants: rules every version must protect
+- the verification matrix: happy path, invalid input, failure path, boundary
+  case, and one representative trace when relevant
+
 ## Layout
 
 | Workflow step | Skill | Purpose |
 | --- | --- |
-| Plan the teaching route | [`from-scratch-tutorial-plan`](from-scratch-tutorial-plan/SKILL.md) | Define reader, goal, pressure examples, concrete previous-version defects, patch/checkpoint boundaries, final assembled checkpoint, and verification before writing. |
-| Build the tutorial | [`from-scratch-tutorial-build`](from-scratch-tutorial-build/SKILL.md) | Build the guide one complete tutorial increment at a time, with explicit code change type/target, helper contracts, checks, freeze points, and final-code traceability. |
-| Review tutorial quality | [`from-scratch-tutorial-review`](from-scratch-tutorial-review/SKILL.md) | Check for skipped reasoning, missing pressure examples, vague step rationale, disconnected code versions, unclear code-change roles, unexplained helpers, weak checks, and final-code drift. |
-| Simplify the guide | [`from-scratch-tutorial-simplify`](from-scratch-tutorial-simplify/SKILL.md) | Reduce repetition and prose weight without deleting pressure examples, the teaching chain, or final checkpoint. |
+| Plan the teaching route | [`from-scratch-tutorial-plan`](from-scratch-tutorial-plan/SKILL.md) | Define reader, real scenario, problem compression, core model, invariants, pressure examples, patch/checkpoint boundaries, final assembled checkpoint, and verification before writing. |
+| Build the tutorial | [`from-scratch-tutorial-build`](from-scratch-tutorial-build/SKILL.md) | Build the guide one complete tutorial increment at a time, preserving the Nystrom/Karpathy/Norvig standard while avoiding public checklist prose. |
+| Review tutorial quality | [`from-scratch-tutorial-review`](from-scratch-tutorial-review/SKILL.md) | Check for missing scenario, weak problem compression, template prose, skipped reasoning, disconnected code versions, unclear code-change roles, unexplained helpers, weak checks, and final-code drift. |
+| Simplify the guide | [`from-scratch-tutorial-simplify`](from-scratch-tutorial-simplify/SKILL.md) | Reduce repetition and prose weight without deleting scenario, problem compression, pressure examples, the teaching chain, or final checkpoint. |
 
 ## Codex Usage
 
@@ -66,5 +93,8 @@ body and the teaching route is already clear.
   behavior to make a tutorial smoother.
 - The final complete code must be the last connected step's assembled
   checkpoint; do not add a detached final implementation section.
+- Public output should read like a tutorial, not a compliance checklist. The
+  step fields are internal obligations unless the human asks for a structured
+  audit format.
 - Publishing concerns such as blog front matter, taxonomy, SEO, and site paths
   belong to a separate publishing skill if needed later.

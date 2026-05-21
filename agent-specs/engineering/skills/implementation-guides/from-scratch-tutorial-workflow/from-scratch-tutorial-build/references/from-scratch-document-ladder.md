@@ -31,18 +31,21 @@ site, or extension that makes the naive version's weakness visible.
 Prefer this order:
 
 1. reader and goal
-2. external contract
-3. constraints and invariants
-4. existing evidence, if any
-5. from-scratch ladder
-6. helper contracts
-7. common mistakes
-8. verification checklist
-9. next small step
+2. real scenario
+3. problem compression
+4. core model and invariants
+5. external contract
+6. existing evidence, if any
+7. from-scratch ladder
+8. helper contracts
+9. common mistakes
+10. verification checklist
+11. next small step
 
 ## Required Step Shape
 
-Each step in `## From Scratch` should answer these prompts:
+Each step in `## From Scratch` should answer these prompts internally. They are
+quality questions, not mandatory public field labels:
 
 - `Question`
 - `Pressure Example`
@@ -72,6 +75,10 @@ If a step tries to introduce multiple new ideas, split it.
 
 Do not expose internal self-review fields in public tutorial text. The agent
 must still run the self-review privately before moving to the next step.
+Likewise, do not mechanically print every prompt above unless the human asks
+for a structured audit format. In a polished tutorial, translate the prompts
+into natural prose, code blocks, `Checkpoint`, `Try This`, and `Before Moving
+On` sections.
 
 Use code change roles consistently:
 
@@ -118,6 +125,17 @@ Do not output:
 - `Concrete defect named: yes`
 - `Exactly one change: yes`
 - `Check proves the step: yes`
+
+Also avoid public output that is only a repeated field list:
+
+- `Question`
+- `Pressure Example`
+- `Naive or Previous Version`
+- `What Breaks`
+- `New Requirement`
+
+Those labels can be useful during drafting, but the published guide should
+read like a lesson.
 
 ## Recommended Ladder
 

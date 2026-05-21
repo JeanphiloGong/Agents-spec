@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-review
-description: v0.1.5 - Review from-scratch tutorials against the tutorial increment cycle. Use when checking a draft for missing pressure, vague breaks, disconnected naive/change/check/freeze steps, unclear patch/checkpoint roles, public self-review leakage, unexplained helpers, silent semantic choices, or final-code drift before accepting it.
+description: v0.2.0 - Review from-scratch tutorials against Nystrom/Karpathy/Norvig standards and the tutorial increment cycle. Use when checking a draft for missing real scenario, weak problem compression, missing core model or invariants, template-like public prose, missing pressure, vague breaks, disconnected naive/change/check/freeze steps, unclear patch/checkpoint roles, public self-review leakage, unexplained helpers, silent semantic choices, or final-code drift before accepting it.
 ---
 
 # From-Scratch Tutorial Review
@@ -15,6 +15,21 @@ response, ordered by severity, with file or section references when available.
 Use the bundled quality standards reference when headings are present but the
 tutorial may still hide state, skip semantic choices, miss pressure examples,
 or read like an internal generation artifact.
+
+## Teaching Standard
+
+Review every draft against:
+
+- **Nystrom complete engineering chain** - connected working versions, not
+  scattered concept notes.
+- **Karpathy runnable from-zero coding** - code appears early, remains runnable,
+  and grows because behavior forces it.
+- **Norvig small complete problem compression** - the real scenario is reduced
+  to a small complete model without production noise.
+
+These are acceptance criteria. A guide can have all increment-cycle headings
+and still fail if it lacks a real scenario, a compressed model, connected
+runnable code, or natural reader-facing teaching prose.
 
 ## The Tutorial Increment Cycle
 
@@ -56,48 +71,62 @@ general code review, production merge review, or publishing metadata review.
 ## The Review Loop
 
 1. Identify the Tutorial Contract
-   - Read reader goal, external contract, constraints, and teaching example.
+   - Read reader goal, real scenario, problem compression, core model,
+     invariants, external contract, constraints, and teaching example.
    - Verify: supplied facts and inferred assumptions are separated.
-2. Check Increment Continuity
+2. Check Scenario and Problem Compression
+   - Confirm the guide says who uses the thing, why it is needed, and what the
+     outside observer sees.
+   - Confirm the tutorial compresses the full problem into a small complete
+     model and names what is included or deferred.
+   - Verify: the guide teaches the core idea, not production mapping or a
+     shapeless toy.
+3. Check Increment Continuity
    - For each numbered step, compare the previous version, add/replace action,
      code change type, code change target, current capability, freeze
      statement, and remaining gap.
    - Read `references/quality-standards.md` and check executable continuity.
    - Verify: every step can only depend on code already introduced, and every
      step check would run from visible state.
-3. Check Defect-Driven Teaching Depth
+4. Check Defect-Driven Teaching Depth
    - Inspect pressure examples, `What Breaks`, `New Requirement`, and
      `Why This Change Works`.
    - Verify: every step names a concrete defect in the naive or previous
      version before introducing the next structure, and the reader sees a
      pressure example before the fix.
-4. Check Step Evidence
+5. Check Step Evidence
    - Inspect `Step Check` and `What To Verify`.
    - Verify: checks prove the current version's named defect was addressed,
      not the final solution.
-5. Check Semantic Choice Visibility
+6. Check Semantic Choice Visibility
    - Look for behavior choices that appear silently: copying vs mutating,
      raising vs returning, stopping vs continuing, rejecting before side
      effects, or private helper boundaries.
    - Verify: every meaningful behavior change is explained where it first
      appears and has a small check when needed.
-6. Check Helper Necessity
+7. Check Helper Necessity
    - Ensure every helper appears only after a requirement pressure creates it.
    - Verify: helper purpose, inputs, output or mutation boundary are explicit.
-7. Check Final-Code Drift
+8. Check Final-Code Drift
    - Compare the final complete code to the connected steps.
    - Confirm the final meaningful step is an assembled checkpoint, not a patch
      or partial snippet.
    - Verify: no state, branch, helper, or mutation rule appears only at the
      end.
-8. Check Reader-Facing Publishability
+9. Check Engineering Completeness
+   - Check core model, invariants, verification matrix, and deferred scope.
+   - Verify: the guide is not only a code ladder; it teaches the small system
+     model around the code.
+10. Check Reader-Facing Publishability
    - Identify internal scaffolding, excessive compliance language, or missing
      reader recap after correctness issues are handled.
    - Treat public `Step Self-Review` sections or yes/no compliance bullets as
      revision issues.
+   - Treat a public guide that merely lists internal fields as a revision issue,
+     even if the fields are technically filled.
    - Verify: publishability feedback is not used to hide blocking correctness
      findings.
-9. Produce Verdict
+11. Produce Verdict
    - Use `pass`, `revise`, or `block`.
    - Include required fixes before summaries.
 
@@ -107,6 +136,16 @@ general code review, production merge review, or publishing metadata review.
   or final code contains unexplained logic.
 - `revise`: the tutorial is directionally correct but needs concrete fixes.
 - `suggestion`: optional improvement that does not block acceptance.
+
+Specific severity calibration:
+
+- `block`: final runnable code must be stitched from scattered snippets, a core
+  helper or semantic rule appears only in the final checkpoint, or a core step
+  introduces a structure without a visible previous-version break.
+- `revise`: a non-trivial tutorial lacks a real scenario, problem compression,
+  core model, invariants, verification matrix, or natural reader-facing prose.
+- `revise`: the draft has all field labels but reads like a compliance
+  checklist instead of a tutorial.
 
 ## Output Format
 
@@ -139,11 +178,20 @@ general code review, production merge review, or publishing metadata review.
 | "Copying context is a small implementation detail." | Silent semantic choices can change the behavior the tutorial taught earlier. |
 | "The reader can stitch together the final code." | The final step must provide an assembled checkpoint so the delivered code is copyable and reviewable. |
 | "Step Self-Review is useful transparency." | It is internal scaffolding; public tutorials need reader-facing checkpoints, not compliance notes. |
+| "All required headings are present, so the guide passes." | Headings are not enough; the guide must read like a real lesson with scenario, compression, pressure, code, checks, and freeze points. |
+| "The scenario is not needed because this is an implementation tutorial." | The scenario is what makes the implementation pressure real. |
+| "Problem compression is obvious from the code." | The compressed model must be explicit so the reader can separate core logic from deferred noise. |
 
 ## Red Flags
 
 - A step lacks `Naive or Previous Version`, `What Breaks`, `New Requirement`,
   `Add or Replace`, `Step Check`, `Freeze This Version`, or `Still Lacks`.
+- A non-trivial engineering tutorial lacks real scenario, problem compression,
+  core model, invariants, or verification matrix.
+- The scenario only describes a production module instead of who needs the
+  technique and what pressure they experience.
+- The compressed model is either too toy-like to preserve the core invariant or
+  too production-shaped to teach in one sitting.
 - A step's rationale is generic and does not explain what breaks in the naive
   or previous version.
 - A step names a defect without showing a concrete pressure example first.
@@ -163,11 +211,16 @@ general code review, production merge review, or publishing metadata review.
 - The tutorial has no concrete trace or check.
 - The tutorial reads like an internal compliance checklist rather than a
   reader-facing guide.
+- The tutorial publicly dumps internal field labels when natural teaching prose
+  would be clearer.
 - The public tutorial contains `Step Self-Review` or yes/no self-audit bullets.
 
 ## Verification
 
 - [ ] Findings are ordered by severity.
+- [ ] Nystrom/Karpathy/Norvig standards were checked.
+- [ ] Real scenario, problem compression, core model, invariants, and
+      verification matrix were checked.
 - [ ] Version continuity was checked step by step.
 - [ ] Executable continuity was checked against the quality standards
       reference.
@@ -180,6 +233,7 @@ general code review, production merge review, or publishing metadata review.
 - [ ] Final-code drift was checked.
 - [ ] The final meaningful step was checked as an assembled complete
       checkpoint.
+- [ ] Public prose was checked for tutorial voice rather than checklist voice.
 - [ ] Verdict is `pass`, `revise`, or `block`.
 
 ## Guardrails

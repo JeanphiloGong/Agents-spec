@@ -1,8 +1,9 @@
 # Tutorial Style Standards
 
-Use this reference when a from-scratch tutorial has the right mechanics but
-still reads like a filled template. The goal is a guide that feels like a
-teacher walking the reader from a small pressure to a complete implementation.
+Use this reference before drafting any non-trivial from-scratch tutorial and
+again when a tutorial has the right mechanics but still reads like a filled
+template. The goal is a guide that feels like a teacher walking the reader from
+a small pressure to a complete implementation.
 
 Do not use project-specific examples here. These standards must stay reusable
 across algorithm, data-structure, systems, and small engineering tutorials.
@@ -18,7 +19,8 @@ Borrow the mechanism, not the prose, from these teaching styles:
 - Peter Norvig: the problem is compressed into a small, complete model that
   can be held in one sitting.
 
-The resulting style should be:
+Treat this lineage as an execution standard, not as optional inspiration. The
+resulting style should be:
 
 ```text
 small real pressure
@@ -119,6 +121,10 @@ module, or current business vocabulary.
 
 The public tutorial should read like a lesson, not a compliance report.
 
+The increment fields are internal obligations. A polished guide can satisfy
+them through natural paragraphs, code blocks, and reader-facing checkpoints
+without printing every field name.
+
 Use reader-facing section names:
 
 - `Checkpoint`
@@ -132,6 +138,17 @@ Do not output internal quality gates such as:
 - `Concrete defect named: yes`
 - `Exactly one change: yes`
 - `Check proves the step: yes`
+
+Avoid long repeated public field lists such as:
+
+- `Question`
+- `Pressure Example`
+- `Naive or Previous Version`
+- `What Breaks`
+- `New Requirement`
+
+Use those fields internally, or publicly only when the human asks for a
+structured audit-style tutorial.
 
 The agent should still perform those checks internally before moving to the
 next step.
