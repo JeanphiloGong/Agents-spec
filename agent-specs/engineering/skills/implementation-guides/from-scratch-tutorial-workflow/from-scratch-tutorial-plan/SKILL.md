@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-plan
-description: v0.3.0 - Plan a from-scratch tutorial as ordered, verifiable writing tasks through Nystrom/Karpathy/Norvig standards and the tutorial increment cycle. Use when the human wants a task-first tutorial plan with real scenario, problem compression, core model, invariants, dependency graph, acceptance criteria, verification, checkpoint commit handoff, and build-ready task breakdown before drafting.
+description: v0.3.1 - Plan a from-scratch tutorial as ordered, verifiable writing tasks through Nystrom/Karpathy/Norvig standards and the tutorial increment cycle. Use when the human wants a task-first tutorial plan with real scenario, problem compression, core model, invariants, dependency graph, acceptance criteria, verification, checkpoint commit handoff, and build-ready task breakdown before drafting.
 ---
 
 # From-Scratch Tutorial Plan
@@ -111,6 +111,9 @@ work.
    - Verify: no internal data structure appears before the behavior contract.
 6. Choose the Teaching Example
    - Pick one small example or trace that exposes the first real pressure.
+   - Start the first baseline from the external input or caller mental model,
+     not from an internal carrier, helper, or final abstraction that has not
+     been forced yet.
    - Avoid examples that require the final solution to understand.
    - Prefer universal examples or source-independent scenarios; do not bake the
      user's current production module into the skill's reusable standards.
@@ -158,6 +161,10 @@ For each tutorial-step drafting task:
 
 - `Naive or Previous Baseline` states the exact code or mental model the reader
   currently has.
+- The first naive baseline starts from real external input or caller-visible
+  behavior. It must not smuggle in future internal abstractions such as
+  run-level context carriers, registries, nodes, stores, adapters, state
+  machines, or final class shapes before the pressure that creates them.
 - `Pressure Example` shows the concrete input, trace, call site, or extension
   that makes the current baseline's weakness visible before naming the defect.
 - `Break` names what that baseline cannot explain, observe, protect,
@@ -180,6 +187,13 @@ depends on key position" is concrete.
 
 If `Pressure Example` is missing, the step will read like a template. The plan
 must show what the reader experiences before the tutorial names the defect.
+
+If the first baseline already contains a later abstraction, the plan is not
+from-scratch enough. For example, a pipeline tutorial should not start with
+`prepare(context)` if `context` is the run-level state carrier the tutorial
+needs to justify. Start from the caller's real input, such as `file_id`, then
+introduce `context` only after a step shows why multiple handlers need shared
+run state.
 
 For code tutorials, the final code task must have `Code Change Type:
 checkpoint` and must name the complete target it assembles, such as `runner.py`
@@ -383,6 +397,7 @@ real scenario
 | "The real scenario can wait for the article draft." | Without the scenario, the task ladder tends to explain code shape instead of user-visible pressure. |
 | "The compressed model is obvious." | Problem compression is the Norvig part of the skill; it must be explicit before code structure is planned. |
 | "A table of steps is enough." | The builder needs task acceptance criteria, dependencies, verification, and checkpoint handoff to write reliably. |
+| "The naive baseline can use the final internal carrier because it keeps examples short." | That hides the reason the carrier exists; the baseline should start from caller-visible input and let pressure force the carrier later. |
 
 ## Red Flags
 
@@ -395,6 +410,8 @@ real scenario
 - The plan uses an old row-based step table as the main build handoff.
 - Tutorial tasks do not say what the previous reader baseline is or what
   concrete defect remains.
+- The first baseline uses an internal carrier, helper, registry, node, store,
+  adapter, state machine, or final class before any pressure has created it.
 - A tutorial-step task lacks a pressure example.
 - A step's `Break` is generic, motivational, or copied from the final
   architecture instead of observed in the current baseline.
@@ -427,6 +444,8 @@ real scenario
 - [ ] Tutorial-step tasks include pressure example, naive or previous baseline,
       break, new requirement, add/replace, code change type, code change
       target, step check, and freeze or next gap.
+- [ ] The first naive baseline starts from external input or caller-visible
+      behavior and does not smuggle in future internal abstractions.
 - [ ] Each task follows from its dependencies and previous visible break.
 - [ ] The final code task is planned as a complete assembled checkpoint.
 - [ ] Each helper has a first-needed task and mutation or return boundary.

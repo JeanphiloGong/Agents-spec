@@ -103,10 +103,27 @@ Weak `What Breaks` says only:
 Weak steps also jump directly from a heading to a fix without showing what the
 reader experiences in the naive baseline.
 
+Also check whether the naive baseline starts too late. A first baseline that
+already uses a future internal abstraction can hide the very pressure the
+tutorial should teach. Examples include:
+
+- a pipeline tutorial starts with `prepare(context)` before explaining why a
+  run-level state carrier is needed
+- a cache tutorial starts with `Node` before showing why value-only storage
+  cannot support recency movement
+- a parser tutorial starts with an AST class before showing why raw token
+  handling becomes ambiguous
+
+The stronger baseline starts from caller-visible input or the reader's current
+mental model, then lets a pressure example force the internal carrier,
+structure, or helper.
+
 Finding severity:
 
 - `block` when a core step introduces a helper, data structure, state machine,
   or public API without a concrete previous-baseline defect.
+- `revise` when the first baseline smuggles in the future internal abstraction
+  instead of starting from external input or caller-visible behavior.
 - `revise` when the defect exists but is too generic to teach why this exact
   change follows.
 - `revise` when the step has a concrete defect but no pressure example.

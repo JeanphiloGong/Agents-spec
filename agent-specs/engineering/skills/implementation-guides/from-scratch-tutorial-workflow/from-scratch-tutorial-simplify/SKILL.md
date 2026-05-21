@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-simplify
-description: v0.3.0 - Simplify a working from-scratch tutorial without breaking task/checkpoint continuity, Nystrom/Karpathy/Norvig standards, or the tutorial increment cycle. Use when a guide is correct but too repetitive, wordy, checklist-like, or hard to scan, while real scenario, problem compression, core model, invariants, pressure, naive baseline, break, one patch/checkpoint change, check, freeze, final assembled checkpoint, and helper boundaries must be preserved.
+description: v0.3.1 - Simplify a working from-scratch tutorial without breaking task/checkpoint continuity, Nystrom/Karpathy/Norvig standards, or the tutorial increment cycle. Use when a guide is correct but too repetitive, wordy, checklist-like, or hard to scan, while real scenario, problem compression, core model, invariants, pressure, naive baseline, break, one patch/checkpoint change, check, freeze, final assembled checkpoint, and helper boundaries must be preserved.
 ---
 
 # From-Scratch Tutorial Simplify
@@ -52,6 +52,12 @@ Pressure examples are protected content too. Do not remove the tiny input,
 trace, call site, or extension that lets the reader feel the problem before the
 fix appears.
 
+The first baseline's starting point is protected content. Do not "simplify" by
+replacing caller-visible input with the future internal carrier or final class
+shape. If the tutorial deliberately starts from `file_id`, `entries`, raw
+tokens, or another external input, keep that path; do not jump straight to
+`context`, `Node`, a registry, an adapter, or a completed service object.
+
 Code-change semantics are also protected content. Do not remove `Code Change
 Type`, `Code Change Target`, or the final assembled checkpoint while tightening
 the prose.
@@ -91,6 +97,8 @@ the guide shorter.
      `What To Verify` when present.
    - Preserve real scenario, problem compression, core model, invariants, and
      verification matrix when present.
+   - Preserve a first baseline that starts from caller-visible input before
+     internal abstractions.
    - Verify: no step loses the connected build loop.
 3. Remove Repetition
    - Delete repeated rationale that does not add new pressure.
@@ -153,6 +161,7 @@ When editing a file directly, keep this report brief and include changed paths.
 | "Scenario and compression can be shortened away." | They are the reason the tutorial is not just a code walkthrough. |
 | "Removing field labels removes the structure." | The structure can remain as natural prose plus checkpoints. |
 | "The commit needs the fields, so they must stay in the document." | The single-document checkpoint commit message can hold those fields. |
+| "Starting with the final context object is shorter." | It removes the teaching pressure that explains why the context object exists. |
 
 ## Red Flags
 
@@ -160,6 +169,8 @@ When editing a file directly, keep this report brief and include changed paths.
 - A step loses the concrete `What Breaks` explanation or the link from defect
   to new requirement.
 - A step loses the pressure example that made the defect visible.
+- The first baseline is simplified into a future internal abstraction instead
+  of preserving caller-visible input.
 - A helper remains but its first-needed explanation is removed.
 - A step loses `Code Change Type` or `Code Change Target`.
 - The real scenario, compressed model, core model, invariants, or verification
@@ -181,6 +192,8 @@ When editing a file directly, keep this report brief and include changed paths.
       preserved.
 - [ ] Pressure examples are preserved or rewritten into clearer reader-facing
       examples.
+- [ ] The first baseline still starts from caller-visible input or behavior
+      before internal abstractions.
 - [ ] Code change type, target, and final assembled checkpoint are preserved.
 - [ ] Step checks and freeze points are preserved.
 - [ ] Helper contracts still have purpose and boundaries.
@@ -195,6 +208,8 @@ When editing a file directly, keep this report brief and include changed paths.
   verification matrix from non-trivial tutorials.
 - Do not change code behavior as part of prose simplification.
 - Do not remove concrete examples or traces when they are the only evidence.
+- Do not replace the first caller-visible baseline with the final internal
+  carrier or class shape for brevity.
 - Do not compress a step so far that it no longer explains what breaks in the
   prior checkpoint.
 - Do not preserve `Step Self-Review` as public prose; convert it to a

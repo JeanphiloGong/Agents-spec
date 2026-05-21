@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-build
-description: v0.3.0 - Build a from-scratch tutorial from a task-first tutorial plan through Nystrom/Karpathy/Norvig standards and the tutorial increment cycle. Use when turning reader goal, real scenario, problem compression, core model, invariants, external contract, teaching example, dependency graph, and tutorial build tasks into a natural guide with verified checkpoints and final assembled code.
+description: v0.3.1 - Build a from-scratch tutorial from a task-first tutorial plan through Nystrom/Karpathy/Norvig standards and the tutorial increment cycle. Use when turning reader goal, real scenario, problem compression, core model, invariants, external contract, teaching example, dependency graph, and tutorial build tasks into a natural guide with verified checkpoints and final assembled code.
 ---
 
 # From-Scratch Tutorial Build
@@ -119,6 +119,10 @@ previous visible baseline.
    - Start each step with a pressure example: a concrete input, trace, call
      site, or small extension that makes the weakness visible.
    - Show the naive or previous baseline as the reader currently understands it.
+   - For the first baseline, start from the external input or caller-visible
+     mental model. Do not begin with an internal carrier, helper, registry,
+     node, store, adapter, state machine, or final class shape unless an
+     earlier visible pressure already forced it.
    - Name its concrete defect: what caller knowledge, observation, failure
      diagnosis, invariant, or extension it cannot support.
    - Verify: the defect is visible in the current baseline, not imported from
@@ -196,6 +200,8 @@ Cycle rules:
 - `What Breaks` names a concrete defect in the current baseline, not a vague
   quality concern.
 - `New Requirement` and `Why This Change Works` answer that defect directly.
+- The first baseline uses caller-visible inputs and behavior. It must not
+  smuggle in the future internal abstraction the step is supposed to teach.
 - `Code Change Type` is `patch` for a local edit or `checkpoint` for a
   complete current runnable unit.
 - `Code Change Target` names where the reader applies the change.
@@ -259,6 +265,7 @@ Public voice rules:
 - `code_change_policy=patch-or-checkpoint-with-explicit-target`
 - `source_fact_policy=separate-supplied-from-inferred`
 - `step_depth_policy=complete-one-step-before-next-step`
+- `naive_baseline_policy=external-input-before-internal-carrier`
 - `public_voice_policy=natural-tutorial-not-checklist`
 - `checkpoint_commit_policy=single-doc-freeze-fields-in-commit-message`
 - `checkpoint_handoff_policy=follow-plan-checkpoint-commit-handoff`
@@ -344,6 +351,7 @@ examples.
 | "The scenario is optional because the code is clear." | Without the scenario, the tutorial teaches an implementation shape without explaining why it exists. |
 | "The compressed model can be inferred." | Norvig-style compression must be explicit so the reader knows what is essential and what is deferred. |
 | "Git history needs the same fields, so the tutorial body should show them." | Use `single-doc-checkpoint-commit-skill` to record fields in the commit message while keeping the document readable. |
+| "I can start with the final context object to keep the example short." | That steals the lesson. Start with the caller's real input, then introduce the context object only after shared run state becomes a visible need. |
 
 ## Red Flags
 
@@ -351,6 +359,9 @@ examples.
 - A step lacks `Freeze This Checkpoint`.
 - A step states `What Breaks` without first showing a concrete pressure
   example.
+- The first baseline starts with a future internal abstraction, such as a
+  run-level `context`, registry, node, store, adapter, state machine, or final
+  class, before the tutorial has justified it.
 - A step lacks a concrete `What Breaks`, or `What Breaks` only says the design
   is "not scalable", "not clean", or "not abstract enough".
 - `Why This Change Works` describes the new code without explaining how it
@@ -389,6 +400,8 @@ examples.
 - [ ] Each step was completed and self-reviewed before the next step was
       drafted.
 - [ ] Every step includes a pressure example before introducing the fix.
+- [ ] The first baseline starts from caller-visible input or behavior and does
+      not introduce future internal abstractions early.
 - [ ] The external contract and hard constraints appear before any data
       structure is proposed.
 - [ ] Every step's `What Breaks` names concrete defects in the naive or
