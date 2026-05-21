@@ -1,6 +1,6 @@
 ---
 name: reference-core-build
-description: v0.1.2 - Build a runnable reference-core learning module from a plan or explicit core inputs. Use when turning a noisy production feature, AI draft, extracted chain, invariant, scenario-fit src architecture, module layout, included/deferred boundary, placement, and validation plan into a git-reviewable executable module.
+description: v0.1.5 - Build a standalone runnable reference-core learning module from a plan or explicit core inputs. Use when turning a selected core logic chain, AI draft, source-independent real-world scenario, invariant, scenario-fit src architecture, module layout, version checkpoint, included/deferred learning boundary, placement, and validation plan into a git-reviewable executable nano module.
 ---
 
 # Reference Core Build
@@ -8,21 +8,28 @@ description: v0.1.2 - Build a runnable reference-core learning module from a pla
 ## Overview
 
 Turn a reference-core plan into a runnable learning module. The module must
-extract one chain the human wants to master, preserve the defining invariant,
-replace non-core production boundaries with small fakes, include one happy path
-and one boundary or failure check, and stay outside production-imported paths by
+teach one chain the human wants to master, preserve the defining invariant,
+replace non-core source boundaries with small fakes, include one happy path and
+one boundary or failure check, and read like a standalone nano project by
 default.
 
+When the plan contains a version checkpoint, the module should record it in the
+artifact and output. A completed checkpoint must be committed through the normal
+git workflow. Tags are not created by this skill; it only carries a
+`tag_recommended` handoff for review or explicit `tag-release-skill` use.
+
 Use this skill when code should be written as a learning and design artifact,
-not as a production patch.
+not as a production patch or source-project explanation.
 
 ## When to Use
 
 - A `reference-core-plan` output is ready to implement.
 - The human provides enough explicit core inputs to build without a separate
   planning pass.
-- The human wants a runnable learning module before production landing.
+- The human wants a runnable standalone learning module.
 - The module needs explicit happy-path and boundary validation.
+- The plan includes a learning-asset version checkpoint that should be recorded
+  in the module.
 - Production code is too noisy, but the core invariant is known.
 
 **When NOT to use:** planning the module, reviewing a completed module,
@@ -39,9 +46,10 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
    - Read core slice, invariant, included/deferred lists, placement, and
      validation plan.
    - If no formal plan exists, reconstruct only the missing build inputs:
-     chain mastery goal, chain trace, invariant, included/deferred boundary,
-     module layout, `src/` architecture, safe placement, happy path, and
-     boundary or failure check.
+     real-world scenario, engineering zero, chain mastery goal, chain trace,
+     invariant, included/deferred learning boundary, module layout, `src/`
+     architecture, version checkpoint, safe placement, happy path, and boundary
+     or failure check.
    - Verify: no missing input would change the code shape.
 2. Create Module Directory
    - Use the planned path, defaulting to
@@ -67,10 +75,13 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
    - Add the planned invariant-breaking, boundary, or failure case.
    - Verify: the check fails visibly if the defining invariant breaks.
 6. Freeze the Module
-   - State what the module proves, what it does not prove, and which
-     production constraints remain deferred.
-   - Include a README that explains the chain, how to run it, validations, and
-     map-back starting points.
+   - State what the module proves, what it does not prove, and which learning
+     boundaries remain deferred.
+   - Include a README that starts from the real-world scenario, explains the
+     problem, engineering zero, current version, chain, how to run it, and
+     validations.
+   - Record the version checkpoint, commit requirement, and tag recommendation
+     in the README or build output.
    - Verify: `reference-core-review` can assess the artifact without reopening
      the planning discussion.
 
@@ -105,7 +116,10 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 - `module_repository_policy=target-project-repo-preferred`
 - `module_path_policy=examples/reference-core/<feature-slug>`
 - `module_readme=required`
-- `production_import_barrier=required`
+- `standalone_readme_policy=real_world_scenario_first`
+- `production_import_barrier=required_when_written_in_source_repo`
+- `checkpoint_commit_policy=commit_required_for_completed_checkpoint`
+- `tag_policy=recommend_only_after_review_or_explicit_operator_request`
 
 ## Decision Points
 
@@ -116,9 +130,14 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
   `reference-core-plan` instead of inventing one during build.
 - If the module cannot be runnable without hiding the invariant, stop and
   produce a design-only blocker with the missing validation step.
-- If production placement is unsafe, keep the module ephemeral and ask before
-  writing files.
-- If map-back is now needed, hand off to `reference-core-map-back`.
+- If the plan lacks version checkpoint data, default to
+  `commit_required: yes` and `tag_recommended: no` for the build output rather
+  than inventing a tag name.
+- If placement could make source-project code depend on the learning module,
+  keep the module ephemeral or outside imported paths and ask before writing
+  files.
+- If source-project mapping is now needed, hand off to
+  `reference-core-map-back` after the standalone module is built.
 
 ## Output Format
 
@@ -129,20 +148,35 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 - src_architecture:
 - run_command:
 
+## Standalone Learning Entry
+- real_world_scenario:
+- problem:
+- engineering_zero:
+- this_version_adds:
+
 ## Extracted Chain
 - entrypoint:
 - steps:
 - output:
 
-## Included In Reference
+## Included In Module
 - ...
 
-## Deferred To Production
+## Deferred Learning Boundaries
 - ...
 
 ## Validation
 - happy_path:
 - boundary_or_failure_check:
+
+## Version Checkpoint
+- asset_line:
+- version_name:
+- version_role:
+- commit_required:
+- tag_recommended:
+- tag_name_candidate:
+- tag_reason:
 
 ## What This Proves
 - ...
@@ -163,6 +197,8 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 | "The fastest module is copied production code." | Copying keeps incidental production complexity and weakens the invariant proof. |
 | "The failure check can wait." | Without a boundary check, the module may not protect the defining behavior. |
 | "A DDD layout will make it more complete." | Completeness comes from chain mastery; architecture must be justified by scenario pressure. |
+| "The build can create a tag when it finishes." | This skill builds and records the checkpoint; tag execution needs explicit operator input through release/tag workflow. |
+| "The README should start from the production system because that is where the chain came from." | The README should start from the standalone scenario and logic; production mapping belongs in map-back. |
 
 ## Red Flags
 
@@ -171,9 +207,13 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 - The `src/` layout ignores or overcomplicates the planned `src_architecture`.
 - The module imports production modules by default.
 - Production concerns appear despite being deferred.
+- The README starts with the source project instead of the standalone scenario,
+  problem, and engineering zero.
 - The module lacks a boundary or failure check.
 - Helpers exist without preserving the invariant.
 - The README explains the topic but not the chain.
+- Version checkpoint or tag recommendation is missing from the build output.
+- A tag is created without explicit operator request.
 
 ## Verification
 
@@ -183,9 +223,12 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 - [ ] The `src/` layout follows the planned scenario-fit architecture.
 - [ ] The module runs one meaningful happy path.
 - [ ] A boundary or failure check is executable or directly testable.
-- [ ] Included and deferred concerns match the plan.
+- [ ] Included and deferred learning boundaries match the plan.
 - [ ] The README explains the extracted chain and what the module proves and
       does not prove.
+- [ ] The README starts from the standalone real-world scenario, not the source
+      project.
+- [ ] Version checkpoint and tag recommendation are recorded.
 - [ ] A persisted module has a colocated README or an explicit exception.
 - [ ] No production patch was written.
 
@@ -206,5 +249,9 @@ apply to ordinary learning-module generation.
 - Do not omit the boundary or failure check to stay small.
 - Do not place the module inside production-imported paths by default.
 - Do not leave a persisted module without a colocated `README.md`.
+- Do not make source-project mapping the README's primary story. Use
+  `reference-core-map-back` for that.
+- Do not create git tags. Record tag recommendations for review or explicit
+  `tag-release-skill` execution.
 - Do not add blog polish, long narrative, or publishing structure unless the
   human explicitly asks for a publishable article.

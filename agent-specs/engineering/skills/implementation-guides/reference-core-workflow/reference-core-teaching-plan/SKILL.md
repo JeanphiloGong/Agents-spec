@@ -1,6 +1,6 @@
 ---
 name: reference-core-teaching-plan
-description: v0.1.1 - Turn an already selected core chain into a from-zero teaching promise and module lineage gate before planning the learning module. Use when the human wants the extracted chain to become a blog, nano project, tutorial, or personal knowledge asset, especially when the chain may depend on an earlier nano module version.
+description: v0.1.3 - Turn an already selected core chain into a standalone from-zero teaching promise, module lineage gate, and asset version checkpoint before planning the learning module. Use when the human wants the extracted chain to become a blog, nano project, tutorial, or personal knowledge asset, especially when the chain may depend on an earlier nano module version.
 ---
 
 # Reference Core Teaching Plan
@@ -30,6 +30,15 @@ existing asset, or blocked by missing prerequisite work. If a selected chain is
 really `v1` or `v2`, the skill should surface that before producing a full
 teaching plan.
 
+The skill also names the asset version checkpoint. A completed checkpoint must
+be traceable by commit. A tag is only recommended when the checkpoint is
+runnable, review-passed, reusable, or publishable enough to be worth finding
+again later.
+
+The teaching asset should be understandable without source-project context.
+Source projects may inspire the chain, but production mappings belong in
+`reference-core-map-back`, not in the first explanation of this skill's output.
+
 ## When to Use
 
 - The human already selected a chain and wants it to become a personal
@@ -43,6 +52,8 @@ teaching plan.
   and logic chain.
 - The selected chain may depend on a base module, previous article, or earlier
   runnable version that must exist before this chain is useful.
+- The selected chain should become part of a versioned learning-asset line,
+  such as `nano-pipeline-runner/v0`, `v1`, or `v2`.
 
 **When NOT to use:** scanning for candidate chains, selecting which chain to
 study, writing the final blog/tutorial, building the module, reviewing a built
@@ -57,6 +68,8 @@ module, or production landing.
    - Verify: this is a chosen chain, not an inventory task.
 2. Define The Zero Point
    - State the real-world situation that makes this chain necessary.
+   - Phrase it without requiring source-project names, file paths, services, or
+     production-only context.
    - State the smallest engineering mechanism that can address the situation
      before the selected chain's named capability is added.
    - List the current-chain capability separately from the zero mechanism.
@@ -91,18 +104,28 @@ module, or production landing.
      `reference-core-teaching-plan`, `reference-core-plan`, or
      `reference-core-build`.
    - Verify: current work cannot proceed until the prerequisite is explicit.
-6. Define The Teaching Promise
+6. Define The Version Checkpoint
+   - Name the asset line, version name, version role, starting point, and what
+     this version adds.
+   - Decide whether the checkpoint is `internal-learning`, `reusable`,
+     `publishable`, or `map-back-ready`.
+   - Set `commit_required: yes`.
+   - Set `tag_recommended: yes` only for checkpoints that should be found later
+     as reusable or publishable learning assets.
+   - Verify: the version checkpoint matches the lineage gate and does not turn
+     every small edit into a tag.
+7. Define The Teaching Promise
    - Convert the chain into a sentence: "from zero implement a `<mini-system>`".
    - If the chain is an extension, phrase the promise as "start from
      `<base-asset>` and add `<capability>`".
    - Name possible `nano-*`, `mini-*`, or article title candidates.
    - Verify: the promise is teachable with its required setup visible.
-7. Choose Asset Shape
+8. Choose Asset Shape
    - Choose `nano-project`, `blog`, `tutorial`, `source-reading-note`,
      `personal-kb`, or a hybrid.
    - Explain why that shape fits the chain and the human's goal.
    - Verify: the shape produces motivation without forcing unnecessary polish.
-8. Derive Module Constraints
+9. Derive Module Constraints
    - List what the learning module must show, run, test, trace, and explain to
      support the promise.
    - Decide whether the module needs fixtures, traces, diagrams, or staged code
@@ -110,16 +133,19 @@ module, or production landing.
    - State whether examples begin from an empty project, an inline `v0`, or the
      previous module's final result.
    - Verify: every required artifact supports the teaching promise.
-9. Shape The Plan Handoff
+10. Shape The Plan Handoff
    - Produce constraints for `reference-core-plan`: chain scope, module shape,
-     zero point, lineage status, base asset, `src_architecture` bias, required
-     tests, required traces, README sections, exclusions, and done conditions.
+     zero point, lineage status, version checkpoint, base asset,
+     `src_architecture` bias, required tests, required traces, README sections,
+     exclusions, and done conditions.
    - Verify: `reference-core-plan` can design the module without re-deciding
      the asset goal.
 
 ## Decision Points
 
 - If the chain is not selected yet, run `reference-core-scan` first.
+- If the zero point starts with source-project names or production files,
+  rewrite it as an ordinary real-world scenario before continuing.
 - If the real-world zero or engineering zero is unknown, ask the smallest
   blocking question before producing a full teaching plan.
 - If `engineering_zero` includes the selected chain's named behavior, rewrite
@@ -138,8 +164,15 @@ module, or production landing.
   chain.
 - If the base asset exists, require its path, last known version, and runnable
   or readable evidence.
+- If the current asset version is unknown, ask whether this chain is `v0`,
+  `v1`, `v2`, or a named checkpoint before writing the full teaching plan.
 - If the base asset is small enough to introduce inside the same module, mark
   it `inline-v0-then-current` and require staged examples.
+- If the checkpoint is only an internal learning step, require a commit but do
+  not recommend a tag.
+- If the checkpoint is reusable, publishable, or map-back-ready, recommend a
+  tag name candidate but leave actual tag creation to explicit operator action
+  through `tag-release-skill`.
 - If the human wants a full tutorial draft now, use
   `from-scratch-tutorial-build` after the teaching promise is clear.
 - If the asset type is `nano-project`, require a runnable module and clear
@@ -165,6 +198,7 @@ Use this blocking format when the lineage gate finds missing prerequisite work:
 
 ## Zero Point
 - real_world_zero:
+- standalone_scenario:
 - engineering_zero:
 - current_chain_position:
 - current_chain_adds:
@@ -192,6 +226,13 @@ Use this blocking format when the lineage gate finds missing prerequisite work:
 - suggested_first_title_or_project:
 - next_skill:
 
+## Prerequisite Version Checkpoint
+- version_name:
+- version_role:
+- commit_required: yes
+- tag_recommended:
+- tag_name_candidate:
+
 ## Stop Condition
 - do_not_continue_to_reference_core_plan_until:
 ```
@@ -208,6 +249,7 @@ Use this full format only after the lineage gate passes:
 
 ## Zero Point
 - real_world_zero:
+- standalone_scenario:
 - engineering_zero:
 - current_chain_position:
 - current_chain_adds:
@@ -225,6 +267,19 @@ Use this full format only after the lineage gate passes:
 - starts_from:
 - example_should_begin_with:
 - next_extension:
+
+## Version Checkpoint
+- asset_line:
+- version_name:
+- version_role:
+- starts_from_version:
+- adds:
+- checkpoint_type: internal-learning | reusable | publishable | map-back-ready
+- commit_required: yes
+- tag_recommended: yes | no
+- tag_name_candidate:
+- tag_reason:
+- tag_after_review: yes | no
 
 ## Teaching Promise
 - from_zero_sentence: Today I will teach you how to implement <mini-system> from zero.
@@ -256,10 +311,13 @@ Use this full format only after the lineage gate passes:
 ## Constraints For reference-core-plan
 - chain_scope:
 - real_world_zero:
+- standalone_scenario:
 - engineering_zero:
 - current_chain_position:
 - current_chain_adds:
 - base_current_split:
+- version_checkpoint:
+- tag_policy:
 - module_lineage:
 - base_asset:
 - starts_from:
@@ -289,6 +347,8 @@ Use this full format only after the lineage gate passes:
 | "The engineering zero can include all the mechanism I want to teach." | That hides the lineage decision. Put the base mechanism in `engineering_zero` and the selected-chain behavior in `current_chain_adds`. |
 | "This chain can be called from zero if I explain enough background." | If the chain starts in the middle of a system, name the required base asset or make it an inline `v0`. |
 | "The previous module probably exists somewhere." | Lineage needs evidence: a path, artifact, test, README, or explicit decision to build the prerequisite first. |
+| "Every version should get a tag." | Every checkpoint needs a commit. Tags are for review-passed checkpoints worth retrieving as reusable or publishable assets. |
+| "The production system context makes the asset more concrete." | The asset should first be concrete as a standalone real-world scenario; production mapping comes later. |
 
 ## Failure Case
 
@@ -320,11 +380,16 @@ the minimal runner should be completed as its own asset before this chain.
 - No zero point appears before the lineage gate.
 - The zero point is just a title, technology, or production component name
   rather than a real-world problem and minimal mechanism.
+- The zero point requires source-project knowledge before explaining the
+  standalone scenario.
 - `engineering_zero` already contains the selected chain's special behavior,
   such as gating, dedupe, fan-out, resume, projection, indexing, caching, or
   synchronization.
 - `current_chain_adds` is missing or duplicates `engineering_zero`.
 - No lineage gate appears before the teaching promise.
+- No version checkpoint appears after the lineage gate.
+- `tag_recommended: yes` appears without a runnable/reviewable or publishable
+  reason.
 - A middle-layer chain is presented as standalone without a base asset, inline
   `v0`, or blocking open question.
 - The output continues to a full teaching plan even though required
@@ -339,10 +404,13 @@ the minimal runner should be completed as its own asset before this chain.
 - [ ] Exactly one selected chain is in scope.
 - [ ] The zero point names the real-world problem and smallest engineering
       mechanism.
+- [ ] The standalone scenario is understandable without source-project context.
 - [ ] The base mechanism and selected-chain capability are separated.
 - [ ] `engineering_zero` does not already contain `current_chain_adds`.
 - [ ] The lineage gate decides whether the chain is standalone, inline `v0`,
       extends an existing asset, or is blocked by missing prerequisite work.
+- [ ] A version checkpoint names asset line, version, role, starts-from point,
+      additions, commit requirement, and tag recommendation.
 - [ ] Missing base work produces blocking open questions and prerequisite work,
       not a full current-chain plan.
 - [ ] The teaching promise is explicit and from-zero teachable.
@@ -359,8 +427,12 @@ the minimal runner should be completed as its own asset before this chain.
 - Do not let production completeness replace from-zero teachability.
 - Do not let "zero" mean an empty repo by default; define the business scenario
   and minimal logic mechanism first.
+- Do not make production/source-project context the teaching asset's first
+  explanation; save mapping for `reference-core-map-back`.
 - Do not put the current chain's special behavior inside `engineering_zero`.
   Move it to `current_chain_adds` and decide whether the base is inline `v0` or
   prerequisite work.
 - Do not pretend an extension chain is standalone. Name the base asset, inline
   it as `v0`, or block on prerequisite work.
+- Do not recommend tags for every small edit. Recommend tags only for completed
+  learning-asset checkpoints that pass review and are worth retrieving later.

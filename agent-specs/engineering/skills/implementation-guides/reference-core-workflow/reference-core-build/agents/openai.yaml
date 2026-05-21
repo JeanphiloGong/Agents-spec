@@ -1,4 +1,4 @@
 interface:
   display_name: "Reference Core Build"
-  short_description: "v0.1.2 - Build a reference-core learning module"
-  default_prompt: "Use $reference-core-build to turn an approved reference-core plan into a git-reviewable runnable learning module with README, scenario-fit src architecture, tests, safe placement, included/deferred boundaries, a happy path, a boundary or failure check, and no production integration patch."
+  short_description: "v0.1.5 - Build a reference-core learning module"
+  default_prompt: "Use $reference-core-build to turn an approved reference-core plan into a git-reviewable standalone runnable learning module with README that starts from the real-world scenario, engineering zero, current version, version checkpoint, scenario-fit src architecture, tests, safe placement, included/deferred learning boundaries, a happy path, a boundary or failure check, commit/tag recommendation handoff, and no production integration patch."

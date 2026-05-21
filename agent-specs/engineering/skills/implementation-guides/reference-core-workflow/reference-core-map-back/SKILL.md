@@ -1,6 +1,6 @@
 ---
 name: reference-core-map-back
-description: v0.1.2 - Map a validated reference-core learning module back to production landing targets. Use when converting extracted-chain lessons into production modules, boundaries, architecture translation, first landing tests, and handoff guidance without writing the production patch.
+description: v0.1.3 - Map a validated reference-core learning module back to production landing targets. Use when converting extracted-chain lessons and version-checkpoint evidence into production modules, boundaries, architecture translation, first landing tests, and handoff guidance without writing the production patch.
 ---
 
 # Reference Core Map Back
@@ -13,6 +13,10 @@ fake boundaries, and validation checks into concrete production modules,
 adapters, tests, and the first landing step for
 `human-led-main-landing-skill`.
 
+If the module has a version checkpoint or tag recommendation, carry that
+evidence into the handoff so production work can trace back to the exact
+learning asset version.
+
 Use this skill after a reference module passes review or when the builder
 already produced a trusted module.
 
@@ -21,6 +25,8 @@ already produced a trusted module.
 - A runnable reference-core learning module is ready to inform production work.
 - The human needs concrete production modules and tests to touch next.
 - Fake boundaries in the module need production counterparts.
+- The production handoff should reference the learning asset version, commit,
+  or tag candidate that informed the landing plan.
 - The next step should be a landing plan, not an implementation patch.
 
 **When NOT to use:** planning or building the module, reviewing module quality,
@@ -31,6 +37,8 @@ writing production code, or replacing `human-led-main-landing-skill`.
 1. Read Module Evidence
    - Capture the module path, extracted chain, invariant, happy path, boundary
      check, included behavior, and deferred constraints.
+   - Capture asset line, version name, source commit, and tag evidence when
+     present.
    - Verify: the module has enough evidence to transfer.
 2. Identify Production Targets
    - Name modules, boundaries, adapters, state owners, and tests that should
@@ -77,6 +85,11 @@ writing production code, or replacing `human-led-main-landing-skill`.
 ```markdown
 ## Reference Evidence
 - module_path:
+- asset_line:
+- version_name:
+- source_commit:
+- tag:
+- tag_status:
 - extracted_chain:
 - invariant:
 - happy_path:
@@ -109,6 +122,7 @@ writing production code, or replacing `human-led-main-landing-skill`.
 
 ## Handoff
 - next_skill: human-led-main-landing-skill
+- reference_version_evidence:
 - notes:
 
 ## Risks
@@ -122,6 +136,7 @@ writing production code, or replacing `human-led-main-landing-skill`.
 | "The module is clear, so production targets are obvious." | Map-back must name concrete files, boundaries, and tests. |
 | "We can implement while mapping." | Map-back is a handoff plan, not a production patch. |
 | "Deferred constraints can all return at once." | Reintroduce production constraints in the order that protects the invariant. |
+| "The module path is enough traceability." | Production handoff should preserve version evidence when a learning asset is versioned or tagged. |
 
 ## Red Flags
 
@@ -134,10 +149,12 @@ writing production code, or replacing `human-led-main-landing-skill`.
   the production code has the same pressure.
 - The handoff skips `human-led-main-landing-skill`.
 - Risks from deferred constraints are omitted.
+- Versioned learning asset evidence is omitted from the handoff.
 
 ## Verification
 
 - [ ] Reference evidence is summarized.
+- [ ] Version checkpoint, commit, or tag evidence is captured when available.
 - [ ] The extracted chain is summarized.
 - [ ] Production modules, boundaries, and tests are concrete.
 - [ ] Module-to-production mapping is explicit.
@@ -153,3 +170,5 @@ writing production code, or replacing `human-led-main-landing-skill`.
 - Do not invent production targets without repository evidence.
 - Do not map back an unreviewed or failing module without noting the risk.
 - Do not reintroduce all production constraints at once without sequence.
+- Do not invent tag names or source commits during map-back; carry only
+  evidence from the module, review, or explicit operator input.

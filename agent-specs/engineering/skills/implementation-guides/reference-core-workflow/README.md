@@ -1,13 +1,19 @@
 # Reference Core Workflow
 
-This package holds skills for extracting one important chain from noisy
-production code, AI drafts, or architecture-heavy behavior into a runnable
-learning module before landing anything on `main`.
+This package holds skills for turning one important core logic chain into a
+runnable, standalone learning module. The source may be a production system,
+AI draft, architecture-heavy behavior, or an idea, but the module's first job
+is to teach the logic itself as a nano project.
 
 The goal is chain mastery, not a smaller demo. The module should make the
-entrypoint, state/data movement, decisions, invariants, boundary cases, and
-production mapping visible enough that another engineer can run it, review it
-in git, and explain the chain back.
+real-world scenario, entrypoint, state/data movement, decisions, invariants,
+boundary cases, and version lineage visible enough that another engineer can
+run it, review it in git, and explain the chain back without knowing the source
+project.
+
+Each completed learning-asset checkpoint should be traceable by commit. Tags
+are optional retrieval markers for review-passed checkpoints that are reusable,
+publishable, or important to map back later; do not tag every small edit.
 
 ## Layout
 
@@ -15,10 +21,10 @@ in git, and explain the chain back.
 | --- | --- | --- |
 | Scan for core chains | [`reference-core-scan`](reference-core-scan/SKILL.md) | Inventory candidate chains in a project, module, subsystem, or AI draft before choosing one to extract. |
 | Shape the teaching asset | [`reference-core-teaching-plan`](reference-core-teaching-plan/SKILL.md) | Gate the selected chain against missing prerequisite assets, then turn it into a "from zero implement X" teaching promise and module constraints. |
-| Plan the core chain | [`reference-core-plan`](reference-core-plan/SKILL.md) | Identify the chain to learn, defining invariant, module layout, included vs deferred boundaries, and validation targets before writing code. |
-| Build the module | [`reference-core-build`](reference-core-build/SKILL.md) | Turn the plan into a git-reviewable learning module with runnable code, README, happy-path check, and boundary check. |
-| Review the module | [`reference-core-review`](reference-core-review/SKILL.md) | Check that the module is runnable, chain-complete, invariant-preserving, readable, and outside production-import paths. |
-| Map back to production | [`reference-core-map-back`](reference-core-map-back/SKILL.md) | Convert the learned chain into concrete production modules, first landing tests, and handoff guidance. |
+| Plan the core chain | [`reference-core-plan`](reference-core-plan/SKILL.md) | Identify the standalone logic chain, defining invariant, module layout, included vs deferred learning boundaries, version checkpoint, and validation targets before writing code. |
+| Build the module | [`reference-core-build`](reference-core-build/SKILL.md) | Turn the plan into a git-reviewable nano learning module with runnable code, README, happy-path check, and boundary check. |
+| Review the module | [`reference-core-review`](reference-core-review/SKILL.md) | Check that the module is runnable, chain-complete, invariant-preserving, readable, and useful without source-project context. |
+| Map back to production | [`reference-core-map-back`](reference-core-map-back/SKILL.md) | Optionally convert the learned chain into concrete production modules, first landing tests, and handoff guidance after the standalone module is understood. |
 
 ## Operating Order
 
@@ -32,6 +38,10 @@ $reference-core-build
 $reference-core-review
 $reference-core-map-back
 ```
+
+Stop after `reference-core-review` when the goal is only a personal knowledge
+asset or reusable nano project. Use `reference-core-map-back` only when the
+validated module needs to inform production work.
 
 Skip scan when the chain is already selected:
 
@@ -57,7 +67,8 @@ After map-back, use `human-led-main-landing-skill` for controlled integration on
 
 ## Boundaries
 
-- Use this package for runnable learning modules, not production patches.
+- Use this package for runnable standalone learning modules, not production
+  patches.
 - Use `reference-core-scan` for inventory and prioritization, not detailed
   single-chain planning.
 - Use `reference-core-teaching-plan` when the selected chain should become a
@@ -66,7 +77,12 @@ After map-back, use `human-led-main-landing-skill` for controlled integration on
   engineering mechanism, not automatically as an empty repository.
 - Let `reference-core-teaching-plan` stop the current chain when it is really a
   later version that depends on a missing base module.
+- Require commits for completed learning-asset checkpoints; recommend tags
+  only when review shows the checkpoint is worth retrieving later.
 - Use `from-scratch-tutorial-workflow` when the output is a teaching guide
   rather than a runnable module artifact.
+- Keep production mapping and source-project file references in
+  `reference-core-map-back`; earlier skills should focus on the core logic,
+  real-world scenario, module version line, and runnable proof.
 - Keep learning modules out of production-imported paths unless the human
   explicitly approves a different placement.

@@ -1,6 +1,6 @@
 ---
 name: reference-core-plan
-description: v0.1.4 - Plan a runnable reference-core learning module before building it. Use when a noisy production feature, AI draft, architecture-heavy flow, or teaching-plan handoff needs one extracted chain, invariant, scenario-fit src architecture, included/deferred boundary, placement, and validation plan.
+description: v0.1.7 - Plan a standalone runnable reference-core learning module before building it. Use when a selected core logic chain, AI draft, architecture-heavy flow, or teaching-plan handoff needs one source-independent real-world scenario, invariant, scenario-fit src architecture, version checkpoint, included/deferred learning boundary, placement, and validation plan.
 ---
 
 # Reference Core Plan
@@ -9,22 +9,26 @@ description: v0.1.4 - Plan a runnable reference-core learning module before buil
 
 Plan one runnable reference-core learning module before writing code. The plan
 identifies the exact chain to learn, defining invariant, visible steps,
-scenario-fit `src/` architecture, included reference behavior, deferred
-production constraints, git-reviewable module layout, safe project placement,
-teaching-asset constraints when provided, and validation targets that
-`reference-core-build` will implement.
+scenario-fit `src/` architecture, included learning behavior, deferred learning
+boundaries, git-reviewable module layout, safe project placement,
+teaching-asset constraints when provided, version checkpoint policy, and
+validation targets that `reference-core-build` will implement.
 
-Use this skill to avoid copying production complexity into a smaller folder or
-building a module that does not teach the real chain.
+Use this skill to turn the logic into a standalone nano/reference module. A
+source project can motivate the chain, but production mapping belongs in
+`reference-core-map-back` after the module is understood.
 
 ## When to Use
 
-- Production code or an AI draft is too noisy to learn from directly.
+- A core logic chain needs to become a standalone runnable learning module.
+- Production code, an AI draft, or source notes are too noisy to learn from
+  directly.
 - The human wants to extract one chain before code is written.
 - The chain entrypoint, invariant, `src/` architecture, module layout, or
   placement is not yet explicit.
-- A learning module must map back to production modules later.
 - A `reference-core-teaching-plan` output should shape the module plan.
+- The module needs a named version checkpoint for commit and optional tag
+  traceability.
 
 **When NOT to use:** writing the module, reviewing a completed module,
 production landing, tutorial-only derivation, or final integration patches.
@@ -46,10 +50,11 @@ production landing, tutorial-only derivation, or final integration patches.
    - State the ordering rule, state transition, data invariant, or core loop
      the module must preserve.
    - Verify: a module that breaks this rule would visibly fail.
-3. Split Included vs Deferred
-   - List what belongs in the reference and what remains production-only.
-   - Verify: storage, network, auth, logging, rollout, and config concerns are
-     deferred unless they define the core behavior.
+3. Split Included vs Deferred Learning Boundaries
+   - List what belongs in the standalone module and what should remain outside
+     this learning checkpoint.
+   - Verify: source-project storage, network, auth, logging, rollout, and
+     integration concerns stay out unless they define the core logic.
 4. Choose Module Layout and Placement
    - Pick runtime, directory layout, dependency policy, and module path.
    - Include README sections, traces, fixtures, or staged examples required by
@@ -73,10 +78,19 @@ production landing, tutorial-only derivation, or final integration patches.
    - Define one happy path and one boundary or failure check.
    - State what the module will prove and not prove.
    - Verify: `reference-core-build` can execute or directly test both checks.
-7. Prepare Map-Back Notes
-   - Name likely production modules, boundaries, adapters, and first landing
-     tests.
-   - Verify: `reference-core-map-back` has concrete targets to refine.
+7. Plan Version Checkpoint
+   - Carry forward or define asset line, version name, version role, starting
+     version, additions, and checkpoint type.
+   - Require a commit for every completed learning-asset checkpoint.
+   - Recommend a tag only when the checkpoint should be retrievable later as a
+     reusable, publishable, or map-back-ready asset.
+   - Verify: tag recommendation has a concrete reason and does not replace the
+     required commit.
+8. Prepare Optional Source Notes
+   - If source-project context is known, record it as optional evidence for
+     later `reference-core-map-back`.
+   - Verify: source notes do not become the README's first explanation or the
+     module's main structure.
 
 ## Decision Points
 
@@ -97,6 +111,13 @@ production landing, tutorial-only derivation, or final integration patches.
 - If a teaching-plan handoff puts the current-chain behavior inside
   `engineering_zero`, split the base mechanism from `current_chain_adds` before
   planning the module layout.
+- If version checkpoint data is missing, define it before build handoff instead
+  of letting `reference-core-build` infer tag names.
+- If `tag_recommended: yes`, include `tag_name_candidate` and `tag_reason`, but
+  do not treat tag creation as automatic build behavior.
+- If the plan starts by naming production files instead of a real-world
+  scenario and minimal mechanism, rewrite the opening around the standalone
+  logic before build handoff.
 
 ## Reference Map
 
@@ -121,6 +142,7 @@ production landing, tutorial-only derivation, or final integration patches.
 
 ## Teaching Asset Constraints
 - real_world_zero:
+- standalone_scenario:
 - engineering_zero:
 - current_chain_position:
 - current_chain_adds:
@@ -139,13 +161,26 @@ production landing, tutorial-only derivation, or final integration patches.
 - must_explain:
 - exclusions:
 
+## Version Checkpoint
+- asset_line:
+- version_name:
+- version_role:
+- starts_from_version:
+- adds:
+- checkpoint_type: internal-learning | reusable | publishable | map-back-ready
+- commit_required: yes
+- tag_recommended: yes | no
+- tag_name_candidate:
+- tag_reason:
+- tag_after_review: yes | no
+
 ## Defining Invariant
 - ...
 
-## Included In Reference
+## Included In Module
 - ...
 
-## Deferred To Production
+## Deferred Learning Boundaries
 - ...
 
 ## Module Layout and Placement
@@ -168,13 +203,18 @@ production landing, tutorial-only derivation, or final integration patches.
 - proves:
 - does_not_prove:
 
-## Map-Back Starting Points
-- production_modules:
-- boundaries_or_adapters:
-- first_landing_tests:
+## Optional Source Notes
+- source_context:
+- later_map_back_targets:
+- map_back_required_now: yes | no
 
 ## Build Handoff
 - recommended_builder: reference-core-build
+- version_checkpoint:
+- commit_required:
+- tag_recommended:
+- tag_handoff:
+- standalone_readme_first:
 - notes:
 ```
 
@@ -186,6 +226,8 @@ production landing, tutorial-only derivation, or final integration patches.
 | "Copying production code is the fastest plan." | Copying preserves incidental complexity instead of isolating the core. |
 | "Placement can be decided later." | Placement determines whether the module can accidentally become production-importable. |
 | "DDD is a good default." | Architecture should follow the chain pressure; full DDD can hide small mechanisms. |
+| "The builder can decide the version tag later." | The plan should define checkpoint intent; the builder should execute and record it without inventing release semantics. |
+| "The README can start from the source project because that is where the idea came from." | The module is a standalone learning asset; source mapping belongs in optional notes or map-back. |
 
 ## Red Flags
 
@@ -194,16 +236,20 @@ production landing, tutorial-only derivation, or final integration patches.
   requirements.
 - A provided lineage gate is ignored, especially when it blocks on missing
   prerequisite work.
-- Included and deferred concerns overlap.
+- Included and deferred learning boundaries overlap.
+- The plan begins with production/project files instead of the real-world
+  scenario and minimal mechanism.
 - No boundary or failure check is planned.
 - The suggested path is inside production-imported code.
 - The layout is a loose file instead of a reviewable module directory without
   justification.
 - `src_architecture` is missing, generic, or copied from production without
   explaining why it fits the chain.
+- Version checkpoint is missing or says to tag every edit without a retrieval
+  reason.
 - DDD, adapters, or projections appear without business-rule or boundary
   pressure.
-- Map-back targets are absent.
+- Optional source notes are treated as the main learning-module structure.
 
 ## Verification
 
@@ -214,16 +260,23 @@ production landing, tutorial-only derivation, or final integration patches.
 - [ ] Lineage constraints are carried forward when provided, including base
       asset, starts-from point, and prerequisite status.
 - [ ] The defining invariant is explicit.
-- [ ] Included and deferred concerns are concrete and non-overlapping.
+- [ ] Included and deferred learning boundaries are concrete and
+      non-overlapping.
 - [ ] Module layout is git-reviewable and has a production-import barrier.
 - [ ] `src_architecture` names a scenario-fit style, concrete `src/` layout,
       rationale, and rejected upgrade triggers.
+- [ ] Version checkpoint names commit requirement and tag recommendation.
 - [ ] Happy-path and boundary/failure validation are planned.
 - [ ] Map-back starting points are named.
 
 ## Guardrails
 
 - Do not write module code during planning.
-- Do not invent invariants or production modules without evidence.
+- Do not invent invariants or source-project targets without evidence; keep
+  source targets in optional notes for later map-back.
+- Do not make tag creation automatic; plan the recommendation and hand off tag
+  execution only after review or explicit operator request.
 - Do not plan production patches.
+- Do not make production/source-project mapping the main output; save it for
+  optional notes or `reference-core-map-back`.
 - Do not place modules in production-imported paths by default.
