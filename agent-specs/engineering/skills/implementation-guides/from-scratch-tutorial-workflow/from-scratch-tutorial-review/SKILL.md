@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-review
-description: v0.1.0 - Review from-scratch implementation tutorials for teaching-chain correctness. Use when checking a tutorial draft for skipped reasoning, disconnected code versions, unexplained helpers, missing step checks, or final-code drift before accepting it.
+description: v0.1.1 - Review from-scratch implementation tutorials for defect-driven teaching-chain correctness. Use when checking a tutorial draft for skipped reasoning, vague step rationale, disconnected code versions, unexplained helpers, missing step checks, or final-code drift before accepting it.
 ---
 
 # From-Scratch Tutorial Review
@@ -32,17 +32,23 @@ general code review, production merge review, or publishing metadata review.
    - For each numbered step, compare the previous version, add/replace action,
      code change, current capability, freeze statement, and remaining gap.
    - Verify: every step can only depend on code already introduced.
-3. Check Step Evidence
+3. Check Defect-Driven Teaching Depth
+   - Inspect `What Breaks`, `New Requirement`, `Why This Change Works`, and
+     `Step Self-Review` when present.
+   - Verify: every step names a concrete defect in the naive or previous
+     version before introducing the next structure.
+4. Check Step Evidence
    - Inspect `Step Check` and `What To Verify`.
-   - Verify: checks prove the current version rather than the final solution.
-4. Check Helper Necessity
+   - Verify: checks prove the current version's named defect was addressed,
+     not the final solution.
+5. Check Helper Necessity
    - Ensure every helper appears only after a requirement pressure creates it.
    - Verify: helper purpose, inputs, output or mutation boundary are explicit.
-5. Check Final-Code Drift
+6. Check Final-Code Drift
    - Compare the final complete code to the connected steps.
    - Verify: no state, branch, helper, or mutation rule appears only at the
      end.
-6. Produce Verdict
+7. Produce Verdict
    - Use `pass`, `revise`, or `block`.
    - Include required fixes before summaries.
 
@@ -79,11 +85,17 @@ general code review, production merge review, or publishing metadata review.
 | "A missing step check is only a documentation issue." | Step checks prove the version ladder is real. |
 | "The reader can infer why the helper exists." | The tutorial must make helper pressure explicit. |
 | "Review should summarize first." | Findings come first so required fixes are visible. |
+| "The step has a `Why This Matters` line, so the rationale is covered." | The rationale must name concrete defects in the current version and show why the next change follows. |
 
 ## Red Flags
 
-- A step lacks `Previous Version Can`, `Add or Replace`, `Step Check`,
-  `Freeze This Version`, or `Still Lacks`.
+- A step lacks `Naive or Previous Version`, `What Breaks`, `New Requirement`,
+  `Add or Replace`, `Step Check`, `Freeze This Version`, `Still Lacks`, or an
+  equivalent step-level self-review.
+- A step's rationale is generic and does not explain what breaks in the naive
+  or previous version.
+- The guide advances to the next step without a visible step-level self-review
+  or equivalent quality gate.
 - A code block cannot be explained as an addition to or replacement of the
   previous version.
 - The final code has helper logic not introduced in steps.
@@ -95,6 +107,7 @@ general code review, production merge review, or publishing metadata review.
 
 - [ ] Findings are ordered by severity.
 - [ ] Version continuity was checked step by step.
+- [ ] Teaching depth was checked for concrete previous-version defects.
 - [ ] Step checks were reviewed for relevance to the current version.
 - [ ] Helper necessity and mutation boundaries were checked.
 - [ ] Final-code drift was checked.

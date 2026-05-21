@@ -2,8 +2,9 @@
 
 This example shows the preferred output style for the skill: a reusable
 markdown guide where the implementation grows through connected code versions.
-Each step explains the pressure, changes the previous version, names what the
-new version can do, and states what still lacks.
+Each step explains what concretely breaks in the previous version, changes one
+thing, checks that change, freezes the new version, and states what still
+lacks.
 
 ## Contents
 
@@ -40,10 +41,12 @@ new version can do, and states what still lacks.
 ### Step 1: Why is a plain list not enough?
 
 - Question: can we keep entries in a list ordered by recency?
-- Why This Matters: if the structure fails the `O(1)` requirement, the whole
-  design is already wrong.
-- How To Think: a list can keep order, but finding a key means scanning.
-- Previous Version Can: nothing yet; we only know the public behavior.
+- Naive or Previous Version: nothing yet; the most obvious starting point is a
+  list ordered by recency.
+- What Breaks: a list can preserve recency order, but `get(key)` must scan
+  entries until it finds the key, so lookup is not `O(1)`.
+- New Requirement: the first structure must give direct key-to-entry lookup in
+  `O(1)`.
 - Add or Replace: create the first version by adding the direct-lookup need.
 - Code Change:
 
@@ -52,17 +55,26 @@ new version can do, and states what still lacks.
 # key -> entry lookup in O(1)
 ```
 
+- Why This Change Works: it turns the vague cache behavior into the first hard
+  constraint: every later design must support direct lookup.
+- Step Check: explain why finding key `9999` in a 10,000-item list depends on
+  position, while direct lookup does not.
 - Now This Version Can: explain why direct lookup is required.
+- Freeze This Version: v1 is the direct-lookup requirement.
 - Still Lacks: ordered recency updates and eviction.
 - What To Verify: explain why a list alone makes `get(key)` too slow.
+- Step Self-Review: one defect was named, one requirement was added, and the
+  check proves list lookup violates the contract.
 
 ### Step 2: Why is a plain map not enough?
 
 - Question: if a map gives `O(1)` lookup, why not stop there?
-- Why This Matters: `get` is not just a read; it also changes recency.
-- How To Think: a map gives direct access by key, but not ordered eviction by
-  "least recently used".
-- Previous Version Can: name the need for `O(1)` key lookup.
+- Naive or Previous Version: v1 says the cache needs direct key lookup, so a
+  plain map is the smallest concrete structure.
+- What Breaks: a map can find a key, but it does not preserve "least recently
+  used" order, so eviction would need extra tracking or a scan.
+- New Requirement: add direct key lookup as real state, while keeping the
+  ordered-recency problem visible.
 - Add or Replace: in the previous version, add a map as the first concrete
   state.
 - Code Change:
@@ -74,19 +86,27 @@ class LRUCache:
         self.cache = {}  # key -> node
 ```
 
+- Why This Change Works: the map satisfies the first defect, direct lookup, but
+  intentionally exposes the next defect: order is still missing.
+- Step Check: after `put(1, 1)` and `put(2, 2)`, explain why `self.cache`
+  cannot tell which key is least recently used.
 - Now This Version Can: store something reachable by key in `O(1)`.
+- Freeze This Version: v2 is a map-backed cache skeleton.
 - Still Lacks: a node shape and an order structure for recency.
 - What To Verify: explain why a map alone cannot remove the least recently used
   entry without extra work.
+- Step Self-Review: the map solves lookup only; the remaining defect is
+  recency order.
 
 ### Step 3: Why should the map store nodes instead of values?
 
 - Question: what should `cache[key]` point to?
-- Why This Matters: `get(key)` must both return a value and move the entry in
-  the recency structure.
-- How To Think: if the map stores only values, we still cannot move the right
-  recency item in `O(1)`.
-- Previous Version Can: store key-addressable entries.
+- Naive or Previous Version: v2 can map a key to something in `O(1)`, but that
+  "something" has not been defined.
+- What Breaks: if the map stores only values, `get(key)` can return the value
+  but cannot move the corresponding item inside a recency order in `O(1)`.
+- New Requirement: store entry objects that hold both the value and the links
+  needed for future recency movement.
 - Add or Replace: replace the map-only skeleton with a version that also
   defines the node shape.
 - Code Change:
@@ -106,18 +126,27 @@ class LRUCache:
         self.cache = {}  # key -> Node
 ```
 
+- Why This Change Works: the map can now point to a movable object instead of a
+  detached value.
+- Step Check: given `node = cache[key]`, verify the node has `value`, `prev`,
+  and `next`, so later code can both return the value and relink the node.
 - Now This Version Can: represent a cache entry that carries value and list
   links.
+- Freeze This Version: v3 is a map from keys to movable nodes.
 - Still Lacks: list sentinels and mutation helpers.
 - What To Verify: explain why eviction still needs the `key` on the node.
+- Step Self-Review: the defect was value-only storage; the one change was a
+  node shape.
 
 ### Step 4: What is the smallest runnable skeleton?
 
 - Question: what list shape lets every insertion and removal avoid edge cases?
-- Why This Matters: helper correctness depends on stable list boundaries.
-- How To Think: sentinel `head` and `tail` nodes let every real node sit
-  between two neighbors.
-- Previous Version Can: represent node objects and map keys to nodes.
+- Naive or Previous Version: v3 has movable nodes, but no actual recency list
+  for those nodes to live in.
+- What Breaks: without stable list boundaries, insertion and removal need
+  separate cases for empty list, front, back, and middle nodes.
+- New Requirement: create sentinel `head` and `tail` nodes so every real node
+  can sit between two neighbors.
 - Add or Replace: replace the node-only skeleton with sentinel nodes connected
   in the constructor.
 - Code Change:
@@ -141,18 +170,28 @@ class LRUCache:
         self.tail.prev = self.head
 ```
 
+- Why This Change Works: sentinels make the empty list look like every other
+  list: there is always a node before and after any real node position.
+- Step Check: in a new cache, assert `cache.head.next is cache.tail` and
+  `cache.tail.prev is cache.head`.
 - Now This Version Can: maintain an empty recency list with stable boundaries.
+- Freeze This Version: v4 is a map plus an empty sentinel recency list.
 - Still Lacks: helpers that mutate the list.
 - What To Verify: `head.next is tail` and `tail.prev is head` in the empty
   cache.
+- Step Self-Review: the defect was boundary branching; sentinels address only
+  that defect.
 
 ### Step 5: What helper is forced first?
 
 - Question: which mutation unlocks moving and eviction?
-- Why This Matters: both recency updates and eviction need correct detach logic.
-- How To Think: if a node is already in the list, removing it means linking its
-  previous and next neighbors to each other.
-- Previous Version Can: keep an empty sentinel list.
+- Naive or Previous Version: v4 has stable list boundaries, but no way to
+  remove an existing node from the list.
+- What Breaks: both "move this key to most recent" and "evict the least recent
+  key" first need to detach a known node; duplicating that pointer mutation in
+  each operation risks inconsistent links.
+- New Requirement: add one helper that detaches a known node by reconnecting
+  its previous and next neighbors.
 - Add or Replace: in the previous version, add `_remove(node)`.
 - Code Change:
 
@@ -173,18 +212,26 @@ class LRUCache:
         next_node.prev = prev_node
 ```
 
+- Why This Change Works: `_remove` isolates the one pointer mutation shared by
+  recency movement and eviction.
+- Step Check: for `a <-> b <-> c`, after `_remove(b)`, assert `a.next is c`
+  and `c.prev is a`.
 - Now This Version Can: detach a known node from the list.
+- Freeze This Version: v5 can remove a known node from the recency list.
 - Still Lacks: adding nodes to the most-recent position.
 - What To Verify: after removal, neighboring nodes point to each other.
+- Step Self-Review: the step introduced one helper forced by one repeated
+  mutation.
 
 ### Step 6: How do we mark a node most recently used?
 
 - Question: where should a newly used node go?
-- Why This Matters: a single recency convention keeps `get`, `put`, and eviction
-  consistent.
-- How To Think: put the most recently used node right after `head`; the least
-  recently used node will be right before `tail`.
-- Previous Version Can: detach an existing node.
+- Naive or Previous Version: v5 can remove a node, but it cannot place a node
+  into a consistent "most recent" position.
+- What Breaks: without one recency convention, `get`, `put`, and eviction may
+  disagree about which end of the list is most recent.
+- New Requirement: define the front of the list, right after `head`, as the
+  most-recent position and add helpers for inserting or moving there.
 - Add or Replace: in the previous version, add `_add_front(node)` and
   `_move_front(node)`.
 - Code Change:
@@ -202,17 +249,26 @@ class LRUCache:
         self._add_front(node)
 ```
 
+- Why This Change Works: `_add_front` creates one recency convention, and
+  `_move_front` composes the already-tested remove operation with that
+  convention.
+- Step Check: after `_add_front(node)`, assert `cache.head.next is node` and
+  `node.prev is cache.head`.
 - Now This Version Can: add or move a node to the most-recent position.
+- Freeze This Version: v6 can maintain most-recent order for known nodes.
 - Still Lacks: removing the least-recently-used node.
 - What To Verify: after `_add_front(node)`, `head.next` is that node.
+- Step Self-Review: the new requirement follows from the missing recency
+  convention.
 
 ### Step 7: How do we evict in `O(1)`?
 
 - Question: where is the least recently used node now?
-- Why This Matters: eviction must not scan the map or list.
-- How To Think: with the most recent node near `head`, the least recent node is
-  always `tail.prev`.
-- Previous Version Can: move any known node to the most-recent position.
+- Naive or Previous Version: v6 keeps the most recent node near `head`.
+- What Breaks: capacity eviction still needs a way to identify and remove the
+  least recent node without scanning the list.
+- New Requirement: use the opposite sentinel edge, `tail.prev`, as the
+  least-recent node and add a helper that removes it.
 - Add or Replace: in the previous version, add `_pop_lru()`.
 - Code Change:
 
@@ -223,17 +279,28 @@ class LRUCache:
         return node
 ```
 
+- Why This Change Works: the recency convention from v6 makes the least recent
+  node a constant-time pointer lookup.
+- Step Check: after adding nodes `1` then `2` to the front, `_pop_lru()` should
+  return node `1`.
 - Now This Version Can: remove and return the least-recently-used node in
   `O(1)`.
+- Freeze This Version: v7 has all internal list primitives needed for LRU
+  behavior.
 - Still Lacks: public `get` and `put`.
 - What To Verify: `_pop_lru()` returns the node before `tail`.
+- Step Self-Review: eviction was the defect; `_pop_lru` solves only that
+  constant-time removal need.
 
 ### Step 8: How does `get` compose the primitives?
 
 - Question: what should happen when the key exists?
-- Why This Matters: this is where read behavior and recency behavior meet.
-- How To Think: `get` needs lookup, move-to-front, and return.
-- Previous Version Can: maintain and mutate recency order.
+- Naive or Previous Version: v7 has internal primitives but no public read
+  method.
+- What Breaks: callers cannot use the cache contract yet; they need `get(key)`
+  to return `-1` for misses and update recency for hits.
+- New Requirement: add public `get` by composing lookup, move-to-front, and
+  return.
 - Add or Replace: in the previous version, add public `get`.
 - Code Change:
 
@@ -246,18 +313,26 @@ class LRUCache:
         return node.value
 ```
 
+- Why This Change Works: `get` uses the map for `O(1)` lookup and the existing
+  move helper to keep read behavior and recency behavior together.
+- Step Check: after keys `1` and `2` exist, `get(1)` returns the value for `1`
+  and moves key `1` ahead of key `2`.
 - Now This Version Can: read existing keys and update recency.
+- Freeze This Version: v8 supports public reads and recency updates.
 - Still Lacks: insert, update, and capacity eviction.
 - What To Verify: a successful read updates recency without changing the value.
+- Step Self-Review: the public read defect is addressed without adding write
+  behavior.
 
 ### Step 9: How does `put` handle update, insert, and eviction?
 
 - Question: what are the three cases hidden inside one method?
-- Why This Matters: `put` looks simple, but the branch structure defines the
-  cache behavior.
-- How To Think: update existing key, insert new key when space exists, or evict
-  then insert.
-- Previous Version Can: support reads and recency updates for existing nodes.
+- Naive or Previous Version: v8 can read existing keys, but nothing can create
+  or update cache entries.
+- What Breaks: the cache contract is incomplete without `put`; writes must
+  handle existing keys, new keys with room, and new keys that exceed capacity.
+- New Requirement: add public `put` with those three cases, reusing the
+  already frozen helpers.
 - Add or Replace: in the previous version, add public `put`; this step now
   produces the complete class.
 - Code Change:
@@ -325,11 +400,18 @@ class LRUCache:
             del self.cache[lru.key]
 ```
 
+- Why This Change Works: each branch maps to one write case, and each branch
+  reuses helpers whose pointer behavior was introduced in earlier versions.
+- Step Check: with capacity `2`, run `put(1, 1)`, `put(2, 2)`, `get(1)`,
+  `put(3, 3)`, then verify `get(2) == -1`.
 - Now This Version Can: run the complete `LRUCache` behavior.
+- Freeze This Version: v9 is the complete connected implementation.
 - Still Lacks: only platform-specific wrapper or tests if the caller needs
   them.
 - What To Verify: `put(1,1)`, `put(2,2)`, `get(1)`, `put(3,3)` should evict key
   `2` when capacity is `2`.
+- Step Self-Review: this final step adds only the public write method; all
+  supporting state and helpers were already introduced.
 
 ## Helper Contracts
 

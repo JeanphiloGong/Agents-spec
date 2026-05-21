@@ -19,8 +19,9 @@ short response and not like a final-code dump.
 
 The guide must grow through connected code versions. Do not alternate between
 standalone concept prose, unrelated code blocks, and a late complete-code dump.
-Write one problem, one code change, one new capability, and one remaining gap at
-a time.
+Write one problem, one concrete defect, one code change, one check, one new
+capability, and one remaining gap at a time. Finish that step before drafting
+the next step.
 
 Prefer this order:
 
@@ -39,14 +40,18 @@ Prefer this order:
 Each step in `## From Scratch` should answer these prompts:
 
 - `Question`
-- `Why This Matters`
-- `How To Think`
-- `Previous Version Can`
+- `Naive or Previous Version`
+- `What Breaks`
+- `New Requirement`
 - `Add or Replace`
 - `Code Change`
+- `Why This Change Works`
+- `Step Check`
 - `Now This Version Can`
+- `Freeze This Version`
 - `Still Lacks`
 - `What To Verify`
+- `Step Self-Review`
 
 Keep each step narrow:
 
@@ -60,10 +65,18 @@ If a step tries to introduce multiple new ideas, split it.
 Every code step should be connected to the previous version. Use these
 connectors in substance:
 
-1. `In the previous version, add ...`
-2. `Replace this part with ...`
-3. `Now this version can ...`
-4. `It still lacks ...`
+1. `The previous version can ...`
+2. `What breaks is ...`
+3. `Therefore the new requirement is ...`
+4. `In the previous version, add ...`
+5. `This works because ...`
+6. `Check this version by ...`
+7. `Freeze this version as ...`
+8. `It still lacks ...`
+
+Do not use a vague teaching pressure. "This is not scalable" is not enough.
+Name the exact burden or failure, such as "the caller must know the internal
+step order" or "the code cannot identify which step failed."
 
 ## Recommended Ladder
 
@@ -74,11 +87,12 @@ connectors in substance:
 - If code appears, it should be the smallest useful skeleton or note that can
   become the first version.
 
-### Step 2: Name the first constraint that breaks the naive shape
+### Step 2: Name the first concrete defect in the naive shape
 
 - This is usually where `O(1)`, ordering, idempotency, or mutation safety shows
   up.
 - Make the pressure explicit before proposing a structure.
+- Translate that defect into exactly one new requirement.
 
 ### Step 3: Introduce the first state or data structure
 
@@ -116,6 +130,7 @@ connectors in substance:
 
 - Use one concrete example.
 - Confirm that each step in the trace matches the stated invariants.
+- Confirm that the trace proves the current step's defect was addressed.
 
 ### Step 10: Let the final step be the complete code
 
@@ -128,6 +143,8 @@ connectors in substance:
 - The reader can explain why each helper exists.
 - The reader can say what each state variable protects.
 - The reader understands why a simpler structure would fail.
+- Each `What Breaks` section names a concrete defect in the previous version.
+- Each `Why This Change Works` section points back to that defect.
 - The reader can implement the next step without re-reading the whole guide.
 - Every code block is either an addition to or replacement of the previous
   version.
@@ -143,10 +160,13 @@ Do not do these in from-scratch mode:
 - hide mutation boundaries
 - use the final implementation as the source of truth
 - skip from the contract straight to a finished class or service
+- write all steps in one thin pass instead of completing and checking one step
+  before the next
 - duplicate the same code after the connected build already produced it
 - present standalone code blocks that do not update a previous version
 - add a separate final code block that contains new logic
 - omit what the current version can do and what it still lacks
+- omit what broke in the previous version
 
 ## Full-Code Policy
 

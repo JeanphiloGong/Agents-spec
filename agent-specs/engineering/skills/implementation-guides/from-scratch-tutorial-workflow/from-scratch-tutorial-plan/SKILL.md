@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-plan
-description: v0.1.0 - Plan a from-scratch implementation tutorial before writing it. Use when the human wants a teaching path, reader goal, examples, code-version checkpoints, and verification plan before drafting a from-scratch guide.
+description: v0.1.1 - Plan a defect-driven from-scratch implementation tutorial before writing it. Use when the human wants a teaching path, reader goal, examples, code-version checkpoints, concrete previous-version defects, and verification plan before drafting a from-scratch guide.
 ---
 
 # From-Scratch Tutorial Plan
@@ -13,7 +13,8 @@ able to build, what pressures force each structure, which code versions should
 exist, and how each version will be checked.
 
 Use this skill to prevent tutorials from jumping straight from requirements to
-finished code or from becoming disconnected concept notes.
+finished code, becoming disconnected concept notes, or producing steps whose
+only explanation is a vague "why this matters" sentence.
 
 ## When to Use
 
@@ -46,10 +47,12 @@ work.
    - Verify: the example can be reused later as a step check.
 4. Plan Connected Code Versions
    - List the smallest skeleton and each later version.
-   - For every version, state `previous version can`, `add or replace`, `now
-     this version can`, `still lacks`, and `step check`.
+   - For every version, state `naive or previous version`, `concrete defect`,
+     `new pressure`, `add or replace`, `step check`, and `freeze or next gap`.
+   - Make the next question arise from the previous version's named defect,
+     not from a final-code outline.
    - Verify: each version changes one pressure, structure, helper, or mutation
-     rule.
+     rule forced by a visible defect.
 5. Plan Helper Contracts
    - Introduce helpers only after a planned step creates the need.
    - State each helper's caller, input, output, and mutation boundary.
@@ -58,6 +61,27 @@ work.
    - List where the tutorial could jump, hide logic, or smuggle final code.
    - Add checkpoints for those risks.
    - Verify: the plan can be handed to `from-scratch-tutorial-build`.
+
+## Step Planning Contract
+
+Every planned step must be a complete teaching unit, not a row that merely
+names the next code edit.
+
+For each step:
+
+- `Naive or Previous Version` states the exact code or mental model the reader
+  currently has.
+- `Concrete Defect` names what that version cannot explain, observe, protect,
+  or let the caller do.
+- `New Pressure` translates that defect into the next requirement.
+- `Add or Replace` changes exactly one thing in response to that pressure.
+- `Step Check` proves the defect was addressed in the current version.
+- `Freeze or Next Gap` states the new baseline and the next visible defect.
+
+If `Concrete Defect` could apply to any tutorial, the step is not planned well
+enough. For example, "ordinary function calls are not scalable" is too vague;
+"the caller must know `prepare` must run before `enrich`, and there is no run
+record showing which step failed" is concrete.
 
 ## Decision Points
 
@@ -91,9 +115,9 @@ work.
 - Reuse as check:
 
 ## Version Plan
-| Step | Question | Previous Version Can | Add or Replace | Now This Version Can | Still Lacks | Step Check |
-| --- | --- | --- | --- | --- | --- | --- |
-| 1 | ... | ... | ... | ... | ... | ... |
+| Step | Question | Naive or Previous Version | Concrete Defect | New Pressure | Add or Replace | Step Check | Freeze or Next Gap |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | ... | ... | ... | ... | ... | ... | ... |
 
 ## Helper Contracts To Introduce
 | Helper | First Needed In | Purpose | Inputs | Output/Mutation |
@@ -114,11 +138,15 @@ work.
 | "The tutorial can discover the path while writing." | Planning prevents hidden jumps and repeated rewrites. |
 | "The helper names are obvious from the final code." | Helpers must be forced by behavior and invariants, not copied from a memorized solution. |
 | "A plan should stay high level." | Tutorial plans need concrete version checkpoints or the build will drift. |
+| "The step question already implies the defect." | The defect must be stated explicitly so the builder can teach why the next change is necessary. |
 
 ## Red Flags
 
 - The plan names data structures before the external contract.
-- Version steps do not say what the previous version can do.
+- Version steps do not say what the previous version can do or what concrete
+  defect remains.
+- A step's `Concrete Defect` is generic, motivational, or copied from the final
+  architecture instead of observed in the current version.
 - A step adds multiple helpers or mutation rules at once.
 - The plan has no small example or trace.
 - The final step is planned as a separate code dump instead of the last
@@ -128,8 +156,9 @@ work.
 
 - [ ] Reader, goal, and prerequisites are explicit.
 - [ ] Supplied facts and inferred assumptions are separated.
-- [ ] The version plan includes previous capability, add/replace, new
-      capability, remaining gap, and step check.
+- [ ] The version plan includes naive or previous version, concrete defect, new
+      pressure, add/replace, step check, and freeze or next gap.
+- [ ] Each step's question follows from the previous version's concrete defect.
 - [ ] Each helper has a first-needed step and mutation or return boundary.
 - [ ] Review risks identify likely jumps or final-code drift.
 - [ ] The build handoff names the correct builder.

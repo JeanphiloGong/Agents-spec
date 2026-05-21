@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-build
-description: v0.1.1 - Build a from-scratch implementation tutorial through connected code versions. Use when turning a reader goal, external contract, teaching example, and version plan into a guide with step checks, helper contracts, freeze points, and no detached final code.
+description: v0.1.2 - Build a from-scratch implementation tutorial one complete defect-driven step at a time. Use when turning a reader goal, external contract, teaching example, and version plan into a guide with concrete previous-version defects, step checks, helper contracts, freeze points, and no detached final code.
 ---
 
 # From-Scratch Tutorial Build
@@ -12,6 +12,16 @@ builder for deriving one feature, method, or coherent core slice from external
 behavior into connected code versions. The goal is not to dump final code. The
 goal is to make the internal model, helper contracts, mutation boundaries, and
 final runnable implementation grow from requirements one version at a time.
+
+The builder must write and self-review one numbered step before starting the
+next one. A step is not complete because it has the right headings; it is
+complete only when it explains the current version's concrete defect, changes
+one thing, proves that change, freezes the new baseline, and names the next
+gap.
+
+For any non-trivial tutorial, do not draft the entire `From Scratch` section in
+one sweep. Materialize or present Step 1, run the step quality gate, then append
+Step 2 from the frozen Step 1 baseline. Continue this way until the last step.
 
 ## When to Use
 
@@ -33,10 +43,12 @@ structure, or full implementation before the requirement pressure that makes it
 necessary is visible. Once code growth starts, every step must connect to the
 previous version.
 
-Use this loop for every numbered tutorial step:
+Use this loop for every numbered tutorial step, finishing the whole loop for
+Step N before drafting Step N+1:
 
 ```text
-Add/Replace -> Step Check -> Verify -> Freeze -> Next Gap
+Naive/Previous Version -> What Breaks -> New Requirement -> Add/Replace
+-> Why This Works -> Step Check -> Freeze -> Next Gap -> Self Review
 ```
 
 1. Load the Plan or Scope
@@ -51,27 +63,36 @@ Add/Replace -> Step Check -> Verify -> Freeze -> Next Gap
      the teaching example before internal structure.
    - Verify: the reader can understand the problem before seeing code.
 3. Derive the First Pressure
-   - Ask why the naive shape is insufficient.
-   - Use that pressure to justify the first state, structure, or boundary.
-   - Verify: the structure follows from an operation or invariant, not from
-     preference.
-4. Build One Version
+   - Show the naive or previous version as the reader currently understands it.
+   - Name its concrete defect: what caller knowledge, observation, failure
+     diagnosis, invariant, or extension it cannot support.
+   - Verify: the defect is visible in the current version, not imported from
+     the final design.
+4. Build One Complete Step
+   - Translate the defect into one new requirement.
    - Add to or replace exactly one part of the previous version.
-   - Show the code change and name whether it is an addition or replacement.
+   - Explain why the change addresses the named defect.
    - Verify: the step introduces one pressure, structure, helper, or mutation
      rule.
 5. Run the Step Check
    - Add a tiny assertion, trace, manual check, or compile/run check that fits
      the current version.
-   - Verify: the check proves the new capability, not the final solution.
-6. Freeze the Version
+   - Verify: the check proves the named defect is addressed, not the final
+     solution.
+6. Freeze and Self-Review the Step
    - State what this version can do now.
    - State that this version is the baseline for the next step.
+   - Name the next gap as a concrete defect in the frozen version.
+   - Run the per-step quality gate before drafting the next step.
    - Verify: the next step can only continue from this version, not a hidden
      rewrite.
-7. Name the Next Gap
-   - State what still lacks and why that missing part creates the next step.
-   - Verify: the next question follows from the remaining gap.
+7. Continue Step-by-Step
+   - Repeat the full step loop for the next planned version.
+   - Do not outline all code versions first and then fill them thinly.
+   - Do not produce the full tutorial body in one pass unless the tutorial has
+     only one numbered step.
+   - Verify: each completed step would still teach correctly if read alone with
+     the prior steps.
 8. Finish Without a Detached Code Dump
    - Let the last meaningful step yield the complete code when code is needed.
    - Add only practice, common mistakes, verification checklist, and next small
@@ -84,20 +105,35 @@ Every numbered step inside the `From Scratch` section should answer the same
 teaching questions:
 
 - `Question`
-- `Why This Matters`
-- `How To Think`
-- `Previous Version Can`
+- `Naive or Previous Version`
+- `What Breaks`
+- `New Requirement`
 - `Add or Replace`
 - `Code Change`
+- `Why This Change Works`
 - `Step Check`
 - `Now This Version Can`
 - `Freeze This Version`
 - `Still Lacks`
 - `What To Verify`
+- `Step Self-Review`
 
 Rules:
 - Each step introduces only one new pressure, structure, helper, or mutation
   rule.
+- Each step must be written as a complete section before the next step begins.
+- `What Breaks` must name concrete defects in the current version. Vague
+  statements such as "this does not scale", "this is not clean", or "we need a
+  better abstraction" fail the step unless they name the specific caller burden,
+  missing observation, broken invariant, or failing trace.
+- `New Requirement` must be a direct response to `What Breaks`.
+- `Why This Change Works` must connect the code change back to the defect, not
+  merely restate what the code does.
+- `Step Self-Review` must explicitly answer:
+  - Does this step name a concrete defect in the previous version?
+  - Did this step change exactly one thing?
+  - Does the check prove this step's defect was addressed?
+  - Is the next gap visible from the frozen version?
 - Do not solve the whole feature in one step.
 - Do not present disconnected code blocks that cannot be related to the
   previous version.
@@ -111,12 +147,16 @@ Rules:
 
 - If no plan exists and the tutorial has multiple possible teaching paths, use
   `from-scratch-tutorial-plan` first.
+- If the supplied plan lacks concrete previous-version defects, repair the plan
+  or draft a defect ladder before writing the tutorial body.
 - If constraints are missing but the goal is clear, infer lightweight
   assumptions and label them before teaching.
 - If missing constraints would change the data structure or public contract,
   ask before drafting the guide.
 - If the draft fails its own step checks, repair the earliest failing version
   before continuing.
+- If a step cannot explain why the previous version is insufficient, stop at
+  that step and rewrite it; do not continue to later steps.
 - If simplification is needed after the guide works, hand off to
   `from-scratch-tutorial-simplify`.
 - If quality is uncertain, hand off to `from-scratch-tutorial-review`.
@@ -124,10 +164,11 @@ Rules:
 ## Fixed Defaults
 
 - `build_mode=connected-version-tutorial`
-- `step_loop=add-replace-check-verify-freeze-gap`
+- `step_loop=one-step-at-a-time-defect-change-check-freeze-review`
 - `implementation_style=contract-first-with-explicit-helper-boundaries`
 - `final_code_policy=last-step-yields-complete-code`
 - `source_fact_policy=separate-supplied-from-inferred`
+- `step_depth_policy=complete-one-step-before-next-step`
 
 ## Output Format
 
@@ -148,16 +189,18 @@ Rules:
 ## From Scratch
 ### Step 1: <one concrete problem>
 - Question:
-- Why This Matters:
-- How To Think:
-- Previous Version Can:
+- Naive or Previous Version:
+- What Breaks:
+- New Requirement:
 - Add or Replace:
 - Code Change:
+- Why This Change Works:
 - Step Check:
 - Now This Version Can:
 - Freeze This Version:
 - Still Lacks:
 - What To Verify:
+- Step Self-Review:
 
 ## Helper Contracts
 - ...
@@ -194,11 +237,19 @@ quickly from requirement to helper internals.
 | "Step checks are optional because this is documentation." | Checks are how the reader knows each version works. |
 | "I can skip freezing the version." | Without a freeze, the next step may silently depend on hidden changes. |
 | "The helper names are obvious from the final code." | Helpers should be forced by behavior and invariants, not copied from a memorized solution. |
+| "The headings are present, so the step is complete." | A step is complete only when it deeply explains the previous version's defect and proves the new change. |
+| "It is efficient to draft all steps at once and then polish." | The build loop is step-scoped; writing all steps at once tends to produce thin rationale and hidden jumps. |
 
 ## Red Flags
 
 - A step lacks `Step Check`.
 - A step lacks `Freeze This Version`.
+- A step lacks a concrete `What Breaks`, or `What Breaks` only says the design
+  is "not scalable", "not clean", or "not abstract enough".
+- `Why This Change Works` describes the new code without explaining how it
+  resolves the named defect.
+- Several steps read like a generated outline with short bullets instead of
+  complete teaching sections.
 - A data structure appears before the external contract and hard constraints.
 - A helper appears before its caller, purpose, and mutation boundary are
   explained.
@@ -212,8 +263,14 @@ quickly from requirement to helper internals.
 - [ ] The guide starts with reader goal, external contract, constraints, and
       teaching example.
 - [ ] Every numbered step uses the build loop fields.
+- [ ] Each step was completed and self-reviewed before the next step was
+      drafted.
 - [ ] The external contract and hard constraints appear before any data
       structure is proposed.
+- [ ] Every step's `What Breaks` names concrete defects in the naive or
+      previous version.
+- [ ] Every step's `New Requirement` and `Why This Change Works` directly
+      answer the named defect.
 - [ ] Every step has a concrete `Step Check`.
 - [ ] Every step freezes the current version before naming the next gap.
 - [ ] Helpers appear only after a step creates their need.
@@ -229,6 +286,8 @@ quickly from requirement to helper internals.
 - Do not add a detached final implementation section.
 - Do not recommend a helper before explaining what pressure or requirement
   created it.
+- Do not proceed to the next step until the current step's concrete defect,
+  one change, check, freeze, next gap, and self-review all pass.
 - Do not say "store X in a map or list" without explaining what operation must
   stay `O(1)` or what invariant it protects.
 - Do not optimize prose during the first build if it risks dropping checks or

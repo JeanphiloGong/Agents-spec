@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-simplify
-description: v0.1.0 - Simplify a working from-scratch implementation tutorial without changing its teaching chain. Use when a guide is correct but too repetitive, wordy, or hard to scan, while connected code versions and step checks must be preserved.
+description: v0.1.1 - Simplify a working from-scratch implementation tutorial without changing its defect-driven teaching chain. Use when a guide is correct but too repetitive, wordy, or hard to scan, while concrete previous-version defects, connected code versions, and step checks must be preserved.
 ---
 
 # From-Scratch Tutorial Simplify
@@ -12,6 +12,10 @@ behavior. The goal is not shorter at any cost. The goal is a guide that is
 easier to follow without losing external contract, teaching pressure,
 connected code versions, step checks, freeze points, helper boundaries, or
 final-code traceability.
+
+Defect-driven depth is protected content. Do not shorten away the explanation
+of what breaks in the naive or previous version, why the new requirement
+follows, or how the step check proves that one defect was addressed.
 
 ## When to Use
 
@@ -31,9 +35,10 @@ the guide shorter.
      and final code.
    - Verify: the current tutorial is complete enough to simplify.
 2. Protect Required Fields
-   - Preserve `Question`, `Why This Matters`, `Previous Version Can`, `Add or
-     Replace`, `Code Change`, `Step Check`, `Now This Version Can`, `Freeze
-     This Version`, `Still Lacks`, and `What To Verify` when present.
+   - Preserve `Question`, `Naive or Previous Version`, `What Breaks`, `New
+     Requirement`, `Add or Replace`, `Code Change`, `Why This Change Works`,
+     `Step Check`, `Now This Version Can`, `Freeze This Version`, `Still
+     Lacks`, `What To Verify`, and `Step Self-Review` when present.
    - Verify: no step loses the connected build loop.
 3. Remove Repetition
    - Delete repeated rationale that does not add new pressure.
@@ -84,10 +89,13 @@ When editing a file directly, keep this report brief and include changed paths.
 | "The freeze line is repetitive." | Freeze lines prevent hidden rewrites between versions. |
 | "Step checks can move to the end." | End-only verification loses per-version evidence. |
 | "Code can be compacted while simplifying prose." | Code behavior changes belong to build, not simplify. |
+| "What Breaks is obvious after simplification." | The defect explanation is the teaching engine; preserve it explicitly. |
 
 ## Red Flags
 
 - A step loses `Step Check` or `Still Lacks`.
+- A step loses the concrete `What Breaks` explanation or the link from defect
+  to new requirement.
 - A helper remains but its first-needed explanation is removed.
 - Final code no longer traces to prior versions.
 - Source facts and assumptions are merged together.
@@ -96,6 +104,8 @@ When editing a file directly, keep this report brief and include changed paths.
 ## Verification
 
 - [ ] The connected build loop remains intact in every step.
+- [ ] Concrete previous-version defects and defect-to-change explanations are
+      preserved.
 - [ ] Step checks and freeze points are preserved.
 - [ ] Helper contracts still have purpose and boundaries.
 - [ ] No source facts or assumptions were invented.
@@ -107,5 +117,7 @@ When editing a file directly, keep this report brief and include changed paths.
 - Do not simplify by deleting required teaching fields.
 - Do not change code behavior as part of prose simplification.
 - Do not remove concrete examples or traces when they are the only evidence.
+- Do not compress a step so far that it no longer explains what breaks in the
+  prior version.
 - Do not collapse multiple version steps into one unless the user explicitly
   asks for a shorter non-teaching summary.

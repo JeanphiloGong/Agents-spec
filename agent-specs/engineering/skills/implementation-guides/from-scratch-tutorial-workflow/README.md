@@ -4,14 +4,19 @@ This package contains workflow skills for producing implementation tutorials
 from first principles. Use it when the deliverable is a teaching artifact, not
 a production patch, runnable reference sample, or landing plan.
 
+The package standard is a defect-driven step ladder: every tutorial step must
+show the naive or previous version, explain what concretely breaks, add or
+replace one thing, check that one change, freeze the version, and only then move
+to the next step.
+
 ## Layout
 
 | Workflow step | Skill | Purpose |
 | --- | --- |
-| Plan the teaching route | [`from-scratch-tutorial-plan`](from-scratch-tutorial-plan/SKILL.md) | Define reader, goal, teaching pressures, code-version checkpoints, and verification before writing. |
-| Build the tutorial | [`from-scratch-tutorial-build`](from-scratch-tutorial-build/SKILL.md) | Build the guide through connected code versions, helper contracts, checks, and final-code traceability. |
-| Review tutorial quality | [`from-scratch-tutorial-review`](from-scratch-tutorial-review/SKILL.md) | Check for skipped reasoning, disconnected code versions, unexplained helpers, weak checks, and final-code drift. |
-| Simplify the guide | [`from-scratch-tutorial-simplify`](from-scratch-tutorial-simplify/SKILL.md) | Reduce repetition and prose weight without breaking the teaching chain. |
+| Plan the teaching route | [`from-scratch-tutorial-plan`](from-scratch-tutorial-plan/SKILL.md) | Define reader, goal, concrete previous-version defects, code-version checkpoints, and verification before writing. |
+| Build the tutorial | [`from-scratch-tutorial-build`](from-scratch-tutorial-build/SKILL.md) | Build the guide one complete defect-driven step at a time, with helper contracts, checks, freeze points, and final-code traceability. |
+| Review tutorial quality | [`from-scratch-tutorial-review`](from-scratch-tutorial-review/SKILL.md) | Check for skipped reasoning, vague step rationale, disconnected code versions, unexplained helpers, weak checks, and final-code drift. |
+| Simplify the guide | [`from-scratch-tutorial-simplify`](from-scratch-tutorial-simplify/SKILL.md) | Reduce repetition and prose weight without deleting the defect-driven teaching chain. |
 
 ## Codex Usage
 

@@ -1,4 +1,4 @@
 interface:
   display_name: "From-Scratch Tutorial Build"
-  short_description: "v0.1.1 - Build a connected from-scratch implementation tutorial"
-  default_prompt: "Use $from-scratch-tutorial-build to produce a complete markdown from-scratch implementation tutorial. Derive behavior and invariants into connected code versions; every step must Add/Replace, Step Check, Verify, Freeze This Version, and Still Lacks, with final complete code coming from the last connected step."
+  short_description: "v0.1.2 - Build a defect-driven from-scratch tutorial one complete step at a time"
+  default_prompt: "Use $from-scratch-tutorial-build to produce a complete markdown from-scratch implementation tutorial. Derive behavior and invariants into connected code versions one complete step at a time; every step must name what breaks in the previous version, add or replace one thing, explain why the change works, pass a Step Check, Freeze This Version, name Still Lacks, and self-review before the next step."

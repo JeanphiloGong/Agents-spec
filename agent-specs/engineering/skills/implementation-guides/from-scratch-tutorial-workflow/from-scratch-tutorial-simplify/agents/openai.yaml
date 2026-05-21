@@ -1,4 +1,4 @@
 interface:
   display_name: "From-Scratch Tutorial Simplify"
-  short_description: "v0.1.0 - Simplify from-scratch tutorials without breaking the teaching chain"
-  default_prompt: "Use $from-scratch-tutorial-simplify to tighten a completed from-scratch implementation tutorial while preserving connected code versions, Step Check, Freeze This Version, helper boundaries, source facts, and final-code traceability."
+  short_description: "v0.1.1 - Simplify from-scratch tutorials without breaking the defect-driven teaching chain"
+  default_prompt: "Use $from-scratch-tutorial-simplify to tighten a completed from-scratch implementation tutorial while preserving concrete What Breaks explanations, connected code versions, Step Check, Freeze This Version, helper boundaries, source facts, and final-code traceability."
