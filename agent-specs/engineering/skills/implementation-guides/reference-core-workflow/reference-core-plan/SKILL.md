@@ -1,22 +1,24 @@
 ---
 name: reference-core-plan
-description: v0.1.8 - Plan one standalone runnable reference-core learning module checkpoint before building it. Use when a selected core logic chain, AI draft, architecture-heavy flow, or teaching-plan handoff needs one source-independent real-world scenario, invariant, scenario-fit src architecture, version checkpoint, included/deferred learning boundary, placement, and validation plan.
+description: v0.1.9 - Plan one standalone runnable nano/reference learning asset checkpoint before building it. Use when a selected core logic chain, AI draft, architecture-heavy flow, or teaching-plan handoff needs one source-independent real-world scenario, invariant, scenario-fit src architecture, version checkpoint, included/deferred learning boundary, placement, validation plan, and future from-scratch tutorial handoff.
 ---
 
 # Reference Core Plan
 
 ## Overview
 
-Plan one runnable reference-core learning module before writing code. The plan
+Plan one runnable reference-core nano asset before writing code. The plan
 identifies the exact chain to learn, defining invariant, visible steps,
 scenario-fit `src/` architecture, included learning behavior, deferred learning
-boundaries, git-reviewable module layout, safe project placement,
-teaching-asset constraints when provided, version checkpoint policy, and
-validation targets that `reference-core-build` will implement.
+boundaries, git-reviewable module layout, safe project placement, knowledge
+asset constraints when provided, version checkpoint policy, validation targets,
+and future from-scratch handoff that `reference-core-build` will implement.
 
 Use this skill to turn the logic into a standalone nano/reference module. A
-source project can motivate the chain, but production mapping belongs in
-`reference-core-map-back` after the module is understood.
+source project can motivate the chain, and blog/tutorial framing may sharpen
+the asset boundary, but production mapping belongs in `reference-core-map-back`
+and step-by-step teaching belongs in `from-scratch-tutorial-workflow` after the
+module is understood.
 
 One plan produces one asset version checkpoint. The later build may use several
 implementation slices inside that checkpoint, but it must not deliver multiple
@@ -94,7 +96,13 @@ production landing, tutorial-only derivation, or final integration patches.
    - Verify: tag recommendation has a concrete reason and does not replace the
      required commit, and the planned build does not cross checkpoint
      boundaries.
-8. Prepare Optional Source Notes
+8. Plan From-Scratch Handoff
+   - Name the final target artifact the tutorial should eventually teach.
+   - State the core behavior to derive, the likely naive starting pressure, and
+     the required final checkpoint.
+   - Verify: the handoff points to `from-scratch-tutorial-plan` without asking
+     this workflow to write the tutorial body.
+9. Prepare Optional Source Notes
    - If source-project context is known, record it as optional evidence for
      later `reference-core-map-back`.
    - Verify: source notes do not become the README's first explanation or the
@@ -110,6 +118,9 @@ production landing, tutorial-only derivation, or final integration patches.
   confirmation before persisting files.
 - If the user wants a teaching guide instead of a runnable module, use
   `from-scratch-tutorial-workflow`.
+- If a teaching-plan handoff includes blog/tutorial/personal-kb language,
+  preserve it as knowledge-asset framing for boundary and validation choices;
+  do not turn the plan into article prose.
 - If `reference-core-teaching-plan` marks the chain
   `blocked-by-missing-prerequisite`, do not plan the current chain as if it can
   start from zero. Switch to the prerequisite asset or ask for the missing base
@@ -163,6 +174,10 @@ production landing, tutorial-only derivation, or final integration patches.
 - starts_from:
 - example_should_begin_with:
 - from_zero_sentence:
+- knowledge_asset_lens:
+- reader_value:
+- prerequisite_split_pressure:
+- version_boundary_pressure:
 - asset_type:
 - must_show:
 - must_run:
@@ -217,6 +232,22 @@ production landing, tutorial-only derivation, or final integration patches.
 - proves:
 - does_not_prove:
 
+## Nano Asset Readiness
+- project_name_candidate:
+- final_target_artifact:
+- why_this_is_not_just_a_demo:
+- reader_can_explain:
+- future_tutorial_value:
+
+## From-Scratch Handoff
+- next_skill: from-scratch-tutorial-plan
+- final_target_artifact:
+- core_behavior_to_teach:
+- naive_starting_pressure:
+- required_final_checkpoint:
+- likely_tutorial_steps:
+- tutorial_should_not_cover:
+
 ## Optional Source Notes
 - source_context:
 - later_map_back_targets:
@@ -230,6 +261,7 @@ production landing, tutorial-only derivation, or final integration patches.
 - tag_recommended:
 - tag_handoff:
 - standalone_readme_first:
+- from_scratch_handoff:
 - notes:
 ```
 
@@ -244,6 +276,8 @@ production landing, tutorial-only derivation, or final integration patches.
 | "The builder can decide the version tag later." | The plan should define checkpoint intent; the builder should execute and record it without inventing release semantics. |
 | "The README can start from the source project because that is where the idea came from." | The module is a standalone learning asset; source mapping belongs in optional notes or map-back. |
 | "We can include v0 and v1 because both are needed for the example." | A build may have multiple slices, but the plan should complete one asset checkpoint. Finish the prerequisite checkpoint first when it can stand alone. |
+| "The tutorial value can be decided after the module exists." | The module boundary should already be strong enough to become a future from-scratch target. |
+| "Blog framing means writing blog sections now." | Blog framing is only an asset-shaping lens in this workflow. |
 
 ## Red Flags
 
@@ -267,6 +301,10 @@ production landing, tutorial-only derivation, or final integration patches.
 - DDD, adapters, or projections appear without business-rule or boundary
   pressure.
 - Optional source notes are treated as the main learning-module structure.
+- No nano asset readiness statement explains why the module is more than a
+  runnable demo.
+- No from-scratch handoff is planned for review-passed assets that are intended
+  to teach future self or readers.
 
 ## Verification
 
@@ -286,6 +324,10 @@ production landing, tutorial-only derivation, or final integration patches.
 - [ ] The plan targets exactly one asset checkpoint and excludes prerequisite
       or future checkpoints from the current build.
 - [ ] Happy-path and boundary/failure validation are planned.
+- [ ] Nano asset readiness explains project name, target artifact, reader
+      explanation value, and future tutorial value.
+- [ ] From-scratch handoff names final target artifact, core behavior, naive
+      pressure, required final checkpoint, and exclusions.
 - [ ] Map-back starting points are named.
 
 ## Guardrails
@@ -300,3 +342,5 @@ production landing, tutorial-only derivation, or final integration patches.
 - Do not make production/source-project mapping the main output; save it for
   optional notes or `reference-core-map-back`.
 - Do not place modules in production-imported paths by default.
+- Do not write the from-scratch tutorial in this plan; only prepare the
+  handoff.

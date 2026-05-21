@@ -1,13 +1,13 @@
 ---
 name: reference-core-map-back
-description: v0.1.3 - Map a validated reference-core learning module back to production landing targets. Use when converting extracted-chain lessons and version-checkpoint evidence into production modules, boundaries, architecture translation, first landing tests, and handoff guidance without writing the production patch.
+description: v0.1.4 - Map a validated reference-core nano asset back to production landing targets. Use when converting extracted-chain lessons and version-checkpoint evidence into production modules, boundaries, architecture translation, first landing tests, and handoff guidance without writing the production patch.
 ---
 
 # Reference Core Map Back
 
 ## Overview
 
-Map a validated reference-core learning module back to the production codebase.
+Map a validated reference-core nano asset back to the production codebase.
 This skill turns the module's extracted chain, invariant, state transitions,
 fake boundaries, and validation checks into concrete production modules,
 adapters, tests, and the first landing step for
@@ -18,11 +18,11 @@ evidence into the handoff so production work can trace back to the exact
 learning asset version.
 
 Use this skill after a reference module passes review or when the builder
-already produced a trusted module.
+already produced a trusted nano asset.
 
 ## When to Use
 
-- A runnable reference-core learning module is ready to inform production work.
+- A runnable reference-core nano asset is ready to inform production work.
 - The human needs concrete production modules and tests to touch next.
 - Fake boundaries in the module need production counterparts.
 - The production handoff should reference the learning asset version, commit,

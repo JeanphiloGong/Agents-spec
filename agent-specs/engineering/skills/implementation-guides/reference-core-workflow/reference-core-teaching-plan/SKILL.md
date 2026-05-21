@@ -1,22 +1,28 @@
 ---
 name: reference-core-teaching-plan
-description: v0.1.4 - Turn an already selected core chain into a standalone from-zero teaching promise, module lineage gate, and single asset version checkpoint before planning the learning module. Use when the human wants the extracted chain to become a blog, nano project, tutorial, or personal knowledge asset, especially when the chain may depend on an earlier nano module version.
+description: v0.1.5 - Shape an already selected core chain into a standalone nano asset using a publishable/teachable asset lens, module lineage gate, and single asset version checkpoint before planning the learning module. Use when the human wants the extracted chain to become a nano project, blog-ready asset, tutorial target, or personal knowledge asset, especially when the chain may depend on an earlier nano module version.
 ---
 
 # Reference Core Teaching Plan
 
 ## Overview
 
-Turn one already selected core chain into a concrete teaching asset target
-before `reference-core-plan` designs the learning module. The output is the
-promise the human should be able to make after mastering the chain:
+Turn one already selected core chain into a concrete nano asset target before
+`reference-core-plan` designs the learning module. This skill uses blog,
+tutorial, and personal-knowledge-base framing as an analysis lens: the lens
+helps name the asset, split prerequisites, define reader value, and decide what
+the module must prove. It does not write the final blog post or step-by-step
+tutorial body.
+
+The output is the promise the completed asset should make possible after the
+human masters the chain:
 
 ```text
 Today I will teach you how to implement <mini-system> from zero.
 ```
 
 This skill does not choose which chain is worth studying and does not write the
-tutorial. It defines the from-zero teaching angle, minimum publishable module,
+tutorial. It defines the from-zero asset angle, minimum nano module,
 knowledge-asset requirements, and constraints that `reference-core-plan` must
 satisfy.
 
@@ -40,17 +46,19 @@ contain several implementation slices, but it must not combine multiple asset
 versions such as `v0` and `v1`. If the selected chain needs an unfinished prior
 checkpoint, stop and route the prior checkpoint first.
 
-The teaching asset should be understandable without source-project context.
-Source projects may inspire the chain, but production mappings belong in
+The nano asset should be understandable without source-project context. Source
+projects may inspire the chain, but production mappings belong in
 `reference-core-map-back`, not in the first explanation of this skill's output.
+After the asset is built and reviewed, `from-scratch-tutorial-workflow` can use
+it as the final target to derive the learning path.
 
 ## When to Use
 
 - The human already selected a chain and wants it to become a personal
   knowledge asset.
 - The human wants motivation before doing the reference-core extraction.
-- A chain should become a `nano-*` style project, blog post, tutorial, source
-  reading note, or knowledge-base entry.
+- A chain should become a `nano-*` style project, blog-ready asset, tutorial
+  target, source reading note, or knowledge-base entry.
 - The next plan should be shaped by what the human wants to teach after
   mastering the chain.
 - The human needs to define what "from zero" means for this business scenario
@@ -122,7 +130,7 @@ module, or production landing.
      as reusable or publishable learning assets.
    - Verify: the version checkpoint matches the lineage gate and does not turn
      every small edit into a tag or combine multiple asset versions.
-7. Define The Teaching Promise
+7. Define The Nano Asset Promise
    - Convert the chain into a sentence: "from zero implement a `<mini-system>`".
    - If the chain is an extension, phrase the promise as "start from
      `<base-asset>` and add `<capability>`".
@@ -131,8 +139,11 @@ module, or production landing.
 8. Choose Asset Shape
    - Choose `nano-project`, `blog`, `tutorial`, `source-reading-note`,
      `personal-kb`, or a hybrid.
-   - Explain why that shape fits the chain and the human's goal.
-   - Verify: the shape produces motivation without forcing unnecessary polish.
+   - Explain how that shape is being used as a decomposition lens: naming,
+     reader value, prerequisite split, version boundary, README sections, or
+     validation proof.
+   - Verify: the shape sharpens the module boundary without writing the final
+     article, tutorial, or knowledge-base entry.
 9. Derive Module Constraints
    - List what the learning module must show, run, test, trace, and explain to
      support the promise.
@@ -193,7 +204,8 @@ module, or production landing.
 - If the asset type is `nano-project`, require a runnable module and clear
   project name candidate.
 - If the asset type is `blog` or `tutorial`, require narrative angle, reader,
-  trace points, and code sections.
+  trace points, and README/module constraints, but do not write the full
+  article or step-by-step tutorial.
 - If the asset type is `personal-kb`, require mental models, comparisons, and
   reusable notes rather than publication polish.
 - If the teaching promise cannot be made without production-only complexity,
@@ -307,6 +319,16 @@ Use this full format only after the lineage gate passes:
 - reader_or_future_self:
 - why_this_is_teachable:
 
+## Knowledge Asset Lens
+- lens_type: nano-project | blog-ready | tutorial-target | personal-kb | hybrid
+- how_lens_shapes_decomposition:
+- reader_value:
+- prerequisite_split_pressure:
+- version_boundary_pressure:
+- README_pressure:
+- validation_pressure:
+- not_written_here:
+
 ## Asset Context
 - prerequisite_knowledge:
 - prerequisite_module:
@@ -317,6 +339,7 @@ Use this full format only after the lineage gate passes:
 ## Asset Shape
 - type: nano-project | blog | tutorial | source-reading-note | personal-kb | hybrid
 - why_this_type:
+- lens_not_final_body: yes
 - minimum_publishable_asset:
 - what_to_exclude:
 
@@ -360,7 +383,8 @@ Use this full format only after the lineage gate passes:
 
 | Rationalization | Reality |
 |---|---|
-| "I can decide the blog angle after building." | The teaching promise should shape what the module makes visible. |
+| "I can decide the blog angle after building." | The asset lens should shape what the module makes visible. |
+| "If I mention blog, I should write the blog now." | Blog framing is an analysis lens here; the final writing belongs to `from-scratch-tutorial-workflow` or a publishing workflow after the module exists. |
 | "A serious asset needs production completeness." | A from-zero asset needs the learnable core, not all production constraints. |
 | "Scan should decide the asset." | Scan inventories chains; this skill shapes a selected chain into a teaching target. |
 | "From zero means starting from an empty repo." | The zero point is the real-world problem plus the smallest useful mechanism, which may require a prior module. |
@@ -422,6 +446,10 @@ blocking prerequisite checkpoint for the minimal runner first.
   prerequisite work is missing.
 - No "from zero implement ..." sentence appears.
 - The asset type is named but not tied to module constraints.
+- Blog/tutorial/personal-kb framing turns into publication prose instead of
+  decomposition pressure.
+- No knowledge asset lens explains reader value, prerequisite split, version
+  boundary, README pressure, or validation pressure.
 - The plan handoff lacks required tests, traces, README sections, or exclusions.
 - The promise depends on production-only infrastructure that should be deferred.
 
@@ -443,6 +471,10 @@ blocking prerequisite checkpoint for the minimal runner first.
       not a full current-chain plan.
 - [ ] The teaching promise is explicit and from-zero teachable.
 - [ ] Asset shape is chosen with a reason.
+- [ ] Blog/tutorial/personal-kb framing is used as an analysis lens, not as
+      final publication writing.
+- [ ] The knowledge asset lens names reader value, prerequisite split, version
+      boundary, README pressure, and validation pressure when relevant.
 - [ ] Module constraints support the promise.
 - [ ] Handoff constraints are ready for `reference-core-plan`.
 - [ ] The output does not write the final tutorial or module code.
@@ -451,6 +483,8 @@ blocking prerequisite checkpoint for the minimal runner first.
 
 - Do not choose the chain; use `reference-core-scan` for chain discovery.
 - Do not write the final blog, tutorial, or knowledge-base entry.
+- Do not treat blog/tutorial/personal-kb framing as the deliverable body; use it
+  to force cleaner asset decomposition.
 - Do not add publication polish that does not affect module planning.
 - Do not let production completeness replace from-zero teachability.
 - Do not let "zero" mean an empty repo by default; define the business scenario

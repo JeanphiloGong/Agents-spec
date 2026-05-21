@@ -2,8 +2,8 @@
 
 ## Definition
 
-A minimal-complete reference core is the smallest runnable learning module that
-still preserves the real chain the human wants to master.
+A minimal-complete reference core is the smallest runnable nano learning asset
+that still preserves the real chain the human wants to master.
 
 It is not:
 - a pseudocode sketch
@@ -24,7 +24,11 @@ It is not:
   committed as one git slice.
 - **Readable**: its README lets another engineer run it and explain the chain
   back.
-- **Transferable**: it includes an explicit path back to the production implementation.
+- **Transferable**: it can become the final target of a from-scratch tutorial,
+  a personal knowledge entry, or a later production map-back when source
+  integration is needed.
+- **Asset-shaped**: it has a nameable `nano-*` style promise, a version
+  checkpoint, and enough validation evidence to be reused.
 
 ## Default Module Shape
 
@@ -72,3 +76,13 @@ layout is unclear, use the plan skill's
 - file shape: `README.md`, `src/`, `tests/`, optional `fixtures/` or `traces/`
 
 Go smaller only if the real core still survives. Go larger only if shrinking further would hide the real design pressure.
+
+## Relationship To Tutorials And Map-Back
+
+The reference core is the result asset, not the tutorial that derives it. It
+should record enough handoff information for `from-scratch-tutorial-workflow`
+to later teach how to build the final artifact from zero.
+
+Production mapping is optional and belongs to `reference-core-map-back`. Do not
+force source-project file references into the minimal module unless the human
+explicitly asks for map-back evidence now.

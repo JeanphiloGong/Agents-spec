@@ -1,16 +1,16 @@
 ---
 name: reference-core-build
-description: v0.1.6 - Build one standalone runnable reference-core learning module checkpoint from a plan or explicit core inputs. Use when turning a selected core logic chain, AI draft, source-independent real-world scenario, invariant, scenario-fit src architecture, module layout, version checkpoint, included/deferred learning boundary, placement, and validation plan into a git-reviewable executable nano module.
+description: v0.1.7 - Build one standalone runnable reference-core nano asset checkpoint from a plan or explicit core inputs. Use when turning a selected core logic chain, AI draft, source-independent real-world scenario, invariant, scenario-fit src architecture, module layout, version checkpoint, included/deferred learning boundary, placement, validation plan, and from-scratch handoff into a git-reviewable executable nano module.
 ---
 
 # Reference Core Build
 
 ## Overview
 
-Turn a reference-core plan into a runnable learning module. The module must
+Turn a reference-core plan into a runnable nano learning asset. The module must
 teach one chain the human wants to master, preserve the defining invariant,
 replace non-core source boundaries with small fakes, include one happy path and
-one boundary or failure check, and read like a standalone nano project by
+one boundary or failure check, and read like a standalone `nano-*` project by
 default.
 
 When the plan contains a version checkpoint, the module should record it in the
@@ -24,7 +24,10 @@ version in the same build output unless the prerequisite is explicitly marked
 as inline setup and not a standalone checkpoint.
 
 Use this skill when code should be written as a learning and design artifact,
-not as a production patch or source-project explanation.
+not as a production patch, source-project explanation, or tutorial body. Blog
+or tutorial framing may shape the README and validation, but the deliverable is
+the final target artifact that `from-scratch-tutorial-workflow` can later teach
+from zero.
 
 ## When to Use
 
@@ -53,8 +56,8 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
    - If no formal plan exists, reconstruct only the missing build inputs:
      real-world scenario, engineering zero, chain mastery goal, chain trace,
      invariant, included/deferred learning boundary, module layout, `src/`
-     architecture, version checkpoint, safe placement, happy path, and boundary
-     or failure check.
+     architecture, version checkpoint, safe placement, happy path, boundary or
+     failure check, nano asset readiness, and from-scratch handoff.
    - Confirm the plan targets one checkpoint; if it contains multiple
      standalone asset versions, return to `reference-core-plan`.
    - Verify: no missing input would change the code shape.
@@ -91,6 +94,8 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
      validations.
    - Record the version checkpoint, commit requirement, and tag recommendation
      in the README or build output.
+   - Record the from-scratch handoff: final target artifact, core behavior to
+     teach, naive starting pressure, required final checkpoint, and exclusions.
    - Verify: `reference-core-review` can assess the artifact without reopening
      the planning discussion.
 
@@ -130,6 +135,7 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 - `checkpoint_commit_policy=commit_required_for_completed_checkpoint`
 - `checkpoint_scope_policy=one_checkpoint_per_build`
 - `tag_policy=recommend_only_after_review_or_explicit_operator_request`
+- `from_scratch_handoff_policy=record_for_review_passed_assets`
 
 ## Decision Points
 
@@ -150,6 +156,9 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
   files.
 - If source-project mapping is now needed, hand off to
   `reference-core-map-back` after the standalone module is built.
+- If the human asks for the step-by-step tutorial while building the module,
+  finish and review the nano asset first, then hand off to
+  `from-scratch-tutorial-workflow`.
 
 ## Output Format
 
@@ -193,6 +202,22 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 - tag_name_candidate:
 - tag_reason:
 
+## Nano Asset Readiness
+- project_name:
+- final_target_artifact:
+- why_this_is_not_just_a_demo:
+- reader_can_explain:
+- future_tutorial_value:
+
+## From-Scratch Handoff
+- next_skill: from-scratch-tutorial-plan
+- final_target_artifact:
+- core_behavior_to_teach:
+- naive_starting_pressure:
+- required_final_checkpoint:
+- suggested_tutorial_scope:
+- tutorial_should_not_cover:
+
 ## What This Proves
 - ...
 
@@ -215,6 +240,8 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 | "The build can create a tag when it finishes." | This skill builds and records the checkpoint; tag execution needs explicit operator input through release/tag workflow. |
 | "The README should start from the production system because that is where the chain came from." | The README should start from the standalone scenario and logic; production mapping belongs in map-back. |
 | "It is fine to build v0 and v1 together because they are related." | Related versions are still separate checkpoints when each can stand alone. Build the first unfinished checkpoint, review it, commit it, then continue. |
+| "A runnable module is enough even if no one could teach from it." | A reference-core asset should be strong enough to become the final target of a later from-scratch tutorial. |
+| "Since the asset is blog-ready, I should write the article here." | This skill records tutorial handoff and README constraints only; tutorial prose belongs to the from-scratch workflow. |
 
 ## Red Flags
 
@@ -231,6 +258,10 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 - Version checkpoint or tag recommendation is missing from the build output.
 - The build output contains multiple standalone asset versions.
 - A tag is created without explicit operator request.
+- The module is runnable but not nameable as a nano asset with a clear future
+  tutorial target.
+- From-scratch handoff is missing for a reusable, publishable, or personal
+  knowledge asset.
 
 ## Verification
 
@@ -246,6 +277,9 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 - [ ] The README starts from the standalone real-world scenario, not the source
       project.
 - [ ] Version checkpoint and tag recommendation are recorded.
+- [ ] Nano asset readiness is recorded.
+- [ ] From-scratch handoff is recorded when the asset is intended for future
+      learning or publication.
 - [ ] The build output contains exactly one asset checkpoint, even if multiple
       implementation slices were used.
 - [ ] A persisted module has a colocated README or an explicit exception.
@@ -276,3 +310,5 @@ apply to ordinary learning-module generation.
   review, and commit the current checkpoint before starting the next.
 - Do not add blog polish, long narrative, or publishing structure unless the
   human explicitly asks for a publishable article.
+- Do not write the from-scratch tutorial; record the handoff for the next
+  workflow.

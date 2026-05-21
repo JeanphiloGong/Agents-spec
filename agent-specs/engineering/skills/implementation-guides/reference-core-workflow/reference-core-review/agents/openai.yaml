@@ -1,4 +1,4 @@
 interface:
   display_name: "Reference Core Review"
-  short_description: "v0.1.6 - Review reference-core learning modules"
-  default_prompt: "Use $reference-core-review to check whether one reference-core learning-module checkpoint is independently understandable without source-project context, runnable, chain-complete for one version, invariant-preserving, scenario-fit in src architecture, git-reviewable, safely placed outside production imports, version-checkpoint ready, tag-worthy when appropriate, and optionally ready for map-back."
+  short_description: "v0.1.7 - Review reference-core nano assets"
+  default_prompt: "Use $reference-core-review to check whether one reference-core nano/reference learning-asset checkpoint is independently understandable without source-project context, runnable, chain-complete for one version, invariant-preserving, scenario-fit in src architecture, git-reviewable, safely placed outside production imports, version-checkpoint ready, strong enough to become a future from-scratch tutorial target, tag-worthy when appropriate, and optionally ready for map-back."

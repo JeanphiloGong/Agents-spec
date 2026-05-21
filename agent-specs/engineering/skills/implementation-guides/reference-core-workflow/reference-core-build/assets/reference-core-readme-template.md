@@ -39,6 +39,14 @@ entry input
 - adds:
 - why this version is worth learning:
 
+## Nano Asset Promise
+
+- project name:
+- final target artifact:
+- reader value:
+- why this is more than a demo:
+- future tutorial sentence:
+
 ## Mental Model
 
 - concept:
@@ -105,6 +113,15 @@ entry input
 - tag recommended: yes | no
 - tag:
 - tag reason:
+
+## From-Scratch Handoff
+
+- next skill: `from-scratch-tutorial-plan`
+- final target artifact:
+- core behavior to teach:
+- naive starting pressure:
+- required final checkpoint:
+- tutorial should not cover:
 
 ## How To Run
 

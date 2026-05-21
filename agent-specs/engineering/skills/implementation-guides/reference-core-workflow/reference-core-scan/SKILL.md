@@ -1,6 +1,6 @@
 ---
 name: reference-core-scan
-description: v0.1.0 - Scan a project, module, or AI draft to inventory core logic chains before choosing one to extract. Use when the human needs to identify candidate learning chains, compare invariants and learning value, and select the next chain for reference-core-plan.
+description: v0.1.1 - Scan a project, module, or AI draft to inventory core logic chains before choosing one to extract as a nano/reference asset. Use when the human needs to identify candidate learning chains, compare invariants and asset value, and select the next chain for reference-core-plan.
 ---
 
 # Reference Core Scan
@@ -8,8 +8,8 @@ description: v0.1.0 - Scan a project, module, or AI draft to inventory core logi
 ## Overview
 
 Scan a project, module, subsystem, or AI draft to identify the core logic
-chains worth extracting into reference-core learning modules. This skill
-produces an inventory and priority recommendation, not a detailed build plan.
+chains worth extracting into reference-core nano assets. This skill produces
+an inventory and priority recommendation, not a detailed build plan.
 
 Use this skill when the human does not yet know which chain to extract. The
 output should make the important flows visible enough to choose the next
@@ -43,7 +43,8 @@ architecture review, or production implementation.
    - Summarize each chain as `entry input -> state/data -> decisions ->
      transitions -> output`.
    - Name the likely invariant, boundary case, and production noise around it.
-   - Verify: each candidate could plausibly become a runnable learning module.
+   - Verify: each candidate could plausibly become a runnable nano/reference
+     asset.
 4. Score Learning Value
    - Score importance, complexity, invariant clarity, noise level, and
      extraction feasibility.
@@ -119,7 +120,7 @@ architecture review, or production implementation.
 |---|---|
 | "The biggest module must be the core chain." | Size often reflects plumbing. Pick chains by invariant, learning value, and extraction fit. |
 | "We can scan and plan in one answer." | Scan chooses the chain; plan designs one selected module. Mixing them hides tradeoffs. |
-| "Every important file needs a learning module." | The inventory should prioritize; many flows are glue or support code. |
+| "Every important file needs a nano asset." | The inventory should prioritize; many flows are glue or support code. |
 
 ## Red Flags
 

@@ -1,20 +1,23 @@
 ---
 name: reference-core-review
-description: v0.1.6 - Review one standalone runnable reference-core learning module checkpoint. Use when checking whether a module is independently understandable without source-project context, chain-complete for one version checkpoint, invariant-preserving, scenario-fit in src architecture, executable, git-reviewable, safely placed, version-checkpoint ready, and optionally ready for map-back.
+description: v0.1.7 - Review one standalone runnable reference-core nano asset checkpoint. Use when checking whether a module is independently understandable without source-project context, chain-complete for one version checkpoint, invariant-preserving, scenario-fit in src architecture, executable, git-reviewable, safely placed, version-checkpoint ready, strong enough to become a from-scratch tutorial target, and optionally ready for map-back.
 ---
 
 # Reference Core Review
 
 ## Overview
 
-Review a reference-core learning module as a runnable proof artifact. Findings
-come first and focus on whether the module teaches the extracted chain, proves
-the intended invariant, and avoids smuggling in production complexity or
-becoming production-importable.
+Review a reference-core nano learning asset as a runnable proof artifact.
+Findings come first and focus on whether the module teaches the extracted
+chain, proves the intended invariant, avoids smuggling in production
+complexity, and is strong enough to become the final target of a later
+from-scratch tutorial.
 
 The module should stand on its own as a nano/reference learning asset. The
 README should start from the real-world scenario, problem, engineering zero,
-and current version, not from source-project files or production mapping.
+and current version, not from source-project files or production mapping. Blog,
+tutorial, and personal-knowledge-base framing is accepted only as asset-shaping
+evidence, not as a substitute for runnable code or validation.
 
 When the module represents a learning-asset version checkpoint, review whether
 the checkpoint is commit-ready and whether a tag is justified. Tags should be
@@ -35,6 +38,8 @@ Use this skill before trusting a module as a learning asset. Run
 - The production-import barrier needs checking.
 - A version checkpoint needs a commit/tag recommendation before map-back or
   publication.
+- A module should be checked for whether it can support a future
+  `from-scratch-tutorial-plan` handoff.
 - Map-back should not start until the standalone module quality is clear.
 
 **When NOT to use:** planning or building the module, production code review,
@@ -84,7 +89,17 @@ tutorial review, or writing map-back guidance.
      reusable, publishable, or map-back-ready.
    - Verify: tag recommendation has a concrete retrieval reason and does not
      replace the required commit.
-9. Produce Verdict
+9. Check Nano Asset And From-Scratch Readiness
+   - Confirm the module is nameable as a `nano-*` or similar small complete
+     asset, not merely a runnable demo.
+   - Confirm another engineer could say, "Today I will teach you how to
+     implement <this> from zero" after studying it.
+   - Confirm the review or artifact names the final target artifact, core
+     behavior to teach, naive starting pressure, required final checkpoint, and
+     tutorial exclusions.
+   - Verify: the handoff points to `from-scratch-tutorial-plan` without asking
+     this review to write the tutorial.
+10. Produce Verdict
    - Use `pass`, `revise`, or `block`.
    - Lead with findings, then residual risks.
 
@@ -113,6 +128,22 @@ tutorial review, or writing map-back guidance.
 - tag_reason:
 - tag_next_skill: tag-release-skill | n/a
 
+## Nano Asset Readiness
+- ready: yes | no
+- project_name:
+- final_target_artifact:
+- why_this_is_not_just_a_demo:
+- reader_can_explain:
+
+## From-Scratch Handoff Readiness
+- ready: yes | no
+- next_skill: from-scratch-tutorial-plan | n/a
+- final_target_artifact:
+- core_behavior_to_teach:
+- naive_starting_pressure:
+- required_final_checkpoint:
+- tutorial_should_not_cover:
+
 ## Optional Map-Back Readiness
 - needed: yes | no
 - ready: yes | no
@@ -134,6 +165,8 @@ tutorial review, or writing map-back guidance.
 | "A runnable checkpoint should always be tagged." | Tags are for retrieval value after review, not for every successful build. |
 | "The README can be production-oriented because map-back is next." | Review first accepts the standalone learning asset; map-back is a separate optional handoff. |
 | "A combined v0/v1 module is still one module." | A module can be one directory and still contain multiple asset checkpoints. Review the checkpoint boundary, not just the folder boundary. |
+| "It runs, so it is a good nano asset." | A nano asset also needs a clear scenario, nameable mechanism, invariant proof, and future teaching target. |
+| "Blog-ready means review should judge prose polish." | Review the asset boundary and future tutorial handoff, not publication styling. |
 
 ## Red Flags
 
@@ -152,6 +185,10 @@ tutorial review, or writing map-back guidance.
 - Version checkpoint metadata is absent from a versioned learning asset.
 - Multiple standalone asset versions are completed in one review target.
 - Tag recommendation lacks a retrieval or publication reason.
+- The module is too thin to support a "from zero implement X" promise.
+- Nano asset readiness is missing or only says the module is runnable.
+- From-scratch handoff is missing for an asset intended as a future tutorial or
+  knowledge-base source.
 
 ## Verification
 
@@ -164,6 +201,9 @@ tutorial review, or writing map-back guidance.
 - [ ] Placement and imports were checked.
 - [ ] Included/deferred boundaries were checked.
 - [ ] Version checkpoint and tag recommendation were checked.
+- [ ] Nano asset readiness was checked.
+- [ ] From-scratch handoff readiness was checked when the asset is intended for
+      future learning, publication, or personal knowledge capture.
 - [ ] The artifact contains exactly one asset checkpoint.
 - [ ] Verdict is `pass`, `revise`, or `block`.
 
@@ -178,3 +218,5 @@ tutorial review, or writing map-back guidance.
 - Do not approve a module whose main explanation requires source-project
   context before explaining the standalone logic.
 - Do not approve a combined multi-checkpoint module as one checkpoint.
+- Do not write the from-scratch tutorial during review; only check whether the
+  handoff is ready.
