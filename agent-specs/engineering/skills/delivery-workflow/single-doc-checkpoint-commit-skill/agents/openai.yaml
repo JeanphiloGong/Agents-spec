@@ -1,0 +1,4 @@
+interface:
+  display_name: "Single Doc Checkpoint Commit"
+  short_description: "v0.1.0 - Commit one learning document checkpoint"
+  default_prompt: "Use $single-doc-checkpoint-commit-skill to commit exactly one tutorial or learning document checkpoint. Stage only the target document, keep template fields out of the public document body, and record Pressure/Naive/Break/Change/Check/Freeze/Still lacks/Next in the commit message."

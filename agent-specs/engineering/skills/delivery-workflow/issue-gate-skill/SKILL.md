@@ -1,19 +1,37 @@
 ---
 name: issue-gate-skill
-description: v0.1.20 - Check, draft, create, and link GitHub or GitLab issues for tracked work; use when turning approved workflow-plan tasks into mapped issue-backed acceptance work items, confirming canonical issue traceability before implementation or commit preparation, framing product-facing parent issues, drafting engineering child issues, targeting canonical repos, or producing commit Refs output.
+description: v0.1.22 - Check, draft, create, and link GitHub or GitLab issues for tracked work. Use when turning approved workflow-plan tasks into mapped issue-backed acceptance work items, confirming canonical issue traceability before implementation or commit preparation, targeting canonical repos, or producing commit Refs output.
 ---
 
 # Issue Gate Skill
 
-## Trigger and Scope
+## Overview
 
-Use this skill when a repository expects meaningful work to be traceable to an
-issue and the agent needs to:
+Keep meaningful tracked work connected to the canonical issue that explains
+purpose, scope, acceptance, and commit traceability. This skill checks whether
+the right GitHub or GitLab issue already exists, drafts a master-grade issue
+when it is missing, maps approved workflow-plan tasks into issue-backed
+acceptance units, and emits the deterministic `Refs` bridge used by
+`git-commit-skill`.
 
-- confirm whether the canonical issue already exists
-- draft and create the issue when missing
-- turn approved plan tasks into issue-backed acceptance work items
-- emit a deterministic commit `Refs` bridge before commit preparation
+Default behavior is auto-first and dry-run-then-confirm. Infer repository,
+platform, change type, template, and issue layering from local evidence when
+safe; ask the human only when the canonical target, title prefix, issue layer,
+or create action would otherwise be guessed.
+
+## When to Use
+
+- A repository expects meaningful work to be traceable to an issue.
+- The agent needs to confirm whether the canonical issue already exists.
+- A missing issue needs a draft or create plan before implementation.
+- Approved `workflow-plan` tasks need issue-backed acceptance mapping.
+- Commit preparation needs a verified `Refs` line.
+- Work should target the upstream or canonical issue repo instead of a fork.
+
+**When NOT to use:** auto-closing issues, PR creation, merge workflows, release
+notes, code review, project planning, release management, repository doc
+archiving, or transient implementation-plan storage. Use the corresponding
+delivery, review, release, or documentation skill for those workflows.
 
 Preferred timing:
 
@@ -21,20 +39,13 @@ Preferred timing:
 - final pass: before commit preparation as the last traceability check
 
 In scope:
-- issue existence check
-- issue draft generation
+- canonical issue existence checks
+- issue draft generation and confirmed creation
 - plan-task handoff review and issue grouping
 - issue creation after dry-run and human confirmation
 - issue link output for commit `Refs`
 
-Out of scope:
-- auto-closing issues
-- PR creation or merge workflows
-- release notes generation
-- replacing code review, project planning, or release management
-- archiving transient implementation plans in repository docs
-
-## Core Purpose
+## Core Principles
 
 - Ensure every meaningful change is traceable to an issue.
 - Prefer issue creation close to planning and scope definition, not as a default
@@ -127,6 +138,7 @@ One of:
 - `plan_handoff_mode=issue-ready-tasks-only`
 - `task_issue_policy=group-by-independent-delivery-slice`
 - `plan_task_mapping_required=on`
+- `issue_title_prefix_policy=required_for_new_warning_for_existing`
 
 ## Traceability Granularity
 
@@ -231,6 +243,30 @@ One of:
 - If you need to show a literal commit bridge line like ISSUE: #123, keep that
   output as plain text rather than inline-code issue syntax.
 
+## Issue Title Prefix Rule
+
+- New issue drafts must render titles as `<prefix>: <short title>`.
+- Resolve `prefix` from `change_type`, not from the broader
+  `template_family`, before dry-run preview and before any create command.
+- Prefix mapping:
+  - `feat|integration|workflow|api` => `feat`
+  - `fix|bugfix|incident` => `bugfix`
+  - `hotfix` => `hotfix`
+  - `docs` => `docs`
+  - `refactor` => `refactor`
+  - `test` => `test`
+  - `tooling` => `tooling`
+  - `config` => `config`
+  - `chore` => `chore`
+  - `spike|research|proposal|investigation` => `proposal`
+- Repository-specific title conventions may override this mapping only when
+  the repository policy or template is explicit. State the override in the
+  dry-run output.
+- If `change_type` cannot be inferred confidently, ask the human to confirm the
+  prefix before creating an issue.
+- Do not block reuse of an existing issue solely because its title lacks a
+  recognized prefix. Reuse it and emit a `title_prefix_warning` instead.
+
 ## Platform Selection
 
 1. If `platform_hint` is `gh` or `glab`, use that platform.
@@ -277,6 +313,8 @@ surface, remote-detection commands, or automation caveats.
 ## Auto Draft Rules
 
 - If no `existing_issue_id`, auto-generate `issue_title` and `issue_body`.
+- For new issue drafts, derive and apply the required title prefix before
+  previewing or creating the issue.
 - Draft source priority:
   1. current task prompt or context
   2. branch and commit intent
@@ -294,6 +332,10 @@ surface, remote-detection commands, or automation caveats.
   Brevity is secondary unless the operator explicitly asks for compression.
 - Draft must respect template-required fields by the resolved
   `template_family` and `issue_level`.
+- Draft title must respect the Issue Title Prefix Rule. If an inferred or
+  user-supplied new issue title lacks a valid prefix, rewrite it before
+  dry-run output and state the rewrite. If the prefix cannot be resolved
+  confidently, block creation and ask for confirmation.
 - If any required field cannot be inferred:
   - insert an explicit TODO placeholder
   - keep `confirm_before_create=on` and require human confirmation
@@ -420,15 +462,25 @@ Read `references/issue-templates.md` when you need:
 - Resolve `template_family` and `issue_level` first.
 - Validate semantic required fields against the selected template family, not a
   single fixed heading set.
+- Validate new issue titles against the Issue Title Prefix Rule.
 - Validate issue quality as well as field presence: clear problem statement,
   explicit target outcome, bounded scope, testable acceptance, and
   audience-appropriate detail.
 - If template-required fields are missing:
   - `gate_mode=required` => `BLOCK`
   - `gate_mode=recommended` => `PASS_WITH_WARNING`
+- If a create-ready draft is missing a valid title prefix or has a conflicting
+  title prefix:
+  - rewrite the title before dry-run output when the correct prefix is clear
+  - `gate_mode=required` => `BLOCK` when the correct prefix is not clear
+  - `gate_mode=recommended` => `PASS_WITH_WARNING` when the correct prefix is
+    not clear
 - Validation output must include:
   - `template_family`
   - `issue_level`
+  - `title_prefix`
+  - `title_prefix_source`
+  - `title_prefix_warnings`
   - `child_issue_needed`
   - `child_issue_type`
   - `missing_required_fields`
@@ -449,7 +501,7 @@ Read `references/issue-templates.md` when you need:
   tables, workers, or unapproved architecture splits, emit an
   `overspecification_warning` and rewrite before presentation.
 
-## Workflow
+## The Operating Loop
 
 1. Determine operating point:
    - recommended default for `feat|bugfix|hotfix|non-trivial refactor`: run
@@ -481,6 +533,7 @@ Read `references/issue-templates.md` when you need:
    - verify `existing_issue_id`, or search the resolved target repo and prepare
      a new draft from context only when no matching issue exists
 6. Draft or verify issue content:
+   - ensure new issue titles use the required `<prefix>: <short title>` format
    - ensure the draft explains why now, what outcome is expected, what is in or
      out of scope, how success is judged, and whether any material dependency
      or risk must be named
@@ -519,7 +572,107 @@ Read `references/issue-templates.md` when you need:
    - `required` + failure => `BLOCK`
    - `recommended` + failure => `PASS_WITH_WARNING`
 
-## Output Contract
+## Decision Points
+
+- If meaningful tracked work lacks a canonical issue and repository policy
+  requires issue tracking, draft or create the issue before implementation or
+  block commit preparation.
+- If the current repo is a fork but the work is intended for upstream or shared
+  history, target the canonical upstream repository unless fork-local tracking
+  is explicitly correct.
+- If an existing issue matches the task purpose, reuse it even when its title
+  lacks the preferred prefix; emit `title_prefix_warning` instead of creating a
+  duplicate.
+- If no issue exists, resolve `change_type` and apply the required
+  `<prefix>: <short title>` rule before dry-run preview or creation.
+- If an approved `workflow-plan` task list is supplied, emit `Plan Task Issue
+  Mapping` before deciding parent-only versus child issues.
+- If plan tasks are independently reviewable, assignable, and verifiable,
+  prefer child or grouped child issues; if they are preparatory or inseparable,
+  map them to `parent_only` with a concrete rationale.
+- If a parent issue needs implementation paths, migration sequencing, internal
+  module detail, or engineering-only validation to stay actionable, keep the
+  parent product-facing and draft linked child issue details.
+- If target repository, platform, CLI auth, title prefix, or required template
+  fields cannot be resolved safely, return `BLOCK` for required gates or
+  `PASS_WITH_WARNING` for recommended gates.
+- If the operation is only a final commit bridge check, verify the issue and
+  emit `refs_line`; do not modify the commit message directly.
+
+## Failure and Recovery
+
+- If CLI is missing:
+  - `required` => `BLOCK` with manual fallback steps
+  - `recommended` => `PASS_WITH_WARNING`
+- If repo target cannot be resolved deterministically:
+  - `required` => `BLOCK` with `repo_override` or canonical repo confirmation
+  - `recommended` => `PASS_WITH_WARNING`
+- If child-issue layering is clearly needed but the parent/child split cannot
+  be described coherently:
+  - `required` => `BLOCK`
+  - `recommended` => `PASS_WITH_WARNING`
+- If the selected CLI lacks auth for the resolved target repo host:
+  - surface the failing auth check and the exact command needed to recover
+- If create fails:
+  - surface the first failing command and a retry suggestion
+- Never hide partial failure; always return explicit state
+
+Read `references/required-gitlab-flow-example.md` when you need a concrete
+happy-path example of the full required flow.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The commit is small, so it can skip issue tracking." | Repository policy decides the gate. Meaningful tracked work still needs a canonical issue or an explicit allowed fallback. |
+| "The fork is where I am committing, so the issue belongs in the fork." | Commits may happen in a fork, but issue purpose usually belongs in the canonical upstream repo for shared work. |
+| "One issue per commit is safer." | The default traceability unit is the task or delivery slice; one issue may cover many related commits. |
+| "A parent issue can hold all the engineering detail." | Parent requirements should stay outcome- and acceptance-oriented; execution detail belongs in child issues when needed. |
+| "Workflow-plan tasks map directly to issues." | Plan tasks are source material. Group or split by independently reviewable, assignable, and verifiable delivery slices. |
+| "An existing issue without a prefix is invalid." | Reuse matching existing issues and emit a title-prefix warning; prefix enforcement applies to new drafts. |
+| "The issue link means this commit resolves the issue." | Default linkage is a reference bridge, not closure semantics. |
+
+## Red Flags
+
+- A new issue title lacks `<prefix>: <short title>` and no repository override
+  is documented.
+- `Plan Task Issue Mapping` is missing when `workflow-plan` tasks were
+  supplied.
+- A multi-task plan is parent-only without concrete per-task rationale.
+- A fork-local issue is created while an upstream canonical issue target is
+  available and intended.
+- Parent issue drafts include code snippets, file paths, speculative classes,
+  internal dataflow, or module-by-module implementation plans without an
+  approved external-contract reason.
+- `refs_line` is invented without verifying or creating the referenced issue.
+- Issue references that should be clickable are wrapped in backticks.
+- A commit bridge uses closing semantics when the work only partially advances
+  the issue.
+- CLI availability is treated as platform proof without matching the resolved
+  repository host.
+
+## Verification
+
+- [ ] `repo_root`, `change_type`, `template_family`, `repo_target`,
+      `platform_hint`, and `gate_mode` are inferred or explicitly supplied.
+- [ ] Target repo resolution states current repo, upstream repo, or explicit
+      override.
+- [ ] Platform and CLI readiness match the resolved target repo host.
+- [ ] Existing canonical issues are searched or verified before creating a
+      duplicate.
+- [ ] New issue drafts apply the Issue Title Prefix Rule or block for prefix
+      confirmation.
+- [ ] Template validation reports family, issue level, title prefix, missing
+      fields, child issue decision, and overspecification warnings.
+- [ ] `Plan Task Issue Mapping` is emitted whenever plan tasks are supplied.
+- [ ] Parent and child issue drafts are shown in dry-run output before any
+      create action.
+- [ ] Commit bridge emits a verified `refs_line` and does not modify commit
+      message content directly.
+- [ ] Gate result is `PASS`, `PASS_WITH_WARNING`, or `BLOCK` with an explicit
+      reason.
+
+## Output Format
 
 ```text
 ## Gate Result
@@ -546,6 +699,9 @@ Read `references/issue-templates.md` when you need:
 - issue_id:
 - issue_url:
 - title_source: user_input | auto_draft
+- title_prefix:
+- title_prefix_source: change_type | repo_policy | user_input | n/a
+- title_prefix_warnings:
 
 ## Parent Issue Draft
 - title:
@@ -585,27 +741,6 @@ Read `references/issue-templates.md` when you need:
 - executed_commands:
 - timestamp:
 ```
-
-## Failure and Recovery
-
-- If CLI is missing:
-  - `required` => `BLOCK` with manual fallback steps
-  - `recommended` => `PASS_WITH_WARNING`
-- If repo target cannot be resolved deterministically:
-  - `required` => `BLOCK` with `repo_override` or canonical repo confirmation
-  - `recommended` => `PASS_WITH_WARNING`
-- If child-issue layering is clearly needed but the parent/child split cannot
-  be described coherently:
-  - `required` => `BLOCK`
-  - `recommended` => `PASS_WITH_WARNING`
-- If the selected CLI lacks auth for the resolved target repo host:
-  - surface the failing auth check and the exact command needed to recover
-- If create fails:
-  - surface the first failing command and a retry suggestion
-- Never hide partial failure; always return explicit state
-
-Read `references/required-gitlab-flow-example.md` when you need a concrete
-happy-path example of the full required flow.
 
 ## Guardrails
 

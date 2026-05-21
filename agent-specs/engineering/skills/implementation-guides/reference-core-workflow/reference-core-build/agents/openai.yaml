@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reference Core Build"
+  short_description: "v0.1.7 - Build a reference-core nano asset"
+  default_prompt: "Use $reference-core-build to turn an approved reference-core plan into exactly one git-reviewable standalone runnable nano/reference learning-asset checkpoint with README that starts from the real-world scenario, engineering zero, current version, nano asset promise, version checkpoint, scenario-fit src architecture, tests, safe placement, included/deferred learning boundaries, a happy path, a boundary or failure check, from-scratch tutorial handoff, commit/tag recommendation handoff, and no production integration patch or tutorial body."

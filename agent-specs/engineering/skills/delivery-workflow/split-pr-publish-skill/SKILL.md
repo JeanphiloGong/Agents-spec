@@ -1,70 +1,45 @@
 ---
 name: split-pr-publish-skill
-description: v0.1.2 - Analyze one source branch diff, split independent change slices into separate branches, and open one GitHub PR or GitLab MR per slice when personal work was developed together on one branch.
+description: v0.1.3 - Analyze one source branch diff, split independent change slices into separate branches, and open one GitHub PR or GitLab MR per slice. Use when personal work was developed together on one branch and needs traceable review boundaries before merge or release.
 ---
 
 # Split PR Publish Skill
 
-## Trigger and Scope
+## Overview
 
-Use this skill when you need to:
+Turn one mixed personal-development branch into reviewable, auditable PRs or
+MRs. This skill compares one explicit source branch to one explicit target
+branch, proposes split slices by intent, verification, and rollback boundary,
+then optionally creates one branch, commit, and PR/MR per accepted slice.
 
-- compare one source branch against one target branch
-- infer separate delivery slices from one mixed personal-development branch
-- create one branch and one PR or MR per independent slice
-- restore traceability when unrelated module work landed together on one branch
+The core rule is conservative: a split is useful only when each slice is
+independently reviewable, verifiable, and revertible. If shared files,
+interleaved hunks, or unclear dependencies make the split unsafe, return a
+blocker instead of manufacturing independence.
 
-In scope:
-- diff inspection between explicit source and target branches
-- split planning by user or system intent, verification boundary, rollback
-  boundary, and supporting module ownership evidence
-- branch creation for each accepted split slice
-- selective change landing onto those branches
-- commit preparation for each slice
-- PR or MR draft or publication for each slice
-- explicit blockers when changes are too interleaved to split safely
+## When to Use
 
-Out of scope:
-- rewriting published history
-- force-pushing by default
-- auto-refactoring code solely to make splitting easier
-- pretending that interleaved file hunks are independent when they are not
-- creating release tags or hosted releases
-- drafting release notes for a final version
-- replacing code review, issue planning, or release management
+- One source branch contains independent changes that need separate PRs or MRs.
+- A mixed branch needs review boundaries before a release.
+- A human wants a split plan before branch creation.
+- The operator wants branch creation and commit preparation per accepted slice.
+- The operator wants one GitHub PR or GitLab MR per split slice.
 
-## Core Purpose
+**When NOT to use:** single-scope branches, release tag creation, hosted
+release publication, final release notes, code review, issue planning,
+repository-specific workflow dispatch, force-push workflows, or semantic
+refactors only to make splitting easier. Use `tag-release-skill` after accepted
+PRs/MRs land and a release tag or hosted release is needed.
 
-- Turn one mixed development branch into reviewable, auditable PRs or MRs.
-- Prefer safe split plans over aggressive automation.
-- Preserve intent-level traceability without asking the operator to manually
-  replay every change.
-- Keep branch creation, commit creation, and PR publication aligned to the same
-  slice boundaries.
+## Reference Map
 
-## Release Handoff
-
-- Use this skill before `tag-release-skill` when a mixed development branch
-  needs PR-level traceability before a release.
-- This skill ends after split branches, commits, and PRs or MRs are created or
-  reported.
-- After the accepted PRs or MRs land in the release target branch, use
-  `tag-release-skill` to create the tag, hosted release, and release notes.
-- Do not use this skill to choose release tags, create hosted releases, or
-  publish final release notes.
-
-## Fixed Defaults
-
-- `mode=plan_then_confirm`
-- `platform=auto`
-- `split_basis=intent-verification-rollback-first`
-- `pr_topology=auto`
-- `commit_policy=one-commit-per-slice-default`
-- `traceability_policy=issue-gate-when-required`
-- `publication_mode=draft`
-- `mixed_hunk_policy=block`
-- `shared_file_policy=attach-or-block`
-- `branch_naming=split/<slug>`
+- `references/split-heuristics.md`
+  Use for boundary order, bucket split challenges, shared-file policy, and
+  large-diff handling.
+- `references/publish-command-reference.md`
+  Use when publishing PRs or MRs through platform CLIs.
+- `references/acceptance-criteria.md`
+  Use to validate candidate slices before execution or publication.
 
 ## Required Inputs
 
@@ -83,91 +58,86 @@ Optional but strongly recommended:
 - `slice_hints` when the operator already knows likely boundaries
 - `publication_mode` (`draft` or `ready`)
 
-## Decision Model
+## Fixed Defaults
 
-Use this split model:
+- `mode=plan_then_confirm`
+- `platform=auto`
+- `split_basis=intent-verification-rollback-first`
+- `pr_topology=auto`
+- `commit_policy=one-commit-per-slice-default`
+- `traceability_policy=issue-gate-when-required`
+- `publication_mode=draft`
+- `mixed_hunk_policy=block`
+- `shared_file_policy=attach-or-block`
+- `branch_naming=split/<slug>`
 
-- `parallel`
-  - every slice can target the same `target_branch`
-  - no slice depends on another slice's code landing first
-- `stacked`
-  - one slice depends on another slice from the same source branch
-  - later PRs or MRs should target the prior split branch, not the final base
-- `blocked`
-  - the diff cannot be separated safely without manual hunk surgery, conflict
-    resolution, or semantic refactoring
+## The Operating Loop
 
-Default policy:
-
-1. Prefer `parallel` when slices are independent by intent, verification, and
-   rollback boundary.
-2. Use module, package, or path ownership as supporting evidence, not as the
-   primary split rule.
-3. Use `stacked` only when one slice is a clear prerequisite for another.
-4. Return `blocked` when changes overlap in the same file or shared config with
-   no safe automatic ownership rule.
-
-Large-diff rule:
-
-- A large branch gap, long commit range, or noisy commit history does not
-  loosen the split criteria.
-- Always apply the primary boundary order from
-  `references/split-heuristics.md`: user or system intent first, then
-  verification boundary, rollback boundary, ownership evidence, and change type
-  metadata last.
-- Do not shortcut large ranges by grouping all docs, all chores, or all files
-  under one path unless that group is one independently reviewable,
-  verifiable, and revertible intent unit.
-
-## Workflow
-
-1. Resolve repository boundary and diff target.
+1. Resolve the repository and diff boundary.
    - Confirm `source_branch`, `target_branch`, and merge base.
    - Inspect `target_branch...source_branch`, not only the working tree.
+   - Stop if either branch is ambiguous.
 2. Collect the candidate change set.
-   - List changed files, directory roots, and ownership signals.
+   - List changed files, directory roots, commit hints, and ownership signals.
    - Read `references/split-heuristics.md` before proposing boundaries.
-3. Build a split plan.
+3. Build the split plan.
    - Group changes by user or system intent first.
-   - For each candidate slice, name the verification check and rollback
-     boundary.
-   - Use module, package, feature path, and ownership signals to support the
-     intent boundary.
+   - For each slice, name the verification check and rollback boundary.
+   - Use module, package, feature path, and ownership signals only as
+     supporting evidence.
    - Keep tests, docs, and generated files with their owning code slice when
      ownership is clear.
-   - Detect shared files, overlapping hunks, or cross-slice dependencies.
+   - Detect shared files, overlapping hunks, and cross-slice dependencies.
    - Choose `parallel`, `stacked`, or `blocked`.
-4. Validate the split plan.
+4. Validate the plan before changing branches.
    - Run the checks in `references/acceptance-criteria.md`.
-   - Challenge any slice whose apparent boundary is "all docs", "all chores",
-     one top-level path, or another broad bucket.
+   - Challenge broad buckets such as "all docs", "all chores", one top-level
+     path, or generated-only changes.
    - Require each challenged slice to prove independent intent, verification,
-     and rollback before branch creation.
-   - If any slice mixes unrelated changes in one file, stop and surface the
-     blocker instead of guessing.
+     and rollback.
+   - Block when unrelated changes are interleaved in one file and no safe hunk
+     split is explicitly accepted.
 5. Confirm execution path.
    - `plan_only`: return the split plan and stop.
    - `execute_split`: create branches and prepare commits, but do not publish
-     PRs or MRs.
-   - `publish`: create branches, prepare commits, and publish PRs or MRs.
-6. Materialize each slice branch.
-   - Create each slice branch from the correct base:
-     - `parallel` => from `target_branch`
-     - `stacked` => from the prior accepted slice branch
-   - Land only the files or hunks assigned to that slice.
-   - If a slice requires new commits, use `git-commit-skill` for the final
-     commit wording and execution.
-7. Run traceability gate when required.
-   - If repository policy requires issue-backed work, run
-     `issue-gate-skill` before each final commit.
-   - Carry the resulting traceability into each slice commit or PR body.
-8. Publish PRs or MRs when requested.
+     PRs/MRs.
+   - `publish`: create branches, prepare commits, and publish PRs/MRs.
+6. Materialize each accepted slice.
+   - For `parallel`, create each slice branch from `target_branch`.
+   - For `stacked`, create each slice branch from the prior accepted slice
+     branch.
+   - Land only files or hunks assigned to that slice.
+   - Use `git-commit-skill` for final commit wording and execution when a
+     slice needs a commit.
+7. Run traceability gates when required.
+   - Use `issue-gate-skill` before each final commit when repository policy
+     requires issue-backed work.
+   - Carry the resulting traceability into commit and PR/MR bodies.
+8. Publish when requested.
    - Read `references/publish-command-reference.md`.
-   - Draft titles and bodies from the slice scope and diff.
-   - Publish one PR or MR per slice using the correct platform CLI.
+   - Draft title and body from the slice intent, diff, verification, and
+     traceability.
+   - Publish one PR/MR per accepted slice using the correct platform CLI.
 9. Report the result.
-   - Return split topology, slice mapping, blockers, executed branches,
-     commit hashes, and PR or MR URLs when published.
+   - Return topology, slice mapping, blockers, branches, commits, push status,
+     and PR/MR URLs when published.
+
+## Decision Points
+
+- If source or target branch is unclear, stop before diff analysis.
+- If slices are independent by intent, verification, and rollback, use
+  `parallel`.
+- If one slice depends on another slice from the same source branch, use
+  `stacked` and target later PRs/MRs at the prior split branch.
+- If changes overlap in the same file or shared config with no safe ownership
+  rule, use `blocked`.
+- If a slice is only a broad bucket such as docs, chores, configs, generated
+  files, or one path root, require explicit independent intent before keeping
+  it.
+- If repository policy requires issue traceability, run `issue-gate-skill`
+  before committing or publishing that slice.
+- If publication is not explicitly requested, stop at the plan or branch/commit
+  result.
 
 ## Split Rules
 
@@ -181,8 +151,7 @@ Large-diff rule:
 - Use change type such as feature, bugfix, documentation, or chore as PR label
   or title metadata, not as the primary split boundary.
 - Treat docs-only, chore-only, config-only, generated-only, and path-only
-  slices as suspect until they pass the bucket split challenge in
-  `references/split-heuristics.md`.
+  slices as suspect until they pass the bucket split challenge.
 - Keep tests with the code they validate.
 - Keep docs with the feature or module they describe when ownership is clear.
 - Keep generated files with the source slice that regenerates them.
@@ -191,6 +160,42 @@ Large-diff rule:
   dedicated prerequisite slice.
 - One file must not appear in multiple slices unless the plan explicitly says
   manual hunk split is required.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Different directories mean different PRs." | Paths are supporting evidence; intent, verification, and rollback define the split. |
+| "Docs can always be one separate slice." | Docs belong with the feature or module they describe unless they have independent intent. |
+| "A large branch must be split somehow." | Large size increases caution; it does not justify unsafe or artificial slices. |
+| "Shared files can be copied into every slice." | Shared files need one clear owner, a prerequisite slice, or an explicit blocker. |
+| "Publishing draft PRs will expose the problems for review." | Do not publish slices that fail the acceptance criteria or depend on unresolved blockers. |
+
+## Red Flags
+
+- The diff boundary is the working tree instead of `target_branch...source_branch`.
+- A slice rationale says only "docs", "chore", "config", or a path name.
+- The same file appears in multiple slices without a manual hunk-split note.
+- Tests, docs, or generated files are separated from their owning code without
+  evidence.
+- Topology is `parallel` even though one slice depends on another.
+- PR/MR URLs or issue links are reported before they exist.
+- The plan uses forced history rewriting or force-push as the default path.
+
+## Verification
+
+- [ ] `source_branch`, `target_branch`, and merge base are explicit.
+- [ ] Diff inspection uses `target_branch...source_branch`.
+- [ ] Every proposed slice has intent, verification, rollback boundary, scope,
+      and file list.
+- [ ] Module or path boundaries are supporting evidence, not the only split
+      rationale.
+- [ ] No file is assigned to multiple slices without an explicit manual split
+      note.
+- [ ] `parallel`, `stacked`, or `blocked` topology is justified by dependency
+      evidence.
+- [ ] Blocked cases stay blocked instead of being guessed through.
+- [ ] Each published PR/MR maps to exactly one accepted slice.
 
 ## Output Format
 
@@ -242,12 +247,6 @@ Large-diff rule:
 - ...
 ```
 
-## References
-
-- `references/split-heuristics.md`
-- `references/publish-command-reference.md`
-- `references/acceptance-criteria.md`
-
 ## Guardrails
 
 - Do not split or publish until `source_branch` and `target_branch` are
@@ -261,16 +260,3 @@ Large-diff rule:
 - Do not claim a slice is reviewable if its real prerequisite code remains only
   on the mixed source branch.
 - Do not invent issue links, commit hashes, branch names, or PR URLs.
-
-## Verification Hooks
-
-- Verify the diff boundary uses explicit `source_branch` and `target_branch`.
-- Verify every proposed slice has a clear intent, verification check, rollback
-  boundary, scope, and file list.
-- Verify module or path boundaries are used as supporting evidence rather than
-  the only split rationale.
-- Verify no file is assigned to multiple slices without an explicit manual
-  split note.
-- Verify `parallel` versus `stacked` topology is justified by dependencies.
-- Verify blocked cases stay blocked instead of being auto-resolved by guesswork.
-- Verify each published PR or MR maps to exactly one accepted slice.

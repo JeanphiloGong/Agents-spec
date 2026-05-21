@@ -1,129 +1,84 @@
 ---
 name: human-led-main-landing-skill
-description: v0.1.20 - Guide one human-led, main-first landing wave from an AI draft or worktree, keeping `Human-Owned` core logic on `main`, AI output as reference only, and verification plus `commit_when` checkpoints explicit.
+description: v0.1.22 - Plan one human-led, main-first landing wave from an AI draft or worktree. Use when the human must keep `Human-Owned` core logic on `main`, treat AI output as reference only, and define verification plus reversible `commit_when` checkpoints.
 ---
 
 # Human-Led Main Landing Skill (One-Wave, Main-First)
 
-## Trigger and Scope
+## Overview
 
-Use this skill when you want a human-led, AI-assisted plan for landing one
-smallest useful feature wave from an AI worktree or branch into `main`
-without losing control of business logic.
+Plan and land one smallest useful feature wave on `main` without treating an AI
+branch as the source of truth. This skill keeps attention on user-visible
+behavior, business closure, human-owned core reasoning, and reversible commits.
 
-Primary fit:
-- AI already produced a draft implementation in a worktree or branch
-- the human reviewed it and does not want to trust-copy the core logic
-- the human wants to reimplement the business-critical path on `main`
-- AI output is kept as reference material for glue, tests, examples, and edge
-  cases
+AI worktree output is evidence and reference material for glue, tests,
+examples, and edge cases. The human remains the integrator and decision owner
+for the production result.
 
-In scope:
-- one-wave main-first landing plans
-- ownership splitting across `Human-Owned`, `Human-Confirm`, and `AI-Auto`
-- verification planning on `main`
-- defining reversible `commit_when` checkpoints
-- calling `from-scratch-implementation-skill` for `Human-Owned` steps when the human
-  needs step-by-step derivation before coding
+## When to Use
 
-Out of scope:
-- tutorial-first teaching with no landing or integration context
-- final-code-only requests with no reasoning or ownership control
-- post-hoc diff summaries or code review
-- broad multi-wave roadmaps
+- AI already produced a draft implementation in a worktree or branch.
+- The human reviewed the draft and does not want to trust-copy the core logic.
+- The human wants to reimplement the business-critical path on `main`.
+- The work needs explicit ownership across `Human-Owned`, `Human-Confirm`, and
+  `AI-Auto` changes.
+- The next step is one verified business closure with `commit_when`
+  checkpoints, not a broad migration roadmap.
 
-Use `from-scratch-implementation-skill` when the user mainly wants to learn how to
-derive and build the core logic step by step.
+**When NOT to use:** tutorial-first teaching with no landing context,
+final-code-only requests with no reasoning or ownership control, post-hoc diff
+summaries, code review, or broad multi-wave planning. Use
+`from-scratch-tutorial-build` when the user mainly wants to learn core
+logic step by step; use `reference-core-plan` and `reference-core-build` when
+the core chain is too noisy to learn safely before landing.
 
-## Core Purpose
+## The Main-First Landing Operating Loop
 
-Keep attention on user-visible behavior, business closure, and controlled
-landing on `main`, not diff migration.
+Optimize for one closed loop on `main`. Stop after one wave and name only the
+next wave.
 
-This skill exists to help you:
-- decide what the human must control
-- decide what AI code can be adopted as glue
-- land one smallest useful closed loop on `main`
-- define verification and commit boundaries for small, reversible commits
-- use `from-scratch-implementation-skill` for `Human-Owned` core reasoning when
-  derivation matters more than raw velocity
+1. Set Worktree Boundary
+   - Confirm the AI worktree or branch is a sandbox reference, not the merge
+     target.
+   - Identify `main` as the source of truth unless the user states another
+     target branch.
+   - Verify: the plan distinguishes AI reference material from production
+     landing work.
+2. State Wave Goal
+   - Define one smallest useful user or business path for this wave only.
+   - Keep the wave small enough to verify and commit in reversible steps.
+   - Verify: the goal is a business closure, not a file migration theme.
+3. Answer Five Closed-Loop Questions
+   - What is the user path or business path for this wave?
+   - What is the success condition?
+   - What invariant must not be broken?
+   - What is the smallest change set on `main`?
+   - How will `main` be verified?
+   - Verify: no landing steps appear before these answers are explicit.
+4. Split Control
+   - Classify work as `Human-Owned`, `Human-Confirm`, or `AI-Auto`.
+   - Restate every `Human-Owned` path in requirement terms before touching code.
+   - Verify: core semantics, invariants, contracts, security, and data meaning
+     are human-controlled.
+5. Derive Before Landing
+   - For noisy or novel core behavior, run `reference-core-plan` and
+     `reference-core-build` first to extract a runnable learning module.
+   - For `Human-Owned` steps that need step-by-step reasoning, run
+     `from-scratch-tutorial-build` before coding on `main`.
+   - Verify: every `Human-Owned` step names its reasoning source.
+6. Land on `main` in Small Steps
+   - Land the core boundary or contract skeleton first.
+   - Add the minimal path that closes the loop.
+   - Use AI draft material only for safe glue, tests, examples, and
+     non-policy scaffolding.
+   - Include surrounding refactors only when required to complete the wave.
+   - Verify: each landing step has `owner`, `done_when`, and `commit_when`.
+7. Verify and Stop
+   - Define the test, script, or manual check for this wave on `main`.
+   - End with a one-line next-wave pointer.
+   - Verify: the output does not become a multi-wave roadmap.
 
-This skill does **not** assume the AI branch is the source of truth.
-
-## Default Operating Model (Main-First, AI-Sandbox)
-
-- AI worktree or branch is a parallel experiment sandbox and can be discarded.
-- `main` is the only source of truth.
-- Human is the integrator and decision owner.
-- AI is used for exploration, draft implementations, edge cases, test cases,
-  and boilerplate.
-
-## Fixed Defaults
-
-- `mode=feature-wave`
-- `main_target=main`
-- `wave_scope=single-closed-loop`
-- `output_style=wave-plan-first`
-- `plan_horizon=this-wave-only`
-- `integration_strategy=human-led-main-first`
-- `teaching_subroutine=from-scratch-implementation-skill-when-needed`
-- `agent_mode=single|multi(optional)`
-- `human_core_reimplementation=default-on`
-
-## Mode Selection (Required)
-
-- Choose `feature-wave` by default when AI has already drafted code and the
-  goal is to land one smallest useful closed loop on `main`.
-- Run the repository-local tmux bootstrap skill first whenever this flow will
-  produce or modify real code.
-- Run `reference-core-impl-skill` first when the core is novel,
-  architecture-heavy, or too noisy to learn safely from the production code or
-  AI draft directly.
-- Run `from-scratch-implementation-skill` for `Human-Owned` steps when the user needs
-  the reasoning path for reimplementing the core logic before touching code.
-- Choose `triage` only when the AI diff or change surface is too large to
-  reason about safely in one wave.
-
-## Primary Usage Pattern (Required)
-
-Default operating pattern:
-
-1. Start from a dedicated worktree boundary for the task.
-2. Human reviews the draft and identifies the `Human-Owned` core path.
-3. If the core is still too noisy to reason about safely, run
-   `reference-core-impl-skill` to distill a runnable minimal-complete sample
-   first.
-4. If a `Human-Owned` step still needs structured derivation, run
-   `from-scratch-implementation-skill` before coding on `main`.
-5. Human reimplements that core path on `main` from requirements, invariants,
-   and the learned sample or teaching output, not by trust-copying the AI
-   diff.
-6. AI draft is used as reference for glue, tests, examples, and non-core
-   scaffolding.
-7. The wave closes only when `main` has the minimal verified business result.
-
-This is the default path the skill should optimize for.
-
-Recommended upstream or downstream chain:
-1. repository-local tmux bootstrap skill
-2. `reference-core-impl-skill` when needed
-3. `human-led-main-landing-skill`
-4. `from-scratch-implementation-skill` when needed for `Human-Owned` steps
-5. `git-commit-skill`
-
-## What Counts as "One Wave"
-
-One wave is one smallest verifiable business closure on `main`.
-
-A wave may contain multiple small commits.
-A wave must not try to solve the whole feature end-to-end if that breaks focus.
-
-Examples:
-- first request path returns correct response for one happy path
-- one state transition is implemented with checks and tests
-- one read or write loop works with a stable contract
-
-## Five Closed-Loop Questions (Required)
+## Five Closed-Loop Questions
 
 Before planning a wave, answer these five questions:
 
@@ -136,7 +91,7 @@ Before planning a wave, answer these five questions:
 These questions are the primary attention anchor. If the plan drifts into
 migration details before these are clear, reset and answer them first.
 
-## Quick Control Split (Required, Lightweight)
+## Quick Control Split
 
 Use this split to decide control ownership before landing code.
 
@@ -177,36 +132,40 @@ Default for:
 - logging or metrics template wiring for non-policy decisions
 - documentation updates for implemented behavior
 
-## Workflow (Mode: `feature-wave`)
+## Decision Points
 
-1. State the wave goal for this wave only.
-2. Answer the five closed-loop questions.
-3. Split the planned changes with `Quick Control Split`.
-4. Restate the `Human-Owned` core path in requirement terms before touching
-   code.
-5. For each `Human-Owned` step, decide whether to call
-   `from-scratch-implementation-skill` first to derive:
-   - behavior and invariants
-   - structure from constraints
-   - public method or boundary
-   - helper contracts
-6. Use AI worktree output only as reference material, not as the merge target.
-7. Land code on `main` in human-led order:
-   - core boundary or contract skeleton first
-   - minimal path to close the loop
-   - AI glue or CRUD where safe
-   - surrounding refactors only when required to complete the loop
-8. Define verification for this wave on `main`.
-9. Define `commit_when` checkpoints for each small landing step.
-10. Stop after one wave and propose the next wave in one line only.
+- If the AI diff is too large to reason about safely, switch to
+  `mode=triage`, but still begin with the wave goal, control split, and human
+  checkpoints.
+- If the core behavior is novel, architecture-heavy, or too noisy, run
+  `reference-core-plan` and `reference-core-build` before this landing plan so
+  the landing work starts from a mastered chain.
+- If a `Human-Owned` step lacks a reasoning path, run
+  `from-scratch-tutorial-build` before coding.
+- If the proposed change starts with schema or model work, verify that the
+  current wave truly requires it.
+- If the plan needs multiple waves to be useful, shrink the current wave until
+  one verifiable business closure remains.
 
-## Commit Boundary Rule (Required)
+## What Counts as One Wave
+
+One wave is one smallest verifiable business closure on `main`.
+
+A wave may contain multiple small commits. A wave must not try to solve the
+whole feature end-to-end if that breaks focus.
+
+Examples:
+- first request path returns correct response for one happy path
+- one state transition is implemented with checks and tests
+- one read or write loop works with a stable contract
+
+## Commit Boundary Rule
 
 This skill is commit-aware because a wave can contain many commits.
 
 Rules:
 - Prefer small, focused commits such as `feat`, `fix`, or `refactor`, not a
-  single "design plan" commit.
+  single design-plan commit.
 - Each commit must be reversible and independently reviewable.
 - Every landing step in the output must include a `commit_when` condition.
 - Commit when a step reaches a verifiable local milestone, not when the whole
@@ -217,21 +176,21 @@ Good `commit_when` examples:
 - invariant check is enforced in one write path and a test passes
 - mapper or DTO glue is wired with no contract change and a smoke check passes
 
-## Optional Fallback: Migration Triage Mode (`mode=triage`)
+## Optional Fallback: Migration Triage Mode
 
-Use this only when the AI diff is too large to reason about safely. Examples:
-many files, cross-layer changes, audit-heavy handoff, or high-risk
-data or contract changes.
+Use `mode=triage` only when the AI diff is too large to reason about safely:
+many files, cross-layer changes, audit-heavy handoff, or high-risk data or
+contract changes.
 
-In `triage` mode, you may produce a phase or gate-style mapping plan, but it
-must still begin with:
+In triage mode, you may produce a phase or gate-style mapping plan, but it must
+still begin with:
 - one-wave closed-loop goal
 - quick control split
 - human checkpoints
 
 Triage is a fallback tool, not the default development entry point.
 
-## Multi-Agent Use (Optional)
+## Multi-Agent Use
 
 Default is single-agent.
 
@@ -249,7 +208,7 @@ Suggested reviewer roles when used:
 - data or reliability reviewer
 - test or rollback reviewer
 
-## Required Inputs (Minimal)
+## Required Inputs
 
 - `mode` or a clear user intent signal
 - `ai_branch` or AI worktree path
@@ -257,7 +216,19 @@ Suggested reviewer roles when used:
 - current wave goal in one sentence
 - optional diff evidence such as `git diff`, changed files list, or file paths
 
-## Output Format (`feature-wave`, One Wave Only)
+## Fixed Defaults
+
+- `mode=feature-wave`
+- `main_target=main`
+- `wave_scope=single-closed-loop`
+- `output_style=wave-plan-first`
+- `plan_horizon=this-wave-only`
+- `integration_strategy=human-led-main-first`
+- `teaching_subroutine=from-scratch-tutorial-build-when-needed`
+- `agent_mode=single|multi(optional)`
+- `human_core_reimplementation=default-on`
+
+## Output Format
 
 ```text
 ## Wave Goal
@@ -306,26 +277,53 @@ Suggested reviewer roles when used:
 - ...
 ```
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The AI branch already works, so copy it." | The AI branch is reference material; `main` must get human-owned core logic. |
+| "Let's migrate the whole diff in one pass." | One wave is one verified business closure, not a broad migration. |
+| "Schema work should come first." | Start from the current wave's user path; schema work comes first only when that path requires it. |
+| "Commit after the whole feature is done." | Each landing step needs a reversible `commit_when` checkpoint. |
+| "Human-Owned can be reviewed after coding." | Human-owned behavior must be restated in requirement terms before touching code. |
+
+## Red Flags
+
+- The output starts from changed files instead of a wave goal.
+- The five closed-loop answers are missing or vague.
+- The plan treats the AI diff as the source of truth.
+- `Human-Owned` steps do not name a reasoning source.
+- Landing steps lack `owner`, `done_when`, or `commit_when`.
+- The plan expands into a multi-wave roadmap without explicit request.
+- Schema, migration, or model work appears before the current wave proves it is
+  necessary.
+- Verification happens only after the whole feature instead of per landing
+  step.
+
+## Verification
+
+Before finishing, confirm:
+
+- [ ] The wave goal and five closed-loop answers are explicit before landing
+      steps begin.
+- [ ] The plan distinguishes AI reference material from `main` landing work.
+- [ ] Every landing step includes `owner`, `done_when`, and `commit_when`.
+- [ ] Every `Human-Owned` step names its reasoning source: requirements,
+      `reference-core-build`, or `from-scratch-tutorial-build`.
+- [ ] The verification section names a concrete test, script, or manual check
+      for this wave.
+- [ ] The output ends after one wave with a one-line next-wave pointer.
+
 ## Guardrails
 
 - Do not default to full migration planning.
 - Do not treat the AI diff as the source of truth.
 - Do not default to copying the AI core algorithm into `main`; reimplement the
   `Human-Owned` path from explicit reasoning and use
-  `from-scratch-implementation-skill` when needed.
+  `from-scratch-tutorial-build` when needed.
 - Do not start from schema or model work unless the current wave truly
   requires it.
 - Do not output a full multi-wave roadmap unless explicitly requested.
 - Keep output to one wave at a time.
 - Keep human control explicit for `Human-Owned` and `Human-Confirm` items.
 - Do not output secrets, tokens, or PII.
-
-## Verification Hooks
-
-- Verify the wave goal and five closed-loop answers are explicit before the
-  landing steps begin.
-- Verify every landing step includes `owner`, `done_when`, and `commit_when`.
-- Verify every `Human-Owned` step names its reasoning source:
-  requirements, `reference-core-impl-skill`, or
-  `from-scratch-implementation-skill`, not the AI diff alone.
-- Verify the output ends after one wave with a one-line next-wave pointer.

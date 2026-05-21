@@ -1,79 +1,36 @@
 ---
 name: tag-release-skill
-description: v0.1.2 - Prepare, execute, and verify straightforward tag and hosted release operations from explicit operator inputs.
+description: v0.1.3 - Prepare, execute, and verify straightforward tag and hosted release operations from explicit operator inputs. Use when creating or reviewing a release tag, release notes, hosted release, or final release verification.
 ---
 
 # Tag Release Skill
 
-## Trigger and Scope
+## Overview
 
-Use this skill when you must create, review, or complete a straightforward
-release that consists of:
+Execute a narrow release workflow only from explicit operator inputs. This
+skill collects the tag, target, title, notes, changelog range, hosting platform,
+and execution mode; then it either returns a review-only release payload or
+creates and verifies the requested tag and hosted release.
 
-- creating or validating a release tag
-- preparing release notes
-- creating or reviewing a hosted release
-- verifying that the final release output exists
+The skill is intentionally not a versioning, publishing, or CI/CD automation
+system. It protects release operations by stopping on missing safety-critical
+facts instead of guessing tag formats, targets, notes, or platform behavior.
 
-In scope:
-- collecting the required release inputs
-- checking tag, target, and hosted-release preconditions
-- drafting release notes from explicit operator inputs
-- creating the requested tag when the operator explicitly asks
-- creating the hosted release when the operator explicitly asks
-- verifying the resulting tag and hosted release
-- leaving explicit `TODO(user-confirm)` or `BLOCK` markers when required facts
-  are missing
+## When to Use
 
-Out of scope:
-- splitting mixed development branches into PRs or MRs
-- creating review branches for unrelated change slices
-- inventing version bump rules, semver policy, or tag formats
-- inspecting or encoding repository-specific workflow, publish, or post-release
-  rules
-- publishing packages to registries
-- triggering repository-specific workflows
-- changing CI/CD workflows
+- A release tag needs to be created, validated, or reviewed.
+- Release notes need to be drafted from explicit operator inputs.
+- A hosted GitHub or GitLab release needs to be created or checked.
+- A completed release needs verification that the tag and hosted release exist.
+- A release request needs a strict `execute` versus `review_only` decision.
 
-## Mission and Audience
+**When NOT to use:** mixed branch splitting, PR/MR creation, package registry
+publishing, repository-specific workflow dispatch, semver policy design,
+version bump detection, CI/CD changes, or post-release automation. Use
+`split-pr-publish-skill` first when release candidate changes still need
+PR-level traceability.
 
-- Mission: execute a narrow, explicit release workflow safely from the
-  operator's supplied tag, target, notes, and hosting-platform inputs.
-- Audience: maintainers, release managers, and engineers who need a direct
-  Codex-native helper for tag and hosted-release execution.
-
-## PR Split Handoff
-
-- Use `split-pr-publish-skill` first when the release candidate still lives on
-  a mixed development branch and needs to become multiple traceable PRs or MRs.
-- Use this skill after the intended changes have landed in the release target
-  branch or after the operator supplies an explicit release target and PR record
-  list.
-- This skill may consume PR records for the release notes `Changelog`, but it
-  does not infer split boundaries, create review branches, or publish PRs or
-  MRs.
-
-## Release Notes Policy
-
-- Treat the `codex` release page structure as the default release-notes shape.
-- By default, release notes use these sections when non-empty:
-  - `New Features`
-  - `Bug Fixes`
-  - `Documentation`
-  - `Chores`
-  - `Changelog`
-- Format release-note sections as second-level Markdown headings
-  (`## Bug Fixes`) so hosted release pages render them as real sections.
-- Format summary items as bullets under each section heading.
-- Keep the summary sections human-readable rather than one PR per line.
-- In `Changelog`, list every PR record in the release range after the compare
-  range.
-- Format every `Changelog` record as a Markdown bullet with `- ` so hosted
-  release pages render commit, PR, or MR records as a readable list.
-- Do not add package publish or post-release sections.
-- Do not add version detection or version bump logic.
-
-## Bundled Resources
+## Reference Map
 
 - `references/release-notes-template.md`
   Use when drafting release notes and changelog output.
@@ -82,50 +39,25 @@ Out of scope:
 - `references/acceptance-criteria.md`
   Use when validating that the release request is safe and complete.
 
-## Workflow
+## Release Notes Policy
 
-1. Collect the release request.
-   - Confirm:
-     - release tag
-     - target commit or branch
-     - release title
-     - release notes body or generated-notes request
-     - changelog range or compare link
-     - hosting platform
-     - draft or prerelease status when supported
-     - whether the operator wants tag creation, hosted release creation, or
-       review-only output
-2. Run preflight checks.
-   - Read only the materials needed from
-     `references/release-evidence-checklist.md`.
-   - Verify the target ref resolves.
-   - Verify whether the tag already exists locally.
-   - Verify whether the tag already exists on the remote when a remote is
-     available.
-   - Stop on any missing safety-critical input.
-3. Draft release notes.
-   - Use `references/release-notes-template.md`.
-   - Omit empty sections.
-   - Keep summary sections grouped for humans.
-   - Keep `Changelog` as compare range plus one `- ` bullet per PR, MR, or
-     direct commit record.
-4. Create or validate the tag.
-   - Create only the explicit operator-supplied tag.
-   - Do not infer a tag from manifests or package files.
-   - If the operator asked for review-only, report the tag action without
-     executing it.
-5. Create or validate the hosted release.
-   - Use the explicit title, tag, target, notes, and prerelease or draft
-     status.
-   - If the operator asked for review-only, return the prepared release
-     payload without executing it.
-6. Verify the result.
-   - Confirm the tag exists locally or remotely as applicable.
-   - Confirm the hosted release exists when the platform supports verification.
-   - Surface missing verification explicitly instead of guessing success.
-7. Return a strict result.
-   - Report the release request, the actions taken, verification status,
-     unknowns, and final decision.
+- Treat the `codex` release page structure as the default release-notes shape.
+- Use these sections when non-empty:
+  - `New Features`
+  - `Bug Fixes`
+  - `Documentation`
+  - `Chores`
+  - `Changelog`
+- Format release-note sections as second-level Markdown headings
+  (`## Bug Fixes`) so hosted release pages render them as real sections.
+- Format summary items as bullets under each section heading.
+- Keep summary sections human-readable rather than one PR per line.
+- In `Changelog`, list every PR record in the release range after the compare
+  range.
+- Format every `Changelog` record as a Markdown bullet with `- ` so hosted
+  release pages render commit, PR, or MR records as a readable list.
+- Do not add package publish, workflow-dispatch, or post-release sections.
+- Do not add version detection or version bump logic.
 
 ## Required Inputs
 
@@ -139,7 +71,7 @@ Out of scope:
 - draft or prerelease status when supported
 - execution mode: `execute` or `review_only`
 
-## Defaults
+## Fixed Defaults
 
 - runtime target: Codex
 - execution mode: execute when the operator clearly asks to create the release
@@ -150,6 +82,99 @@ Out of scope:
 - fallback markers:
   - non-blocking unknown: `TODO(user-confirm)`
   - blocking unknown: `BLOCK`
+
+## The Operating Loop
+
+1. Classify the release request.
+   - Confirm whether the operator wants `execute` or `review_only`.
+   - Confirm whether the work is tag creation, hosted release creation,
+     release-note drafting, or verification.
+   - Hand off to `split-pr-publish-skill` if the release candidate still lives
+     on a mixed development branch.
+2. Collect required release facts.
+   - Gather tag, target, title, notes source, changelog range, hosting
+     platform, PR/MR records when generating notes, and draft/prerelease
+     status.
+   - Mark non-blocking unknowns as `TODO(user-confirm)`.
+   - Mark safety-critical missing facts as `BLOCK`.
+3. Run preflight checks.
+   - Read only the needed parts of
+     `references/release-evidence-checklist.md`.
+   - Verify the target ref resolves.
+   - Check whether the tag exists locally.
+   - Check whether the tag exists remotely when a remote is available.
+   - Stop before execution if an existing tag, unknown target, or missing
+     hosting platform makes the request unsafe.
+4. Draft release notes.
+   - Use `references/release-notes-template.md`.
+   - Omit empty sections.
+   - Keep summary sections grouped for humans.
+   - Keep `Changelog` as compare range plus one `- ` bullet per supplied PR,
+     MR, or direct commit record.
+5. Execute or prepare the tag action.
+   - Create only the explicit operator-supplied tag.
+   - Do not infer a tag from manifests or package files.
+   - In `review_only`, report the tag action without executing it.
+6. Execute or prepare the hosted release action.
+   - Use the explicit title, tag, target, notes, and prerelease/draft status.
+   - In `review_only`, return the prepared release payload without executing.
+7. Verify and report the final state.
+   - Confirm the tag exists locally or remotely as applicable.
+   - Confirm the hosted release exists when the platform supports verification.
+   - Surface missing verification explicitly instead of guessing success.
+
+## Decision Points
+
+- If any required safety-critical input is missing, return `BLOCK` instead of
+  drafting commands from assumptions.
+- If the operator asks to "prepare" or "review" a release, use `review_only`
+  and do not create tags or hosted releases.
+- If the operator clearly asks to create the release and all preflight checks
+  pass, use `execute`.
+- If a tag already exists, verify whether it points to the requested target;
+  do not move or overwrite it unless the operator explicitly asks.
+- If release notes are generated but PR/MR records are missing, block or mark
+  the changelog gap according to whether the operator requires a complete
+  changelog.
+- If hosted-release verification is unavailable, report the missing
+  verification instead of treating command success as release success.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The next version is obvious from the last tag." | This skill does not infer versions or tag formats. Use the operator-supplied tag. |
+| "The branch name probably tells us the release target." | Release targets must be explicit and resolvable before execution. |
+| "Command success means the hosted release exists." | Verify the hosted release or report that verification is unavailable. |
+| "Package publishing belongs in the release notes workflow." | Package registry publishing and workflow dispatch are out of scope. |
+| "Missing PR records are fine because the summary looks complete." | Generated changelogs need the supplied release range records or an explicit gap marker. |
+
+## Red Flags
+
+- Tag, target, hosting platform, or execution mode is inferred rather than
+  supplied.
+- A tag is moved, overwritten, or recreated without explicit operator request.
+- Release notes include package publish or workflow-dispatch sections.
+- The `Changelog` lacks the compare range or supplied PR/MR records.
+- The result says "released" before tag and hosted-release verification.
+- Unknowns are described in prose instead of marked as `TODO(user-confirm)` or
+  `BLOCK`.
+
+## Verification
+
+- [ ] Tag, target, title, notes source, hosting platform, and execution mode
+      are explicit.
+- [ ] Target ref resolves before execution.
+- [ ] Existing local and remote tag state is checked when applicable.
+- [ ] Release notes use the required section headings and changelog bullet
+      format.
+- [ ] Every executed action depends on explicit operator input or direct local
+      evidence.
+- [ ] Package publishing, workflow dispatch, version detection, and
+      post-release automation are absent.
+- [ ] Executed tag and hosted release are verified, or missing verification is
+      reported explicitly.
+- [ ] `agents/openai.yaml` metadata matches the skill version and purpose.
 
 ## Output Format
 
@@ -206,16 +231,3 @@ Out of scope:
 - Do not report success until the tag and hosted release are verified or the
   missing verification is explicitly reported.
 - Do not encode secrets, tokens, credentials, or private registry values.
-
-## Verification Hooks
-
-- Verify the tag, target, title, notes, and hosting platform are explicit.
-- Verify the release notes section headings and changelog format are explicit.
-- Verify `Changelog` includes the compare range plus every PR record supplied
-  for the release, with each record formatted as a `- ` Markdown bullet.
-- Verify every executed action depends on explicit operator input or direct
-  local checks.
-- Verify package publish, workflow dispatch, and post-release automation are
-  absent.
-- Verify all unknowns are marked as `TODO(user-confirm)` or `BLOCK`.
-- Verify `agents/openai.yaml` metadata matches the skill version and purpose.

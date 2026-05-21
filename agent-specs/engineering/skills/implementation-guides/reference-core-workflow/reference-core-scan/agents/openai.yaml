@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reference Core Scan"
+  short_description: "v0.1.1 - Inventory nano asset candidate chains"
+  default_prompt: "Use $reference-core-scan to inspect a project, module, subsystem, or AI draft, identify candidate core logic chains that could become runnable nano/reference assets, compare invariants and asset value, and recommend the first chain to hand off to $reference-core-plan."

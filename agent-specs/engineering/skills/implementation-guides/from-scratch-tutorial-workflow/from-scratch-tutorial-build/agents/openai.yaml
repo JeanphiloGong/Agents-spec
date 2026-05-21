@@ -1,0 +1,4 @@
+interface:
+  display_name: "From-Scratch Tutorial Build"
+  short_description: "v0.3.0 - Build task-first from-scratch tutorials"
+  default_prompt: "Use $from-scratch-tutorial-build to produce a complete markdown from-scratch implementation tutorial from a task-first tutorial plan. Apply the Nystrom/Karpathy/Norvig standard: start from a real scenario, compress it into a small complete model, keep code runnable from zero, and grow one connected working checkpoint at a time. Execute the Tutorial Build Task List in dependency order; each tutorial-step task must internally satisfy Pressure -> Naive baseline -> Break -> Change -> Check -> Freeze, with acceptance criteria, verification, one patch or checkpoint target, and final assembled checkpoint. Preserve any Checkpoint Commit Handoff outside public tutorial prose. Public output should read like a natural tutorial, not a compliance checklist; run self-review internally and do not output Step Self-Review."
