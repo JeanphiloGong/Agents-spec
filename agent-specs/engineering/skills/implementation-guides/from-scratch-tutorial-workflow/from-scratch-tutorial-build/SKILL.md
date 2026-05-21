@@ -1,38 +1,49 @@
 ---
 name: from-scratch-tutorial-build
-description: v0.1.4 - Build a pressure-driven from-scratch implementation tutorial one complete public step at a time with explicit patch/checkpoint code changes. Use when turning a reader goal, external contract, teaching example, and version plan into a guide with pressure examples, concrete previous-version defects, code change targets, final assembled checkpoint, reader-facing checkpoints, helper contracts, and no detached final code.
+description: v0.1.5 - Build a from-scratch tutorial through the tutorial increment cycle. Use when turning a reader goal, external contract, teaching example, and version plan into a guide where each step shows pressure, naive code, what breaks, one patch/checkpoint change, a check, a freeze, and a final assembled checkpoint.
 ---
 
 # From-Scratch Tutorial Build
 
 ## Overview
 
-Build the complete from-scratch implementation tutorial. This is the single
-builder for deriving one feature, method, or coherent core slice from external
-behavior into connected code versions. The goal is not to dump final code. The
-goal is to make the internal model, helper contracts, mutation boundaries, and
-final runnable implementation grow from requirements one version at a time.
+Build a from-scratch implementation tutorial one complete teaching increment
+at a time. The goal is not to dump final code. The goal is to let the reader
+feel a small pressure, see the naive version break, make one code change, check
+that change, freeze the version, and then continue.
 
-The builder must write and self-review one numbered step before starting the
-next one. A step is not complete because it has the right headings; it is
-complete only when it explains the current version's concrete defect, changes
-one thing, proves that change, freezes the new baseline, and names the next
-gap.
+## The Tutorial Increment Cycle
 
-Self-review is an internal quality gate. Do not output `Step Self-Review` or
-yes/no compliance bullets in the public tutorial body. Use reader-facing
-checkpoint language such as `Checkpoint`, `Before Moving On`, or `Try This`
-when the reader needs a visible pause.
+```text
++------------------------------------------------+
+|                                                |
+|  Pressure -> Naive version -> Break -> Change  |
+|      ^                                |        |
+|      +------ Freeze <- Check <--------+        |
+|                 |                              |
+|                 v                              |
+|             Next step                          |
+|                                                |
++------------------------------------------------+
+```
 
-`Code Change` has a precise role: it tells the reader what code exists after
-this step. It must be explicitly marked as either a `patch` or a `checkpoint`.
-A `patch` shows one local addition or replacement from the previous version. A
-`checkpoint` shows the complete current runnable file, module, or script. The
-last meaningful step of a code tutorial must be a checkpoint.
+For each tutorial step:
 
-For any non-trivial tutorial, do not draft the entire `From Scratch` section in
-one sweep. Materialize or present Step 1, run the step quality gate, then append
-Step 2 from the frozen Step 1 baseline. Continue this way until the last step.
+1. **Pressure** - show the tiny input, trace, call site, or extension that
+   makes the current version's weakness visible.
+2. **Naive version** - show what the reader currently has.
+3. **Break** - name exactly what this version cannot do.
+4. **Change** - add or replace one thing, marked as `patch` or `checkpoint`.
+5. **Check** - prove this step's change works.
+6. **Freeze** - make this version the baseline for the next step.
+
+Write and self-review one numbered step before starting the next. Do not draft
+the whole `From Scratch` section in one sweep unless the tutorial has only one
+numbered step.
+
+Self-review is internal. Public tutorial output uses `Checkpoint`,
+`Before Moving On`, or `Try This`; it does not output `Step Self-Review` or
+yes/no compliance bullets.
 
 ## When to Use
 
@@ -53,15 +64,6 @@ Teach one abstraction layer at a time. Do not introduce a helper, data
 structure, or full implementation before the requirement pressure that makes it
 necessary is visible. Once code growth starts, every step must connect to the
 previous version.
-
-Use this loop for every numbered tutorial step, finishing the whole loop for
-Step N before drafting Step N+1:
-
-```text
-Pressure Example -> Naive/Previous Version -> What Breaks -> New Requirement
--> Add/Replace -> Code Change Type/Target -> Why This Works -> Step Check
--> Freeze -> Next Gap -> Internal Self Review
-```
 
 1. Load the Plan or Scope
    - Read reader goal, external contract, teaching example, version plan,
@@ -124,8 +126,8 @@ Pressure Example -> Naive/Previous Version -> What Breaks -> New Requirement
 
 ## Connected Build Contract
 
-Every numbered step inside the `From Scratch` section should answer the same
-teaching questions:
+Every numbered step inside `## From Scratch` follows the increment cycle. Use
+these fields when the user wants a structured guide:
 
 - `Question`
 - `Pressure Example`
@@ -144,45 +146,19 @@ teaching questions:
 - `What To Verify`
 - `Checkpoint` or `Before Moving On`
 
-Rules:
-- Each step introduces only one new pressure, structure, helper, or mutation
-  rule.
-- Each step must be written as a complete section before the next step begins.
-- `What Breaks` must name concrete defects in the current version. Vague
-  statements such as "this does not scale", "this is not clean", or "we need a
-  better abstraction" fail the step unless they name the specific caller burden,
-  missing observation, broken invariant, or failing trace.
-- `Pressure Example` must appear before or inside `What Breaks`. It should
-  show the small concrete situation that makes the defect visible.
-- `New Requirement` must be a direct response to `What Breaks`.
-- `Why This Change Works` must connect the code change back to the defect, not
-  merely restate what the code does.
-- `Code Change Type` must be either `patch` or `checkpoint`.
-- `Code Change Target` must name where the reader applies the change.
-- A `patch` must say what previous code it adds to or replaces and may show
-  only the local changed snippet.
-- A `checkpoint` must show the full current runnable unit for its target. It
-  may include earlier code, but it must not introduce unexplained logic.
-- The final meaningful step of a code tutorial must be a `checkpoint`, not a
-  patch. The reader should be able to copy that final checkpoint without
-  stitching earlier snippets together.
-- The internal step self-review must explicitly answer, but not output:
-  - Does this step name a concrete defect in the previous version?
-  - Does the step include a pressure example before the fix?
-  - Did this step change exactly one thing?
-  - Is the code change type correct, and is the target explicit?
-  - Does the check prove this step's defect was addressed?
-  - Is the next gap visible from the frozen version?
-- Do not solve the whole feature in one step.
-- Do not present disconnected code blocks that cannot be related to the
-  previous version.
-- When replacing code, show the old shape briefly and the new code explicitly.
-- In `Add or Replace`, use connector wording in substance:
-  `In the previous version, add ...` or `Replace this part with ...`.
-- The final complete code must be the final connected step's checkpoint, not a
-  separate unexplained section and not a pointer to earlier snippets.
-- Public tutorial output must not contain `Step Self-Review` or internal
-  yes/no quality-gate bullets.
+Cycle rules:
+- One step changes one pressure, structure, helper, or mutation rule.
+- `Pressure Example` appears before the fix.
+- `What Breaks` names a concrete defect in the current version, not a vague
+  quality concern.
+- `New Requirement` and `Why This Change Works` answer that defect directly.
+- `Code Change Type` is `patch` for a local edit or `checkpoint` for a
+  complete current runnable unit.
+- `Code Change Target` names where the reader applies the change.
+- The final meaningful code step is an assembled `checkpoint`, not a detached
+  final code dump.
+- The internal self-review checks pressure, one change, check, freeze, and next
+  gap before moving on, but those compliance bullets are not public output.
 
 ## Decision Points
 
@@ -205,7 +181,7 @@ Rules:
 ## Fixed Defaults
 
 - `build_mode=connected-version-tutorial`
-- `step_loop=one-step-at-a-time-defect-change-check-freeze-review`
+- `step_loop=pressure-naive-break-change-check-freeze`
 - `implementation_style=contract-first-with-explicit-helper-boundaries`
 - `final_code_policy=last-step-yields-assembled-checkpoint`
 - `code_change_policy=patch-or-checkpoint-with-explicit-target`
@@ -356,8 +332,8 @@ or needs general bad/good examples.
 - Do not label a partial class or isolated function as a checkpoint.
 - Do not recommend a helper before explaining what pressure or requirement
   created it.
-- Do not proceed to the next step until the current step's concrete defect,
-  one change, check, freeze, next gap, and self-review all pass.
+- Do not proceed to the next step until the current step's pressure, break, one
+  change, check, freeze, next gap, and internal self-review all pass.
 - Do not output internal self-review fields in the public tutorial body.
 - Do not say "store X in a map or list" without explaining what operation must
   stay `O(1)` or what invariant it protects.

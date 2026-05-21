@@ -1,4 +1,4 @@
 interface:
   display_name: "From-Scratch Tutorial Simplify"
-  short_description: "v0.1.3 - Simplify tutorials without breaking pressure or checkpoint semantics"
-  default_prompt: "Use $from-scratch-tutorial-simplify to tighten a completed from-scratch implementation tutorial while preserving pressure examples, concrete What Breaks explanations, Code Change Type and Code Change Target, connected code versions, the final assembled checkpoint, Step Check, Freeze This Version, helper boundaries, source facts, and final-code traceability. Convert public Step Self-Review scaffolding into reader-facing checkpoints when present."
+  short_description: "v0.1.4 - Simplify without breaking the increment cycle"
+  default_prompt: "Use $from-scratch-tutorial-simplify to tighten a completed from-scratch implementation tutorial while preserving the tutorial increment cycle: Pressure -> Naive version -> Break -> Change -> Check -> Freeze. Preserve patch/checkpoint targets, connected code versions, the final assembled checkpoint, helper boundaries, source facts, and final-code traceability. Convert public Step Self-Review scaffolding into reader-facing checkpoints when present."

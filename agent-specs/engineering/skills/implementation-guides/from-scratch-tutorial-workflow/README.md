@@ -4,12 +4,31 @@ This package contains workflow skills for producing implementation tutorials
 from first principles. Use it when the deliverable is a teaching artifact, not
 a production patch, runnable reference sample, or landing plan.
 
-The package standard is a pressure-driven step ladder: every tutorial step must
-start with a concrete pressure example, show the naive or previous version,
-explain what concretely breaks, add or replace one thing, check that one change,
-freeze the version, and only then move to the next step. Every step's code
-change must be marked as a `patch` or a `checkpoint`, and the final meaningful
-step of a code tutorial must be an assembled complete checkpoint.
+The package standard is the tutorial increment cycle: build one complete
+teaching step, check it, freeze it, then continue from that frozen version.
+
+```text
++------------------------------------------------+
+|                                                |
+|  Pressure -> Naive version -> Break -> Change  |
+|      ^                                |        |
+|      +------ Freeze <- Check <--------+        |
+|                 |                              |
+|                 v                              |
+|             Next step                          |
+|                                                |
++------------------------------------------------+
+```
+
+For each step:
+
+1. **Pressure** - show the tiny input, trace, call site, or extension that
+   makes the problem visible.
+2. **Naive version** - show what the reader currently has.
+3. **Break** - name exactly what the current version cannot do.
+4. **Change** - add or replace one thing, marked as `patch` or `checkpoint`.
+5. **Check** - prove this step's change works.
+6. **Freeze** - make this version the baseline for the next step.
 
 Internal self-review is required during generation, but public tutorial output
 must use reader-facing checkpoints instead of `Step Self-Review` compliance
@@ -20,7 +39,7 @@ sections.
 | Workflow step | Skill | Purpose |
 | --- | --- |
 | Plan the teaching route | [`from-scratch-tutorial-plan`](from-scratch-tutorial-plan/SKILL.md) | Define reader, goal, pressure examples, concrete previous-version defects, patch/checkpoint boundaries, final assembled checkpoint, and verification before writing. |
-| Build the tutorial | [`from-scratch-tutorial-build`](from-scratch-tutorial-build/SKILL.md) | Build the guide one complete pressure-driven step at a time, with explicit code change type/target, helper contracts, checks, freeze points, and final-code traceability. |
+| Build the tutorial | [`from-scratch-tutorial-build`](from-scratch-tutorial-build/SKILL.md) | Build the guide one complete tutorial increment at a time, with explicit code change type/target, helper contracts, checks, freeze points, and final-code traceability. |
 | Review tutorial quality | [`from-scratch-tutorial-review`](from-scratch-tutorial-review/SKILL.md) | Check for skipped reasoning, missing pressure examples, vague step rationale, disconnected code versions, unclear code-change roles, unexplained helpers, weak checks, and final-code drift. |
 | Simplify the guide | [`from-scratch-tutorial-simplify`](from-scratch-tutorial-simplify/SKILL.md) | Reduce repetition and prose weight without deleting pressure examples, the teaching chain, or final checkpoint. |
 

@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-review
-description: v0.1.4 - Review from-scratch implementation tutorials for pressure-driven teaching quality, executable continuity, and final checkpoint completeness. Use when checking a tutorial draft for skipped reasoning, vague step rationale, disconnected code versions, unclear code-change roles, public self-review leakage, unexplained helpers, missing step checks, silent semantic choices, or final-code drift before accepting it.
+description: v0.1.5 - Review from-scratch tutorials against the tutorial increment cycle. Use when checking a draft for missing pressure, vague breaks, disconnected naive/change/check/freeze steps, unclear patch/checkpoint roles, public self-review leakage, unexplained helpers, silent semantic choices, or final-code drift before accepting it.
 ---
 
 # From-Scratch Tutorial Review
@@ -15,6 +15,25 @@ response, ordered by severity, with file or section references when available.
 Use the bundled quality standards reference when headings are present but the
 tutorial may still hide state, skip semantic choices, miss pressure examples,
 or read like an internal generation artifact.
+
+## The Tutorial Increment Cycle
+
+```text
++------------------------------------------------+
+|                                                |
+|  Pressure -> Naive version -> Break -> Change  |
+|      ^                                |        |
+|      +------ Freeze <- Check <--------+        |
+|                 |                              |
+|                 v                              |
+|             Next step                          |
+|                                                |
++------------------------------------------------+
+```
+
+Review every numbered step against that cycle. A step passes only when the
+reader can see the pressure, understand the current version, name what breaks,
+apply one change, check that change, and continue from the frozen version.
 
 ## When to Use
 
@@ -39,7 +58,7 @@ general code review, production merge review, or publishing metadata review.
 1. Identify the Tutorial Contract
    - Read reader goal, external contract, constraints, and teaching example.
    - Verify: supplied facts and inferred assumptions are separated.
-2. Check Version Continuity
+2. Check Increment Continuity
    - For each numbered step, compare the previous version, add/replace action,
      code change type, code change target, current capability, freeze
      statement, and remaining gap.

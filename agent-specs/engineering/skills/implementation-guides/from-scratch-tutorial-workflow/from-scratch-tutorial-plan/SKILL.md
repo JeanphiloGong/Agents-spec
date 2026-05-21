@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-plan
-description: v0.1.3 - Plan a pressure-driven from-scratch implementation tutorial before writing it, including universal examples and patch/checkpoint code-change boundaries. Use when the human wants a teaching path, reader goal, pressure examples, code-version checkpoints, concrete previous-version defects, final assembled checkpoint, and verification plan before drafting a from-scratch guide.
+description: v0.1.4 - Plan a from-scratch tutorial through the tutorial increment cycle. Use when the human wants a teaching path with reader goal, pressure examples, naive versions, concrete breaks, one patch/checkpoint change per step, step checks, freeze points, and a final assembled checkpoint before drafting.
 ---
 
 # From-Scratch Tutorial Plan
@@ -15,6 +15,31 @@ exist, and how each version will be checked.
 Use this skill to prevent tutorials from jumping straight from requirements to
 finished code, becoming disconnected concept notes, or producing steps whose
 only explanation is a vague "why this matters" sentence.
+
+## The Tutorial Increment Cycle
+
+```text
++------------------------------------------------+
+|                                                |
+|  Pressure -> Naive version -> Break -> Change  |
+|      ^                                |        |
+|      +------ Freeze <- Check <--------+        |
+|                 |                              |
+|                 v                              |
+|             Next step                          |
+|                                                |
++------------------------------------------------+
+```
+
+Plan each step as one full pass through the cycle:
+
+1. **Pressure** - what small input, trace, call site, or extension makes the
+   current weakness visible?
+2. **Naive version** - what does the reader have at this point?
+3. **Break** - what exactly can that version not do?
+4. **Change** - what one thing should be added or replaced?
+5. **Check** - how will the reader prove this one change worked?
+6. **Freeze** - what is the new baseline and next visible gap?
 
 ## When to Use
 
@@ -47,13 +72,13 @@ work.
    - Prefer universal examples or source-independent scenarios; do not bake the
      user's current production module into the skill's reusable standards.
    - Verify: the example can be reused later as a step check.
-4. Plan Connected Code Versions
-   - List the smallest skeleton and each later version.
-   - For every version, state `pressure example`, `naive or previous version`,
-     `concrete defect`, `new pressure`, `add or replace`, `code change type`,
-     `code change target`, `step check`, and `freeze or next gap`.
-   - Make the next question arise from the previous version's named defect,
-     not from a final-code outline.
+4. Plan Tutorial Increments
+   - List the smallest skeleton and each later version as cycle passes.
+   - For every version, plan pressure, naive version, break, one change, check,
+     and freeze.
+   - Mark the change as `patch` or `checkpoint`, and name the target.
+   - Make the next question arise from the frozen version's visible gap, not
+     from a final-code outline.
    - Verify: each version changes one pressure, structure, helper, or mutation
      rule forced by a visible defect.
 5. Plan Helper Contracts
@@ -76,9 +101,9 @@ For each step:
   currently has.
 - `Pressure Example` shows the concrete input, trace, call site, or extension
   that makes the current version's weakness visible before naming the defect.
-- `Concrete Defect` names what that version cannot explain, observe, protect,
+- `Break` names what that version cannot explain, observe, protect,
   or let the caller do.
-- `New Pressure` translates that defect into the next requirement.
+- `New Requirement` translates that break into the next requirement.
 - `Add or Replace` changes exactly one thing in response to that pressure.
 - `Code Change Type` is `patch` for a local change or `checkpoint` for a
   complete current runnable unit.
@@ -87,7 +112,7 @@ For each step:
 - `Step Check` proves the defect was addressed in the current version.
 - `Freeze or Next Gap` states the new baseline and the next visible defect.
 
-If `Concrete Defect` could apply to any tutorial, the step is not planned well
+If `Break` could apply to any tutorial, the step is not planned well
 enough. For example, "ordinary function calls are not scalable" is too vague;
 "a list-backed cache must scan every entry to answer `get(key)`, so lookup time
 depends on key position" is concrete.
@@ -132,7 +157,7 @@ but it must not add unexplained logic.
 - Reuse as check:
 
 ## Version Plan
-| Step | Question | Pressure Example | Naive or Previous Version | Concrete Defect | New Pressure | Add or Replace | Code Change Type | Code Change Target | Step Check | Freeze or Next Gap |
+| Step | Question | Pressure Example | Naive or Previous Version | Break | New Requirement | Add or Replace | Code Change Type | Code Change Target | Step Check | Freeze or Next Gap |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | ... | ... | ... | ... | ... | ... | patch/checkpoint | ... | ... | ... |
 
@@ -165,7 +190,7 @@ but it must not add unexplained logic.
 - Version steps do not say what the previous version can do or what concrete
   defect remains.
 - A version row lacks a pressure example.
-- A step's `Concrete Defect` is generic, motivational, or copied from the final
+- A step's `Break` is generic, motivational, or copied from the final
   architecture instead of observed in the current version.
 - A version row lacks `Code Change Type` or `Code Change Target`.
 - The final code step is not planned as an assembled checkpoint.
@@ -179,9 +204,9 @@ but it must not add unexplained logic.
 - [ ] Reader, goal, and prerequisites are explicit.
 - [ ] Supplied facts and inferred assumptions are separated.
 - [ ] The version plan includes pressure example, naive or previous version,
-      concrete defect, new pressure, add/replace, code change type, code
-      change target, step check, and freeze or next gap.
-- [ ] Each step's question follows from the previous version's concrete defect.
+      break, new requirement, add/replace, code change type, code change
+      target, step check, and freeze or next gap.
+- [ ] Each step's question follows from the previous version's visible break.
 - [ ] The final code step is planned as a complete assembled checkpoint.
 - [ ] Each helper has a first-needed step and mutation or return boundary.
 - [ ] Review risks identify likely jumps or final-code drift.

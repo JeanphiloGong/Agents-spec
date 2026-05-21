@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-simplify
-description: v0.1.3 - Simplify a working from-scratch implementation tutorial without changing its pressure-driven teaching chain or patch/checkpoint code-change semantics. Use when a guide is correct but too repetitive, wordy, or hard to scan, while pressure examples, concrete previous-version defects, code change roles, final assembled checkpoint, connected code versions, and step checks must be preserved.
+description: v0.1.4 - Simplify a working from-scratch tutorial without breaking the tutorial increment cycle. Use when a guide is correct but too repetitive, wordy, or hard to scan, while pressure, naive version, break, one patch/checkpoint change, check, freeze, final assembled checkpoint, and helper boundaries must be preserved.
 ---
 
 # From-Scratch Tutorial Simplify
@@ -12,6 +12,24 @@ behavior. The goal is not shorter at any cost. The goal is a guide that is
 easier to follow without losing external contract, teaching pressure,
 connected code versions, step checks, freeze points, helper boundaries, or
 final-code traceability.
+
+## The Tutorial Increment Cycle
+
+```text
++------------------------------------------------+
+|                                                |
+|  Pressure -> Naive version -> Break -> Change  |
+|      ^                                |        |
+|      +------ Freeze <- Check <--------+        |
+|                 |                              |
+|                 v                              |
+|             Next step                          |
+|                                                |
++------------------------------------------------+
+```
+
+Simplify prose around the cycle, not the cycle itself. Every step must still
+show pressure, naive version, break, one change, check, and freeze.
 
 Defect-driven depth is protected content. Do not shorten away the explanation
 of what breaks in the naive or previous version, why the new requirement
