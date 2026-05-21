@@ -1,4 +1,4 @@
 interface:
   display_name: "Reference Core Teaching Plan"
-  short_description: "v0.1.3 - Gate and plan a from-zero teaching asset"
-  default_prompt: "Use $reference-core-teaching-plan to turn an already selected core chain into a source-independent real-world zero, an engineering zero that excludes the current-chain capability, a base/current split, module lineage gate, asset version checkpoint, blocking prerequisite questions when needed, a standalone from-zero teaching promise, nano-project or blog asset target, and concrete constraints for $reference-core-plan before building the learning module."
+  short_description: "v0.1.4 - Gate and plan a from-zero teaching asset"
+  default_prompt: "Use $reference-core-teaching-plan to turn an already selected core chain into a source-independent real-world zero, an engineering zero that excludes the current-chain capability, a base/current split, module lineage gate, one asset version checkpoint, blocking prerequisite questions when needed, a standalone from-zero teaching promise, nano-project or blog asset target, and concrete constraints for $reference-core-plan before building the learning module."

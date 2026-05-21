@@ -1,6 +1,6 @@
 ---
 name: reference-core-teaching-plan
-description: v0.1.3 - Turn an already selected core chain into a standalone from-zero teaching promise, module lineage gate, and asset version checkpoint before planning the learning module. Use when the human wants the extracted chain to become a blog, nano project, tutorial, or personal knowledge asset, especially when the chain may depend on an earlier nano module version.
+description: v0.1.4 - Turn an already selected core chain into a standalone from-zero teaching promise, module lineage gate, and single asset version checkpoint before planning the learning module. Use when the human wants the extracted chain to become a blog, nano project, tutorial, or personal knowledge asset, especially when the chain may depend on an earlier nano module version.
 ---
 
 # Reference Core Teaching Plan
@@ -34,6 +34,11 @@ The skill also names the asset version checkpoint. A completed checkpoint must
 be traceable by commit. A tag is only recommended when the checkpoint is
 runnable, review-passed, reusable, or publishable enough to be worth finding
 again later.
+
+One teaching-plan handoff should target one asset checkpoint. A checkpoint can
+contain several implementation slices, but it must not combine multiple asset
+versions such as `v0` and `v1`. If the selected chain needs an unfinished prior
+checkpoint, stop and route the prior checkpoint first.
 
 The teaching asset should be understandable without source-project context.
 Source projects may inspire the chain, but production mappings belong in
@@ -107,13 +112,16 @@ module, or production landing.
 6. Define The Version Checkpoint
    - Name the asset line, version name, version role, starting point, and what
      this version adds.
+   - Confirm this handoff targets exactly one checkpoint.
+   - List any prerequisite checkpoint separately instead of folding it into the
+     current checkpoint.
    - Decide whether the checkpoint is `internal-learning`, `reusable`,
      `publishable`, or `map-back-ready`.
    - Set `commit_required: yes`.
    - Set `tag_recommended: yes` only for checkpoints that should be found later
      as reusable or publishable learning assets.
    - Verify: the version checkpoint matches the lineage gate and does not turn
-     every small edit into a tag.
+     every small edit into a tag or combine multiple asset versions.
 7. Define The Teaching Promise
    - Convert the chain into a sentence: "from zero implement a `<mini-system>`".
    - If the chain is an extension, phrase the promise as "start from
@@ -168,6 +176,13 @@ module, or production landing.
   `v1`, `v2`, or a named checkpoint before writing the full teaching plan.
 - If the base asset is small enough to introduce inside the same module, mark
   it `inline-v0-then-current` and require staged examples.
+- Use `inline-v0-then-current` only when the inline base is setup material, not
+  an independently teachable checkpoint.
+- If the base mechanism could be titled, run, reviewed, and committed as its
+  own "from zero implement X" module, treat it as a prerequisite checkpoint and
+  stop the current chain.
+- If the selected handoff would build both `v0` and `v1`, split it and plan
+  only the prerequisite checkpoint first.
 - If the checkpoint is only an internal learning step, require a commit but do
   not recommend a tag.
 - If the checkpoint is reusable, publishable, or map-back-ready, recommend a
@@ -235,6 +250,7 @@ Use this blocking format when the lineage gate finds missing prerequisite work:
 
 ## Stop Condition
 - do_not_continue_to_reference_core_plan_until:
+- current_checkpoint_scope:
 ```
 
 Use this full format only after the lineage gate passes:
@@ -272,8 +288,12 @@ Use this full format only after the lineage gate passes:
 - asset_line:
 - version_name:
 - version_role:
+- checkpoint_scope: exactly-one
 - starts_from_version:
 - adds:
+- prerequisite_checkpoints:
+- implementation_slices_allowed:
+- excluded_future_checkpoints:
 - checkpoint_type: internal-learning | reusable | publishable | map-back-ready
 - commit_required: yes
 - tag_recommended: yes | no
@@ -349,6 +369,7 @@ Use this full format only after the lineage gate passes:
 | "The previous module probably exists somewhere." | Lineage needs evidence: a path, artifact, test, README, or explicit decision to build the prerequisite first. |
 | "Every version should get a tag." | Every checkpoint needs a commit. Tags are for review-passed checkpoints worth retrieving as reusable or publishable assets. |
 | "The production system context makes the asset more concrete." | The asset should first be concrete as a standalone real-world scenario; production mapping comes later. |
+| "It is efficient to build v0 and v1 together." | A checkpoint can contain several implementation slices, but one handoff should not complete multiple asset versions. |
 
 ## Failure Case
 
@@ -374,6 +395,10 @@ Use `inline-v0-then-current` only when the minimal runner can be built as the
 first stage inside the same asset. Use `blocked-by-missing-prerequisite` when
 the minimal runner should be completed as its own asset before this chain.
 
+If the minimal runner can stand alone as "from zero implement a minimal
+pipeline runner", do not inline it into the prepare-gated checkpoint. Output a
+blocking prerequisite checkpoint for the minimal runner first.
+
 ## Red Flags
 
 - The output ranks multiple chains instead of shaping one selected chain.
@@ -388,6 +413,7 @@ the minimal runner should be completed as its own asset before this chain.
 - `current_chain_adds` is missing or duplicates `engineering_zero`.
 - No lineage gate appears before the teaching promise.
 - No version checkpoint appears after the lineage gate.
+- The version checkpoint includes both prerequisite and current asset versions.
 - `tag_recommended: yes` appears without a runnable/reviewable or publishable
   reason.
 - A middle-layer chain is presented as standalone without a base asset, inline
@@ -411,6 +437,8 @@ the minimal runner should be completed as its own asset before this chain.
       extends an existing asset, or is blocked by missing prerequisite work.
 - [ ] A version checkpoint names asset line, version, role, starts-from point,
       additions, commit requirement, and tag recommendation.
+- [ ] The output targets exactly one checkpoint and moves independently
+      teachable prerequisite versions into prerequisite work.
 - [ ] Missing base work produces blocking open questions and prerequisite work,
       not a full current-chain plan.
 - [ ] The teaching promise is explicit and from-zero teachable.
@@ -436,3 +464,4 @@ the minimal runner should be completed as its own asset before this chain.
   it as `v0`, or block on prerequisite work.
 - Do not recommend tags for every small edit. Recommend tags only for completed
   learning-asset checkpoints that pass review and are worth retrieving later.
+- Do not plan multiple asset checkpoints in one teaching-plan handoff.

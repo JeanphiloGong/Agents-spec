@@ -1,6 +1,6 @@
 ---
 name: reference-core-plan
-description: v0.1.7 - Plan a standalone runnable reference-core learning module before building it. Use when a selected core logic chain, AI draft, architecture-heavy flow, or teaching-plan handoff needs one source-independent real-world scenario, invariant, scenario-fit src architecture, version checkpoint, included/deferred learning boundary, placement, and validation plan.
+description: v0.1.8 - Plan one standalone runnable reference-core learning module checkpoint before building it. Use when a selected core logic chain, AI draft, architecture-heavy flow, or teaching-plan handoff needs one source-independent real-world scenario, invariant, scenario-fit src architecture, version checkpoint, included/deferred learning boundary, placement, and validation plan.
 ---
 
 # Reference Core Plan
@@ -17,6 +17,10 @@ validation targets that `reference-core-build` will implement.
 Use this skill to turn the logic into a standalone nano/reference module. A
 source project can motivate the chain, but production mapping belongs in
 `reference-core-map-back` after the module is understood.
+
+One plan produces one asset version checkpoint. The later build may use several
+implementation slices inside that checkpoint, but it must not deliver multiple
+asset versions in one plan/build/review/commit cycle.
 
 ## When to Use
 
@@ -81,11 +85,15 @@ production landing, tutorial-only derivation, or final integration patches.
 7. Plan Version Checkpoint
    - Carry forward or define asset line, version name, version role, starting
      version, additions, and checkpoint type.
+   - State `checkpoint_scope: exactly-one`.
+   - List prerequisite checkpoints and future checkpoints outside the current
+     build scope.
    - Require a commit for every completed learning-asset checkpoint.
    - Recommend a tag only when the checkpoint should be retrievable later as a
      reusable, publishable, or map-back-ready asset.
    - Verify: tag recommendation has a concrete reason and does not replace the
-     required commit.
+     required commit, and the planned build does not cross checkpoint
+     boundaries.
 8. Prepare Optional Source Notes
    - If source-project context is known, record it as optional evidence for
      later `reference-core-map-back`.
@@ -113,6 +121,8 @@ production landing, tutorial-only derivation, or final integration patches.
   planning the module layout.
 - If version checkpoint data is missing, define it before build handoff instead
   of letting `reference-core-build` infer tag names.
+- If the requested module would build more than one asset checkpoint, split the
+  plan and target only the first unfinished checkpoint.
 - If `tag_recommended: yes`, include `tag_name_candidate` and `tag_reason`, but
   do not treat tag creation as automatic build behavior.
 - If the plan starts by naming production files instead of a real-world
@@ -165,8 +175,12 @@ production landing, tutorial-only derivation, or final integration patches.
 - asset_line:
 - version_name:
 - version_role:
+- checkpoint_scope: exactly-one
 - starts_from_version:
 - adds:
+- prerequisite_checkpoints:
+- implementation_slices_allowed:
+- excluded_future_checkpoints:
 - checkpoint_type: internal-learning | reusable | publishable | map-back-ready
 - commit_required: yes
 - tag_recommended: yes | no
@@ -211,6 +225,7 @@ production landing, tutorial-only derivation, or final integration patches.
 ## Build Handoff
 - recommended_builder: reference-core-build
 - version_checkpoint:
+- checkpoint_scope:
 - commit_required:
 - tag_recommended:
 - tag_handoff:
@@ -228,6 +243,7 @@ production landing, tutorial-only derivation, or final integration patches.
 | "DDD is a good default." | Architecture should follow the chain pressure; full DDD can hide small mechanisms. |
 | "The builder can decide the version tag later." | The plan should define checkpoint intent; the builder should execute and record it without inventing release semantics. |
 | "The README can start from the source project because that is where the idea came from." | The module is a standalone learning asset; source mapping belongs in optional notes or map-back. |
+| "We can include v0 and v1 because both are needed for the example." | A build may have multiple slices, but the plan should complete one asset checkpoint. Finish the prerequisite checkpoint first when it can stand alone. |
 
 ## Red Flags
 
@@ -247,6 +263,7 @@ production landing, tutorial-only derivation, or final integration patches.
   explaining why it fits the chain.
 - Version checkpoint is missing or says to tag every edit without a retrieval
   reason.
+- The plan includes multiple asset versions in one build target.
 - DDD, adapters, or projections appear without business-rule or boundary
   pressure.
 - Optional source notes are treated as the main learning-module structure.
@@ -266,6 +283,8 @@ production landing, tutorial-only derivation, or final integration patches.
 - [ ] `src_architecture` names a scenario-fit style, concrete `src/` layout,
       rationale, and rejected upgrade triggers.
 - [ ] Version checkpoint names commit requirement and tag recommendation.
+- [ ] The plan targets exactly one asset checkpoint and excludes prerequisite
+      or future checkpoints from the current build.
 - [ ] Happy-path and boundary/failure validation are planned.
 - [ ] Map-back starting points are named.
 
@@ -276,6 +295,7 @@ production landing, tutorial-only derivation, or final integration patches.
   source targets in optional notes for later map-back.
 - Do not make tag creation automatic; plan the recommendation and hand off tag
   execution only after review or explicit operator request.
+- Do not plan multiple asset checkpoints in one build handoff.
 - Do not plan production patches.
 - Do not make production/source-project mapping the main output; save it for
   optional notes or `reference-core-map-back`.

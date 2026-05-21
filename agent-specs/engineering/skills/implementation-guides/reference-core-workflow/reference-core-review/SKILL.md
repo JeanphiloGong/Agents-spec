@@ -1,6 +1,6 @@
 ---
 name: reference-core-review
-description: v0.1.5 - Review standalone runnable reference-core learning modules. Use when checking whether a module is independently understandable without source-project context, chain-complete, invariant-preserving, scenario-fit in src architecture, executable, git-reviewable, safely placed, version-checkpoint ready, and optionally ready for map-back.
+description: v0.1.6 - Review one standalone runnable reference-core learning module checkpoint. Use when checking whether a module is independently understandable without source-project context, chain-complete for one version checkpoint, invariant-preserving, scenario-fit in src architecture, executable, git-reviewable, safely placed, version-checkpoint ready, and optionally ready for map-back.
 ---
 
 # Reference Core Review
@@ -20,6 +20,10 @@ When the module represents a learning-asset version checkpoint, review whether
 the checkpoint is commit-ready and whether a tag is justified. Tags should be
 recommended only for review-passed checkpoints that are reusable, publishable,
 or important for map-back traceability.
+
+The review target should contain one asset checkpoint. If the module combines
+multiple standalone versions, such as a teachable `v0` and a teachable `v1`,
+the verdict should require splitting the work before checkpoint acceptance.
 
 Use this skill before trusting a module as a learning asset. Run
 `reference-core-map-back` separately when production mapping is needed.
@@ -72,6 +76,9 @@ tutorial review, or writing map-back guidance.
 8. Check Version Checkpoint
    - Confirm asset line, version name, version role, and starts-from point are
      recorded in the module or build output.
+   - Confirm the artifact contains exactly one asset checkpoint.
+   - Allow multiple implementation slices only when they all serve the same
+     checkpoint.
    - Confirm `commit_required` is present for completed checkpoints.
    - Recommend a tag only when verdict is not `block` and the checkpoint is
      reusable, publishable, or map-back-ready.
@@ -100,6 +107,7 @@ tutorial review, or writing map-back guidance.
 
 ## Version Checkpoint Readiness
 - commit_ready: yes | no
+- checkpoint_scope: exactly-one | multiple-found
 - tag_recommended: yes | no
 - tag_name_candidate:
 - tag_reason:
@@ -125,6 +133,7 @@ tutorial review, or writing map-back guidance.
 | "More layers means more complete." | More layers can hide the extracted chain unless the scenario needs them. |
 | "A runnable checkpoint should always be tagged." | Tags are for retrieval value after review, not for every successful build. |
 | "The README can be production-oriented because map-back is next." | Review first accepts the standalone learning asset; map-back is a separate optional handoff. |
+| "A combined v0/v1 module is still one module." | A module can be one directory and still contain multiple asset checkpoints. Review the checkpoint boundary, not just the folder boundary. |
 
 ## Red Flags
 
@@ -141,6 +150,7 @@ tutorial review, or writing map-back guidance.
 - The README starts with source-project extraction or production file mapping
   instead of standalone scenario, problem, engineering zero, and version.
 - Version checkpoint metadata is absent from a versioned learning asset.
+- Multiple standalone asset versions are completed in one review target.
 - Tag recommendation lacks a retrieval or publication reason.
 
 ## Verification
@@ -154,6 +164,7 @@ tutorial review, or writing map-back guidance.
 - [ ] Placement and imports were checked.
 - [ ] Included/deferred boundaries were checked.
 - [ ] Version checkpoint and tag recommendation were checked.
+- [ ] The artifact contains exactly one asset checkpoint.
 - [ ] Verdict is `pass`, `revise`, or `block`.
 
 ## Guardrails
@@ -166,3 +177,4 @@ tutorial review, or writing map-back guidance.
   retrieving later.
 - Do not approve a module whose main explanation requires source-project
   context before explaining the standalone logic.
+- Do not approve a combined multi-checkpoint module as one checkpoint.

@@ -14,6 +14,8 @@ project.
 Each completed learning-asset checkpoint should be traceable by commit. Tags
 are optional retrieval markers for review-passed checkpoints that are reusable,
 publishable, or important to map back later; do not tag every small edit.
+One checkpoint may contain several implement/test/verify slices, but one
+plan/build/review/commit cycle should not complete multiple asset versions.
 
 ## Layout
 
@@ -79,6 +81,9 @@ After map-back, use `human-led-main-landing-skill` for controlled integration on
   later version that depends on a missing base module.
 - Require commits for completed learning-asset checkpoints; recommend tags
   only when review shows the checkpoint is worth retrieving later.
+- Keep each plan/build/review/commit cycle scoped to one asset checkpoint. If a
+  selected chain depends on a standalone prior checkpoint, finish that
+  checkpoint before starting the next one.
 - Use `from-scratch-tutorial-workflow` when the output is a teaching guide
   rather than a runnable module artifact.
 - Keep production mapping and source-project file references in

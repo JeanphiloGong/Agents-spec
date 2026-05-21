@@ -95,8 +95,11 @@ entry input
 - asset line:
 - version:
 - version role:
+- checkpoint scope: exactly-one
 - starts from:
 - adds:
+- implementation slices:
+- excluded future checkpoints:
 - checkpoint type: internal-learning | reusable | publishable | map-back-ready
 - source commit:
 - tag recommended: yes | no

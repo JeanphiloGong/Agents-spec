@@ -1,6 +1,6 @@
 ---
 name: reference-core-build
-description: v0.1.5 - Build a standalone runnable reference-core learning module from a plan or explicit core inputs. Use when turning a selected core logic chain, AI draft, source-independent real-world scenario, invariant, scenario-fit src architecture, module layout, version checkpoint, included/deferred learning boundary, placement, and validation plan into a git-reviewable executable nano module.
+description: v0.1.6 - Build one standalone runnable reference-core learning module checkpoint from a plan or explicit core inputs. Use when turning a selected core logic chain, AI draft, source-independent real-world scenario, invariant, scenario-fit src architecture, module layout, version checkpoint, included/deferred learning boundary, placement, and validation plan into a git-reviewable executable nano module.
 ---
 
 # Reference Core Build
@@ -17,6 +17,11 @@ When the plan contains a version checkpoint, the module should record it in the
 artifact and output. A completed checkpoint must be committed through the normal
 git workflow. Tags are not created by this skill; it only carries a
 `tag_recommended` handoff for review or explicit `tag-release-skill` use.
+
+One build may contain several implementation slices, but those slices must all
+serve one asset checkpoint. Do not build a prerequisite version and an extension
+version in the same build output unless the prerequisite is explicitly marked
+as inline setup and not a standalone checkpoint.
 
 Use this skill when code should be written as a learning and design artifact,
 not as a production patch or source-project explanation.
@@ -50,6 +55,8 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
      invariant, included/deferred learning boundary, module layout, `src/`
      architecture, version checkpoint, safe placement, happy path, and boundary
      or failure check.
+   - Confirm the plan targets one checkpoint; if it contains multiple
+     standalone asset versions, return to `reference-core-plan`.
    - Verify: no missing input would change the code shape.
 2. Create Module Directory
    - Use the planned path, defaulting to
@@ -64,6 +71,8 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
    - Follow the planned `src_architecture`; write only the entrypoint,
      state/data movement, decisions, transitions, helpers, and fakes needed to
      expose the chain and invariant.
+   - Use multiple implement/test/verify slices when useful, but keep every
+     slice inside the same checkpoint target.
    - Keep the simplest chain-first layout unless the plan names concrete
      pressure for DDD-inspired, ports/adapters, projections, or a custom layout.
    - Use real domain names for real concepts.
@@ -119,6 +128,7 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 - `standalone_readme_policy=real_world_scenario_first`
 - `production_import_barrier=required_when_written_in_source_repo`
 - `checkpoint_commit_policy=commit_required_for_completed_checkpoint`
+- `checkpoint_scope_policy=one_checkpoint_per_build`
 - `tag_policy=recommend_only_after_review_or_explicit_operator_request`
 
 ## Decision Points
@@ -133,6 +143,8 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 - If the plan lacks version checkpoint data, default to
   `commit_required: yes` and `tag_recommended: no` for the build output rather
   than inventing a tag name.
+- If the plan or requested work includes multiple standalone checkpoints, stop
+  and build only the first unfinished checkpoint.
 - If placement could make source-project code depend on the learning module,
   keep the module ephemeral or outside imported paths and ask before writing
   files.
@@ -173,6 +185,9 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 - asset_line:
 - version_name:
 - version_role:
+- checkpoint_scope:
+- implementation_slices:
+- excluded_future_checkpoints:
 - commit_required:
 - tag_recommended:
 - tag_name_candidate:
@@ -199,6 +214,7 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 | "A DDD layout will make it more complete." | Completeness comes from chain mastery; architecture must be justified by scenario pressure. |
 | "The build can create a tag when it finishes." | This skill builds and records the checkpoint; tag execution needs explicit operator input through release/tag workflow. |
 | "The README should start from the production system because that is where the chain came from." | The README should start from the standalone scenario and logic; production mapping belongs in map-back. |
+| "It is fine to build v0 and v1 together because they are related." | Related versions are still separate checkpoints when each can stand alone. Build the first unfinished checkpoint, review it, commit it, then continue. |
 
 ## Red Flags
 
@@ -213,6 +229,7 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 - Helpers exist without preserving the invariant.
 - The README explains the topic but not the chain.
 - Version checkpoint or tag recommendation is missing from the build output.
+- The build output contains multiple standalone asset versions.
 - A tag is created without explicit operator request.
 
 ## Verification
@@ -229,6 +246,8 @@ Build module -> Run happy path -> Add boundary check -> Freeze module
 - [ ] The README starts from the standalone real-world scenario, not the source
       project.
 - [ ] Version checkpoint and tag recommendation are recorded.
+- [ ] The build output contains exactly one asset checkpoint, even if multiple
+      implementation slices were used.
 - [ ] A persisted module has a colocated README or an explicit exception.
 - [ ] No production patch was written.
 
@@ -253,5 +272,7 @@ apply to ordinary learning-module generation.
   `reference-core-map-back` for that.
 - Do not create git tags. Record tag recommendations for review or explicit
   `tag-release-skill` execution.
+- Do not build multiple asset checkpoints in one reference-core-build. Finish,
+  review, and commit the current checkpoint before starting the next.
 - Do not add blog polish, long narrative, or publishing structure unless the
   human explicitly asks for a publishable article.
