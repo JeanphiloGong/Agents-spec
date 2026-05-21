@@ -10,9 +10,10 @@ Review in this order:
 
 1. executable continuity
 2. defect-driven teaching depth
-3. semantic choice visibility
-4. evidence quality
-5. reader-facing publishability
+3. code change role clarity and final checkpoint completeness
+4. semantic choice visibility
+5. evidence quality
+6. reader-facing publishability
 
 ## 1. Executable Continuity
 
@@ -23,6 +24,8 @@ Check for:
 - stale registries or maps after functions are redefined
 - code snippets that assume variables not introduced yet
 - examples that pass only if the reader silently resets the environment
+- patch snippets that do not say where they apply
+- checkpoint snippets that are not complete runnable units for their target
 - final code that uses imports, helpers, branches, or defaults not introduced
   earlier
 - checks that would fail if copied into the step's visible code
@@ -72,7 +75,41 @@ Finding severity:
 - `revise` when the defect exists but is too generic to teach why this exact
   change follows.
 
-## 3. Semantic Choice Visibility
+## 3. Code Change Role Clarity And Final Checkpoint Completeness
+
+`Code Change` must have a clear role. It is either a patch or a checkpoint.
+
+Check for:
+
+- every step declares `Code Change Type: patch` or `Code Change Type:
+  checkpoint`
+- every step declares `Code Change Target`, such as `current script`,
+  `models.py`, `runner.py`, or `src/<package>/...`
+- a `patch` shows one local addition or replacement from the visible previous
+  version
+- a `checkpoint` shows the complete current runnable file, module, or script
+- the final meaningful step in a code tutorial is a checkpoint
+- the final checkpoint contains no logic that was not explained earlier
+- the reader does not need to stitch snippets from earlier steps to get the
+  final runnable code
+
+Finding severity:
+
+- `block` when the final meaningful step is not an assembled complete
+  checkpoint or when the checkpoint introduces unexplained logic.
+- `revise` when intermediate steps do not declare patch/checkpoint role or
+  target clearly enough.
+
+Example:
+
+```text
+If Step 4 introduced StepRecord and RunRecord, and Step 6 introduced
+PipelineRunner, Step 6 must still show the complete final runnable target that
+includes imports, StepRecord, RunRecord, and PipelineRunner. It cannot only show
+the PipelineRunner class and expect the reader to assemble the rest from Step 4.
+```
+
+## 4. Semantic Choice Visibility
 
 Any meaningful behavior or API choice must be taught at the step where it first
 appears.
@@ -102,7 +139,7 @@ final runner uses context=dict(context or {}), the tutorial must explain why the
 runner copies caller context and what mutation is now observable.
 ```
 
-## 4. Evidence Quality
+## 5. Evidence Quality
 
 Step checks must prove the current step's defect was addressed. They should not
 only prove the final implementation works.
@@ -127,7 +164,7 @@ Finding severity:
 - `block` when no check proves a core step.
 - `revise` when the check exists but does not target the step's named defect.
 
-## 5. Reader-Facing Publishability
+## 6. Reader-Facing Publishability
 
 A tutorial can be correct but still read like an internal generation artifact.
 

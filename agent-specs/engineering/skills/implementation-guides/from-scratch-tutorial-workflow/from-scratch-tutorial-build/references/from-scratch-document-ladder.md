@@ -21,7 +21,8 @@ The guide must grow through connected code versions. Do not alternate between
 standalone concept prose, unrelated code blocks, and a late complete-code dump.
 Write one problem, one concrete defect, one code change, one check, one new
 capability, and one remaining gap at a time. Finish that step before drafting
-the next step.
+the next step. Mark every code change as a `patch` or `checkpoint`, and make
+the last meaningful code step an assembled complete checkpoint.
 
 Prefer this order:
 
@@ -44,6 +45,8 @@ Each step in `## From Scratch` should answer these prompts:
 - `What Breaks`
 - `New Requirement`
 - `Add or Replace`
+- `Code Change Type`
+- `Code Change Target`
 - `Code Change`
 - `Why This Change Works`
 - `Step Check`
@@ -62,6 +65,16 @@ Keep each step narrow:
 
 If a step tries to introduce multiple new ideas, split it.
 
+Use code change roles consistently:
+
+- `patch`: a local addition or replacement applied to the previous visible
+  version.
+- `checkpoint`: the complete current runnable unit for the named target.
+
+The final meaningful code step must be a `checkpoint`. It should include the
+imports, types, helpers, and public API needed for the target to run. It must
+not include logic that earlier steps did not explain.
+
 Every code step should be connected to the previous version. Use these
 connectors in substance:
 
@@ -69,10 +82,12 @@ connectors in substance:
 2. `What breaks is ...`
 3. `Therefore the new requirement is ...`
 4. `In the previous version, add ...`
-5. `This works because ...`
-6. `Check this version by ...`
-7. `Freeze this version as ...`
-8. `It still lacks ...`
+5. `Code Change Type: patch/checkpoint`
+6. `Code Change Target: ...`
+7. `This works because ...`
+8. `Check this version by ...`
+9. `Freeze this version as ...`
+10. `It still lacks ...`
 
 Do not use a vague teaching pressure. "This is not scalable" is not enough.
 Name the exact burden or failure, such as "the caller must know the internal
@@ -136,6 +151,8 @@ step order" or "the code cannot identify which step failed."
 
 - The last meaningful step should already yield the complete implementation
   when code is needed.
+- Its `Code Change Type` must be `checkpoint`.
+- Its `Code Change Target` must name the complete file, module, or script.
 - The complete code must not introduce new logic that was never explained.
 
 ## Good Signs
@@ -148,7 +165,10 @@ step order" or "the code cannot identify which step failed."
 - The reader can implement the next step without re-reading the whole guide.
 - Every code block is either an addition to or replacement of the previous
   version.
-- The final code feels like the last version, not a detached dump.
+- Every code block says whether it is a patch or checkpoint and names its
+  target.
+- The final code is the last version's assembled checkpoint, not a detached
+  dump and not a puzzle assembled from earlier snippets.
 
 ## Anti-Patterns
 
@@ -165,6 +185,9 @@ Do not do these in from-scratch mode:
 - duplicate the same code after the connected build already produced it
 - present standalone code blocks that do not update a previous version
 - add a separate final code block that contains new logic
+- call a partial class or helper snippet a checkpoint
+- end with a patch when the reader needs complete runnable code
+- omit the code change type or target
 - omit what the current version can do and what it still lacks
 - omit what broke in the previous version
 
@@ -172,8 +195,8 @@ Do not do these in from-scratch mode:
 
 Default policy:
 
-- the last meaningful incremental step should already yield the complete
-  runnable implementation when the user needs code
+- the last meaningful incremental step should be a `checkpoint` that yields the
+  complete runnable implementation when the user needs code
 - the guide should usually end there
 
 Only add a separate wrapper or final-code section if the user explicitly needs a

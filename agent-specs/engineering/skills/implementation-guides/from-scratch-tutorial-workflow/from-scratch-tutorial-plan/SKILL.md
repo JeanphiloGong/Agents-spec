@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-plan
-description: v0.1.1 - Plan a defect-driven from-scratch implementation tutorial before writing it. Use when the human wants a teaching path, reader goal, examples, code-version checkpoints, concrete previous-version defects, and verification plan before drafting a from-scratch guide.
+description: v0.1.2 - Plan a defect-driven from-scratch implementation tutorial before writing it, including patch/checkpoint code-change boundaries. Use when the human wants a teaching path, reader goal, examples, code-version checkpoints, concrete previous-version defects, final assembled checkpoint, and verification plan before drafting a from-scratch guide.
 ---
 
 # From-Scratch Tutorial Plan
@@ -48,7 +48,8 @@ work.
 4. Plan Connected Code Versions
    - List the smallest skeleton and each later version.
    - For every version, state `naive or previous version`, `concrete defect`,
-     `new pressure`, `add or replace`, `step check`, and `freeze or next gap`.
+     `new pressure`, `add or replace`, `code change type`, `code change
+     target`, `step check`, and `freeze or next gap`.
    - Make the next question arise from the previous version's named defect,
      not from a final-code outline.
    - Verify: each version changes one pressure, structure, helper, or mutation
@@ -75,6 +76,10 @@ For each step:
   or let the caller do.
 - `New Pressure` translates that defect into the next requirement.
 - `Add or Replace` changes exactly one thing in response to that pressure.
+- `Code Change Type` is `patch` for a local change or `checkpoint` for a
+  complete current runnable unit.
+- `Code Change Target` names the file, module, script, or snippet the reader
+  changes.
 - `Step Check` proves the defect was addressed in the current version.
 - `Freeze or Next Gap` states the new baseline and the next visible defect.
 
@@ -82,6 +87,11 @@ If `Concrete Defect` could apply to any tutorial, the step is not planned well
 enough. For example, "ordinary function calls are not scalable" is too vague;
 "the caller must know `prepare` must run before `enrich`, and there is no run
 record showing which step failed" is concrete.
+
+For code tutorials, the final planned step must be `Code Change Type:
+checkpoint` and must name the complete target it assembles, such as `runner.py`
+or `current script`. The final checkpoint may include code introduced earlier,
+but it must not add unexplained logic.
 
 ## Decision Points
 
@@ -115,9 +125,9 @@ record showing which step failed" is concrete.
 - Reuse as check:
 
 ## Version Plan
-| Step | Question | Naive or Previous Version | Concrete Defect | New Pressure | Add or Replace | Step Check | Freeze or Next Gap |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | ... | ... | ... | ... | ... | ... | ... |
+| Step | Question | Naive or Previous Version | Concrete Defect | New Pressure | Add or Replace | Code Change Type | Code Change Target | Step Check | Freeze or Next Gap |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | ... | ... | ... | ... | ... | patch/checkpoint | ... | ... | ... |
 
 ## Helper Contracts To Introduce
 | Helper | First Needed In | Purpose | Inputs | Output/Mutation |
@@ -139,6 +149,7 @@ record showing which step failed" is concrete.
 | "The helper names are obvious from the final code." | Helpers must be forced by behavior and invariants, not copied from a memorized solution. |
 | "A plan should stay high level." | Tutorial plans need concrete version checkpoints or the build will drift. |
 | "The step question already implies the defect." | The defect must be stated explicitly so the builder can teach why the next change is necessary. |
+| "The builder can decide code shape later." | Patch/checkpoint boundaries are part of the teaching plan; they determine whether readers patch or copy a complete version. |
 
 ## Red Flags
 
@@ -147,6 +158,8 @@ record showing which step failed" is concrete.
   defect remains.
 - A step's `Concrete Defect` is generic, motivational, or copied from the final
   architecture instead of observed in the current version.
+- A version row lacks `Code Change Type` or `Code Change Target`.
+- The final code step is not planned as an assembled checkpoint.
 - A step adds multiple helpers or mutation rules at once.
 - The plan has no small example or trace.
 - The final step is planned as a separate code dump instead of the last
@@ -157,8 +170,10 @@ record showing which step failed" is concrete.
 - [ ] Reader, goal, and prerequisites are explicit.
 - [ ] Supplied facts and inferred assumptions are separated.
 - [ ] The version plan includes naive or previous version, concrete defect, new
-      pressure, add/replace, step check, and freeze or next gap.
+      pressure, add/replace, code change type, code change target, step check,
+      and freeze or next gap.
 - [ ] Each step's question follows from the previous version's concrete defect.
+- [ ] The final code step is planned as a complete assembled checkpoint.
 - [ ] Each helper has a first-needed step and mutation or return boundary.
 - [ ] Review risks identify likely jumps or final-code drift.
 - [ ] The build handoff names the correct builder.
@@ -168,4 +183,6 @@ record showing which step failed" is concrete.
 - Do not write the tutorial body during planning.
 - Do not invent constraints, examples, or source facts.
 - Do not plan a detached final implementation section.
+- Do not plan a final step that forces the reader to stitch scattered snippets
+  into the final code.
 - Keep the plan scoped to one tutorial, not a broad course outline.

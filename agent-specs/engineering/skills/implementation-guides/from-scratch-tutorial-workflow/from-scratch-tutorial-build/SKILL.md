@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-build
-description: v0.1.2 - Build a from-scratch implementation tutorial one complete defect-driven step at a time. Use when turning a reader goal, external contract, teaching example, and version plan into a guide with concrete previous-version defects, step checks, helper contracts, freeze points, and no detached final code.
+description: v0.1.3 - Build a from-scratch implementation tutorial one complete defect-driven step at a time with explicit patch/checkpoint code changes. Use when turning a reader goal, external contract, teaching example, and version plan into a guide with concrete previous-version defects, code change targets, final assembled checkpoint, step checks, helper contracts, and no detached final code.
 ---
 
 # From-Scratch Tutorial Build
@@ -18,6 +18,12 @@ next one. A step is not complete because it has the right headings; it is
 complete only when it explains the current version's concrete defect, changes
 one thing, proves that change, freezes the new baseline, and names the next
 gap.
+
+`Code Change` has a precise role: it tells the reader what code exists after
+this step. It must be explicitly marked as either a `patch` or a `checkpoint`.
+A `patch` shows one local addition or replacement from the previous version. A
+`checkpoint` shows the complete current runnable file, module, or script. The
+last meaningful step of a code tutorial must be a checkpoint.
 
 For any non-trivial tutorial, do not draft the entire `From Scratch` section in
 one sweep. Materialize or present Step 1, run the step quality gate, then append
@@ -48,7 +54,8 @@ Step N before drafting Step N+1:
 
 ```text
 Naive/Previous Version -> What Breaks -> New Requirement -> Add/Replace
--> Why This Works -> Step Check -> Freeze -> Next Gap -> Self Review
+-> Code Change Type/Target -> Why This Works -> Step Check -> Freeze
+-> Next Gap -> Self Review
 ```
 
 1. Load the Plan or Scope
@@ -71,6 +78,9 @@ Naive/Previous Version -> What Breaks -> New Requirement -> Add/Replace
 4. Build One Complete Step
    - Translate the defect into one new requirement.
    - Add to or replace exactly one part of the previous version.
+   - Declare `Code Change Type: patch` or `Code Change Type: checkpoint`.
+   - Declare `Code Change Target`, such as `current script`, `runner.py`,
+     `models.py`, or `src/<package>/...`.
    - Explain why the change addresses the named defect.
    - Verify: the step introduces one pressure, structure, helper, or mutation
      rule.
@@ -94,7 +104,10 @@ Naive/Previous Version -> What Breaks -> New Requirement -> Add/Replace
    - Verify: each completed step would still teach correctly if read alone with
      the prior steps.
 8. Finish Without a Detached Code Dump
-   - Let the last meaningful step yield the complete code when code is needed.
+   - Let the last meaningful step yield the complete assembled checkpoint when
+     code is needed.
+   - If the tutorial builds real code, the final step's `Code Change Type` must
+     be `checkpoint`.
    - Add only practice, common mistakes, verification checklist, and next small
      step after the build.
    - Verify: no final code section introduces new logic.
@@ -109,6 +122,8 @@ teaching questions:
 - `What Breaks`
 - `New Requirement`
 - `Add or Replace`
+- `Code Change Type`
+- `Code Change Target`
 - `Code Change`
 - `Why This Change Works`
 - `Step Check`
@@ -129,9 +144,19 @@ Rules:
 - `New Requirement` must be a direct response to `What Breaks`.
 - `Why This Change Works` must connect the code change back to the defect, not
   merely restate what the code does.
+- `Code Change Type` must be either `patch` or `checkpoint`.
+- `Code Change Target` must name where the reader applies the change.
+- A `patch` must say what previous code it adds to or replaces and may show
+  only the local changed snippet.
+- A `checkpoint` must show the full current runnable unit for its target. It
+  may include earlier code, but it must not introduce unexplained logic.
+- The final meaningful step of a code tutorial must be a `checkpoint`, not a
+  patch. The reader should be able to copy that final checkpoint without
+  stitching earlier snippets together.
 - `Step Self-Review` must explicitly answer:
   - Does this step name a concrete defect in the previous version?
   - Did this step change exactly one thing?
+  - Is the code change type correct, and is the target explicit?
   - Does the check prove this step's defect was addressed?
   - Is the next gap visible from the frozen version?
 - Do not solve the whole feature in one step.
@@ -140,8 +165,8 @@ Rules:
 - When replacing code, show the old shape briefly and the new code explicitly.
 - In `Add or Replace`, use connector wording in substance:
   `In the previous version, add ...` or `Replace this part with ...`.
-- The final complete code must come from the last connected step, not from a
-  separate unexplained section.
+- The final complete code must be the final connected step's checkpoint, not a
+  separate unexplained section and not a pointer to earlier snippets.
 
 ## Decision Points
 
@@ -166,7 +191,8 @@ Rules:
 - `build_mode=connected-version-tutorial`
 - `step_loop=one-step-at-a-time-defect-change-check-freeze-review`
 - `implementation_style=contract-first-with-explicit-helper-boundaries`
-- `final_code_policy=last-step-yields-complete-code`
+- `final_code_policy=last-step-yields-assembled-checkpoint`
+- `code_change_policy=patch-or-checkpoint-with-explicit-target`
 - `source_fact_policy=separate-supplied-from-inferred`
 - `step_depth_policy=complete-one-step-before-next-step`
 
@@ -193,6 +219,8 @@ Rules:
 - What Breaks:
 - New Requirement:
 - Add or Replace:
+- Code Change Type: patch | checkpoint
+- Code Change Target:
 - Code Change:
 - Why This Change Works:
 - Step Check:
@@ -239,6 +267,8 @@ quickly from requirement to helper internals.
 | "The helper names are obvious from the final code." | Helpers should be forced by behavior and invariants, not copied from a memorized solution. |
 | "The headings are present, so the step is complete." | A step is complete only when it deeply explains the previous version's defect and proves the new change. |
 | "It is efficient to draft all steps at once and then polish." | The build loop is step-scoped; writing all steps at once tends to produce thin rationale and hidden jumps. |
+| "The reader can assemble the final code from earlier snippets." | The final step must provide an assembled runnable checkpoint, or the tutorial has not delivered code. |
+| "Code Change means whatever code is useful to show." | Code Change must be either a patch or checkpoint with an explicit target. |
 
 ## Red Flags
 
@@ -250,6 +280,13 @@ quickly from requirement to helper internals.
   resolves the named defect.
 - Several steps read like a generated outline with short bullets instead of
   complete teaching sections.
+- A step's `Code Change` does not say whether it is a patch or checkpoint.
+- A `patch` has no target or does not identify what it changes from the
+  previous version.
+- A `checkpoint` is incomplete for its target or contains logic that earlier
+  steps did not explain.
+- The final meaningful step is a patch or partial class, forcing the reader to
+  assemble final code from previous snippets.
 - A data structure appears before the external contract and hard constraints.
 - A helper appears before its caller, purpose, and mutation boundary are
   explained.
@@ -271,11 +308,15 @@ quickly from requirement to helper internals.
       previous version.
 - [ ] Every step's `New Requirement` and `Why This Change Works` directly
       answer the named defect.
+- [ ] Every step declares `Code Change Type` and `Code Change Target`.
+- [ ] Patch steps modify exactly one visible part of the previous version.
+- [ ] Checkpoint steps show complete runnable units and introduce no new logic.
 - [ ] Every step has a concrete `Step Check`.
 - [ ] Every step freezes the current version before naming the next gap.
 - [ ] Helpers appear only after a step creates their need.
 - [ ] Each helper has an explicit purpose and mutation or return boundary.
-- [ ] The final complete code comes from the last connected step.
+- [ ] The final complete code is the last connected step's assembled
+      checkpoint.
 - [ ] The guide ends with common mistakes, verification checklist, and next
       small step.
 
@@ -284,6 +325,8 @@ quickly from requirement to helper internals.
 - Do not invent source facts, constraints, examples, or behavior.
 - Do not continue from hidden code that was not shown in the previous version.
 - Do not add a detached final implementation section.
+- Do not leave the reader to assemble the final code from scattered snippets.
+- Do not label a partial class or isolated function as a checkpoint.
 - Do not recommend a helper before explaining what pressure or requirement
   created it.
 - Do not proceed to the next step until the current step's concrete defect,

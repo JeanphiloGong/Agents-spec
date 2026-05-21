@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-review
-description: v0.1.2 - Review from-scratch implementation tutorials for defect-driven teaching-chain correctness and executable continuity. Use when checking a tutorial draft for skipped reasoning, vague step rationale, disconnected code versions, unexplained helpers, missing step checks, silent semantic choices, or final-code drift before accepting it.
+description: v0.1.3 - Review from-scratch implementation tutorials for defect-driven teaching-chain correctness, executable continuity, and final checkpoint completeness. Use when checking a tutorial draft for skipped reasoning, vague step rationale, disconnected code versions, unclear code-change roles, unexplained helpers, missing step checks, silent semantic choices, or final-code drift before accepting it.
 ---
 
 # From-Scratch Tutorial Review
@@ -41,7 +41,8 @@ general code review, production merge review, or publishing metadata review.
    - Verify: supplied facts and inferred assumptions are separated.
 2. Check Version Continuity
    - For each numbered step, compare the previous version, add/replace action,
-     code change, current capability, freeze statement, and remaining gap.
+     code change type, code change target, current capability, freeze
+     statement, and remaining gap.
    - Read `references/quality-standards.md` and check executable continuity.
    - Verify: every step can only depend on code already introduced, and every
      step check would run from visible state.
@@ -65,6 +66,8 @@ general code review, production merge review, or publishing metadata review.
    - Verify: helper purpose, inputs, output or mutation boundary are explicit.
 7. Check Final-Code Drift
    - Compare the final complete code to the connected steps.
+   - Confirm the final meaningful step is an assembled checkpoint, not a patch
+     or partial snippet.
    - Verify: no state, branch, helper, or mutation rule appears only at the
      end.
 8. Check Reader-Facing Publishability
@@ -112,6 +115,7 @@ general code review, production merge review, or publishing metadata review.
 | "The step has a `Why This Matters` line, so the rationale is covered." | The rationale must name concrete defects in the current version and show why the next change follows. |
 | "The final tests pass, so intermediate snippets are fine." | Tutorial steps must be executable from visible state; final tests do not prove connected continuity. |
 | "Copying context is a small implementation detail." | Silent semantic choices can change the behavior the tutorial taught earlier. |
+| "The reader can stitch together the final code." | The final step must provide an assembled checkpoint so the delivered code is copyable and reviewable. |
 
 ## Red Flags
 
@@ -126,6 +130,9 @@ general code review, production merge review, or publishing metadata review.
   previous version.
 - A step check depends on stale state, hidden setup, or a registry that was not
   updated after a function or helper changed.
+- A `Code Change` block does not say whether it is a patch or checkpoint.
+- A `Code Change` block lacks a target file, module, or script.
+- The final meaningful step is not a complete assembled checkpoint.
 - A meaningful behavior choice appears without explanation or a targeted check.
 - The final code has helper logic not introduced in steps.
 - The guide starts with internal structure before external behavior.
@@ -140,11 +147,14 @@ general code review, production merge review, or publishing metadata review.
 - [ ] Version continuity was checked step by step.
 - [ ] Executable continuity was checked against the quality standards
       reference.
+- [ ] Code change type and target were checked for every step.
 - [ ] Teaching depth was checked for concrete previous-version defects.
 - [ ] Meaningful semantic choices were checked for explanation and evidence.
 - [ ] Step checks were reviewed for relevance to the current version.
 - [ ] Helper necessity and mutation boundaries were checked.
 - [ ] Final-code drift was checked.
+- [ ] The final meaningful step was checked as an assembled complete
+      checkpoint.
 - [ ] Verdict is `pass`, `revise`, or `block`.
 
 ## Guardrails

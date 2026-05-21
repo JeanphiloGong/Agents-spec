@@ -3,8 +3,8 @@
 This example shows the preferred output style for the skill: a reusable
 markdown guide where the implementation grows through connected code versions.
 Each step explains what concretely breaks in the previous version, changes one
-thing, checks that change, freezes the new version, and states what still
-lacks.
+thing, marks the code change as a patch or checkpoint, checks that change,
+freezes the new version, and states what still lacks.
 
 ## Contents
 
@@ -48,6 +48,8 @@ lacks.
 - New Requirement: the first structure must give direct key-to-entry lookup in
   `O(1)`.
 - Add or Replace: create the first version by adding the direct-lookup need.
+- Code Change Type: patch
+- Code Change Target: design note
 - Code Change:
 
 ```python
@@ -77,6 +79,8 @@ lacks.
   ordered-recency problem visible.
 - Add or Replace: in the previous version, add a map as the first concrete
   state.
+- Code Change Type: patch
+- Code Change Target: `LRUCache.__init__`
 - Code Change:
 
 ```python
@@ -109,6 +113,8 @@ class LRUCache:
   needed for future recency movement.
 - Add or Replace: replace the map-only skeleton with a version that also
   defines the node shape.
+- Code Change Type: patch
+- Code Change Target: current script
 - Code Change:
 
 ```python
@@ -149,6 +155,8 @@ class LRUCache:
   can sit between two neighbors.
 - Add or Replace: replace the node-only skeleton with sentinel nodes connected
   in the constructor.
+- Code Change Type: patch
+- Code Change Target: current script
 - Code Change:
 
 ```python
@@ -193,6 +201,8 @@ class LRUCache:
 - New Requirement: add one helper that detaches a known node by reconnecting
   its previous and next neighbors.
 - Add or Replace: in the previous version, add `_remove(node)`.
+- Code Change Type: patch
+- Code Change Target: `LRUCache`
 - Code Change:
 
 ```python
@@ -234,6 +244,8 @@ class LRUCache:
   most-recent position and add helpers for inserting or moving there.
 - Add or Replace: in the previous version, add `_add_front(node)` and
   `_move_front(node)`.
+- Code Change Type: patch
+- Code Change Target: `LRUCache`
 - Code Change:
 
 ```python
@@ -270,6 +282,8 @@ class LRUCache:
 - New Requirement: use the opposite sentinel edge, `tail.prev`, as the
   least-recent node and add a helper that removes it.
 - Add or Replace: in the previous version, add `_pop_lru()`.
+- Code Change Type: patch
+- Code Change Target: `LRUCache`
 - Code Change:
 
 ```python
@@ -302,6 +316,8 @@ class LRUCache:
 - New Requirement: add public `get` by composing lookup, move-to-front, and
   return.
 - Add or Replace: in the previous version, add public `get`.
+- Code Change Type: patch
+- Code Change Target: `LRUCache`
 - Code Change:
 
 ```python
@@ -335,6 +351,8 @@ class LRUCache:
   already frozen helpers.
 - Add or Replace: in the previous version, add public `put`; this step now
   produces the complete class.
+- Code Change Type: checkpoint
+- Code Change Target: current script
 - Code Change:
 
 ```python

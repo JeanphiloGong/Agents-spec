@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-simplify
-description: v0.1.1 - Simplify a working from-scratch implementation tutorial without changing its defect-driven teaching chain. Use when a guide is correct but too repetitive, wordy, or hard to scan, while concrete previous-version defects, connected code versions, and step checks must be preserved.
+description: v0.1.2 - Simplify a working from-scratch implementation tutorial without changing its defect-driven teaching chain or patch/checkpoint code-change semantics. Use when a guide is correct but too repetitive, wordy, or hard to scan, while concrete previous-version defects, code change roles, final assembled checkpoint, connected code versions, and step checks must be preserved.
 ---
 
 # From-Scratch Tutorial Simplify
@@ -16,6 +16,10 @@ final-code traceability.
 Defect-driven depth is protected content. Do not shorten away the explanation
 of what breaks in the naive or previous version, why the new requirement
 follows, or how the step check proves that one defect was addressed.
+
+Code-change semantics are also protected content. Do not remove `Code Change
+Type`, `Code Change Target`, or the final assembled checkpoint while tightening
+the prose.
 
 ## When to Use
 
@@ -37,8 +41,9 @@ the guide shorter.
 2. Protect Required Fields
    - Preserve `Question`, `Naive or Previous Version`, `What Breaks`, `New
      Requirement`, `Add or Replace`, `Code Change`, `Why This Change Works`,
-     `Step Check`, `Now This Version Can`, `Freeze This Version`, `Still
-     Lacks`, `What To Verify`, and `Step Self-Review` when present.
+     `Code Change Type`, `Code Change Target`, `Step Check`, `Now This Version
+     Can`, `Freeze This Version`, `Still Lacks`, `What To Verify`, and `Step
+     Self-Review` when present.
    - Verify: no step loses the connected build loop.
 3. Remove Repetition
    - Delete repeated rationale that does not add new pressure.
@@ -51,6 +56,8 @@ the guide shorter.
 5. Preserve Code Traceability
    - Do not alter code behavior unless the user explicitly asks.
    - If code snippets are shortened, keep the add/replace relation obvious.
+   - Preserve whether each code block is a patch or checkpoint.
+   - Keep the final assembled checkpoint complete.
    - Verify: final code still traces to the connected steps.
 6. Report Changes
    - Summarize what was simplified and what was intentionally preserved.
@@ -90,6 +97,7 @@ When editing a file directly, keep this report brief and include changed paths.
 | "Step checks can move to the end." | End-only verification loses per-version evidence. |
 | "Code can be compacted while simplifying prose." | Code behavior changes belong to build, not simplify. |
 | "What Breaks is obvious after simplification." | The defect explanation is the teaching engine; preserve it explicitly. |
+| "Patch/checkpoint labels are mechanical noise." | They tell the reader whether to apply a local edit or copy a complete version. |
 
 ## Red Flags
 
@@ -97,7 +105,9 @@ When editing a file directly, keep this report brief and include changed paths.
 - A step loses the concrete `What Breaks` explanation or the link from defect
   to new requirement.
 - A helper remains but its first-needed explanation is removed.
+- A step loses `Code Change Type` or `Code Change Target`.
 - Final code no longer traces to prior versions.
+- The final assembled checkpoint is shortened into a partial snippet.
 - Source facts and assumptions are merged together.
 - Simplification changes code behavior.
 
@@ -106,6 +116,7 @@ When editing a file directly, keep this report brief and include changed paths.
 - [ ] The connected build loop remains intact in every step.
 - [ ] Concrete previous-version defects and defect-to-change explanations are
       preserved.
+- [ ] Code change type, target, and final assembled checkpoint are preserved.
 - [ ] Step checks and freeze points are preserved.
 - [ ] Helper contracts still have purpose and boundaries.
 - [ ] No source facts or assumptions were invented.
@@ -119,5 +130,7 @@ When editing a file directly, keep this report brief and include changed paths.
 - Do not remove concrete examples or traces when they are the only evidence.
 - Do not compress a step so far that it no longer explains what breaks in the
   prior version.
+- Do not remove patch/checkpoint labels or make the final checkpoint
+  incomplete.
 - Do not collapse multiple version steps into one unless the user explicitly
   asks for a shorter non-teaching summary.
