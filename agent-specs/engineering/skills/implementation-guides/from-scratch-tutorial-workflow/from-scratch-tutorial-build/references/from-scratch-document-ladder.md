@@ -7,6 +7,7 @@ with connected code growth.
 
 - Core Rule
 - Required Step Shape
+- Public Tutorial Voice
 - Recommended Ladder
 - Good Signs
 - Anti-Patterns
@@ -23,6 +24,9 @@ Write one problem, one concrete defect, one code change, one check, one new
 capability, and one remaining gap at a time. Finish that step before drafting
 the next step. Mark every code change as a `patch` or `checkpoint`, and make
 the last meaningful code step an assembled complete checkpoint.
+
+Before the defect statement, show a pressure example: a tiny input, trace, call
+site, or extension that makes the naive version's weakness visible.
 
 Prefer this order:
 
@@ -41,6 +45,7 @@ Prefer this order:
 Each step in `## From Scratch` should answer these prompts:
 
 - `Question`
+- `Pressure Example`
 - `Naive or Previous Version`
 - `What Breaks`
 - `New Requirement`
@@ -54,7 +59,7 @@ Each step in `## From Scratch` should answer these prompts:
 - `Freeze This Version`
 - `Still Lacks`
 - `What To Verify`
-- `Step Self-Review`
+- `Checkpoint` or `Before Moving On`
 
 Keep each step narrow:
 
@@ -64,6 +69,9 @@ Keep each step narrow:
 - or one new mutation rule
 
 If a step tries to introduce multiple new ideas, split it.
+
+Do not expose internal self-review fields in public tutorial text. The agent
+must still run the self-review privately before moving to the next step.
 
 Use code change roles consistently:
 
@@ -93,12 +101,31 @@ Do not use a vague teaching pressure. "This is not scalable" is not enough.
 Name the exact burden or failure, such as "the caller must know the internal
 step order" or "the code cannot identify which step failed."
 
+## Public Tutorial Voice
+
+Public tutorial output should sound like teaching, not compliance.
+
+Use:
+
+- `Checkpoint`
+- `Before Moving On`
+- `Try This`
+- `Version Checkpoint`
+
+Do not output:
+
+- `Step Self-Review`
+- `Concrete defect named: yes`
+- `Exactly one change: yes`
+- `Check proves the step: yes`
+
 ## Recommended Ladder
 
 ### Step 1: Shrink the feature to one visible pressure
 
 - Use the smallest non-trivial behavior.
 - Ask what must already be true for that behavior to work.
+- Show the first pressure example before naming the defect.
 - If code appears, it should be the smallest useful skeleton or note that can
   become the first version.
 
@@ -190,6 +217,7 @@ Do not do these in from-scratch mode:
 - omit the code change type or target
 - omit what the current version can do and what it still lacks
 - omit what broke in the previous version
+- output internal self-review fields as public tutorial prose
 
 ## Full-Code Policy
 

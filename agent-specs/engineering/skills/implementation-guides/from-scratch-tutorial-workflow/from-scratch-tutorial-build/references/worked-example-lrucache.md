@@ -4,7 +4,8 @@ This example shows the preferred output style for the skill: a reusable
 markdown guide where the implementation grows through connected code versions.
 Each step explains what concretely breaks in the previous version, changes one
 thing, marks the code change as a patch or checkpoint, checks that change,
-freezes the new version, and states what still lacks.
+freezes the new version, and states what still lacks. The step starts from a
+small pressure example rather than a memorized final structure.
 
 ## Contents
 
@@ -41,6 +42,21 @@ freezes the new version, and states what still lacks.
 ### Step 1: Why is a plain list not enough?
 
 - Question: can we keep entries in a list ordered by recency?
+- Pressure Example: start with three ordered entries and a direct scan:
+
+```python
+entries = [(1, "a"), (2, "b"), (3, "c")]
+
+
+def get(key):
+    for item_key, value in entries:
+        if item_key == key:
+            return value
+    return -1
+```
+
+This works for three entries. Now imagine `get(9999)` in a 10,000-entry cache.
+The number of checks depends on where the key appears.
 - Naive or Previous Version: nothing yet; the most obvious starting point is a
   list ordered by recency.
 - What Breaks: a list can preserve recency order, but `get(key)` must scan
@@ -65,12 +81,21 @@ freezes the new version, and states what still lacks.
 - Freeze This Version: v1 is the direct-lookup requirement.
 - Still Lacks: ordered recency updates and eviction.
 - What To Verify: explain why a list alone makes `get(key)` too slow.
-- Step Self-Review: one defect was named, one requirement was added, and the
+- Checkpoint: one defect was named, one requirement was added, and the
   check proves list lookup violates the contract.
 
 ### Step 2: Why is a plain map not enough?
 
 - Question: if a map gives `O(1)` lookup, why not stop there?
+- Pressure Example: a map answers `get(1)` quickly, but after these operations
+  it cannot answer which key should be evicted:
+
+```python
+put(1, "a")
+put(2, "b")
+get(1)
+put(3, "c")  # Which key is least recently used?
+```
 - Naive or Previous Version: v1 says the cache needs direct key lookup, so a
   plain map is the smallest concrete structure.
 - What Breaks: a map can find a key, but it does not preserve "least recently
@@ -99,7 +124,7 @@ class LRUCache:
 - Still Lacks: a node shape and an order structure for recency.
 - What To Verify: explain why a map alone cannot remove the least recently used
   entry without extra work.
-- Step Self-Review: the map solves lookup only; the remaining defect is
+- Checkpoint: the map solves lookup only; the remaining defect is
   recency order.
 
 ### Step 3: Why should the map store nodes instead of values?
@@ -141,7 +166,7 @@ class LRUCache:
 - Freeze This Version: v3 is a map from keys to movable nodes.
 - Still Lacks: list sentinels and mutation helpers.
 - What To Verify: explain why eviction still needs the `key` on the node.
-- Step Self-Review: the defect was value-only storage; the one change was a
+- Checkpoint: the defect was value-only storage; the one change was a
   node shape.
 
 ### Step 4: What is the smallest runnable skeleton?
@@ -187,7 +212,7 @@ class LRUCache:
 - Still Lacks: helpers that mutate the list.
 - What To Verify: `head.next is tail` and `tail.prev is head` in the empty
   cache.
-- Step Self-Review: the defect was boundary branching; sentinels address only
+- Checkpoint: the defect was boundary branching; sentinels address only
   that defect.
 
 ### Step 5: What helper is forced first?
@@ -230,7 +255,7 @@ class LRUCache:
 - Freeze This Version: v5 can remove a known node from the recency list.
 - Still Lacks: adding nodes to the most-recent position.
 - What To Verify: after removal, neighboring nodes point to each other.
-- Step Self-Review: the step introduced one helper forced by one repeated
+- Checkpoint: the step introduced one helper forced by one repeated
   mutation.
 
 ### Step 6: How do we mark a node most recently used?
@@ -270,7 +295,7 @@ class LRUCache:
 - Freeze This Version: v6 can maintain most-recent order for known nodes.
 - Still Lacks: removing the least-recently-used node.
 - What To Verify: after `_add_front(node)`, `head.next` is that node.
-- Step Self-Review: the new requirement follows from the missing recency
+- Checkpoint: the new requirement follows from the missing recency
   convention.
 
 ### Step 7: How do we evict in `O(1)`?
@@ -303,12 +328,14 @@ class LRUCache:
   behavior.
 - Still Lacks: public `get` and `put`.
 - What To Verify: `_pop_lru()` returns the node before `tail`.
-- Step Self-Review: eviction was the defect; `_pop_lru` solves only that
+- Checkpoint: eviction was the defect; `_pop_lru` solves only that
   constant-time removal need.
 
 ### Step 8: How does `get` compose the primitives?
 
 - Question: what should happen when the key exists?
+- Pressure Example: after `put(1, "a")` and `put(2, "b")`, a caller expects
+  `get(1)` to both return `"a"` and make key `1` more recent than key `2`.
 - Naive or Previous Version: v7 has internal primitives but no public read
   method.
 - What Breaks: callers cannot use the cache contract yet; they need `get(key)`
@@ -337,12 +364,20 @@ class LRUCache:
 - Freeze This Version: v8 supports public reads and recency updates.
 - Still Lacks: insert, update, and capacity eviction.
 - What To Verify: a successful read updates recency without changing the value.
-- Step Self-Review: the public read defect is addressed without adding write
+- Checkpoint: the public read defect is addressed without adding write
   behavior.
 
 ### Step 9: How does `put` handle update, insert, and eviction?
 
 - Question: what are the three cases hidden inside one method?
+- Pressure Example: one public method must handle three calls that look similar
+  but mean different things:
+
+```python
+put(1, "new")  # update existing
+put(2, "b")    # insert with room
+put(3, "c")    # insert and evict when full
+```
 - Naive or Previous Version: v8 can read existing keys, but nothing can create
   or update cache entries.
 - What Breaks: the cache contract is incomplete without `put`; writes must
@@ -428,7 +463,7 @@ class LRUCache:
   them.
 - What To Verify: `put(1,1)`, `put(2,2)`, `get(1)`, `put(3,3)` should evict key
   `2` when capacity is `2`.
-- Step Self-Review: this final step adds only the public write method; all
+- Checkpoint: this final step adds only the public write method; all
   supporting state and helpers were already introduced.
 
 ## Helper Contracts

@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-review
-description: v0.1.3 - Review from-scratch implementation tutorials for defect-driven teaching-chain correctness, executable continuity, and final checkpoint completeness. Use when checking a tutorial draft for skipped reasoning, vague step rationale, disconnected code versions, unclear code-change roles, unexplained helpers, missing step checks, silent semantic choices, or final-code drift before accepting it.
+description: v0.1.4 - Review from-scratch implementation tutorials for pressure-driven teaching quality, executable continuity, and final checkpoint completeness. Use when checking a tutorial draft for skipped reasoning, vague step rationale, disconnected code versions, unclear code-change roles, public self-review leakage, unexplained helpers, missing step checks, silent semantic choices, or final-code drift before accepting it.
 ---
 
 # From-Scratch Tutorial Review
@@ -13,8 +13,8 @@ behavior to final code without trusting a hidden answer. Findings lead the
 response, ordered by severity, with file or section references when available.
 
 Use the bundled quality standards reference when headings are present but the
-tutorial may still hide state, skip semantic choices, or read like an internal
-generation artifact.
+tutorial may still hide state, skip semantic choices, miss pressure examples,
+or read like an internal generation artifact.
 
 ## When to Use
 
@@ -47,10 +47,11 @@ general code review, production merge review, or publishing metadata review.
    - Verify: every step can only depend on code already introduced, and every
      step check would run from visible state.
 3. Check Defect-Driven Teaching Depth
-   - Inspect `What Breaks`, `New Requirement`, `Why This Change Works`, and
-     `Step Self-Review` when present.
+   - Inspect pressure examples, `What Breaks`, `New Requirement`, and
+     `Why This Change Works`.
    - Verify: every step names a concrete defect in the naive or previous
-     version before introducing the next structure.
+     version before introducing the next structure, and the reader sees a
+     pressure example before the fix.
 4. Check Step Evidence
    - Inspect `Step Check` and `What To Verify`.
    - Verify: checks prove the current version's named defect was addressed,
@@ -73,6 +74,8 @@ general code review, production merge review, or publishing metadata review.
 8. Check Reader-Facing Publishability
    - Identify internal scaffolding, excessive compliance language, or missing
      reader recap after correctness issues are handled.
+   - Treat public `Step Self-Review` sections or yes/no compliance bullets as
+     revision issues.
    - Verify: publishability feedback is not used to hide blocking correctness
      findings.
 9. Produce Verdict
@@ -116,16 +119,17 @@ general code review, production merge review, or publishing metadata review.
 | "The final tests pass, so intermediate snippets are fine." | Tutorial steps must be executable from visible state; final tests do not prove connected continuity. |
 | "Copying context is a small implementation detail." | Silent semantic choices can change the behavior the tutorial taught earlier. |
 | "The reader can stitch together the final code." | The final step must provide an assembled checkpoint so the delivered code is copyable and reviewable. |
+| "Step Self-Review is useful transparency." | It is internal scaffolding; public tutorials need reader-facing checkpoints, not compliance notes. |
 
 ## Red Flags
 
 - A step lacks `Naive or Previous Version`, `What Breaks`, `New Requirement`,
-  `Add or Replace`, `Step Check`, `Freeze This Version`, `Still Lacks`, or an
-  equivalent step-level self-review.
+  `Add or Replace`, `Step Check`, `Freeze This Version`, or `Still Lacks`.
 - A step's rationale is generic and does not explain what breaks in the naive
   or previous version.
-- The guide advances to the next step without a visible step-level self-review
-  or equivalent quality gate.
+- A step names a defect without showing a concrete pressure example first.
+- The guide advances to the next step without a reader-facing checkpoint or
+  equivalent visible learning pause.
 - A code block cannot be explained as an addition to or replacement of the
   previous version.
 - A step check depends on stale state, hidden setup, or a registry that was not
@@ -140,6 +144,7 @@ general code review, production merge review, or publishing metadata review.
 - The tutorial has no concrete trace or check.
 - The tutorial reads like an internal compliance checklist rather than a
   reader-facing guide.
+- The public tutorial contains `Step Self-Review` or yes/no self-audit bullets.
 
 ## Verification
 
@@ -148,6 +153,7 @@ general code review, production merge review, or publishing metadata review.
 - [ ] Executable continuity was checked against the quality standards
       reference.
 - [ ] Code change type and target were checked for every step.
+- [ ] Pressure examples were checked before defect statements and fixes.
 - [ ] Teaching depth was checked for concrete previous-version defects.
 - [ ] Meaningful semantic choices were checked for explanation and evidence.
 - [ ] Step checks were reviewed for relevance to the current version.

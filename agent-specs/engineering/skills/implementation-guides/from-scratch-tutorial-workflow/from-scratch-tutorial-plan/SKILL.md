@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-plan
-description: v0.1.2 - Plan a defect-driven from-scratch implementation tutorial before writing it, including patch/checkpoint code-change boundaries. Use when the human wants a teaching path, reader goal, examples, code-version checkpoints, concrete previous-version defects, final assembled checkpoint, and verification plan before drafting a from-scratch guide.
+description: v0.1.3 - Plan a pressure-driven from-scratch implementation tutorial before writing it, including universal examples and patch/checkpoint code-change boundaries. Use when the human wants a teaching path, reader goal, pressure examples, code-version checkpoints, concrete previous-version defects, final assembled checkpoint, and verification plan before drafting a from-scratch guide.
 ---
 
 # From-Scratch Tutorial Plan
@@ -44,12 +44,14 @@ work.
 3. Choose the Teaching Example
    - Pick one small example or trace that exposes the first real pressure.
    - Avoid examples that require the final solution to understand.
+   - Prefer universal examples or source-independent scenarios; do not bake the
+     user's current production module into the skill's reusable standards.
    - Verify: the example can be reused later as a step check.
 4. Plan Connected Code Versions
    - List the smallest skeleton and each later version.
-   - For every version, state `naive or previous version`, `concrete defect`,
-     `new pressure`, `add or replace`, `code change type`, `code change
-     target`, `step check`, and `freeze or next gap`.
+   - For every version, state `pressure example`, `naive or previous version`,
+     `concrete defect`, `new pressure`, `add or replace`, `code change type`,
+     `code change target`, `step check`, and `freeze or next gap`.
    - Make the next question arise from the previous version's named defect,
      not from a final-code outline.
    - Verify: each version changes one pressure, structure, helper, or mutation
@@ -72,6 +74,8 @@ For each step:
 
 - `Naive or Previous Version` states the exact code or mental model the reader
   currently has.
+- `Pressure Example` shows the concrete input, trace, call site, or extension
+  that makes the current version's weakness visible before naming the defect.
 - `Concrete Defect` names what that version cannot explain, observe, protect,
   or let the caller do.
 - `New Pressure` translates that defect into the next requirement.
@@ -85,8 +89,11 @@ For each step:
 
 If `Concrete Defect` could apply to any tutorial, the step is not planned well
 enough. For example, "ordinary function calls are not scalable" is too vague;
-"the caller must know `prepare` must run before `enrich`, and there is no run
-record showing which step failed" is concrete.
+"a list-backed cache must scan every entry to answer `get(key)`, so lookup time
+depends on key position" is concrete.
+
+If `Pressure Example` is missing, the step will read like a template. The plan
+must show what the reader experiences before the tutorial names the defect.
 
 For code tutorials, the final planned step must be `Code Change Type:
 checkpoint` and must name the complete target it assembles, such as `runner.py`
@@ -125,9 +132,9 @@ but it must not add unexplained logic.
 - Reuse as check:
 
 ## Version Plan
-| Step | Question | Naive or Previous Version | Concrete Defect | New Pressure | Add or Replace | Code Change Type | Code Change Target | Step Check | Freeze or Next Gap |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | ... | ... | ... | ... | ... | patch/checkpoint | ... | ... | ... |
+| Step | Question | Pressure Example | Naive or Previous Version | Concrete Defect | New Pressure | Add or Replace | Code Change Type | Code Change Target | Step Check | Freeze or Next Gap |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | ... | ... | ... | ... | ... | ... | patch/checkpoint | ... | ... | ... |
 
 ## Helper Contracts To Introduce
 | Helper | First Needed In | Purpose | Inputs | Output/Mutation |
@@ -150,12 +157,14 @@ but it must not add unexplained logic.
 | "A plan should stay high level." | Tutorial plans need concrete version checkpoints or the build will drift. |
 | "The step question already implies the defect." | The defect must be stated explicitly so the builder can teach why the next change is necessary. |
 | "The builder can decide code shape later." | Patch/checkpoint boundaries are part of the teaching plan; they determine whether readers patch or copy a complete version. |
+| "The defect statement is enough." | The plan needs a pressure example so the reader can feel why the defect matters before seeing the fix. |
 
 ## Red Flags
 
 - The plan names data structures before the external contract.
 - Version steps do not say what the previous version can do or what concrete
   defect remains.
+- A version row lacks a pressure example.
 - A step's `Concrete Defect` is generic, motivational, or copied from the final
   architecture instead of observed in the current version.
 - A version row lacks `Code Change Type` or `Code Change Target`.
@@ -169,9 +178,9 @@ but it must not add unexplained logic.
 
 - [ ] Reader, goal, and prerequisites are explicit.
 - [ ] Supplied facts and inferred assumptions are separated.
-- [ ] The version plan includes naive or previous version, concrete defect, new
-      pressure, add/replace, code change type, code change target, step check,
-      and freeze or next gap.
+- [ ] The version plan includes pressure example, naive or previous version,
+      concrete defect, new pressure, add/replace, code change type, code
+      change target, step check, and freeze or next gap.
 - [ ] Each step's question follows from the previous version's concrete defect.
 - [ ] The final code step is planned as a complete assembled checkpoint.
 - [ ] Each helper has a first-needed step and mutation or return boundary.

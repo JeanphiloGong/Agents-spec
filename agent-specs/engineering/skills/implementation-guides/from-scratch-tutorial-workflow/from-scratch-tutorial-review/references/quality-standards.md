@@ -13,7 +13,8 @@ Review in this order:
 3. code change role clarity and final checkpoint completeness
 4. semantic choice visibility
 5. evidence quality
-6. reader-facing publishability
+6. engineering tutorial completeness
+7. reader-facing publishability
 
 ## 1. Executable Continuity
 
@@ -40,16 +41,19 @@ Finding severity:
 Example:
 
 ```text
-If Step 3 defines handlers = {"enrich": enrich}, and Step 5 later redefines
-def enrich(...): raise ..., Step 5 must also update handlers["enrich"] or use a
-separate failing handler registry. Python dictionaries hold the old function
-object.
+If Step 3 defines operations = {"divide": divide}, and Step 5 later redefines
+def divide(...): raise ..., Step 5 must also update operations["divide"] or use
+a separate failing operation registry. Python dictionaries hold the old
+function object.
 ```
 
 ## 2. Defect-Driven Teaching Depth
 
 Each step must explain why the previous version is insufficient before it adds
 new structure.
+
+Before the defect statement, the step should show a pressure example: a small
+input, trace, call site, or extension that makes the weakness visible.
 
 Strong `What Breaks` names:
 
@@ -68,12 +72,16 @@ Weak `What Breaks` says only:
 - "this is hard to maintain"
 - "production needs more"
 
+Weak steps also jump directly from a heading to a fix without showing what the
+reader experiences in the naive version.
+
 Finding severity:
 
 - `block` when a core step introduces a helper, data structure, state machine,
   or public API without a concrete previous-version defect.
 - `revise` when the defect exists but is too generic to teach why this exact
   change follows.
+- `revise` when the step has a concrete defect but no pressure example.
 
 ## 3. Code Change Role Clarity And Final Checkpoint Completeness
 
@@ -103,10 +111,10 @@ Finding severity:
 Example:
 
 ```text
-If Step 4 introduced StepRecord and RunRecord, and Step 6 introduced
-PipelineRunner, Step 6 must still show the complete final runnable target that
-includes imports, StepRecord, RunRecord, and PipelineRunner. It cannot only show
-the PipelineRunner class and expect the reader to assemble the rest from Step 4.
+If Step 3 introduced Node, Step 5 introduced _remove and _add_front, and Step 8
+introduced get, the final LRU cache step must still show the complete runnable
+target with Node, LRUCache, helpers, get, and put. It cannot only show the put
+method and expect the reader to assemble the rest from earlier steps.
 ```
 
 ## 4. Semantic Choice Visibility
@@ -134,9 +142,9 @@ Finding severity:
 Example:
 
 ```text
-If early steps teach that handlers share and mutate caller context, but the
-final runner uses context=dict(context or {}), the tutorial must explain why the
-runner copies caller context and what mutation is now observable.
+If early steps teach that get(key) updates recency, but the final cache returns
+a value without moving the node to the front, the tutorial must explain the
+semantic change or restore the mutation that earlier steps promised.
 ```
 
 ## 5. Evidence Quality
@@ -164,15 +172,35 @@ Finding severity:
 - `block` when no check proves a core step.
 - `revise` when the check exists but does not target the step's named defect.
 
-## 6. Reader-Facing Publishability
+## 6. Engineering Tutorial Completeness
+
+Engineering tutorials need more than a code ladder. They should also teach the
+small system model around the code.
+
+Check for:
+
+- real scenario: who calls the thing, why they need it, and what they observe
+- core model: the few concepts the code manipulates
+- invariants: rules that must stay true across steps
+- verification matrix: happy path, invalid input, failure path, boundary case,
+  and one state or event trace when relevant
+- "when not to use this" or deferred scope when the topic could expand into a
+  heavier architecture
+
+Finding severity:
+
+- `revise` when a working engineering tutorial lacks real scenario, invariants,
+  or an engineering verification matrix.
+- `suggestion` when the missing item is helpful but not central to the lesson.
+
+## 7. Reader-Facing Publishability
 
 A tutorial can be correct but still read like an internal generation artifact.
 
 Check for:
 
 - long repeated field labels that interrupt reading
-- `Step Self-Review` written as author-internal compliance instead of reader
-  guidance
+- any public `Step Self-Review` section or author-internal compliance bullets
 - missing opening motivation in real-world terms
 - missing "when not to use this" boundary
 - missing final mental model or recap
@@ -182,6 +210,7 @@ Finding severity:
 
 - `suggestion` when publishability issues do not affect correctness.
 - `revise` when internal scaffolding makes the tutorial hard to learn from.
+- `revise` when `Step Self-Review` appears in public tutorial text.
 
 Recommended reader-facing alternatives:
 

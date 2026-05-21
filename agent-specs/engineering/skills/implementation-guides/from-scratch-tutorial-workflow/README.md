@@ -4,21 +4,25 @@ This package contains workflow skills for producing implementation tutorials
 from first principles. Use it when the deliverable is a teaching artifact, not
 a production patch, runnable reference sample, or landing plan.
 
-The package standard is a defect-driven step ladder: every tutorial step must
-show the naive or previous version, explain what concretely breaks, add or
-replace one thing, check that one change, freeze the version, and only then move
-to the next step. Every step's code change must be marked as a `patch` or a
-`checkpoint`, and the final meaningful step of a code tutorial must be an
-assembled complete checkpoint.
+The package standard is a pressure-driven step ladder: every tutorial step must
+start with a concrete pressure example, show the naive or previous version,
+explain what concretely breaks, add or replace one thing, check that one change,
+freeze the version, and only then move to the next step. Every step's code
+change must be marked as a `patch` or a `checkpoint`, and the final meaningful
+step of a code tutorial must be an assembled complete checkpoint.
+
+Internal self-review is required during generation, but public tutorial output
+must use reader-facing checkpoints instead of `Step Self-Review` compliance
+sections.
 
 ## Layout
 
 | Workflow step | Skill | Purpose |
 | --- | --- |
-| Plan the teaching route | [`from-scratch-tutorial-plan`](from-scratch-tutorial-plan/SKILL.md) | Define reader, goal, concrete previous-version defects, patch/checkpoint boundaries, final assembled checkpoint, and verification before writing. |
-| Build the tutorial | [`from-scratch-tutorial-build`](from-scratch-tutorial-build/SKILL.md) | Build the guide one complete defect-driven step at a time, with explicit code change type/target, helper contracts, checks, freeze points, and final-code traceability. |
-| Review tutorial quality | [`from-scratch-tutorial-review`](from-scratch-tutorial-review/SKILL.md) | Check for skipped reasoning, vague step rationale, disconnected code versions, unclear code-change roles, unexplained helpers, weak checks, and final-code drift. |
-| Simplify the guide | [`from-scratch-tutorial-simplify`](from-scratch-tutorial-simplify/SKILL.md) | Reduce repetition and prose weight without deleting the defect-driven teaching chain or final checkpoint. |
+| Plan the teaching route | [`from-scratch-tutorial-plan`](from-scratch-tutorial-plan/SKILL.md) | Define reader, goal, pressure examples, concrete previous-version defects, patch/checkpoint boundaries, final assembled checkpoint, and verification before writing. |
+| Build the tutorial | [`from-scratch-tutorial-build`](from-scratch-tutorial-build/SKILL.md) | Build the guide one complete pressure-driven step at a time, with explicit code change type/target, helper contracts, checks, freeze points, and final-code traceability. |
+| Review tutorial quality | [`from-scratch-tutorial-review`](from-scratch-tutorial-review/SKILL.md) | Check for skipped reasoning, missing pressure examples, vague step rationale, disconnected code versions, unclear code-change roles, unexplained helpers, weak checks, and final-code drift. |
+| Simplify the guide | [`from-scratch-tutorial-simplify`](from-scratch-tutorial-simplify/SKILL.md) | Reduce repetition and prose weight without deleting pressure examples, the teaching chain, or final checkpoint. |
 
 ## Codex Usage
 

@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-simplify
-description: v0.1.2 - Simplify a working from-scratch implementation tutorial without changing its defect-driven teaching chain or patch/checkpoint code-change semantics. Use when a guide is correct but too repetitive, wordy, or hard to scan, while concrete previous-version defects, code change roles, final assembled checkpoint, connected code versions, and step checks must be preserved.
+description: v0.1.3 - Simplify a working from-scratch implementation tutorial without changing its pressure-driven teaching chain or patch/checkpoint code-change semantics. Use when a guide is correct but too repetitive, wordy, or hard to scan, while pressure examples, concrete previous-version defects, code change roles, final assembled checkpoint, connected code versions, and step checks must be preserved.
 ---
 
 # From-Scratch Tutorial Simplify
@@ -17,9 +17,18 @@ Defect-driven depth is protected content. Do not shorten away the explanation
 of what breaks in the naive or previous version, why the new requirement
 follows, or how the step check proves that one defect was addressed.
 
+Pressure examples are protected content too. Do not remove the tiny input,
+trace, call site, or extension that lets the reader feel the problem before the
+fix appears.
+
 Code-change semantics are also protected content. Do not remove `Code Change
 Type`, `Code Change Target`, or the final assembled checkpoint while tightening
 the prose.
+
+Internal self-review is not protected public content. If a tutorial includes
+`Step Self-Review` sections, replace them with reader-facing `Checkpoint`,
+`Before Moving On`, or `Try This` language while preserving the actual teaching
+check.
 
 ## When to Use
 
@@ -39,11 +48,11 @@ the guide shorter.
      and final code.
    - Verify: the current tutorial is complete enough to simplify.
 2. Protect Required Fields
-   - Preserve `Question`, `Naive or Previous Version`, `What Breaks`, `New
-     Requirement`, `Add or Replace`, `Code Change`, `Why This Change Works`,
-     `Code Change Type`, `Code Change Target`, `Step Check`, `Now This Version
-     Can`, `Freeze This Version`, `Still Lacks`, `What To Verify`, and `Step
-     Self-Review` when present.
+   - Preserve `Question`, `Pressure Example`, `Naive or Previous Version`,
+     `What Breaks`, `New Requirement`, `Add or Replace`, `Code Change`,
+     `Why This Change Works`, `Code Change Type`, `Code Change Target`, `Step
+     Check`, `Now This Version Can`, `Freeze This Version`, `Still Lacks`, and
+     `What To Verify` when present.
    - Verify: no step loses the connected build loop.
 3. Remove Repetition
    - Delete repeated rationale that does not add new pressure.
@@ -98,12 +107,14 @@ When editing a file directly, keep this report brief and include changed paths.
 | "Code can be compacted while simplifying prose." | Code behavior changes belong to build, not simplify. |
 | "What Breaks is obvious after simplification." | The defect explanation is the teaching engine; preserve it explicitly. |
 | "Patch/checkpoint labels are mechanical noise." | They tell the reader whether to apply a local edit or copy a complete version. |
+| "Step Self-Review should stay because it is accurate." | It is internal scaffolding; public tutorials should use reader-facing checkpoints. |
 
 ## Red Flags
 
 - A step loses `Step Check` or `Still Lacks`.
 - A step loses the concrete `What Breaks` explanation or the link from defect
   to new requirement.
+- A step loses the pressure example that made the defect visible.
 - A helper remains but its first-needed explanation is removed.
 - A step loses `Code Change Type` or `Code Change Target`.
 - Final code no longer traces to prior versions.
@@ -116,6 +127,8 @@ When editing a file directly, keep this report brief and include changed paths.
 - [ ] The connected build loop remains intact in every step.
 - [ ] Concrete previous-version defects and defect-to-change explanations are
       preserved.
+- [ ] Pressure examples are preserved or rewritten into clearer reader-facing
+      examples.
 - [ ] Code change type, target, and final assembled checkpoint are preserved.
 - [ ] Step checks and freeze points are preserved.
 - [ ] Helper contracts still have purpose and boundaries.
@@ -130,6 +143,8 @@ When editing a file directly, keep this report brief and include changed paths.
 - Do not remove concrete examples or traces when they are the only evidence.
 - Do not compress a step so far that it no longer explains what breaks in the
   prior version.
+- Do not preserve `Step Self-Review` as public prose; convert it to a
+  reader-facing checkpoint when simplifying for publication.
 - Do not remove patch/checkpoint labels or make the final checkpoint
   incomplete.
 - Do not collapse multiple version steps into one unless the user explicitly

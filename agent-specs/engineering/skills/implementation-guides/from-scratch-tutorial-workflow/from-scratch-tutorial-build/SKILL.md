@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-build
-description: v0.1.3 - Build a from-scratch implementation tutorial one complete defect-driven step at a time with explicit patch/checkpoint code changes. Use when turning a reader goal, external contract, teaching example, and version plan into a guide with concrete previous-version defects, code change targets, final assembled checkpoint, step checks, helper contracts, and no detached final code.
+description: v0.1.4 - Build a pressure-driven from-scratch implementation tutorial one complete public step at a time with explicit patch/checkpoint code changes. Use when turning a reader goal, external contract, teaching example, and version plan into a guide with pressure examples, concrete previous-version defects, code change targets, final assembled checkpoint, reader-facing checkpoints, helper contracts, and no detached final code.
 ---
 
 # From-Scratch Tutorial Build
@@ -18,6 +18,11 @@ next one. A step is not complete because it has the right headings; it is
 complete only when it explains the current version's concrete defect, changes
 one thing, proves that change, freezes the new baseline, and names the next
 gap.
+
+Self-review is an internal quality gate. Do not output `Step Self-Review` or
+yes/no compliance bullets in the public tutorial body. Use reader-facing
+checkpoint language such as `Checkpoint`, `Before Moving On`, or `Try This`
+when the reader needs a visible pause.
 
 `Code Change` has a precise role: it tells the reader what code exists after
 this step. It must be explicitly marked as either a `patch` or a `checkpoint`.
@@ -53,9 +58,9 @@ Use this loop for every numbered tutorial step, finishing the whole loop for
 Step N before drafting Step N+1:
 
 ```text
-Naive/Previous Version -> What Breaks -> New Requirement -> Add/Replace
--> Code Change Type/Target -> Why This Works -> Step Check -> Freeze
--> Next Gap -> Self Review
+Pressure Example -> Naive/Previous Version -> What Breaks -> New Requirement
+-> Add/Replace -> Code Change Type/Target -> Why This Works -> Step Check
+-> Freeze -> Next Gap -> Internal Self Review
 ```
 
 1. Load the Plan or Scope
@@ -70,6 +75,10 @@ Naive/Previous Version -> What Breaks -> New Requirement -> Add/Replace
      the teaching example before internal structure.
    - Verify: the reader can understand the problem before seeing code.
 3. Derive the First Pressure
+   - Read `references/tutorial-style-standards.md` when a step risks reading
+     like a filled template.
+   - Start each step with a pressure example: a concrete input, trace, call
+     site, or small extension that makes the weakness visible.
    - Show the naive or previous version as the reader currently understands it.
    - Name its concrete defect: what caller knowledge, observation, failure
      diagnosis, invariant, or extension it cannot support.
@@ -93,7 +102,8 @@ Naive/Previous Version -> What Breaks -> New Requirement -> Add/Replace
    - State what this version can do now.
    - State that this version is the baseline for the next step.
    - Name the next gap as a concrete defect in the frozen version.
-   - Run the per-step quality gate before drafting the next step.
+   - Run the internal per-step quality gate before drafting the next step.
+   - Expose only reader-facing checkpoints in the tutorial body.
    - Verify: the next step can only continue from this version, not a hidden
      rewrite.
 7. Continue Step-by-Step
@@ -118,6 +128,7 @@ Every numbered step inside the `From Scratch` section should answer the same
 teaching questions:
 
 - `Question`
+- `Pressure Example`
 - `Naive or Previous Version`
 - `What Breaks`
 - `New Requirement`
@@ -131,7 +142,7 @@ teaching questions:
 - `Freeze This Version`
 - `Still Lacks`
 - `What To Verify`
-- `Step Self-Review`
+- `Checkpoint` or `Before Moving On`
 
 Rules:
 - Each step introduces only one new pressure, structure, helper, or mutation
@@ -141,6 +152,8 @@ Rules:
   statements such as "this does not scale", "this is not clean", or "we need a
   better abstraction" fail the step unless they name the specific caller burden,
   missing observation, broken invariant, or failing trace.
+- `Pressure Example` must appear before or inside `What Breaks`. It should
+  show the small concrete situation that makes the defect visible.
 - `New Requirement` must be a direct response to `What Breaks`.
 - `Why This Change Works` must connect the code change back to the defect, not
   merely restate what the code does.
@@ -153,8 +166,9 @@ Rules:
 - The final meaningful step of a code tutorial must be a `checkpoint`, not a
   patch. The reader should be able to copy that final checkpoint without
   stitching earlier snippets together.
-- `Step Self-Review` must explicitly answer:
+- The internal step self-review must explicitly answer, but not output:
   - Does this step name a concrete defect in the previous version?
+  - Does the step include a pressure example before the fix?
   - Did this step change exactly one thing?
   - Is the code change type correct, and is the target explicit?
   - Does the check prove this step's defect was addressed?
@@ -167,6 +181,8 @@ Rules:
   `In the previous version, add ...` or `Replace this part with ...`.
 - The final complete code must be the final connected step's checkpoint, not a
   separate unexplained section and not a pointer to earlier snippets.
+- Public tutorial output must not contain `Step Self-Review` or internal
+  yes/no quality-gate bullets.
 
 ## Decision Points
 
@@ -215,6 +231,7 @@ Rules:
 ## From Scratch
 ### Step 1: <one concrete problem>
 - Question:
+- Pressure Example:
 - Naive or Previous Version:
 - What Breaks:
 - New Requirement:
@@ -228,7 +245,7 @@ Rules:
 - Freeze This Version:
 - Still Lacks:
 - What To Verify:
-- Step Self-Review:
+- Checkpoint:
 
 ## Helper Contracts
 - ...
@@ -249,12 +266,15 @@ Rules:
 ## Bundled Resources
 
 - `references/from-scratch-document-ladder.md`
+- `references/tutorial-style-standards.md`
 - `references/worked-example-lrucache.md`
 
 Use `references/worked-example-lrucache.md` when the user needs a concrete
 example of deriving a data structure from requirements. Use
 `references/from-scratch-document-ladder.md` when the guide risks jumping too
-quickly from requirement to helper internals.
+quickly from requirement to helper internals. Use
+`references/tutorial-style-standards.md` when the guide feels template-driven
+or needs general bad/good examples.
 
 ## Common Rationalizations
 
@@ -269,11 +289,14 @@ quickly from requirement to helper internals.
 | "It is efficient to draft all steps at once and then polish." | The build loop is step-scoped; writing all steps at once tends to produce thin rationale and hidden jumps. |
 | "The reader can assemble the final code from earlier snippets." | The final step must provide an assembled runnable checkpoint, or the tutorial has not delivered code. |
 | "Code Change means whatever code is useful to show." | Code Change must be either a patch or checkpoint with an explicit target. |
+| "Step Self-Review helps readers trust the guide." | It is an internal quality gate; public tutorials should use reader-facing checkpoints instead. |
 
 ## Red Flags
 
 - A step lacks `Step Check`.
 - A step lacks `Freeze This Version`.
+- A step states `What Breaks` without first showing a concrete pressure
+  example.
 - A step lacks a concrete `What Breaks`, or `What Breaks` only says the design
   is "not scalable", "not clean", or "not abstract enough".
 - `Why This Change Works` describes the new code without explaining how it
@@ -294,6 +317,7 @@ quickly from requirement to helper internals.
 - The final code contains logic not present in earlier connected steps.
 - The guide copies a final implementation shape instead of deriving it.
 - The tutorial proceeds after a step check fails or is missing.
+- The public tutorial includes `Step Self-Review` or yes/no compliance bullets.
 
 ## Verification
 
@@ -302,6 +326,7 @@ quickly from requirement to helper internals.
 - [ ] Every numbered step uses the build loop fields.
 - [ ] Each step was completed and self-reviewed before the next step was
       drafted.
+- [ ] Every step includes a pressure example before introducing the fix.
 - [ ] The external contract and hard constraints appear before any data
       structure is proposed.
 - [ ] Every step's `What Breaks` names concrete defects in the naive or
@@ -319,6 +344,8 @@ quickly from requirement to helper internals.
       checkpoint.
 - [ ] The guide ends with common mistakes, verification checklist, and next
       small step.
+- [ ] Public tutorial output uses reader-facing checkpoints, not
+      `Step Self-Review`.
 
 ## Guardrails
 
@@ -331,6 +358,7 @@ quickly from requirement to helper internals.
   created it.
 - Do not proceed to the next step until the current step's concrete defect,
   one change, check, freeze, next gap, and self-review all pass.
+- Do not output internal self-review fields in the public tutorial body.
 - Do not say "store X in a map or list" without explaining what operation must
   stay `O(1)` or what invariant it protects.
 - Do not optimize prose during the first build if it risks dropping checks or
