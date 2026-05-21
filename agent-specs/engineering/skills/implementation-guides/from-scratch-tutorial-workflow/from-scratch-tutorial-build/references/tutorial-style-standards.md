@@ -47,6 +47,35 @@ A pressure example can be:
 
 Do not only assert the defect. Let the reader see it.
 
+## Naive Baseline Starts Before The Abstraction
+
+The first runnable baseline should start from the caller's real input or the
+reader's current mental model. It should not begin with the internal carrier,
+helper, registry, node, store, adapter, state machine, or final class that the
+tutorial is supposed to justify.
+
+For example, in a pipeline runner tutorial, starting with
+`prepare(context); enrich(context)` can be too late in the learning path if
+`context` is the run-level state carrier. A better baseline starts with the
+business input and explicit handoff:
+
+```python
+def prepare(file_id):
+    return {"file_id": file_id, "prepared": True}
+
+
+def enrich(prepared_file):
+    return {"saw_prepared": prepared_file["prepared"]}
+
+
+prepared = prepare("file-1")
+enrich_result = enrich(prepared)
+```
+
+That baseline makes the real pressure visible: the caller owns the handoff and
+there is no run-level state object or step observation yet. Only after that
+pressure is visible should the tutorial introduce a shared `context`.
+
 ## Bad And Good Patterns
 
 ### Bad: Template-Driven Step
@@ -102,6 +131,39 @@ Why this is strong:
 - The reader sees the naive baseline run.
 - The pressure is a concrete operation.
 - The new structure is forced by that operation.
+
+### Bad: Premature Final Abstraction
+
+````markdown
+Start the pipeline from shared context:
+
+```python
+context = {"file_id": "file-1"}
+prepare(context)
+enrich(context)
+```
+````
+
+Why this is weak:
+
+- `context` is already a run-level state carrier.
+- The reader has not yet felt why explicit handoff is painful.
+- The tutorial steals the step that should justify shared run state.
+
+### Good: Caller Input Before Internal Carrier
+
+````markdown
+Start with the caller's real input:
+
+```python
+file_id = "file-1"
+prepared_file = prepare(file_id)
+enrich_result = enrich(prepared_file)
+```
+
+This works, but the caller now owns the intermediate handoff. That pressure can
+justify introducing a shared run-level `context` in the next step.
+````
 
 ## Universal Example Types
 

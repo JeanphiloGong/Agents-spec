@@ -49,6 +49,11 @@ For each step:
 5. **Check** - prove this step's change works.
 6. **Freeze** - make this checkpoint the baseline for the next step.
 
+The first naive baseline must start from caller-visible input or behavior, not
+from a future internal abstraction. For example, introduce a run-level
+`context`, registry, node, store, adapter, state machine, or final class only
+after the tutorial has shown the pressure that makes it necessary.
+
 Internal self-review is required during generation, but public tutorial output
 must use reader-facing checkpoints instead of `Step Self-Review` compliance
 sections.

@@ -28,6 +28,11 @@ the last meaningful code step an assembled complete checkpoint.
 Before the defect statement, show a pressure example: a tiny input, trace, call
 site, or extension that makes the naive baseline's weakness visible.
 
+The first baseline should start before the tutorial's first internal
+abstraction. Use the caller's real input or current mental model first; do not
+open with a run-level context object, registry, node, store, adapter, state
+machine, or final class just because the final implementation will need it.
+
 Prefer this order:
 
 1. reader and goal
@@ -142,6 +147,8 @@ read like a lesson.
 ### Step 1: Shrink the feature to one visible pressure
 
 - Use the smallest non-trivial behavior.
+- Start from caller-visible input or the reader's current mental model, not
+  from a future internal carrier or final class shape.
 - Ask what must already be true for that behavior to work.
 - Show the first pressure example before naming the defect.
 - If code appears, it should be the smallest useful skeleton or note that can
@@ -224,6 +231,9 @@ Do not do these in from-scratch mode:
 - introduce multiple helpers in one step without separate reasons
 - hide mutation boundaries
 - use the final implementation as the source of truth
+- start the first baseline with a future internal abstraction, such as
+  `context`, a registry, node, store, adapter, state machine, or final class,
+  before the pressure that requires it
 - skip from the contract straight to a finished class or service
 - write all steps in one thin pass instead of completing and checking one step
   before the next

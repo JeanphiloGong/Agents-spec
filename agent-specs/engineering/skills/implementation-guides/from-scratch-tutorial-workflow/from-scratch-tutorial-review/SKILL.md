@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-review
-description: v0.3.0 - Review from-scratch tutorials against task-first planning, Nystrom/Karpathy/Norvig standards, and the tutorial increment cycle. Use when checking a draft or plan for missing real scenario, weak problem compression, missing core model or invariants, template-like public prose, missing pressure, vague breaks, disconnected task/checkpoint continuity, unclear patch/checkpoint roles, public self-review leakage, unexplained helpers, silent semantic choices, or final-code drift before accepting it.
+description: v0.3.1 - Review from-scratch tutorials against task-first planning, Nystrom/Karpathy/Norvig standards, and the tutorial increment cycle. Use when checking a draft or plan for missing real scenario, weak problem compression, missing core model or invariants, template-like public prose, missing pressure, vague breaks, premature final abstractions in naive baselines, disconnected task/checkpoint continuity, unclear patch/checkpoint roles, public self-review leakage, unexplained helpers, silent semantic choices, or final-code drift before accepting it.
 ---
 
 # From-Scratch Tutorial Review
@@ -97,6 +97,9 @@ general code review, production merge review, or publishing metadata review.
 4. Check Defect-Driven Teaching Depth
    - Inspect pressure examples, `What Breaks`, `New Requirement`, and
      `Why This Change Works`.
+   - Check whether the first naive baseline starts from caller-visible input or
+     behavior instead of a future internal carrier, helper, registry, state
+     machine, or final class shape.
    - Verify: every step names a concrete defect in the naive or previous
      baseline before introducing the next structure, and the reader sees a
      pressure example before the fix.
@@ -153,6 +156,8 @@ Specific severity calibration:
   introduces a structure without a visible previous-baseline break.
 - `revise`: a non-trivial tutorial lacks a real scenario, problem compression,
   core model, invariants, verification matrix, or natural reader-facing prose.
+- `revise`: the first baseline smuggles in a future internal abstraction, such
+  as a run-level context, before showing the pressure that requires it.
 - `revise`: the draft has all field labels but reads like a compliance
   checklist instead of a tutorial.
 - `revise`: the plan still uses an old row-based step table as the main build
@@ -195,6 +200,7 @@ Specific severity calibration:
 | "Problem compression is obvious from the code." | The compressed model must be explicit so the reader can separate core logic from deferred noise. |
 | "The freeze fields must appear in the tutorial so Git history can preserve them." | The freeze fields can live in a single-document checkpoint commit message; the tutorial body should remain reader-facing. |
 | "The old step table already lists every step." | Build planning needs task dependencies, acceptance criteria, verification, document targets, and checkpoint handoff. |
+| "The first snippet can use the final context object because it runs." | Running is not enough; the baseline must reveal why that context object is needed. |
 
 ## Red Flags
 
@@ -214,6 +220,9 @@ Specific severity calibration:
   Handoff` table or it routes to the normal code commit flow.
 - A step's rationale is generic and does not explain what breaks in the naive
   or previous baseline.
+- The first baseline uses future internal abstractions such as `context`,
+  registries, nodes, stores, adapters, state machines, or final classes before
+  the tutorial has justified them.
 - A step names a defect without showing a concrete pressure example first.
 - The guide advances to the next step without a reader-facing checkpoint or
   equivalent visible learning pause.
@@ -249,6 +258,7 @@ Specific severity calibration:
 - [ ] Code change type and target were checked for every step.
 - [ ] Pressure examples were checked before defect statements and fixes.
 - [ ] Teaching depth was checked for concrete previous-baseline defects.
+- [ ] First-baseline inputs were checked for premature final abstractions.
 - [ ] Meaningful semantic choices were checked for explanation and evidence.
 - [ ] Step checks were reviewed for relevance to the current checkpoint.
 - [ ] Helper necessity and mutation boundaries were checked.
