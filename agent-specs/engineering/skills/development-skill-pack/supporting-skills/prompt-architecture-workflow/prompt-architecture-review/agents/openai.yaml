@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prompt Architecture Review"
+  short_description: "v0.1.0 - Review structured LLM prompt architecture"
+  default_prompt: "Use $prompt-architecture-review to review an LLM prompt for task-model fit, input schema completeness, decision-process clarity, rule minimality, few-shot coverage, output-schema usability, and rollout readiness. Lead with pass, revise, or block findings."
