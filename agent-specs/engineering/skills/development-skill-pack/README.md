@@ -28,7 +28,8 @@ They are not generated files.
 `supporting-skills/` contains the remaining supporting skills from the same
 pack plus locally curated supporting workflows. Use those when a task needs a
 specialized workflow, such as frontend UI, security hardening, API design,
-debugging, performance work, CI/CD, documentation, or prompt architecture.
+debugging, performance work, CI/CD, documentation, semantic naming review, or
+prompt architecture.
 
 ## Codex Usage
 
