@@ -1,4 +1,4 @@
 interface:
   display_name: "Workflow Build"
-  short_description: "v0.1.0 - Implement one coherent slice at a time"
-  default_prompt: "Use $workflow-build to implement the next small, testable slice without expanding scope."
+  short_description: "v0.1.1 - Implement direct-first slices before simplifying"
+  default_prompt: "Use $workflow-build to implement the next small, testable slice directly first, then simplify only with evidence."

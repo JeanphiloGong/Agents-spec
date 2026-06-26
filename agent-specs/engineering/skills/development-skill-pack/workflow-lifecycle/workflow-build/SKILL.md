@@ -1,13 +1,13 @@
 ---
 name: workflow-build
-description: v0.1.0 - Delivers changes incrementally. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+description: v0.1.1 - Delivers changes incrementally with direct-first implementation. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
 ---
 
 # Incremental Implementation
 
 ## Overview
 
-Build in thin vertical slices — implement one piece, test it, verify it, then expand. Avoid implementing an entire feature in one pass. Each increment should leave the system in a working, testable state. This is the execution discipline that makes large features manageable.
+Build in thin vertical slices — implement one piece directly, test it, simplify only when the code proves the need, verify it, then expand. Avoid implementing an entire feature in one pass. Each increment should leave the system in a working, testable state. This is the execution discipline that makes large features manageable.
 
 ## When to Use
 
@@ -23,23 +23,29 @@ Build in thin vertical slices — implement one piece, test it, verify it, then 
 ```
 ┌──────────────────────────────────────┐
 │                                      │
-│   Implement ──→ Test ──→ Verify ──┐  │
-│       ▲                           │  │
-│       └───── Commit ◄─────────────┘  │
-│              │                       │
-│              ▼                       │
-│          Next slice                  │
+│   Direct implementation ──→ Test    │
+│              │                      │
+│              ▼                      │
+│      Simplification pass ──→ Verify │
+│              │                      │
+│              ▼                      │
+│            Commit ──→ Next slice    │
 │                                      │
 └──────────────────────────────────────┘
 ```
 
 For each slice:
 
-1. **Implement** the smallest complete piece of functionality
+1. **Direct implementation** — implement the smallest complete piece of
+   functionality in the simplest direct shape that fits the existing codebase
 2. **Test** — run the test suite (or write a test if none exists)
-3. **Verify** — confirm the slice works as expected (tests pass, build succeeds, manual check)
-4. **Commit** -- save your progress with a descriptive message (see `git-workflow-and-versioning` for atomic commit guidance)
-5. **Move to the next slice** — carry forward, don't restart
+3. **Simplification pass** — remove obvious noise and extract helpers only
+   when the helper/abstraction gate below is satisfied
+4. **Verify** — confirm the slice works as expected after any simplification
+   (tests pass, build succeeds, manual check)
+5. **Commit** -- save your progress with a descriptive message (see
+   `git-workflow-and-versioning` for atomic commit guidance)
+6. **Move to the next slice** — carry forward, don't restart
 
 ## Slicing Strategies
 
@@ -111,6 +117,31 @@ SIMPLICITY CHECK:
 ```
 
 Three similar lines of code is better than a premature abstraction. Implement the naive, obviously-correct version first. Optimize only after correctness is proven with tests.
+
+### Rule 0.25: Helper / Abstraction Gate
+
+During direct implementation, default to no new helper, wrapper, adapter,
+utility, manager, framework, or abstraction layer. First write the current
+slice in the clearest direct form using existing project patterns.
+
+Create or extract a helper only when the current slice proves at least one of
+these signals:
+
+- The same non-trivial logic is repeated in more than one place.
+- A stable domain action has emerged and a name makes the caller easier to
+  read.
+- An invariant, boundary check, or ordering rule needs one owner to avoid
+  drift.
+- Inline detail is drowning the main flow and extracting it makes the main
+  behavior clearer.
+
+Before adding the helper, state the evidence: the repeated code, the invariant,
+or the specific main-flow noise it removes. After extracting it, rerun the
+relevant tests or checks because helper extraction is still a code change.
+
+Do not create new utility files for one-time operations. Do not add adapters,
+facades, compatibility layers, or generic managers unless the task explicitly
+requires them and the current code proves the need.
 
 ### Rule 0.5: Scope Discipline
 
@@ -189,6 +220,8 @@ When directing an agent to implement incrementally:
 
 Start with just the database schema change and the API endpoint.
 Don't touch the UI yet — we'll do that in the next increment.
+Implement the endpoint directly first; don't add new helpers unless repeated
+logic or an invariant appears in this slice.
 
 After implementing, run `npm test` and `npm run build` to verify
 nothing is broken."
@@ -201,6 +234,8 @@ Be explicit about what's in scope and what's NOT in scope for each increment.
 After each increment, verify:
 
 - [ ] The change does one thing and does it completely
+- [ ] The first working version was implemented directly, without speculative helpers or abstractions
+- [ ] Any new helper or abstraction has explicit evidence from repeated logic, a stable domain action, an invariant, or main-flow noise
 - [ ] All existing tests still pass (`npm test`)
 - [ ] The build succeeds (`npm run build`)
 - [ ] Type checking passes (`npx tsc --noEmit`)
@@ -219,6 +254,7 @@ After each increment, verify:
 | "These changes are too small to commit separately" | Small commits are free. Large commits hide bugs and make rollbacks painful. |
 | "I'll add the feature flag later" | If the feature isn't complete, it shouldn't be user-visible. Add the flag now. |
 | "This refactor is small enough to include" | Refactors mixed with features make both harder to review and debug. Separate them. |
+| "I'll add a helper now because we'll probably need it later" | Helpers should be forced by current evidence, not future guesses. Start direct and extract during the simplification pass. |
 | "Let me run the build command again just to be sure" | After a successful run, repeating the same command adds nothing unless the code has changed since. Run it again after subsequent edits, not as reassurance. |
 
 ## Red Flags
@@ -230,6 +266,7 @@ After each increment, verify:
 - Build or tests broken between increments
 - Large uncommitted changes accumulating
 - Building abstractions before the third use case demands it
+- Adding helpers without naming the repeated logic, invariant, or readability pressure they solve
 - Touching files outside the task scope "while I'm here"
 - Creating new utility files for one-time operations
 - Running the same build/test command twice in a row without any intervening code change
@@ -239,6 +276,8 @@ After each increment, verify:
 After completing all increments for a task:
 
 - [ ] Each increment was individually tested and committed
+- [ ] Each increment started with a direct implementation before simplification
+- [ ] Any helper or abstraction added during simplification had evidence and was retested
 - [ ] The full test suite passes
 - [ ] The build is clean
 - [ ] The feature works end-to-end as specified
