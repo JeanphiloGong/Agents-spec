@@ -19,6 +19,7 @@ Task arrives
     ├── Vague idea/need refinement? ──→ idea-refine
     ├── New project/feature/change? ──→ workflow-spec
     ├── Have a spec, need tasks? ──────→ workflow-plan
+    ├── Need to record plan? ─────────→ workflow-plan-record
     ├── Need implementation model? ────→ workflow-sketch
     ├── Implementing code? ────────────→ workflow-build
     │   ├── UI work? ─────────────────→ frontend-ui-engineering
@@ -130,7 +131,7 @@ These are the subtle errors that look like productivity but create problems:
 
 2. **Skills are workflows, not suggestions.** Follow the steps in order. Don't skip verification steps.
 
-3. **Multiple skills can apply.** A feature implementation might involve `idea-refine` → `workflow-spec` → `workflow-plan` → `workflow-sketch` → `workflow-build` → `workflow-test` → `workflow-check` → `workflow-simplify` → `workflow-review` → `workflow-ship` in sequence.
+3. **Multiple skills can apply.** A feature implementation might involve `idea-refine` → `workflow-spec` → `workflow-plan` → `workflow-plan-record` → `workflow-sketch` → `workflow-build` → `workflow-test` → `workflow-check` → `workflow-simplify` → `workflow-review` → `workflow-ship` in sequence.
 
 4. **When in doubt, start with a spec.** If the task is non-trivial and there's no spec, begin with `workflow-spec`.
 
@@ -142,18 +143,19 @@ For a complete feature, the typical skill sequence is:
 1.  idea-refine                 → Refine vague ideas
 2.  workflow-spec                → Define what we're building
 3.  workflow-plan                → Break into verifiable chunks
-4.  workflow-sketch              → Model one slice before coding
-5.  context-engineering          → Load the right context
-6.  source-driven-development    → Verify against official docs
-7.  workflow-build               → Build slice by slice
-8.  doubt-driven-development     → Cross-examine non-trivial decisions in-flight
-9.  workflow-test                → Prove each slice works
-10. workflow-check               → Check build against sketch when used
-11. workflow-simplify            → Reduce complexity without changing behavior
-12. workflow-review              → Review before merge
-13. git-workflow-and-versioning  → Clean commit history
-14. documentation-and-adrs       → Document decisions
-15. workflow-ship                → Deploy safely
+4.  workflow-plan-record         → Record the approved plan when needed
+5.  workflow-sketch              → Model one slice before coding
+6.  context-engineering          → Load the right context
+7.  source-driven-development    → Verify against official docs
+8.  workflow-build               → Build slice by slice
+9.  doubt-driven-development     → Cross-examine non-trivial decisions in-flight
+10. workflow-test                → Prove each slice works
+11. workflow-check               → Check build against sketch when used
+12. workflow-simplify            → Reduce complexity without changing behavior
+13. workflow-review              → Review before merge
+14. git-workflow-and-versioning  → Clean commit history
+15. documentation-and-adrs       → Document decisions
+16. workflow-ship                → Deploy safely
 ```
 
 Not every task needs every skill. A bug fix might only need: `debugging-and-error-recovery` → `workflow-test` → `workflow-review`.
@@ -165,6 +167,7 @@ Not every task needs every skill. A bug fix might only need: `debugging-and-erro
 | Define | idea-refine | Refine ideas through structured divergent and convergent thinking |
 | Define | workflow-spec | Requirements and acceptance criteria before code |
 | Plan | workflow-plan | Decompose into small, verifiable tasks |
+| Plan | workflow-plan-record | Record a completed plan into `.agent-runs/<run-id>/plan.yaml` |
 | Plan | workflow-sketch | Externalize model, architecture, and implementation contract for one slice |
 | Build | workflow-build | Thin vertical slices, test each before expanding |
 | Build | source-driven-development | Verify against official docs before implementing |

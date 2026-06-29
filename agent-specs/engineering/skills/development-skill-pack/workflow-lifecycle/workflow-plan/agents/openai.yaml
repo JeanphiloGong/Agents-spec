@@ -1,4 +1,4 @@
 interface:
   display_name: "Workflow Plan"
-  short_description: "v0.1.4 - Break a spec into a full plan, then record plan.yaml"
-  default_prompt: "Use $workflow-plan to write the full human-readable implementation plan first, then create or update .agent-runs plan.yaml as the final compact record."
+  short_description: "v0.1.5 - Break a spec into a full human-readable plan"
+  default_prompt: "Use $workflow-plan to write the full human-readable implementation plan with architecture decisions, tasks, risks, checkpoints, and issue handoff; use workflow-plan-record afterward only if a recorded handoff is needed."

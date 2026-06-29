@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Plan Record"
+  short_description: "v0.1.0 - Record a completed plan into .agent-runs plan.yaml"
+  default_prompt: "Use $workflow-plan-record to record the completed workflow-plan output into .agent-runs/<run-id>/plan.yaml without changing the plan."

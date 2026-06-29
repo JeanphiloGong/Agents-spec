@@ -19,6 +19,7 @@ They are not generated files.
 | --- | --- | --- |
 | Define what to build | `workflow-spec` | Clarify goals, scope, boundaries, and acceptance criteria before coding. |
 | Plan how to build it | `workflow-plan` | Break a spec into small, ordered, verifiable tasks. |
+| Record the plan | `workflow-plan-record` | Save a completed plan into `.agent-runs/<run-id>/plan.yaml`. |
 | Sketch the implementation | `workflow-sketch` | Create a task-run model, architecture, and implementation contract before coding. |
 | Build incrementally | `workflow-build` | Implement one coherent slice at a time. |
 | Prove it works | `workflow-test` | Use tests as evidence for behavior changes and bug fixes. |
@@ -40,6 +41,7 @@ Codex invokes skills by skill name, for example:
 ```text
 $workflow-spec
 $workflow-plan
+$workflow-plan-record
 $workflow-sketch
 $workflow-build $workflow-test
 $workflow-check

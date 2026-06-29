@@ -32,11 +32,10 @@ obvious.
 ## The Operating Loop
 
 1. Locate the task run.
-   - Reuse the current `.agent-runs/<run-id>/` when the user or plan provides
-     one.
-   - If no run exists and implementation is expected, create a new run
-     directory with `plan.yaml` or ask for the missing slice only when the
-     target slice cannot be inferred.
+   - Reuse the current `.agent-runs/<run-id>/` when the user or recorded plan
+     provides one.
+   - If no run exists and implementation is expected, ask for
+     `workflow-plan-record` to record the approved plan before sketching.
 2. Read the plan slice and relevant code.
    - Read `plan.yaml` when present.
    - Inspect only the files needed to understand ownership and data flow.
@@ -74,6 +73,7 @@ obvious.
 | "I can just implement and explain afterward." | The point is to externalize the implementation model before code can drift. |
 | "Comments in the code are enough." | Code comments are implementation. The sketch is an external contract that can be reviewed before edits. |
 | "The plan already has tasks." | A plan names slices. A sketch explains the model, ownership, invariants, and allowed implementation shape for one slice. |
+| "I can create the missing plan.yaml here." | Recording a plan is owned by `workflow-plan-record`; sketching should not invent or backfill the plan artifact. |
 | "I'll keep the sketch short by omitting forbidden changes." | Forbidden changes are how the build phase avoids scope expansion. |
 
 ## Red Flags
@@ -83,6 +83,7 @@ obvious.
 - `helper_budget` is missing or allows vague helpers.
 - The sketch silently expands beyond the plan slice.
 - Business code changed while producing the sketch.
+- The sketch creates or rewrites `plan.yaml`.
 - Open questions that affect implementation are buried instead of escalated.
 
 ## Verification
@@ -118,6 +119,7 @@ Report:
 - Do not store secrets, credentials, or private data in task-run artifacts.
 - Do not let the sketch become a transcript dump; write the implementation
   model, not the conversation.
+- Do not create or rewrite `plan.yaml`; use `workflow-plan-record` for that.
 
 ## References
 
