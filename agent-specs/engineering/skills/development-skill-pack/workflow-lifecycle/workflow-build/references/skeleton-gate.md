@@ -15,8 +15,8 @@ slice scope
 -> target skeleton gate
 -> direct implementation
 -> coverage drift check
+-> helper drift audit
 -> test
--> helper audit
 ```
 
 Do not skip from `coverage map` to a full method body when the target is
@@ -106,6 +106,41 @@ async def write_import_snapshot_with_lock(import_id, record_id, snapshot, source
     pass
 ```
 
+Good implementation edit after the skeleton checkpoint:
+
+```python
+async def write_import_snapshot_with_lock(import_id, record_id, snapshot, source_version):
+    # Resolve the import job and snapshot file before entering the file lock.
+    import_job = await import_table.get_by_id(import_id)
+    if import_job is None:
+        raise ImportError("import job not found")
+
+    snapshot_file = await file_table.get_file_by_id(import_job.snapshot_file_id)
+    if snapshot_file is None:
+        raise ImportError("snapshot file not found")
+
+    async with file_lock(snapshot_file.path):
+        # Inside the lock, read the latest file state and validate that the record exists.
+        current_data = await read_json(snapshot_file.path)
+        import_state = ImportState.model_validate(current_data)
+        if record_id not in import_state.records:
+            raise ImportError("record not found")
+
+        # Write snapshot, status, source version, checksum, timestamp, and error
+        # together so readers never observe a partial record version.
+        # Persist an existing snapshot only; snapshot construction happens upstream.
+        record = import_state.records[record_id]
+        record.snapshot = snapshot
+        record.snapshot_status = "ready"
+        record.source_version = source_version
+        record.snapshot_checksum = checksum(snapshot, source_version)
+        record.snapshot_updated_at = now()
+        record.snapshot_error = ""
+
+        await write_json(snapshot_file.path, import_state.model_dump())
+        return snapshot_file.path
+```
+
 Bad:
 
 ```python
@@ -116,6 +151,8 @@ async def write_import_snapshot_with_lock(import_id, record_id, snapshot, source
 
 The bad version jumps straight to implementation. It may be correct by chance,
 but the ordering and invariant were never exposed before code generation.
+In the good implementation edit, code grows under the skeleton comments. Keep
+the skeleton comments unless they are wrong, misleading, or vague placeholders.
 
 ## Simple Target Coverage
 
@@ -130,6 +167,23 @@ class ImportRecord(BaseModel):
     # older files that do not have those fields yet.
     pass
 ```
+
+Good implementation edit after the skeleton checkpoint:
+
+```python
+class ImportRecord(BaseModel):
+    # Defaults keep older files loadable as records with no saved snapshot.
+    snapshot: Optional[ImportSnapshot] = None
+    snapshot_status: Literal["missing", "ready", "stale", "failed"] = "missing"
+    source_version: Optional[int] = None
+    snapshot_checksum: str = ""
+    snapshot_updated_at: Optional[int] = None
+    snapshot_error: str = ""
+```
+
+Keep skeleton comments in the final code unless they are wrong, misleading, or
+vague placeholders. The implementation should grow under the skeleton, not
+replace it with a separate structure.
 
 Bad first edit:
 
@@ -163,6 +217,60 @@ helper_gate: allow one checksum method; the same snapshot invariant is used by
 save, read, stale detection, and downstream consumption.
 ```
 
+## Helper Drift Audit
+
+Run this audit after coverage drift check and before tests. It is required for
+every slice, even when no helpers were added.
+
+No helpers:
+
+```text
+helper_drift_audit:
+- new_helpers_added: no
+- drift_result: pass
+- retest_required: no
+```
+
+Helpers added:
+
+```text
+helper_drift_audit:
+- new_helpers_added: yes
+- helpers:
+  - name: normalize_snapshot_checksum
+    declared_in_helper_gate: yes
+    evidence: save and read paths use the same checksum invariant.
+    action: keep
+- drift_result: pass
+- retest_required: yes
+```
+
+Undeclared helper:
+
+```text
+helper_drift_audit:
+- new_helpers_added: yes
+- helpers:
+  - name: mark_record_snapshot_stale
+    declared_in_helper_gate: no
+    evidence: stale marking appeared in save, import refresh, and explicit stale paths.
+    action: new skeleton checkpoint before keeping
+- drift_result: fail until resolved
+- retest_required: yes
+```
+
+Allowed actions:
+
+- `keep`: only when declared in `helper_gate` or resolved with current-slice
+  evidence.
+- `inline`: when the helper is single-use or its evidence is weak.
+- `remove`: when it is speculative or unused.
+- `defer`: when it is useful later but not required by the current slice.
+- `new skeleton checkpoint`: when an undeclared helper is required and must
+  become part of the slice contract before continuing.
+
+Do not proceed to tests, verify, or commit while `drift_result` is failed.
+
 ## Coverage Drift Check
 
 After direct implementation and before tests, compare the diff to the coverage
@@ -189,3 +297,5 @@ the new target or split it into the next slice.
 | Coverage map says "service layer" or "API changes". | The target is too vague to constrain implementation. |
 | Skeleton comments say `load data`, `validate`, `process`, `return`. | They name generic chores instead of real ordering or invariants. |
 | Helper names appear in the skeleton before repetition exists. | The skeleton is decomposing prematurely instead of guiding direct implementation. |
+| Tests run before `helper_drift_audit`. | Helper drift can be hidden behind passing tests and then committed. |
+| An undeclared helper is kept because it "came up naturally." | It is drift until inlined, removed, deferred, or covered by a new skeleton checkpoint. |

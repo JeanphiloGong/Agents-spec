@@ -1,6 +1,6 @@
 ---
 name: workflow-build
-description: v0.1.8 - Delivers changes incrementally with global skeleton-only first edits before direct implementation. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+description: v0.1.9 - Delivers changes incrementally with global skeleton-only first edits and mandatory helper drift audits. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
 ---
 
 # Incremental Implementation
@@ -10,7 +10,7 @@ description: v0.1.8 - Delivers changes incrementally with global skeleton-only f
 Build in thin vertical slices with hard gates: inspect the task and relevant
 code, define the slice scope, map implementation targets, make the first code
 edit skeleton-only across the whole non-trivial slice, implement directly, check for
-coverage drift, test, audit speculative helpers, verify, then expand. Avoid
+coverage drift, audit helper drift, test, verify, then expand. Avoid
 implementing an entire feature in one pass. Each increment should leave the
 system in a working, testable state. This is the execution discipline that
 makes large features manageable.
@@ -37,7 +37,7 @@ reviewable before the details are filled in.
 - Refactoring existing code
 - Any time you're tempted to write more than ~100 lines before testing
 
-**When NOT to use:** Single-file, single-function changes where the scope is already minimal.
+**When NOT to use:** Single-file, single-function changes with minimal scope.
 
 ## Reference Map
 
@@ -61,10 +61,10 @@ reviewable before the details are filled in.
 │   Direct implementation             │
 │              │                      │
 │              ▼                      │
-│   Coverage drift check ──→ Test     │
+│   Coverage drift check              │
 │              │                      │
 │              ▼                      │
-│ Helper / abstraction audit ─→ Verify│
+│ Helper drift audit ─→ Test ─→ Verify│
 │              │                      │
 │              ▼                      │
 │            Commit ──→ Next slice    │
@@ -88,11 +88,9 @@ For each slice:
 6. **Coverage drift check** — compare the implementation diff with the
    coverage map; if a changed target was not covered by a skeleton checkpoint,
    stop and add a new skeleton-only checkpoint before continuing
-7. **Test** — run the test suite (or write a test if none exists)
-8. **Helper / abstraction audit** — check for speculative helpers,
-   unnecessary abstractions, vague placeholder skeleton comments, and
-   accidental scaffolding; inline or remove anything that is not justified by
-   the current slice
+7. **Helper drift audit** — output `helper_drift_audit`; unresolved helper
+   drift blocks test, verify, and commit
+8. **Test** — run the test suite (or write a test if none exists)
 9. **Verify** — confirm the slice works as expected after the audit and any
    cleanup (tests pass, build succeeds, manual check)
 10. **Commit** -- save your progress with a descriptive message (see
@@ -275,39 +273,37 @@ helpers and patterns normally, but do not invent new ones before the slice
 proves the need. First write the current slice in the clearest direct form
 using existing project patterns and the approved skeleton from Rule 0.
 
-In `workflow-build`, treat helper evidence as a keep-or-inline audit gate, not
-as a refactoring invitation. A new helper can stay in the build slice only when
-it is required for the current slice and the current slice proves at least one
-of these signals:
+A new helper can stay only when required for the current slice and proven by:
 
-- The same non-trivial logic is repeated in more than one place.
-- A stable domain action has emerged and a name makes the caller easier to
-  read.
-- An invariant, boundary check, or ordering rule needs one owner to avoid
-  drift.
-- Inline detail is drowning the main flow and extracting it makes the main
-  behavior clearer.
+- repeated non-trivial logic
+- stable domain action that improves the caller
+- invariant, boundary check, or ordering rule that needs one owner
+- inline detail that drowns the main flow
 
 Before keeping a new helper, state the evidence: the repeated code, the
 invariant, or the specific main-flow noise it removes. If that evidence is not
-clear, inline the helper back into the direct implementation.
+clear, inline the helper back into the direct implementation. If helper need
+appears after implementation, it is drift until `helper_drift_audit` resolves it.
 
-If helper need is already visible during the skeleton checkpoint, record that
-evidence in `helper_gate` before implementation begins. If the need only
-appears after direct implementation, keep the helper only when it is required
-for this slice and has explicit evidence. Do not extract helpers just to make
-the code look more organized in the build slice.
+Do not create utility files, adapters, facades, compatibility layers, or generic managers unless the task explicitly requires them and the current code proves the need.
 
-Do not create new utility files for one-time operations. Do not add adapters,
-facades, compatibility layers, or generic managers unless the task explicitly
-requires them and the current code proves the need.
+### Rule 0.26: Helper Drift Audit Is Mandatory
+
+After direct implementation and coverage drift check, output a
+`helper_drift_audit` before testing, verifying, or committing the slice. It must
+cover helpers, wrappers, adapters, utilities, managers, and abstraction layers.
+
+An undeclared helper is drift by default. Resolve it by inlining, removing,
+deferring, or adding a skeleton checkpoint that updates `helper_gate`; do not
+proceed while drift is unresolved. See `references/skeleton-gate.md` for the
+required audit format.
 
 ### Rule 0.3: Build Audit Blocks Extra Helpers
 
-After direct implementation and tests, do a narrow audit:
+After helper drift audit and tests, do a narrow build audit:
 
-- remove any vague placeholder skeleton comment that slipped in despite Rule 0
-- keep only comments that explain real invariants, ordering rules, or boundaries
+- keep skeleton comments as the implementation structure unless they are wrong,
+  misleading, or vague placeholders
 - inline speculative helpers that were added without evidence
 - remove unused imports, dead code, and accidental scaffolding introduced by
   the slice
@@ -426,7 +422,8 @@ After each increment, verify:
 - [ ] The skeleton artifact avoided vague placeholder comments and stated real ordering, invariant, or boundary information
 - [ ] The first working version was implemented directly, without speculative helpers or abstractions
 - [ ] A coverage drift check found no implementation targets missing from the coverage map
-- [ ] Any new helper or abstraction kept in the slice has explicit evidence from repeated logic, a stable domain action, an invariant, or main-flow noise
+- [ ] `helper_drift_audit` was output before test, verify, or commit
+- [ ] Any helper kept in the slice was declared or drift-resolved with current-slice evidence
 - [ ] Speculative helpers, generic utilities, and unnecessary abstractions were removed or inlined
 - [ ] All existing tests still pass (`npm test`)
 - [ ] The build succeeds (`npm run build`)
@@ -454,6 +451,7 @@ After each increment, verify:
 | "The new method is straightforward, so I'll write the whole body first" | New non-trivial methods need a method-level skeleton first so ordering, state writes, and boundaries are visible before implementation. |
 | "I'll turn the skeleton into helpers immediately" | Skeletons guide direct implementation. Helpers require current evidence from repetition, stable domain meaning, an invariant owner, or main-flow noise. |
 | "I'll add a helper now because we'll probably need it later" | Helpers should be forced by current evidence, not future guesses. Start direct and remove helpers that are not required by this slice. |
+| "The helper appeared while implementing, so it is fine if I mention it at the end" | Undeclared helpers are drift until a helper drift audit resolves them by keep-with-evidence, inline, remove, defer, or a new skeleton checkpoint. |
 | "Tests pass, so I'll clean this up broadly now" | Build audit is narrow. It removes speculative helpers and scaffolding; it does not perform broad refactors. |
 | "Let me run the build command again just to be sure" | After a successful run, repeating the same command adds nothing unless the code has changed since. Run it again after subsequent edits, not as reassurance. |
 
@@ -474,6 +472,8 @@ After each increment, verify:
 - Building abstractions before the third use case demands it
 - Turning a skeleton into helper names before proving those helpers are needed
 - Adding helpers without naming the repeated logic, invariant, or readability pressure they solve
+- Testing, verifying, or committing without a `helper_drift_audit`
+- Keeping a helper that was not declared in `helper_gate` without resolving the drift
 - Performing broad cleanup or refactoring inside a build slice after tests pass
 - Touching files outside the task scope "while I'm here"
 - Creating new utility files for one-time operations
@@ -490,11 +490,11 @@ After completing all increments for a task:
 - [ ] No implementation target was changed before it appeared in the skeleton coverage map
 - [ ] New non-trivial functions and methods were introduced through method-level skeletons before full bodies
 - [ ] Coverage drift checks ran after direct implementation and before tests
+- [ ] Helper drift audits ran after coverage drift checks and before tests
 - [ ] Skeleton artifacts did not rely on vague placeholder comments such as `# load data`, `# validate input`, `# process result`, or `# return response`
 - [ ] Each increment started with direct implementation before helper/audit cleanup
-- [ ] Any helper or abstraction kept in the build slice had evidence and was retested
+- [ ] Any helper or abstraction kept in the build slice was declared or drift-resolved, had evidence, and was retested
 - [ ] Speculative helpers, generic utilities, and unnecessary abstractions were not left behind
 - [ ] The full test suite passes
 - [ ] The build is clean
 - [ ] The feature works end-to-end as specified
-- [ ] No uncommitted changes remain
