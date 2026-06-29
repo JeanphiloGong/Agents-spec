@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Check"
+  short_description: "v0.1.0 - Verify an implementation stayed inside its sketch contract"
+  default_prompt: "Use $workflow-check to compare the current slice diff against its .agent-runs sketch and write check-result.json."

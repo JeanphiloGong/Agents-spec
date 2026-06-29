@@ -1,0 +1,48 @@
+schema_version: 0.1
+run_id: "<yyyymmdd-hhmmss-topic>"
+slice_id: "<slice-id>"
+goal: "<one sentence outcome for this slice>"
+
+model:
+  current_system:
+    - "<existing owner, flow, or contract relevant to this slice>"
+  feature_model:
+    - "<how this feature should behave in this slice>"
+  domain_states:
+    - "<state-name>: <meaning>"
+  invariants:
+    - "<condition the implementation must preserve>"
+  open_questions:
+    - "<question that would change implementation, or 'none'>"
+
+architecture:
+  target_files:
+    - "<path/to/file>"
+  ownership:
+    - "<which existing module/type/function should own which responsibility>"
+  data_flow:
+    - "<step in the intended runtime or persistence flow>"
+  rejected_options:
+    - "<approach that should not be used and why>"
+  risk_points:
+    - "<where the implementation is likely to drift or regress>"
+
+implementation_contract:
+  allowed_changes:
+    - "<specific kind of change allowed in this slice>"
+  forbidden_changes:
+    - "<specific kind of change not allowed in this slice>"
+  helper_budget:
+    allowed:
+      - "<helper name and reason, or 'none'>"
+    forbidden:
+      - "<helper or abstraction class not allowed>"
+  verification:
+    - "<command, test, static check, or manual check>"
+  expected_build_log:
+    - "used_sketch"
+    - "files_changed"
+    - "helpers_added"
+    - "checks_run"
+    - "deviations"
+    - "cleanup_done"

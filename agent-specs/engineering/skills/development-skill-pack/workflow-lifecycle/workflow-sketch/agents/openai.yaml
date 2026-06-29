@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Sketch"
+  short_description: "v0.1.0 - Create a model, architecture, and implementation contract before coding"
+  default_prompt: "Use $workflow-sketch to create a .agent-runs sketch artifact for the next planned implementation slice before any code changes."

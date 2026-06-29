@@ -1,0 +1,31 @@
+{
+  "schema_version": "0.1",
+  "run_id": "<yyyymmdd-hhmmss-topic>",
+  "slice_id": "<slice-id>",
+  "result": "pass | fail | blocked",
+  "sketch_path": ".agent-runs/<run-id>/sketches/<slice-id>.yaml",
+  "build_log_path": ".agent-runs/<run-id>/build-log.md",
+  "changed_files": [],
+  "scope": {
+    "target_files": [],
+    "out_of_scope_files": [],
+    "status": "pass | fail | blocked"
+  },
+  "helper_budget": {
+    "allowed_helpers": [],
+    "helpers_found": [],
+    "undeclared_helpers": [],
+    "forbidden_helpers_found": [],
+    "status": "pass | fail | blocked"
+  },
+  "contract_findings": [],
+  "verification": {
+    "expected": [],
+    "run": [],
+    "missing": [],
+    "blocked": [],
+    "status": "pass | fail | blocked"
+  },
+  "deviations": [],
+  "next_actions": []
+}

@@ -1,6 +1,6 @@
 ---
 name: workflow-plan
-description: v0.1.1 - Breaks work into ordered, verifiable tasks with issue handoff guidance. Use when you have a spec or clear requirements and need to break work into implementable tasks, estimate scope, identify parallel work, or prepare issue-backed acceptance tracking.
+description: v0.1.2 - Breaks work into ordered, verifiable tasks with issue handoff and optional task-run artifacts. Use when you have a spec or clear requirements and need to break work into implementable tasks, estimate scope, identify parallel work, prepare issue-backed acceptance tracking, or create a plan.yaml for workflow-sketch.
 ---
 
 # Planning and Task Breakdown
@@ -163,6 +163,44 @@ Add explicit checkpoints:
 - [ ] Review with human before proceeding
 ```
 
+### Step 6: Create a Task-Run Artifact When Implementation Will Continue
+
+When the plan will feed `workflow-sketch` and `workflow-build`, create an
+external task-run artifact:
+
+```text
+.agent-runs/<run-id>/plan.yaml
+```
+
+Use a stable `run_id` such as `<yyyymmdd-hhmmss-topic>`. This file is a
+temporary implementation workbench, not repository documentation, and
+`.agent-runs/` should stay ignored by git.
+
+Minimum `plan.yaml` shape:
+
+```yaml
+schema_version: 0.1
+run_id: 20260629-153012-task-topic
+goal: "<one sentence task outcome>"
+scope:
+  in:
+    - "<included area>"
+  out:
+    - "<excluded area>"
+slices:
+  - id: "<slice-id>"
+    outcome: "<verifiable outcome>"
+    target_areas:
+      - "<module or subsystem>"
+    depends_on: []
+    verify:
+      - "<test, build, static check, or manual check>"
+```
+
+Keep implementation details out of `plan.yaml`. Detailed model, architecture,
+invariants, helper budget, and allowed changes belong in the later
+`workflow-sketch` artifact for each slice.
+
 ## Task Sizing Guidelines
 
 | Size | Files | Scope | Example |
@@ -250,6 +288,7 @@ When multiple agents or sessions are available:
 | "The tasks are obvious" | Write them down anyway. Explicit tasks surface hidden dependencies and forgotten edge cases. |
 | "Planning is overhead" | Planning is the task. Implementation without a plan is just typing. |
 | "I can hold it all in my head" | Context windows are finite. Written plans survive session boundaries and compaction. |
+| "The sketch can be the plan." | The plan slices work; the sketch models one slice before implementation. Keep the artifacts separate. |
 
 ## Red Flags
 
@@ -257,6 +296,7 @@ When multiple agents or sessions are available:
 - Tasks that say "implement the feature" without acceptance criteria
 - No verification steps in the plan
 - No issue handoff guidance when the plan will be used for tracked work
+- No `plan.yaml` when the next step is `workflow-sketch`
 - All tasks are XL-sized
 - No checkpoints between tasks
 - Dependency order isn't considered
@@ -269,6 +309,8 @@ Before starting implementation, confirm:
 - [ ] Every task has a verification step
 - [ ] Every task has issue handoff guidance or an explicit reason issue
       handoff is unnecessary
+- [ ] `plan.yaml` exists when implementation will continue through
+      `workflow-sketch`
 - [ ] Task dependencies are identified and ordered correctly
 - [ ] No task touches more than ~5 files
 - [ ] Checkpoints exist between major phases

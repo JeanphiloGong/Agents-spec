@@ -1,6 +1,6 @@
 ---
 name: workflow-build
-description: v0.1.0 - Delivers changes incrementally. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+description: v0.1.1 - Delivers changes incrementally from a slice or sketch contract. Use when implementing any feature or change that touches more than one file. Use after workflow-sketch when a .agent-runs sketch exists, or when a task feels too big to land in one step.
 ---
 
 # Incremental Implementation
@@ -35,11 +35,61 @@ Build in thin vertical slices — implement one piece, test it, verify it, then 
 
 For each slice:
 
-1. **Implement** the smallest complete piece of functionality
-2. **Test** — run the test suite (or write a test if none exists)
-3. **Verify** — confirm the slice works as expected (tests pass, build succeeds, manual check)
-4. **Commit** -- save your progress with a descriptive message (see `git-workflow-and-versioning` for atomic commit guidance)
-5. **Move to the next slice** — carry forward, don't restart
+1. **Load the contract** — read `.agent-runs/<run-id>/sketches/<slice-id>.yaml`
+   when a sketch exists
+2. **Implement** the smallest complete piece of functionality inside that
+   contract
+3. **Test** — run the test suite (or write a test if none exists)
+4. **Verify** — confirm the slice works as expected (tests pass, build
+   succeeds, manual check)
+5. **Log the build** — update `.agent-runs/<run-id>/build-log.md` when a sketch
+   was used
+6. **Commit** -- save your progress with a descriptive message (see
+   `git-workflow-and-versioning` for atomic commit guidance)
+7. **Move to the next slice** — carry forward, don't restart
+
+## Sketch-Guided Builds
+
+When `workflow-sketch` produced a task-run artifact, `workflow-build` is the
+implementation phase for that artifact. It must read the sketch before editing
+code and treat `implementation_contract` as the active boundary.
+
+Required inputs:
+
+```text
+.agent-runs/<run-id>/plan.yaml
+.agent-runs/<run-id>/sketches/<slice-id>.yaml
+```
+
+Required output:
+
+```text
+.agent-runs/<run-id>/build-log.md
+```
+
+`build-log.md` must include:
+
+```text
+## Used Sketch
+## Files Changed
+## Helpers Added
+## Checks Run
+## Deviations
+## Cleanup Done
+```
+
+Build rules for sketch-guided slices:
+
+- Change only files listed in `architecture.target_files`, unless the
+  `Deviations` section records why the sketch must be updated or the human
+  approved the extra file.
+- Add only helpers listed in `implementation_contract.helper_budget.allowed`.
+- Do not add anything listed in `helper_budget.forbidden` or
+  `forbidden_changes`.
+- Run the checks listed in `implementation_contract.verification`, or record
+  the blocker exactly.
+- After the slice, use `workflow-check` when the user asks for adherence
+  verification or before committing a risky multi-file change.
 
 ## Slicing Strategies
 
@@ -92,6 +142,10 @@ If Slice 1 fails, you discover it before investing in Slices 2 and 3.
 
 Before writing any code, ask: "What is the simplest thing that could work?"
 
+For sketch-guided work, answer this inside the sketch, not by inventing a new
+implementation shape during build. If the simplest viable approach differs from
+the sketch, record a deviation and update the sketch or ask before continuing.
+
 After writing code, review it against these checks:
 - Can this be done in fewer lines?
 - Are these abstractions earning their complexity?
@@ -131,6 +185,9 @@ NOTICED BUT NOT TOUCHING:
 - The auth middleware could use better error messages (separate task)
 → Want me to create tasks for these?
 ```
+
+For sketch-guided work, the sketch target files and forbidden changes define
+the scope. Treat extra touched files as deviations, not incidental cleanup.
 
 ### Rule 1: One Thing at a Time
 
@@ -224,6 +281,9 @@ After each increment, verify:
 ## Red Flags
 
 - More than 100 lines of code written without running tests
+- Implementing a sketch-guided slice without reading the sketch first
+- Missing `build-log.md` after using a sketch artifact
+- Adding helpers that were not in the sketch helper budget
 - Multiple unrelated changes in a single increment
 - "Let me just quickly add this too" scope expansion
 - Skipping the test/verify step to move faster
@@ -239,6 +299,7 @@ After each increment, verify:
 After completing all increments for a task:
 
 - [ ] Each increment was individually tested and committed
+- [ ] Each sketch-guided increment has a completed `build-log.md`
 - [ ] The full test suite passes
 - [ ] The build is clean
 - [ ] The feature works end-to-end as specified

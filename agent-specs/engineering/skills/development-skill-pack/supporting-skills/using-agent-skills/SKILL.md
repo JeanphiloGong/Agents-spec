@@ -19,6 +19,7 @@ Task arrives
     ├── Vague idea/need refinement? ──→ idea-refine
     ├── New project/feature/change? ──→ workflow-spec
     ├── Have a spec, need tasks? ──────→ workflow-plan
+    ├── Need implementation model? ────→ workflow-sketch
     ├── Implementing code? ────────────→ workflow-build
     │   ├── UI work? ─────────────────→ frontend-ui-engineering
     │   ├── API work? ────────────────→ api-and-interface-design
@@ -29,6 +30,7 @@ Task arrives
     │   └── Browser-based? ───────────→ browser-testing-with-devtools
     ├── Something broke? ──────────────→ debugging-and-error-recovery
     ├── Code works but feels complex? ─→ workflow-simplify
+    ├── Checking sketch adherence? ────→ workflow-check
     ├── Reviewing code? ───────────────→ workflow-review
     │   ├── Security concerns? ───────→ security-and-hardening
     │   └── Performance concerns? ────→ performance-optimization
@@ -128,7 +130,7 @@ These are the subtle errors that look like productivity but create problems:
 
 2. **Skills are workflows, not suggestions.** Follow the steps in order. Don't skip verification steps.
 
-3. **Multiple skills can apply.** A feature implementation might involve `idea-refine` → `workflow-spec` → `workflow-plan` → `workflow-build` → `workflow-test` → `workflow-simplify` → `workflow-review` → `workflow-ship` in sequence.
+3. **Multiple skills can apply.** A feature implementation might involve `idea-refine` → `workflow-spec` → `workflow-plan` → `workflow-sketch` → `workflow-build` → `workflow-test` → `workflow-check` → `workflow-simplify` → `workflow-review` → `workflow-ship` in sequence.
 
 4. **When in doubt, start with a spec.** If the task is non-trivial and there's no spec, begin with `workflow-spec`.
 
@@ -140,16 +142,18 @@ For a complete feature, the typical skill sequence is:
 1.  idea-refine                 → Refine vague ideas
 2.  workflow-spec                → Define what we're building
 3.  workflow-plan                → Break into verifiable chunks
-4.  context-engineering         → Load the right context
-5.  source-driven-development   → Verify against official docs
-6.  workflow-build               → Build slice by slice
-7.  doubt-driven-development    → Cross-examine non-trivial decisions in-flight
-8.  workflow-test                → Prove each slice works
-9.  workflow-simplify            → Reduce complexity without changing behavior
-10. workflow-review              → Review before merge
-11. git-workflow-and-versioning  → Clean commit history
-12. documentation-and-adrs       → Document decisions
-13. workflow-ship                → Deploy safely
+4.  workflow-sketch              → Model one slice before coding
+5.  context-engineering          → Load the right context
+6.  source-driven-development    → Verify against official docs
+7.  workflow-build               → Build slice by slice
+8.  doubt-driven-development     → Cross-examine non-trivial decisions in-flight
+9.  workflow-test                → Prove each slice works
+10. workflow-check               → Check build against sketch when used
+11. workflow-simplify            → Reduce complexity without changing behavior
+12. workflow-review              → Review before merge
+13. git-workflow-and-versioning  → Clean commit history
+14. documentation-and-adrs       → Document decisions
+15. workflow-ship                → Deploy safely
 ```
 
 Not every task needs every skill. A bug fix might only need: `debugging-and-error-recovery` → `workflow-test` → `workflow-review`.
@@ -161,6 +165,7 @@ Not every task needs every skill. A bug fix might only need: `debugging-and-erro
 | Define | idea-refine | Refine ideas through structured divergent and convergent thinking |
 | Define | workflow-spec | Requirements and acceptance criteria before code |
 | Plan | workflow-plan | Decompose into small, verifiable tasks |
+| Plan | workflow-sketch | Externalize model, architecture, and implementation contract for one slice |
 | Build | workflow-build | Thin vertical slices, test each before expanding |
 | Build | source-driven-development | Verify against official docs before implementing |
 | Build | doubt-driven-development | Adversarial fresh-context review of every non-trivial decision |
@@ -168,6 +173,7 @@ Not every task needs every skill. A bug fix might only need: `debugging-and-erro
 | Build | frontend-ui-engineering | Production-quality UI with accessibility |
 | Build | api-and-interface-design | Stable interfaces with clear contracts |
 | Verify | workflow-test | Failing test first, then make it pass |
+| Verify | workflow-check | Check a slice diff against its sketch contract |
 | Verify | browser-testing-with-devtools | Chrome DevTools MCP for runtime verification |
 | Verify | debugging-and-error-recovery | Reproduce → localize → fix → guard |
 | Review | workflow-simplify | Reduce complexity while preserving behavior |
