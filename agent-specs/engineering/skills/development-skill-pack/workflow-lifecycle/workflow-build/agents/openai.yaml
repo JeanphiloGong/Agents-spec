@@ -1,4 +1,4 @@
 interface:
   display_name: "Workflow Build"
-  short_description: "v0.1.1 - Implement direct-first slices before simplifying"
-  default_prompt: "Use $workflow-build to implement the next small, testable slice directly first, then simplify only with evidence."
+  short_description: "v0.1.2 - Sketch invariants, implement directly, then simplify"
+  default_prompt: "Use $workflow-build to sketch the next slice's control flow and invariants, implement it directly first, then simplify only with evidence."

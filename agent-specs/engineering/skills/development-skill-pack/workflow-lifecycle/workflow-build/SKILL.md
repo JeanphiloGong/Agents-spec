@@ -1,13 +1,13 @@
 ---
 name: workflow-build
-description: v0.1.1 - Delivers changes incrementally with direct-first implementation. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+description: v0.1.2 - Delivers changes incrementally with skeleton-first, direct-first implementation. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
 ---
 
 # Incremental Implementation
 
 ## Overview
 
-Build in thin vertical slices — implement one piece directly, test it, simplify only when the code proves the need, verify it, then expand. Avoid implementing an entire feature in one pass. Each increment should leave the system in a working, testable state. This is the execution discipline that makes large features manageable.
+Build in thin vertical slices — sketch the control flow and invariants, implement one piece directly, test it, simplify only when the code proves the need, verify it, then expand. Avoid implementing an entire feature in one pass. Each increment should leave the system in a working, testable state. This is the execution discipline that makes large features manageable.
 
 ## When to Use
 
@@ -23,6 +23,9 @@ Build in thin vertical slices — implement one piece directly, test it, simplif
 ```
 ┌──────────────────────────────────────┐
 │                                      │
+│   Skeleton / invariant pass         │
+│              │                      │
+│              ▼                      │
 │   Direct implementation ──→ Test    │
 │              │                      │
 │              ▼                      │
@@ -36,16 +39,18 @@ Build in thin vertical slices — implement one piece directly, test it, simplif
 
 For each slice:
 
-1. **Direct implementation** — implement the smallest complete piece of
+1. **Skeleton / invariant pass** — sketch the current slice's control flow,
+   data flow, core invariants, and boundaries before filling in the code
+2. **Direct implementation** — implement the smallest complete piece of
    functionality in the simplest direct shape that fits the existing codebase
-2. **Test** — run the test suite (or write a test if none exists)
-3. **Simplification pass** — remove obvious noise and extract helpers only
+3. **Test** — run the test suite (or write a test if none exists)
+4. **Simplification pass** — remove obvious noise and extract helpers only
    when the helper/abstraction gate below is satisfied
-4. **Verify** — confirm the slice works as expected after any simplification
+5. **Verify** — confirm the slice works as expected after any simplification
    (tests pass, build succeeds, manual check)
-5. **Commit** -- save your progress with a descriptive message (see
+6. **Commit** -- save your progress with a descriptive message (see
    `git-workflow-and-versioning` for atomic commit guidance)
-6. **Move to the next slice** — carry forward, don't restart
+7. **Move to the next slice** — carry forward, don't restart
 
 ## Slicing Strategies
 
@@ -94,7 +99,54 @@ If Slice 1 fails, you discover it before investing in Slices 2 and 3.
 
 ## Implementation Rules
 
-### Rule 0: Simplicity First
+### Rule 0: Skeleton Is Allowed; Premature Decomposition Is Not
+
+Before concrete implementation, write a small skeleton for the slice when it
+helps clarify the work. The skeleton may be prose in the agent update, a short
+pseudocode block, or temporary comments near the code being changed.
+
+The skeleton should express:
+
+- the control flow the slice will follow
+- the data that moves through the slice
+- the invariant that must stay true during the loop, transaction, state update,
+  or request flow
+- the boundaries that must not be crossed by this slice
+
+Good skeleton:
+
+```python
+def import_users(rows):
+    # validate every row before writing anything
+    # invariant: no partial database mutation before validation succeeds
+
+    # normalize valid rows into records
+
+    # persist records in one transaction
+
+    # return an import summary
+```
+
+Bad skeleton when these helpers do not already exist and the slice has not
+proved they are needed:
+
+```python
+def import_users(rows):
+    validated = validate_rows(rows)
+    normalized = normalize_rows(validated)
+    result = persist_users(normalized)
+    return build_summary(result)
+```
+
+The bad version decomposes the work into helpers before the current slice has
+proved that those helpers are needed. Skeletons should shape direct
+implementation first; helper extraction belongs in the simplification pass.
+
+Temporary skeleton comments are allowed during editing, but the completed slice
+must either fill them in or remove them. Keep only comments that explain a
+non-obvious invariant, ordering rule, or boundary.
+
+### Rule 0.1: Simplicity First
 
 Before writing any code, ask: "What is the simplest thing that could work?"
 
@@ -121,8 +173,10 @@ Three similar lines of code is better than a premature abstraction. Implement th
 ### Rule 0.25: Helper / Abstraction Gate
 
 During direct implementation, default to no new helper, wrapper, adapter,
-utility, manager, framework, or abstraction layer. First write the current
-slice in the clearest direct form using existing project patterns.
+utility, manager, framework, or abstraction layer. Reuse existing project
+helpers and patterns normally, but do not invent new ones before the slice
+proves the need. First write the current slice in the clearest direct form
+using existing project patterns and the skeleton from Rule 0.
 
 Create or extract a helper only when the current slice proves at least one of
 these signals:
@@ -220,6 +274,7 @@ When directing an agent to implement incrementally:
 
 Start with just the database schema change and the API endpoint.
 Don't touch the UI yet — we'll do that in the next increment.
+Sketch the endpoint control flow and invariants first.
 Implement the endpoint directly first; don't add new helpers unless repeated
 logic or an invariant appears in this slice.
 
@@ -234,7 +289,9 @@ Be explicit about what's in scope and what's NOT in scope for each increment.
 After each increment, verify:
 
 - [ ] The change does one thing and does it completely
+- [ ] The slice started with a control-flow, data-flow, invariant, or boundary skeleton when the logic was non-trivial
 - [ ] The first working version was implemented directly, without speculative helpers or abstractions
+- [ ] Temporary skeleton comments were filled in or removed unless they explain a real invariant or boundary
 - [ ] Any new helper or abstraction has explicit evidence from repeated logic, a stable domain action, an invariant, or main-flow noise
 - [ ] All existing tests still pass (`npm test`)
 - [ ] The build succeeds (`npm run build`)
@@ -254,6 +311,8 @@ After each increment, verify:
 | "These changes are too small to commit separately" | Small commits are free. Large commits hide bugs and make rollbacks painful. |
 | "I'll add the feature flag later" | If the feature isn't complete, it shouldn't be user-visible. Add the flag now. |
 | "This refactor is small enough to include" | Refactors mixed with features make both harder to review and debug. Separate them. |
+| "I'll skip the skeleton because the code is obvious" | If the slice has meaningful state, loops, transactions, or boundaries, a short skeleton exposes the invariant before implementation. |
+| "I'll turn the skeleton into helpers immediately" | Skeletons guide direct implementation. Helpers require current evidence from repetition, stable domain meaning, an invariant owner, or main-flow noise. |
 | "I'll add a helper now because we'll probably need it later" | Helpers should be forced by current evidence, not future guesses. Start direct and extract during the simplification pass. |
 | "Let me run the build command again just to be sure" | After a successful run, repeating the same command adds nothing unless the code has changed since. Run it again after subsequent edits, not as reassurance. |
 
@@ -265,7 +324,9 @@ After each increment, verify:
 - Skipping the test/verify step to move faster
 - Build or tests broken between increments
 - Large uncommitted changes accumulating
+- Non-trivial state changes, loops, transactions, or request flows implemented without naming the invariant first
 - Building abstractions before the third use case demands it
+- Turning a skeleton into helper names before proving those helpers are needed
 - Adding helpers without naming the repeated logic, invariant, or readability pressure they solve
 - Touching files outside the task scope "while I'm here"
 - Creating new utility files for one-time operations
@@ -276,7 +337,9 @@ After each increment, verify:
 After completing all increments for a task:
 
 - [ ] Each increment was individually tested and committed
+- [ ] Non-trivial increments identified their skeleton, invariant, or boundary before implementation
 - [ ] Each increment started with a direct implementation before simplification
+- [ ] Temporary skeleton comments were not left behind as empty narration
 - [ ] Any helper or abstraction added during simplification had evidence and was retested
 - [ ] The full test suite passes
 - [ ] The build is clean
