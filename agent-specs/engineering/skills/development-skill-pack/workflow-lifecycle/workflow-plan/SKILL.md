@@ -1,6 +1,6 @@
 ---
 name: workflow-plan
-description: v0.1.2 - Breaks work into ordered, verifiable tasks with issue handoff and optional task-run artifacts. Use when you have a spec or clear requirements and need to break work into implementable tasks, estimate scope, identify parallel work, prepare issue-backed acceptance tracking, or create a plan.yaml for workflow-sketch.
+description: v0.1.3 - Breaks work into ordered, verifiable tasks with issue handoff and task-run artifacts. Use when you have a spec or clear requirements and need to break work into implementable tasks, estimate scope, identify parallel work, prepare issue-backed acceptance tracking, or create a plan.yaml for workflow-sketch.
 ---
 
 # Planning and Task Breakdown
@@ -30,7 +30,8 @@ Before writing any code, operate in read-only mode:
 - Map dependencies between components
 - Note risks and unknowns
 
-**Do NOT write code during planning.** The output is a plan document, not implementation.
+**Do NOT write code during planning.** The output is a plan document and a
+task-run `plan.yaml`; it is not implementation.
 
 ### Step 2: Identify the Dependency Graph
 
@@ -163,16 +164,21 @@ Add explicit checkpoints:
 - [ ] Review with human before proceeding
 ```
 
-### Step 6: Create a Task-Run Artifact When Implementation Will Continue
+### Step 6: Create or Update the Task-Run Artifact
 
-When the plan will feed `workflow-sketch` and `workflow-build`, create an
-external task-run artifact:
+For every `workflow-plan` run, create or update the external task-run artifact:
 
 ```text
 .agent-runs/<run-id>/plan.yaml
 ```
 
-Use a stable `run_id` such as `<yyyymmdd-hhmmss-topic>`. This file is a
+Do not treat a chat answer as sufficient output. If the artifact cannot be
+written, stop and report the blocker instead of silently continuing with only a
+chat plan.
+
+Use a stable `run_id` such as `<yyyymmdd-hhmmss-topic>`. Create a new `run_id`
+for a new implementation goal. Reuse the existing `run_id` when refining the
+same goal, adding slices, or updating an approved plan. This file is a
 temporary implementation workbench, not repository documentation, and
 `.agent-runs/` should stay ignored by git.
 
@@ -289,6 +295,7 @@ When multiple agents or sessions are available:
 | "Planning is overhead" | Planning is the task. Implementation without a plan is just typing. |
 | "I can hold it all in my head" | Context windows are finite. Written plans survive session boundaries and compaction. |
 | "The sketch can be the plan." | The plan slices work; the sketch models one slice before implementation. Keep the artifacts separate. |
+| "The user only asked for a plan, so chat output is enough." | `workflow-plan` output includes `plan.yaml`. Write the artifact or report why it cannot be written. |
 
 ## Red Flags
 
@@ -296,7 +303,8 @@ When multiple agents or sessions are available:
 - Tasks that say "implement the feature" without acceptance criteria
 - No verification steps in the plan
 - No issue handoff guidance when the plan will be used for tracked work
-- No `plan.yaml` when the next step is `workflow-sketch`
+- No `plan.yaml` for a `workflow-plan` run
+- Creating a new `run_id` while only refining the same implementation goal
 - All tasks are XL-sized
 - No checkpoints between tasks
 - Dependency order isn't considered
@@ -309,8 +317,7 @@ Before starting implementation, confirm:
 - [ ] Every task has a verification step
 - [ ] Every task has issue handoff guidance or an explicit reason issue
       handoff is unnecessary
-- [ ] `plan.yaml` exists when implementation will continue through
-      `workflow-sketch`
+- [ ] `plan.yaml` exists for this plan
 - [ ] Task dependencies are identified and ordered correctly
 - [ ] No task touches more than ~5 files
 - [ ] Checkpoints exist between major phases
