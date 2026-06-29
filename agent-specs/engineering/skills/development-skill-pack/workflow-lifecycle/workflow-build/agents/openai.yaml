@@ -1,4 +1,4 @@
 interface:
   display_name: "Workflow Build"
-  short_description: "v0.1.3 - Create code-local skeletons before direct implementation"
-  default_prompt: "Use $workflow-build to create a code-local skeleton for the next non-trivial slice, implement it directly first, then simplify only with evidence."
+  short_description: "v0.1.4 - Gate builds with a skeleton checkpoint"
+  default_prompt: "Use $workflow-build to create a meaningful skeleton-only checkpoint for the next non-trivial slice, show the skeleton diff, implement directly, then audit speculative helpers and unnecessary abstractions."

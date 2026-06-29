@@ -1,18 +1,18 @@
 ---
 name: workflow-build
-description: v0.1.3 - Delivers changes incrementally with code-local skeleton-first, direct-first implementation. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+description: v0.1.4 - Delivers changes incrementally with a skeleton checkpoint before direct implementation. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
 ---
 
 # Incremental Implementation
 
 ## Overview
 
-Build in thin vertical slices — create a code-local skeleton for non-trivial control flow and invariants, implement one piece directly, test it, simplify only when the code proves the need, verify it, then expand. Avoid implementing an entire feature in one pass. Each increment should leave the system in a working, testable state. This is the execution discipline that makes large features manageable.
+Build in thin vertical slices — create a skeleton checkpoint for non-trivial control flow and invariants, implement one piece directly, test it, audit for speculative helpers and accidental scaffolding, verify it, then expand. Avoid implementing an entire feature in one pass. Each increment should leave the system in a working, testable state. This is the execution discipline that makes large features manageable.
 
 ## Why This Order Exists
 
 Normal development separates thinking about structure from filling in details.
-A code-local skeleton makes the intended control flow, data movement,
+A skeleton checkpoint makes the intended control flow, data movement,
 invariants, and boundaries visible before implementation starts. That gives the
 agent and reviewer something concrete to check before the code has already
 committed to one shape.
@@ -38,13 +38,13 @@ reviewable before the details are filled in.
 ```
 ┌──────────────────────────────────────┐
 │                                      │
-│   Skeleton / invariant pass         │
+│   Skeleton checkpoint               │
 │              │                      │
 │              ▼                      │
 │   Direct implementation ──→ Test    │
 │              │                      │
 │              ▼                      │
-│      Simplification pass ──→ Verify │
+│ Helper / abstraction audit ─→ Verify│
 │              │                      │
 │              ▼                      │
 │            Commit ──→ Next slice    │
@@ -54,16 +54,18 @@ reviewable before the details are filled in.
 
 For each slice:
 
-1. **Skeleton / invariant pass** — create a visible skeleton artifact for the
-   current slice's control flow, data flow, core invariants, and boundaries
-   before filling in the code
+1. **Skeleton checkpoint** — create a visible skeleton artifact for the current
+   slice's control flow, data flow, core invariants, and boundaries, show the
+   skeleton diff, and state helper-gate status before continuing
 2. **Direct implementation** — implement the smallest complete piece of
    functionality in the simplest direct shape that fits the existing codebase
 3. **Test** — run the test suite (or write a test if none exists)
-4. **Simplification pass** — remove obvious noise and extract helpers only
-   when the helper/abstraction gate below is satisfied
-5. **Verify** — confirm the slice works as expected after any simplification
-   (tests pass, build succeeds, manual check)
+4. **Helper / abstraction audit** — check for speculative helpers,
+   unnecessary abstractions, vague placeholder skeleton comments, and
+   accidental scaffolding; inline or remove anything that is not justified by
+   the current slice
+5. **Verify** — confirm the slice works as expected after the audit and any
+   cleanup (tests pass, build succeeds, manual check)
 6. **Commit** -- save your progress with a descriptive message (see
    `git-workflow-and-versioning` for atomic commit guidance)
 7. **Move to the next slice** — carry forward, don't restart
@@ -115,16 +117,25 @@ If Slice 1 fails, you discover it before investing in Slices 2 and 3.
 
 ## Implementation Rules
 
-### Rule 0: Skeleton Is Allowed; Premature Decomposition Is Not
+### Rule 0: Skeleton Checkpoint Before Implementation
 
 Before concrete implementation, create a small visible skeleton artifact for
 the slice when the code change is non-trivial. A non-trivial slice includes
 meaningful state changes, loops, transactions, cache writes, request flows,
 cross-file data flow, concurrency, or error-boundary behavior.
 
+This is a checkpoint, not a narration. For non-trivial slices, do not combine
+the skeleton artifact and the full implementation in the same edit. First make
+a skeleton-only edit, show the skeleton diff or exact skeleton artifact, state
+the invariant and boundary assumptions, then continue to direct implementation.
+The checkpoint is automatic: after showing the checkpoint output, continue
+without a separate approval step. It still requires a skeleton-only edit,
+checkpoint output, and separation from the implementation edit.
+
 Prefer a code-local skeleton:
 
-- temporary comments inside the target function, method, or module
+- code-local comments inside the target function, method, or module that
+  express real invariants, ordering rules, or boundaries
 - pseudocode near the code being changed
 - a minimal control-flow frame that keeps the file syntactically valid
 
@@ -137,27 +148,52 @@ The skeleton should express:
 - the boundaries that must not be crossed by this slice
 
 A prose-only skeleton in the agent update is allowed only when a code-local
-skeleton would break compilation, require fake stubs or misleading placeholder
-code, or when the slice is trivial enough that a code-local artifact would add
-noise. When using a prose-only skeleton, state why a code-local skeleton was
-not used.
+skeleton would break compilation, require fake stubs, pretend unimplemented
+behavior exists, or when the slice is trivial enough that a code-local artifact
+would add noise. When using a prose-only skeleton, state why a code-local
+skeleton was not used.
 
-Good skeleton:
+The skeleton checkpoint output must include:
+
+- `skeleton_artifact`: where the skeleton was placed, or why prose-only was
+  used
+- `invariants`: the state, ordering, transaction, cache, loop, or request-flow
+  rules that must remain true
+- `boundaries`: files, behavior, contracts, or generated output this slice will
+  not touch
+- `helper_gate`: whether new helpers are allowed in the implementation phase,
+  with evidence if yes
+
+Good skeleton checkpoint:
+
+```text
+skeleton_artifact: `import_users` has a code-local skeleton before the write path.
+invariants: no database write happens until every row has passed validation.
+boundaries: this slice writes import records only; it does not send notifications.
+helper_gate: no new helpers; there is no repeated non-trivial logic yet.
+```
+
+Good code-local skeleton:
 
 ```python
 def import_users(rows):
-    # validate every row before writing anything
-    # invariant: no partial database mutation before validation succeeds
-
-    # normalize valid rows into records
-
-    # persist records in one transaction
-
-    # return an import summary
+    # Validate the whole batch before any database write.
+    pass
 ```
 
-Bad skeleton when these helpers do not already exist and the slice has not
-proved they are needed:
+Bad skeleton because the comments only name generic programming chores:
+
+```python
+def import_users(rows):
+    # load data
+    # validate input
+    # process result
+    # return response
+    pass
+```
+
+Bad skeleton because it invents helpers before the current slice has proved
+they are needed:
 
 ```python
 def import_users(rows):
@@ -167,13 +203,15 @@ def import_users(rows):
     return build_summary(result)
 ```
 
-The bad version decomposes the work into helpers before the current slice has
-proved that those helpers are needed. Skeletons should shape direct
-implementation first; helper extraction belongs in the simplification pass.
+The bad versions either provide no useful design pressure or decompose the work
+into helpers before the current slice has proved that those helpers are needed.
+Skeletons should shape direct implementation first. Do not keep helper
+extraction unless it is required to keep the current slice correct and minimal.
 
-Temporary skeleton comments are allowed during editing, but the completed slice
-must either fill them in or remove them. Keep only comments that explain a
-non-obvious invariant, ordering rule, or boundary.
+Skeleton artifacts must be meaningful from the start. Do not write vague
+placeholder comments such as `# load data`, `# validate input`,
+`# process result`, or `# return response`. Keep comments only when they explain
+a non-obvious invariant, ordering rule, or boundary.
 
 ### Rule 0.1: Simplicity First
 
@@ -205,10 +243,12 @@ During direct implementation, default to no new helper, wrapper, adapter,
 utility, manager, framework, or abstraction layer. Reuse existing project
 helpers and patterns normally, but do not invent new ones before the slice
 proves the need. First write the current slice in the clearest direct form
-using existing project patterns and the skeleton from Rule 0.
+using existing project patterns and the approved skeleton from Rule 0.
 
-Create or extract a helper only when the current slice proves at least one of
-these signals:
+In `workflow-build`, treat helper evidence as a keep-or-inline audit gate, not
+as a refactoring invitation. A new helper can stay in the build slice only when
+it is required for the current slice and the current slice proves at least one
+of these signals:
 
 - The same non-trivial logic is repeated in more than one place.
 - A stable domain action has emerged and a name makes the caller easier to
@@ -218,13 +258,35 @@ these signals:
 - Inline detail is drowning the main flow and extracting it makes the main
   behavior clearer.
 
-Before adding the helper, state the evidence: the repeated code, the invariant,
-or the specific main-flow noise it removes. After extracting it, rerun the
-relevant tests or checks because helper extraction is still a code change.
+Before keeping a new helper, state the evidence: the repeated code, the
+invariant, or the specific main-flow noise it removes. If that evidence is not
+clear, inline the helper back into the direct implementation.
+
+If helper need is already visible during the skeleton checkpoint, record that
+evidence in `helper_gate` before implementation begins. If the need only
+appears after direct implementation, keep the helper only when it is required
+for this slice and has explicit evidence. Do not extract helpers just to make
+the code look more organized in the build slice.
 
 Do not create new utility files for one-time operations. Do not add adapters,
 facades, compatibility layers, or generic managers unless the task explicitly
 requires them and the current code proves the need.
+
+### Rule 0.3: Build Audit Blocks Extra Helpers
+
+After direct implementation and tests, do a narrow audit:
+
+- remove any vague placeholder skeleton comment that slipped in despite Rule 0
+- keep only comments that explain real invariants, ordering rules, or boundaries
+- inline speculative helpers that were added without evidence
+- remove unused imports, dead code, and accidental scaffolding introduced by
+  the slice
+
+Do not perform broad cleanup, optional helper extraction, naming sweeps, file
+moves, or behavior-preserving refactors in `workflow-build`. The build slice
+should end as the simplest direct implementation for the current task, with no
+helpers or abstractions beyond those required by the current slice and justified
+by the helper gate.
 
 ### Rule 0.5: Scope Discipline
 
@@ -303,9 +365,13 @@ When directing an agent to implement incrementally:
 
 Start with just the database schema change and the API endpoint.
 Don't touch the UI yet — we'll do that in the next increment.
-Sketch the endpoint control flow and invariants first.
+First make a skeleton-only edit for the endpoint control flow and invariants,
+show me the skeleton diff, then continue to direct implementation.
 Implement the endpoint directly first; don't add new helpers unless repeated
 logic or an invariant appears in this slice.
+After tests pass, audit for speculative helpers, vague placeholder skeleton
+comments, and accidental scaffolding; inline or remove anything not required by
+this slice.
 
 After implementing, run `npm test` and `npm run build` to verify
 nothing is broken."
@@ -318,10 +384,12 @@ Be explicit about what's in scope and what's NOT in scope for each increment.
 After each increment, verify:
 
 - [ ] The change does one thing and does it completely
-- [ ] The slice started with a control-flow, data-flow, invariant, or boundary skeleton when the logic was non-trivial
+- [ ] The slice started with a skeleton-only checkpoint when the logic was non-trivial
+- [ ] The skeleton checkpoint showed the skeleton artifact, invariants, boundaries, and helper-gate status
+- [ ] The skeleton artifact avoided vague placeholder comments and stated real ordering, invariant, or boundary information
 - [ ] The first working version was implemented directly, without speculative helpers or abstractions
-- [ ] Temporary skeleton comments were filled in or removed unless they explain a real invariant or boundary
-- [ ] Any new helper or abstraction has explicit evidence from repeated logic, a stable domain action, an invariant, or main-flow noise
+- [ ] Any new helper or abstraction kept in the slice has explicit evidence from repeated logic, a stable domain action, an invariant, or main-flow noise
+- [ ] Speculative helpers, generic utilities, and unnecessary abstractions were removed or inlined
 - [ ] All existing tests still pass (`npm test`)
 - [ ] The build succeeds (`npm run build`)
 - [ ] Type checking passes (`npx tsc --noEmit`)
@@ -341,9 +409,11 @@ After each increment, verify:
 | "I'll add the feature flag later" | If the feature isn't complete, it shouldn't be user-visible. Add the flag now. |
 | "This refactor is small enough to include" | Refactors mixed with features make both harder to review and debug. Separate them. |
 | "I'll just implement it; the structure will become clear while coding" | Direct implementation without a visible skeleton hides ordering, state, and boundary mistakes until they are harder to unwind. |
+| "I'll add the skeleton and implementation in one patch" | That skips the checkpoint. Non-trivial slices need a skeleton-only edit before full implementation. |
 | "I'll skip the skeleton because the code is obvious" | If the slice has meaningful state, loops, transactions, or boundaries, a short skeleton exposes the invariant before implementation. |
 | "I'll turn the skeleton into helpers immediately" | Skeletons guide direct implementation. Helpers require current evidence from repetition, stable domain meaning, an invariant owner, or main-flow noise. |
-| "I'll add a helper now because we'll probably need it later" | Helpers should be forced by current evidence, not future guesses. Start direct and extract during the simplification pass. |
+| "I'll add a helper now because we'll probably need it later" | Helpers should be forced by current evidence, not future guesses. Start direct and remove helpers that are not required by this slice. |
+| "Tests pass, so I'll clean this up broadly now" | Build audit is narrow. It removes speculative helpers and scaffolding; it does not perform broad refactors. |
 | "Let me run the build command again just to be sure" | After a successful run, repeating the same command adds nothing unless the code has changed since. Run it again after subsequent edits, not as reassurance. |
 
 ## Red Flags
@@ -354,10 +424,12 @@ After each increment, verify:
 - Skipping the test/verify step to move faster
 - Build or tests broken between increments
 - Large uncommitted changes accumulating
+- Skeleton artifact and full implementation appear in the same first edit for a non-trivial slice
 - Non-trivial state changes, loops, transactions, or request flows implemented without naming the invariant first
 - Building abstractions before the third use case demands it
 - Turning a skeleton into helper names before proving those helpers are needed
 - Adding helpers without naming the repeated logic, invariant, or readability pressure they solve
+- Performing broad cleanup or refactoring inside a build slice after tests pass
 - Touching files outside the task scope "while I'm here"
 - Creating new utility files for one-time operations
 - Running the same build/test command twice in a row without any intervening code change
@@ -367,10 +439,12 @@ After each increment, verify:
 After completing all increments for a task:
 
 - [ ] Each increment was individually tested and committed
-- [ ] Non-trivial increments identified their skeleton, invariant, or boundary before implementation
-- [ ] Each increment started with a direct implementation before simplification
-- [ ] Temporary skeleton comments were not left behind as empty narration
-- [ ] Any helper or abstraction added during simplification had evidence and was retested
+- [ ] Non-trivial increments passed a skeleton checkpoint before implementation
+- [ ] Skeleton checkpoints recorded artifact, invariants, boundaries, and helper-gate status
+- [ ] Skeleton artifacts did not rely on vague placeholder comments such as `# load data`, `# validate input`, `# process result`, or `# return response`
+- [ ] Each increment started with direct implementation before helper/audit cleanup
+- [ ] Any helper or abstraction kept in the build slice had evidence and was retested
+- [ ] Speculative helpers, generic utilities, and unnecessary abstractions were not left behind
 - [ ] The full test suite passes
 - [ ] The build is clean
 - [ ] The feature works end-to-end as specified
