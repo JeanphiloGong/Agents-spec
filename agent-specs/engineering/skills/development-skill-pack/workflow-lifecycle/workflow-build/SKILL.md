@@ -1,6 +1,6 @@
 ---
 name: workflow-build
-description: v0.1.7 - Delivers changes incrementally with skeleton-only first edits before direct implementation. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+description: v0.1.8 - Delivers changes incrementally with global skeleton-only first edits before direct implementation. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
 ---
 
 # Incremental Implementation
@@ -9,7 +9,7 @@ description: v0.1.7 - Delivers changes incrementally with skeleton-only first ed
 
 Build in thin vertical slices with hard gates: inspect the task and relevant
 code, define the slice scope, map implementation targets, make the first code
-edit skeleton-only for non-trivial targets, implement directly, check for
+edit skeleton-only across the whole non-trivial slice, implement directly, check for
 coverage drift, test, audit speculative helpers, verify, then expand. Avoid
 implementing an entire feature in one pass. Each increment should leave the
 system in a working, testable state. This is the execution discipline that
@@ -80,9 +80,9 @@ For each slice:
    deliver and the files, contracts, and behaviors it will not touch
 3. **Coverage map** — list every file, function, method, route, test, or
    generated artifact the slice is about to change
-4. **Target skeleton gate** — make the first code edit skeleton-only for each
-   non-trivial target in the coverage map, show the skeleton diff, and state
-   invariants, boundaries, and helper-gate status before continuing
+4. **Target skeleton gate** — make the first code edit skeleton-only across the
+   whole non-trivial slice, show the skeleton diff, and state invariants,
+   boundaries, and helper-gate status before continuing
 5. **Direct implementation** — implement the smallest complete piece of
    functionality in the simplest direct shape that fits the existing codebase
 6. **Coverage drift check** — compare the implementation diff with the
@@ -156,19 +156,25 @@ error-boundary behavior. Read `references/skeleton-gate.md` when any of those
 signals appear.
 
 This is a checkpoint, not a narration. For every non-trivial task or slice, the
-first code-editing step must be a skeleton-only edit. Planning text alone does not satisfy the gate.
-A spoken plan, checklist, or coverage map is context, not the skeleton edit. Do
-not combine the skeleton artifact and the full implementation in the same edit.
-Show the skeleton diff or exact skeleton artifact, state the invariant and
-boundary assumptions, then continue to direct implementation. The checkpoint is
-automatic after the skeleton diff is shown; it does not require a separate
-approval step.
+first code-editing step must be a skeleton-only edit across the whole slice.
+Planning text alone does not satisfy the gate. A spoken plan, checklist, or
+coverage map is context, not the skeleton edit. Do not combine the skeleton
+artifact and the full implementation in the same edit. Show the skeleton diff
+or exact skeleton artifact, state the invariant and boundary assumptions, then
+continue to direct implementation. The checkpoint is automatic after the
+skeleton diff is shown; it does not require a separate approval step.
 
-The first skeleton-only edit must not add final fields, full method bodies,
-business logic, assertions, persistence behavior, external calls, or completed
+The first skeleton-only edit is global. Simple targets in the coverage map
+(fields, constants, imports, tests, route registrations, thin callers) may be
+named or covered by a short code-local contract comment, but must not be fully
+implemented until the implementation edit.
+
+The first skeleton-only edit must not add final model/schema fields, final
+implementation-only imports, constants/enums that finalize the contract, full
+method bodies, business branches, assertions, fixtures, route registrations,
+persistence behavior, hash/checksum calculations, external calls, or completed
 error handling. It may add signatures, code-local ordering comments, minimal
-control-flow frames, and `pass` or equivalent placeholders needed to keep the
-file valid.
+control-flow frames, and `pass` or equivalent placeholders needed to keep the file valid.
 
 Prefer a code-local skeleton:
 
@@ -215,7 +221,9 @@ New non-trivial functions and methods require a method-level skeleton before
 their full body is implemented. The skeleton does not need many comments, but
 it must show ordered steps, state-changing boundaries, and invariants. Trivial
 one-line getters, declarations, and thin forwarding code can be covered by the
-coverage map alone.
+coverage map alone, but that only means they do not need a method-level
+skeleton; it does not permit final implementation code in the first skeleton
+edit for the slice.
 
 See `references/skeleton-gate.md` for coverage-map examples, method-level
 skeleton examples, coverage drift checks, and bad skeleton anti-patterns.
@@ -409,10 +417,11 @@ After each increment, verify:
 
 - [ ] The change does one thing and does it completely
 - [ ] Relevant code was inspected and the task/slice assumptions were stated before editing
-- [ ] The first code edit for each non-trivial task or slice was skeleton-only
+- [ ] The first code edit for the whole non-trivial task or slice was skeleton-only
 - [ ] Planning text, checklist output, or coverage map text was not counted as the skeleton edit
+- [ ] The first skeleton-only edit did not include final fields, imports, assertions, persistence logic, route registrations, hash calculations, or business branches
 - [ ] The skeleton checkpoint showed the skeleton artifact, coverage map, invariants, boundaries, and helper-gate status
-- [ ] Every file/function/method/route changed by the implementation was covered by the skeleton checkpoint before implementation touched it
+- [ ] Every changed file/function/method/route was covered by the skeleton checkpoint before implementation touched it
 - [ ] Every new non-trivial function or method had a method-level skeleton before the full body was implemented
 - [ ] The skeleton artifact avoided vague placeholder comments and stated real ordering, invariant, or boundary information
 - [ ] The first working version was implemented directly, without speculative helpers or abstractions
@@ -439,6 +448,7 @@ After each increment, verify:
 | "This refactor is small enough to include" | Refactors mixed with features make both harder to review and debug. Separate them. |
 | "I'll just implement it; the structure will become clear while coding" | Direct implementation without a visible skeleton hides ordering, state, and boundary mistakes until they are harder to unwind. |
 | "I'll add the skeleton and implementation in one patch" | That skips the checkpoint. Non-trivial slices need a skeleton-only edit before full implementation. |
+| "Fields and imports are simple, so they can be final in the skeleton edit" | The first skeleton edit is global. Simple targets can be named in the coverage map, but final fields and imports wait for the implementation edit. |
 | "I'll skip the skeleton because the code is obvious" | If the slice has meaningful state, loops, transactions, or boundaries, a short skeleton exposes the invariant before implementation. |
 | "One skeleton comment is enough; the rest follows the same idea" | Skeleton coverage must match the implementation targets. Add coverage entries before touching additional files, methods, routes, tests, or graph paths. |
 | "The new method is straightforward, so I'll write the whole body first" | New non-trivial methods need a method-level skeleton first so ordering, state writes, and boundaries are visible before implementation. |
@@ -456,6 +466,7 @@ After each increment, verify:
 - Build or tests broken between increments
 - Large uncommitted changes accumulating
 - Skeleton artifact and full implementation appear in the same first edit for a non-trivial slice
+- The first skeleton edit includes final model fields, implementation-only imports, test assertions, hash calculations, route registrations, persistence calls, or business branches
 - A small skeleton in one file is followed by broad implementation across uncaptured files or methods
 - A new cache write, file write, transaction, route, or state-sync method appears fully implemented without a method-level skeleton
 - Direct implementation changes targets that were absent from the coverage map
@@ -474,6 +485,7 @@ After completing all increments for a task:
 
 - [ ] Each increment was individually tested and committed
 - [ ] Non-trivial increments passed a skeleton checkpoint before implementation
+- [ ] The first code edit for each non-trivial increment was globally skeleton-only, including simple targets in the coverage map
 - [ ] Skeleton checkpoints recorded artifact, coverage map, invariants, boundaries, and helper-gate status
 - [ ] No implementation target was changed before it appeared in the skeleton coverage map
 - [ ] New non-trivial functions and methods were introduced through method-level skeletons before full bodies

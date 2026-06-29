@@ -22,11 +22,21 @@ slice scope
 Do not skip from `coverage map` to a full method body when the target is
 non-trivial.
 
-The first code edit for every non-trivial task or slice must be skeleton-only.
-A spoken plan, checklist, or coverage map is required context, but it does not
-count as the skeleton edit. The skeleton-only edit must not include final
-fields, full method bodies, assertions, persistence logic, external calls, or
-completed error handling.
+The first code edit for every non-trivial task or slice must be skeleton-only
+across the whole slice. A spoken plan, checklist, or coverage map is required
+context, but it does not count as the skeleton edit. The skeleton-only edit must
+not include final fields, final implementation-only imports, constants or enums
+that finalize the contract, full method bodies, assertions, fixtures, route
+registrations, persistence logic, hash or checksum calculations, external
+calls, or completed error handling.
+
+This global first-edit rule applies even to simple coverage-map targets. A
+field declaration, import, test assertion, route registration, or one-line
+caller may not need its own method-level skeleton, but it still cannot be fully
+implemented in the first skeleton-only edit for a non-trivial slice. In that
+first edit, cover simple targets through the coverage map or a short code-local
+comment that describes the intended contract. Add the final code in the next
+implementation edit.
 
 ## Non-Trivial Targets
 
@@ -46,6 +56,9 @@ These usually do not need a method-level skeleton:
 - simple getters or pure formatting one-liners
 - thin forwarding code with no new state or error boundary
 - tests that only assert an already-skeletoned behavior
+
+This exception only means "no method-level skeleton required." It does not
+override the global first-edit rule.
 
 ## Coverage Map
 
@@ -104,6 +117,33 @@ async def write_import_snapshot_with_lock(import_id, record_id, snapshot, source
 The bad version jumps straight to implementation. It may be correct by chance,
 but the ordering and invariant were never exposed before code generation.
 
+## Simple Target Coverage
+
+When a non-trivial slice also needs simple declarations, keep the first edit
+non-final.
+
+Good first edit:
+
+```python
+class ImportRecord(BaseModel):
+    # Snapshot metadata will be stored on the record and must load safely from
+    # older files that do not have those fields yet.
+    pass
+```
+
+Bad first edit:
+
+```python
+import hashlib
+
+class ImportRecord(BaseModel):
+    snapshot_status: Literal["missing", "ready", "stale"] = "missing"
+    snapshot_checksum: str = ""
+```
+
+The bad version finalizes schema and implementation-only imports before the
+skeleton checkpoint has separated structure from implementation.
+
 ## Direct Implementation Rule
 
 After the skeleton-only edit is shown, fill in the body directly. Do not turn
@@ -145,6 +185,7 @@ the new target or split it into the next slice.
 |---|---|
 | One invariant comment in a cache method, then model, router, graph, and tests change. | The skeleton did not cover the implementation surface. |
 | A new locked write method appears fully implemented in one edit. | The method's ordering and state invariant were not reviewed before generation. |
+| Final schema fields, imports, test assertions, route registrations, or hash calls appear in the first skeleton edit. | The first edit is no longer skeleton-only across the whole slice. |
 | Coverage map says "service layer" or "API changes". | The target is too vague to constrain implementation. |
 | Skeleton comments say `load data`, `validate`, `process`, `return`. | They name generic chores instead of real ordering or invariants. |
 | Helper names appear in the skeleton before repetition exists. | The skeleton is decomposing prematurely instead of guiding direct implementation. |
