@@ -1,13 +1,20 @@
 ---
 name: workflow-plan
-description: v0.1.3 - Breaks work into ordered, verifiable tasks with issue handoff and task-run artifacts. Use when you have a spec or clear requirements and need to break work into implementable tasks, estimate scope, identify parallel work, prepare issue-backed acceptance tracking, or create a plan.yaml for workflow-sketch.
+description: v0.1.4 - Breaks work into ordered, verifiable tasks with issue handoff and a final plan.yaml record. Use when you have a spec or clear requirements and need to break work into implementable tasks, estimate scope, identify parallel work, prepare issue-backed acceptance tracking, or create a plan.yaml for workflow-sketch.
 ---
 
 # Planning and Task Breakdown
 
 ## Overview
 
-Decompose work into small, verifiable tasks with explicit acceptance criteria. Good task breakdown is the difference between an agent that completes work reliably and one that produces a tangled mess. Every task should be small enough to implement, test, and verify in a single focused session.
+Decompose work into small, verifiable tasks with explicit acceptance criteria.
+Good task breakdown is the difference between an agent that completes work
+reliably and one that produces a tangled mess. Every task should be small
+enough to implement, test, and verify in a single focused session.
+
+Plan quality comes before artifact formatting. Produce the complete
+human-readable implementation plan first, then record the final plan into
+`.agent-runs/<run-id>/plan.yaml` as a compact handoff artifact.
 
 ## When to Use
 
@@ -164,7 +171,25 @@ Add explicit checkpoints:
 - [ ] Review with human before proceeding
 ```
 
-### Step 6: Create or Update the Task-Run Artifact
+### Step 6: Produce the Human-Readable Plan First
+
+Before writing `plan.yaml`, finish the full implementation plan in the normal
+reader-facing shape:
+
+- overview and goal
+- architecture decisions and rationale
+- ordered task list with acceptance criteria
+- dependencies and likely files touched
+- verification for each task
+- checkpoints
+- risks and mitigations
+- open questions
+- issue handoff
+
+The task-run artifact records this final plan. It must not replace the
+human-readable plan or drive the planning process.
+
+### Step 7: Record the Final Plan in the Task-Run Artifact
 
 For every `workflow-plan` run, create or update the external task-run artifact:
 
@@ -196,6 +221,7 @@ scope:
 slices:
   - id: "<slice-id>"
     outcome: "<verifiable outcome>"
+    rationale: "<why this slice is ordered here>"
     target_areas:
       - "<module or subsystem>"
     depends_on: []
@@ -203,9 +229,22 @@ slices:
       - "<test, build, static check, or manual check>"
 ```
 
-Keep implementation details out of `plan.yaml`. Detailed model, architecture,
-invariants, helper budget, and allowed changes belong in the later
-`workflow-sketch` artifact for each slice.
+Keep implementation details out of `plan.yaml`. The artifact may include brief
+slice rationale so future steps remember why the order exists, but detailed
+model, architecture, invariants, helper budget, and allowed changes belong in
+the later `workflow-sketch` artifact for each slice.
+
+After writing the artifact, report both:
+
+```text
+## Implementation Plan
+[full human-readable plan]
+
+## Task-Run Artifact
+- path: .agent-runs/<run-id>/plan.yaml
+- status: created | updated
+- run_id: <run-id>
+```
 
 ## Task Sizing Guidelines
 
@@ -296,6 +335,7 @@ When multiple agents or sessions are available:
 | "I can hold it all in my head" | Context windows are finite. Written plans survive session boundaries and compaction. |
 | "The sketch can be the plan." | The plan slices work; the sketch models one slice before implementation. Keep the artifacts separate. |
 | "The user only asked for a plan, so chat output is enough." | `workflow-plan` output includes `plan.yaml`. Write the artifact or report why it cannot be written. |
+| "I'll fill `plan.yaml` first and summarize it afterward." | Artifact formatting should not drive planning. Finish the human-readable plan first, then record it. |
 
 ## Red Flags
 
@@ -304,6 +344,8 @@ When multiple agents or sessions are available:
 - No verification steps in the plan
 - No issue handoff guidance when the plan will be used for tracked work
 - No `plan.yaml` for a `workflow-plan` run
+- `plan.yaml` appears to be the plan instead of a compact record of the final
+  human-readable plan
 - Creating a new `run_id` while only refining the same implementation goal
 - All tasks are XL-sized
 - No checkpoints between tasks
@@ -318,6 +360,8 @@ Before starting implementation, confirm:
 - [ ] Every task has issue handoff guidance or an explicit reason issue
       handoff is unnecessary
 - [ ] `plan.yaml` exists for this plan
+- [ ] The human-readable plan was completed before `plan.yaml` was recorded
+- [ ] `plan.yaml` reflects the final plan rather than a draft checklist
 - [ ] Task dependencies are identified and ordered correctly
 - [ ] No task touches more than ~5 files
 - [ ] Checkpoints exist between major phases

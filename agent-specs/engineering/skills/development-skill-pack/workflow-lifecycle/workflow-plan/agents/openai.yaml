@@ -1,4 +1,4 @@
 interface:
   display_name: "Workflow Plan"
-  short_description: "v0.1.3 - Break a spec into verifiable tasks with issue handoff and plan.yaml"
-  default_prompt: "Use $workflow-plan to break this spec into ordered, small, independently verifiable implementation tasks, including issue handoff guidance, and create or update .agent-runs plan.yaml."
+  short_description: "v0.1.4 - Break a spec into a full plan, then record plan.yaml"
+  default_prompt: "Use $workflow-plan to write the full human-readable implementation plan first, then create or update .agent-runs plan.yaml as the final compact record."
