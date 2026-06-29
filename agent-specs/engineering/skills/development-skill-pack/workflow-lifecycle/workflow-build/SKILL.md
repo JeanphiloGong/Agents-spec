@@ -1,13 +1,28 @@
 ---
 name: workflow-build
-description: v0.1.2 - Delivers changes incrementally with skeleton-first, direct-first implementation. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+description: v0.1.3 - Delivers changes incrementally with code-local skeleton-first, direct-first implementation. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
 ---
 
 # Incremental Implementation
 
 ## Overview
 
-Build in thin vertical slices — sketch the control flow and invariants, implement one piece directly, test it, simplify only when the code proves the need, verify it, then expand. Avoid implementing an entire feature in one pass. Each increment should leave the system in a working, testable state. This is the execution discipline that makes large features manageable.
+Build in thin vertical slices — create a code-local skeleton for non-trivial control flow and invariants, implement one piece directly, test it, simplify only when the code proves the need, verify it, then expand. Avoid implementing an entire feature in one pass. Each increment should leave the system in a working, testable state. This is the execution discipline that makes large features manageable.
+
+## Why This Order Exists
+
+Normal development separates thinking about structure from filling in details.
+A code-local skeleton makes the intended control flow, data movement,
+invariants, and boundaries visible before implementation starts. That gives the
+agent and reviewer something concrete to check before the code has already
+committed to one shape.
+
+Jumping straight into implementation hides weak assumptions inside working-looking
+code. Common failure modes are partial state updates, incorrect ordering, stale
+cache or transaction behavior, helper functions invented before their
+responsibility is stable, and broad changes that cross the slice boundary. The
+skeleton-first pass reduces those risks by making the shape of the change
+reviewable before the details are filled in.
 
 ## When to Use
 
@@ -39,8 +54,9 @@ Build in thin vertical slices — sketch the control flow and invariants, implem
 
 For each slice:
 
-1. **Skeleton / invariant pass** — sketch the current slice's control flow,
-   data flow, core invariants, and boundaries before filling in the code
+1. **Skeleton / invariant pass** — create a visible skeleton artifact for the
+   current slice's control flow, data flow, core invariants, and boundaries
+   before filling in the code
 2. **Direct implementation** — implement the smallest complete piece of
    functionality in the simplest direct shape that fits the existing codebase
 3. **Test** — run the test suite (or write a test if none exists)
@@ -101,9 +117,16 @@ If Slice 1 fails, you discover it before investing in Slices 2 and 3.
 
 ### Rule 0: Skeleton Is Allowed; Premature Decomposition Is Not
 
-Before concrete implementation, write a small skeleton for the slice when it
-helps clarify the work. The skeleton may be prose in the agent update, a short
-pseudocode block, or temporary comments near the code being changed.
+Before concrete implementation, create a small visible skeleton artifact for
+the slice when the code change is non-trivial. A non-trivial slice includes
+meaningful state changes, loops, transactions, cache writes, request flows,
+cross-file data flow, concurrency, or error-boundary behavior.
+
+Prefer a code-local skeleton:
+
+- temporary comments inside the target function, method, or module
+- pseudocode near the code being changed
+- a minimal control-flow frame that keeps the file syntactically valid
 
 The skeleton should express:
 
@@ -112,6 +135,12 @@ The skeleton should express:
 - the invariant that must stay true during the loop, transaction, state update,
   or request flow
 - the boundaries that must not be crossed by this slice
+
+A prose-only skeleton in the agent update is allowed only when a code-local
+skeleton would break compilation, require fake stubs or misleading placeholder
+code, or when the slice is trivial enough that a code-local artifact would add
+noise. When using a prose-only skeleton, state why a code-local skeleton was
+not used.
 
 Good skeleton:
 
@@ -311,6 +340,7 @@ After each increment, verify:
 | "These changes are too small to commit separately" | Small commits are free. Large commits hide bugs and make rollbacks painful. |
 | "I'll add the feature flag later" | If the feature isn't complete, it shouldn't be user-visible. Add the flag now. |
 | "This refactor is small enough to include" | Refactors mixed with features make both harder to review and debug. Separate them. |
+| "I'll just implement it; the structure will become clear while coding" | Direct implementation without a visible skeleton hides ordering, state, and boundary mistakes until they are harder to unwind. |
 | "I'll skip the skeleton because the code is obvious" | If the slice has meaningful state, loops, transactions, or boundaries, a short skeleton exposes the invariant before implementation. |
 | "I'll turn the skeleton into helpers immediately" | Skeletons guide direct implementation. Helpers require current evidence from repetition, stable domain meaning, an invariant owner, or main-flow noise. |
 | "I'll add a helper now because we'll probably need it later" | Helpers should be forced by current evidence, not future guesses. Start direct and extract during the simplification pass. |
