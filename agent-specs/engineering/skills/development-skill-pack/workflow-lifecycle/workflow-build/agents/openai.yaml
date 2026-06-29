@@ -1,4 +1,4 @@
 interface:
   display_name: "Workflow Build"
-  short_description: "v0.1.4 - Gate builds with a skeleton checkpoint"
-  default_prompt: "Use $workflow-build to create a meaningful skeleton-only checkpoint for the next non-trivial slice, show the skeleton diff, implement directly, then audit speculative helpers and unnecessary abstractions."
+  short_description: "v0.1.5 - Gate builds with a coverage-mapped skeleton checkpoint"
+  default_prompt: "Use $workflow-build to create a meaningful skeleton-only checkpoint with a coverage map for the next non-trivial slice, show the skeleton diff, implement directly, then audit speculative helpers and unnecessary abstractions."

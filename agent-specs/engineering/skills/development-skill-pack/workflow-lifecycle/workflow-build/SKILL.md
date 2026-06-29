@@ -1,6 +1,6 @@
 ---
 name: workflow-build
-description: v0.1.4 - Delivers changes incrementally with a skeleton checkpoint before direct implementation. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+description: v0.1.5 - Delivers changes incrementally with a coverage-mapped skeleton checkpoint before direct implementation. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
 ---
 
 # Incremental Implementation
@@ -54,9 +54,10 @@ reviewable before the details are filled in.
 
 For each slice:
 
-1. **Skeleton checkpoint** — create a visible skeleton artifact for the current
-   slice's control flow, data flow, core invariants, and boundaries, show the
-   skeleton diff, and state helper-gate status before continuing
+1. **Skeleton checkpoint** — create a visible skeleton artifact for every
+   file, function, method, or route the slice is about to change, show the
+   skeleton diff, and state the coverage map plus helper-gate status before
+   continuing
 2. **Direct implementation** — implement the smallest complete piece of
    functionality in the simplest direct shape that fits the existing codebase
 3. **Test** — run the test suite (or write a test if none exists)
@@ -157,6 +158,8 @@ The skeleton checkpoint output must include:
 
 - `skeleton_artifact`: where the skeleton was placed, or why prose-only was
   used
+- `coverage_map`: each file/function/method/route the implementation is about
+  to touch and the skeleton artifact that covers it
 - `invariants`: the state, ordering, transaction, cache, loop, or request-flow
   rules that must remain true
 - `boundaries`: files, behavior, contracts, or generated output this slice will
@@ -164,10 +167,17 @@ The skeleton checkpoint output must include:
 - `helper_gate`: whether new helpers are allowed in the implementation phase,
   with evidence if yes
 
+Coverage is mandatory. A two-line skeleton in one cache method does not
+authorize changing models, tests, routers, services, and graph generation. If
+implementation work needs to touch a target that is not in `coverage_map`, stop
+and add a new skeleton-only checkpoint for that target before writing the
+implementation.
+
 Good skeleton checkpoint:
 
 ```text
 skeleton_artifact: `import_users` has a code-local skeleton before the write path.
+coverage_map: `users/importer.py::import_users`.
 invariants: no database write happens until every row has passed validation.
 boundaries: this slice writes import records only; it does not send notifications.
 helper_gate: no new helpers; there is no repeated non-trivial logic yet.
@@ -212,6 +222,11 @@ Skeleton artifacts must be meaningful from the start. Do not write vague
 placeholder comments such as `# load data`, `# validate input`,
 `# process result`, or `# return response`. Keep comments only when they explain
 a non-obvious invariant, ordering rule, or boundary.
+
+Skeleton size should match implementation risk. A large implementation can have
+short comments, but each changed target still needs a skeleton entry that names
+its role in the slice. If the first implementation edit is much broader than
+the skeleton coverage, the workflow has failed.
 
 ### Rule 0.1: Simplicity First
 
@@ -366,7 +381,7 @@ When directing an agent to implement incrementally:
 Start with just the database schema change and the API endpoint.
 Don't touch the UI yet — we'll do that in the next increment.
 First make a skeleton-only edit for the endpoint control flow and invariants,
-show me the skeleton diff, then continue to direct implementation.
+show me the skeleton diff and coverage map, then continue to direct implementation.
 Implement the endpoint directly first; don't add new helpers unless repeated
 logic or an invariant appears in this slice.
 After tests pass, audit for speculative helpers, vague placeholder skeleton
@@ -385,7 +400,8 @@ After each increment, verify:
 
 - [ ] The change does one thing and does it completely
 - [ ] The slice started with a skeleton-only checkpoint when the logic was non-trivial
-- [ ] The skeleton checkpoint showed the skeleton artifact, invariants, boundaries, and helper-gate status
+- [ ] The skeleton checkpoint showed the skeleton artifact, coverage map, invariants, boundaries, and helper-gate status
+- [ ] Every file/function/method/route changed by the implementation was covered by the skeleton checkpoint before implementation touched it
 - [ ] The skeleton artifact avoided vague placeholder comments and stated real ordering, invariant, or boundary information
 - [ ] The first working version was implemented directly, without speculative helpers or abstractions
 - [ ] Any new helper or abstraction kept in the slice has explicit evidence from repeated logic, a stable domain action, an invariant, or main-flow noise
@@ -411,6 +427,7 @@ After each increment, verify:
 | "I'll just implement it; the structure will become clear while coding" | Direct implementation without a visible skeleton hides ordering, state, and boundary mistakes until they are harder to unwind. |
 | "I'll add the skeleton and implementation in one patch" | That skips the checkpoint. Non-trivial slices need a skeleton-only edit before full implementation. |
 | "I'll skip the skeleton because the code is obvious" | If the slice has meaningful state, loops, transactions, or boundaries, a short skeleton exposes the invariant before implementation. |
+| "One skeleton comment is enough; the rest follows the same idea" | Skeleton coverage must match the implementation targets. Add coverage entries before touching additional files, methods, routes, tests, or graph paths. |
 | "I'll turn the skeleton into helpers immediately" | Skeletons guide direct implementation. Helpers require current evidence from repetition, stable domain meaning, an invariant owner, or main-flow noise. |
 | "I'll add a helper now because we'll probably need it later" | Helpers should be forced by current evidence, not future guesses. Start direct and remove helpers that are not required by this slice. |
 | "Tests pass, so I'll clean this up broadly now" | Build audit is narrow. It removes speculative helpers and scaffolding; it does not perform broad refactors. |
@@ -425,6 +442,7 @@ After each increment, verify:
 - Build or tests broken between increments
 - Large uncommitted changes accumulating
 - Skeleton artifact and full implementation appear in the same first edit for a non-trivial slice
+- A small skeleton in one file is followed by broad implementation across uncaptured files or methods
 - Non-trivial state changes, loops, transactions, or request flows implemented without naming the invariant first
 - Building abstractions before the third use case demands it
 - Turning a skeleton into helper names before proving those helpers are needed
@@ -440,7 +458,8 @@ After completing all increments for a task:
 
 - [ ] Each increment was individually tested and committed
 - [ ] Non-trivial increments passed a skeleton checkpoint before implementation
-- [ ] Skeleton checkpoints recorded artifact, invariants, boundaries, and helper-gate status
+- [ ] Skeleton checkpoints recorded artifact, coverage map, invariants, boundaries, and helper-gate status
+- [ ] No implementation target was changed before it appeared in the skeleton coverage map
 - [ ] Skeleton artifacts did not rely on vague placeholder comments such as `# load data`, `# validate input`, `# process result`, or `# return response`
 - [ ] Each increment started with direct implementation before helper/audit cleanup
 - [ ] Any helper or abstraction kept in the build slice had evidence and was retested
