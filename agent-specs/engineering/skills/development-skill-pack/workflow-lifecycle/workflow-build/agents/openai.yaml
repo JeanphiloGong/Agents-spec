@@ -1,4 +1,4 @@
 interface:
   display_name: "Workflow Build"
-  short_description: "v0.1.6 - Gate builds with hard skeleton checkpoints"
-  default_prompt: "Use $workflow-build to scope the slice, create coverage-mapped skeleton gates for non-trivial targets, show the skeleton diff, implement directly, run a coverage drift check, then audit speculative helpers."
+  short_description: "v0.1.7 - Require skeleton-only first edits"
+  default_prompt: "Use $workflow-build. First inspect the task and relevant code, then state the slice scope, coverage map, invariants, boundaries, and helper gate. For every non-trivial task or slice, the first code edit must be skeleton-only; planning text alone does not satisfy the gate. Do not add final fields, full method bodies, assertions, persistence logic, or external calls in that edit. Show the skeleton diff, then implement directly, run a coverage drift check, test, and audit speculative helpers."

@@ -9,6 +9,7 @@ to expose its understanding before it writes code.
 For each non-trivial slice:
 
 ```text
+inspect task and relevant code
 slice scope
 -> coverage map
 -> target skeleton gate
@@ -20,6 +21,12 @@ slice scope
 
 Do not skip from `coverage map` to a full method body when the target is
 non-trivial.
+
+The first code edit for every non-trivial task or slice must be skeleton-only.
+A spoken plan, checklist, or coverage map is required context, but it does not
+count as the skeleton edit. The skeleton-only edit must not include final
+fields, full method bodies, assertions, persistence logic, external calls, or
+completed error handling.
 
 ## Non-Trivial Targets
 

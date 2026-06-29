@@ -1,18 +1,19 @@
 ---
 name: workflow-build
-description: v0.1.6 - Delivers changes incrementally with hard skeleton gates before direct implementation. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+description: v0.1.7 - Delivers changes incrementally with skeleton-only first edits before direct implementation. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
 ---
 
 # Incremental Implementation
 
 ## Overview
 
-Build in thin vertical slices with hard gates: define the slice scope, map
-implementation targets, create skeleton artifacts for non-trivial targets,
-implement directly, check for coverage drift, test, audit speculative helpers,
-verify, then expand. Avoid implementing an entire feature in one pass. Each
-increment should leave the system in a working, testable state. This is the
-execution discipline that makes large features manageable.
+Build in thin vertical slices with hard gates: inspect the task and relevant
+code, define the slice scope, map implementation targets, make the first code
+edit skeleton-only for non-trivial targets, implement directly, check for
+coverage drift, test, audit speculative helpers, verify, then expand. Avoid
+implementing an entire feature in one pass. Each increment should leave the
+system in a working, testable state. This is the execution discipline that
+makes large features manageable.
 
 ## Why This Order Exists
 
@@ -73,28 +74,30 @@ reviewable before the details are filled in.
 
 For each slice:
 
-1. **Slice scope** — name the smallest complete behavior this increment will
+1. **Understand the task** — inspect the task and relevant code, then state
+   the current behavior, requested behavior, and assumptions before editing
+2. **Slice scope** — name the smallest complete behavior this increment will
    deliver and the files, contracts, and behaviors it will not touch
-2. **Coverage map** — list every file, function, method, route, test, or
+3. **Coverage map** — list every file, function, method, route, test, or
    generated artifact the slice is about to change
-3. **Target skeleton gate** — create a skeleton-only edit for each non-trivial
-   target in the coverage map, show the skeleton diff, and state invariants,
-   boundaries, and helper-gate status before continuing
-4. **Direct implementation** — implement the smallest complete piece of
+4. **Target skeleton gate** — make the first code edit skeleton-only for each
+   non-trivial target in the coverage map, show the skeleton diff, and state
+   invariants, boundaries, and helper-gate status before continuing
+5. **Direct implementation** — implement the smallest complete piece of
    functionality in the simplest direct shape that fits the existing codebase
-5. **Coverage drift check** — compare the implementation diff with the
+6. **Coverage drift check** — compare the implementation diff with the
    coverage map; if a changed target was not covered by a skeleton checkpoint,
    stop and add a new skeleton-only checkpoint before continuing
-6. **Test** — run the test suite (or write a test if none exists)
-7. **Helper / abstraction audit** — check for speculative helpers,
+7. **Test** — run the test suite (or write a test if none exists)
+8. **Helper / abstraction audit** — check for speculative helpers,
    unnecessary abstractions, vague placeholder skeleton comments, and
    accidental scaffolding; inline or remove anything that is not justified by
    the current slice
-8. **Verify** — confirm the slice works as expected after the audit and any
+9. **Verify** — confirm the slice works as expected after the audit and any
    cleanup (tests pass, build succeeds, manual check)
-9. **Commit** -- save your progress with a descriptive message (see
+10. **Commit** -- save your progress with a descriptive message (see
    `git-workflow-and-versioning` for atomic commit guidance)
-10. **Move to the next slice** — carry forward, don't restart
+11. **Move to the next slice** — carry forward, don't restart
 
 ## Slicing Strategies
 
@@ -152,13 +155,20 @@ request flows, cross-file data flow, concurrency, external calls, or
 error-boundary behavior. Read `references/skeleton-gate.md` when any of those
 signals appear.
 
-This is a checkpoint, not a narration. For non-trivial slices, do not combine
-the skeleton artifact and the full implementation in the same edit. First make
-a skeleton-only edit, show the skeleton diff or exact skeleton artifact, state
-the invariant and boundary assumptions, then continue to direct implementation.
-The checkpoint is automatic: after showing the checkpoint output, continue
-without a separate approval step. It still requires a skeleton-only edit,
-checkpoint output, and separation from the implementation edit.
+This is a checkpoint, not a narration. For every non-trivial task or slice, the
+first code-editing step must be a skeleton-only edit. Planning text alone does not satisfy the gate.
+A spoken plan, checklist, or coverage map is context, not the skeleton edit. Do
+not combine the skeleton artifact and the full implementation in the same edit.
+Show the skeleton diff or exact skeleton artifact, state the invariant and
+boundary assumptions, then continue to direct implementation. The checkpoint is
+automatic after the skeleton diff is shown; it does not require a separate
+approval step.
+
+The first skeleton-only edit must not add final fields, full method bodies,
+business logic, assertions, persistence behavior, external calls, or completed
+error handling. It may add signatures, code-local ordering comments, minimal
+control-flow frames, and `pass` or equivalent placeholders needed to keep the
+file valid.
 
 Prefer a code-local skeleton:
 
@@ -398,7 +408,9 @@ Be explicit about what's in scope and what's NOT in scope for each increment.
 After each increment, verify:
 
 - [ ] The change does one thing and does it completely
-- [ ] The slice started with a skeleton-only checkpoint when the logic was non-trivial
+- [ ] Relevant code was inspected and the task/slice assumptions were stated before editing
+- [ ] The first code edit for each non-trivial task or slice was skeleton-only
+- [ ] Planning text, checklist output, or coverage map text was not counted as the skeleton edit
 - [ ] The skeleton checkpoint showed the skeleton artifact, coverage map, invariants, boundaries, and helper-gate status
 - [ ] Every file/function/method/route changed by the implementation was covered by the skeleton checkpoint before implementation touched it
 - [ ] Every new non-trivial function or method had a method-level skeleton before the full body was implemented
