@@ -1,0 +1,19 @@
+schema_version: 0.1
+run_id: "<yyyymmdd-hhmmss-topic>"
+goal: "<one sentence task outcome>"
+scope:
+  in:
+    - "<included area>"
+  out:
+    - "<excluded area>"
+slices:
+  - id: "<slice-id>"
+    outcome: "<verifiable outcome>"
+    rationale: "<why this slice is ordered here>"
+    target_areas:
+      - "<module or subsystem>"
+    depends_on: []
+    verify:
+      - "<test, build, static check, or manual check>"
+issue_refs:
+  - "<issue, ticket, or n/a>"

@@ -1,6 +1,6 @@
 ---
 name: workflow-simplify
-description: v0.1.0 - Simplifies code for clarity. Use when refactoring code for clarity without changing behavior. Use when code works but is harder to read, maintain, or extend than it should be. Use when reviewing code that has accumulated unnecessary complexity.
+description: v0.1.1 - Simplifies working code with evidence-backed helper extraction. Use when refactoring code for clarity without changing behavior. Use when code works but is harder to read, maintain, or extend than it should be. Use when reviewing code that has accumulated unnecessary complexity.
 ---
 
 # Code Simplification
@@ -102,6 +102,22 @@ Simplification has a failure mode: over-simplification. Watch for these traps:
 
 Default to simplifying recently modified code. Avoid drive-by refactors of unrelated code unless explicitly asked to broaden scope. Unscoped simplification creates noise in diffs and risks unintended regressions.
 
+### 6. Extract Helpers Only With Evidence
+
+Helpers are simplification tools, not decorations. Do not extract a helper just
+because a block "looks long" or because a helper might be useful later.
+
+Extract or keep a helper only when you can point to current evidence:
+
+- The same non-trivial logic appears in more than one place.
+- A stable domain action has emerged and a name improves the caller.
+- An invariant, boundary check, or ordering rule needs one owner.
+- Inline detail is hiding the main behavior of the function.
+
+If you cannot name the repeated logic, invariant, or readability pressure, keep
+the code direct. If you extract a helper, rerun the relevant tests because the
+behavior should remain identical.
+
 ## The Simplification Process
 
 ### Step 1: Understand Before Touching (Chesterton's Fence)
@@ -114,6 +130,8 @@ BEFORE SIMPLIFYING, ANSWER:
 - What calls it? What does it call?
 - What are the edge cases and error paths?
 - Are there tests that define the expected behavior?
+- Which repeated logic, invariant, or main-flow noise would justify extracting
+  or keeping a helper?
 - Why might it have been written this way? (Performance? Platform constraint? Historical reason?)
 - Check git blame: what was the original context for this code?
 ```
@@ -149,6 +167,8 @@ Scan for these patterns — each one is a concrete signal, not a vague smell:
 | Pattern | Signal | Simplification |
 |---------|--------|----------------|
 | Duplicated logic | Same 5+ lines in multiple places | Extract to a shared function |
+| Stable invariant | Same boundary or ordering rule must stay consistent | Extract one named owner for that invariant |
+| Hidden main flow | Supporting detail obscures the primary behavior | Extract only the detail that clarifies the caller |
 | Dead code | Unreachable branches, unused variables, commented-out blocks | Remove (after confirming it's truly dead) |
 | Unnecessary abstractions | Wrapper that adds no value | Inline the wrapper, call the underlying function directly |
 | Over-engineered patterns | Factory-for-a-factory, strategy-with-one-strategy | Replace with the simple direct approach |
@@ -160,10 +180,11 @@ Make one simplification at a time. Run tests after each change. **Submit refacto
 
 ```
 FOR EACH SIMPLIFICATION:
-1. Make the change
-2. Run the test suite
-3. If tests pass → commit (or continue to next simplification)
-4. If tests fail → revert and reconsider
+1. State the evidence for the simplification
+2. Make the change
+3. Run the relevant tests
+4. If tests pass → commit (or continue to next simplification)
+5. If tests fail → revert and reconsider
 ```
 
 Avoid batching multiple simplifications into a single untested change. If something breaks, you need to know which simplification caused it.
@@ -303,6 +324,7 @@ function UserBadge({ user }: Props) {
 | "I'll just quickly simplify this unrelated code too" | Unscoped simplification creates noisy diffs and risks regressions in code you didn't intend to change. Stay focused. |
 | "The types make it self-documenting" | Types document structure, not intent. A well-named function explains *why* better than a type signature explains *what*. |
 | "This abstraction might be useful later" | Don't preserve speculative abstractions. If it's not used now, it's complexity without value. Remove it and re-add when needed. |
+| "A helper will make this look cleaner" | A helper must solve current duplication, a stable domain action, an invariant, or main-flow noise. Otherwise it adds another place to inspect. |
 | "The original author must have had a reason" | Maybe. Check git blame — apply Chesterton's Fence. But accumulated complexity often has no reason; it's just the residue of iteration under pressure. |
 | "I'll refactor while adding this feature" | Separate refactoring from feature work. Mixed changes are harder to review, revert, and understand in history. |
 
@@ -313,6 +335,7 @@ function UserBadge({ user }: Props) {
 - Renaming things to match your preferences rather than project conventions
 - Removing error handling because "it makes the code cleaner"
 - Simplifying code you don't fully understand
+- Extracting helpers without evidence from duplication, a stable domain action, an invariant, or main-flow noise
 - Batching many simplifications into one large, hard-to-review commit
 - Refactoring code outside the scope of the current task without being asked
 
@@ -324,6 +347,7 @@ After completing a simplification pass:
 - [ ] Build succeeds with no new warnings
 - [ ] Linter/formatter passes (no style regressions)
 - [ ] Each simplification is a reviewable, incremental change
+- [ ] Any extracted helper has current evidence from duplication, a stable domain action, an invariant, or main-flow noise
 - [ ] The diff is clean — no unrelated changes mixed in
 - [ ] Simplified code follows project conventions (checked against CLAUDE.md or equivalent)
 - [ ] No error handling was removed or weakened

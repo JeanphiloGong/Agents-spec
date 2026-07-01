@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Plan Record"
+  short_description: "v0.1.1 - Record a completed plan into .agent-runs plan.yaml"
+  default_prompt: "Use $workflow-plan-record only after a full workflow-plan exists: record the approved plan into .agent-runs/<run-id>/plan.yaml, preserve slice order and verification, and do not perform new planning or code changes."

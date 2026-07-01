@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Check"
+  short_description: "v0.1.1 - Verify an implementation stayed inside its sketch contract"
+  default_prompt: "Use $workflow-check to read the original .agent-runs sketch, inspect the selected diff and build log, decide pass/fail/blocked for scope, helper budget, contract, and verification, then write check-result.json without modifying business code."

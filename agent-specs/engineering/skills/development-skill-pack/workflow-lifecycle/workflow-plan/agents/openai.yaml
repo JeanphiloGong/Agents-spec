@@ -1,4 +1,4 @@
 interface:
   display_name: "Workflow Plan"
-  short_description: "v0.1.1 - Break a spec into verifiable tasks with issue handoff"
-  default_prompt: "Use $workflow-plan to break this spec into ordered, small, independently verifiable implementation tasks, including issue handoff guidance for tracked work."
+  short_description: "v0.1.5 - Break a spec into a full human-readable plan"
+  default_prompt: "Use $workflow-plan to write the full human-readable implementation plan with architecture decisions, tasks, risks, checkpoints, and issue handoff; use workflow-plan-record afterward only if a recorded handoff is needed."

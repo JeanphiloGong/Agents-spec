@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prompt Architecture Author"
+  short_description: "v0.1.0 - Author structured task-first LLM prompts"
+  default_prompt: "Use $prompt-architecture-author to design or refactor an LLM prompt from task model, input schema, decision process, hard rules, few-shots, output schema, and verification notes. Do not start by piling on rules; make the task model and schema explicit first."

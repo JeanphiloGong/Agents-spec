@@ -1,0 +1,4 @@
+interface:
+  display_name: "Semantic Naming Review"
+  short_description: "v0.1.0 - Review names against behavior and side effects"
+  default_prompt: "Use $semantic-naming-review to review function, helper, variable, and method names against their actual behavior, return semantics, and side effects."
