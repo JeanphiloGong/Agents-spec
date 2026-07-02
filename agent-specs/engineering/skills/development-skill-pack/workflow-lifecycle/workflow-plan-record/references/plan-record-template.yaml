@@ -6,10 +6,19 @@ scope:
     - "<included area>"
   out:
     - "<excluded area>"
+success_targets:
+  - id: "<target-id>"
+    outcome: "<final user or system outcome>"
+    quality_bar:
+      - "<observable quality standard>"
+    evidence_required:
+      - "<test, log, trace, screenshot, metric, or manual check>"
+    failure_policy: "block | warn | follow-up"
 slices:
   - id: "<slice-id>"
     outcome: "<verifiable outcome>"
     rationale: "<why this slice is ordered here>"
+    quality_target: "<quality outcome this slice must reach>"
     target_areas:
       - "<module or subsystem>"
     depends_on: []

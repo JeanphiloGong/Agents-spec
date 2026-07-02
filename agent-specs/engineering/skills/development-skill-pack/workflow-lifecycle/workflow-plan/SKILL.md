@@ -1,6 +1,6 @@
 ---
 name: workflow-plan
-description: v0.1.5 - Breaks work into ordered, verifiable tasks with issue handoff. Use when you have a spec or clear requirements and need to break work into implementable tasks, estimate scope, identify parallel work, prepare issue-backed acceptance tracking, or produce a full human-readable implementation plan before workflow-plan-record.
+description: v0.1.6 - Breaks work into ordered, verifiable tasks with final success targets, quality gates, and issue handoff. Use when you have a spec or clear requirements and need to break work into implementable tasks, estimate scope, identify quality outcomes, prepare issue-backed acceptance tracking, or produce a full human-readable implementation plan.
 ---
 
 # Planning and Task Breakdown
@@ -12,9 +12,10 @@ Good task breakdown is the difference between an agent that completes work
 reliably and one that produces a tangled mess. Every task should be small
 enough to implement, test, and verify in a single focused session.
 
-Plan quality comes before artifact formatting. Produce the complete
-human-readable implementation plan here. If a recorded task-run handoff is
-needed afterward, use `workflow-plan-record` after this skill finishes.
+Plan quality comes before execution. Produce the complete human-readable
+implementation plan here: what will be built, what final outcome must be true,
+what quality bar must be met, and how each slice can prove progress toward
+that outcome.
 
 ## When to Use
 
@@ -38,7 +39,7 @@ Before writing any code, operate in read-only mode:
 - Note risks and unknowns
 
 **Do NOT write code during planning.** The output is a human-readable plan
-document, not implementation and not a task-run artifact.
+document, not implementation.
 
 ### Step 2: Identify the Dependency Graph
 
@@ -97,6 +98,9 @@ Each task follows this structure:
 - [ ] [Specific, testable condition]
 - [ ] [Specific, testable condition]
 
+**Quality target:**
+- [ ] [User/system quality outcome this task must reach, not just code completion]
+
 **Verification:**
 - [ ] Tests pass: `npm test -- --grep "feature-name"`
 - [ ] Build succeeds: `npm run build`
@@ -118,7 +122,33 @@ Each task follows this structure:
 - issue_rationale: [why this should become a separate issue, be grouped, or stay parent-only]
 ```
 
-### Step 4.5: Prepare Issue Handoff
+### Step 4.5: Define Success Targets and Quality Gates
+
+Before finalizing the task list, define what "done well" means for the feature
+or change. This is broader than code compiling or unit tests passing.
+
+Add a `Success Targets` section with:
+
+- final user or system outcome
+- behavior quality that must be true
+- evidence required to prove the outcome
+- failure policy when the target is not met
+
+Use this shape:
+
+```markdown
+## Success Targets
+
+| Target | Quality bar | Evidence required | Failure policy |
+|--------|-------------|-------------------|----------------|
+| [Outcome name] | [What good looks like] | [Tests, logs, manual checks, traces, screenshots, metrics] | block | warn | follow-up |
+```
+
+Quality gates should be specific enough that later testing can determine
+whether the work reached the intended standard. Avoid vague targets like
+"works well" or "good UX" without observable evidence.
+
+### Step 4.6: Prepare Issue Handoff
 
 When the plan may be passed to `issue-gate-skill`, add an `Issue Handoff`
 section after the task list. This is not issue creation; it is a routing map
@@ -201,6 +231,11 @@ If a task is L or larger, it should be broken into smaller tasks. An agent perfo
 - [Key decision 1 and rationale]
 - [Key decision 2 and rationale]
 
+## Success Targets
+| Target | Quality bar | Evidence required | Failure policy |
+|--------|-------------|-------------------|----------------|
+| [Outcome name] | [What good looks like] | [Tests, logs, manual checks, traces, screenshots, metrics] | block |
+
 ## Task List
 
 ### Phase 1: Foundation
@@ -258,17 +293,20 @@ When multiple agents or sessions are available:
 | "The tasks are obvious" | Write them down anyway. Explicit tasks surface hidden dependencies and forgotten edge cases. |
 | "Planning is overhead" | Planning is the task. Implementation without a plan is just typing. |
 | "I can hold it all in my head" | Context windows are finite. Written plans survive session boundaries and compaction. |
-| "The plan artifact can be the plan." | `workflow-plan` produces the full human-readable plan. `workflow-plan-record` can record it afterward. |
-| "I'll handle the run boundary while planning." | Run boundaries and task-run artifacts are recording concerns. Finish planning first. |
+| "Passing tests is the success target." | Tests are evidence. The plan still needs to state the user or system quality outcome those tests prove. |
+| "Quality can be judged at the end." | Late quality judgment lets implementation drift. Define the quality bar before slicing. |
 
 ## Red Flags
 
 - Starting implementation without a written task list
 - Tasks that say "implement the feature" without acceptance criteria
+- Acceptance criteria that only describe code completion, not the target
+  outcome or quality bar
+- No success targets for the final user or system outcome
 - No verification steps in the plan
 - No issue handoff guidance when the plan will be used for tracked work
-- Creating or updating task-run artifacts before the plan is complete
-- Letting artifact fields replace architecture decisions, risks, or checkpoints
+- Letting output formats replace architecture decisions, risks, quality gates,
+  or checkpoints
 - All tasks are XL-sized
 - No checkpoints between tasks
 - Dependency order isn't considered
@@ -278,6 +316,7 @@ When multiple agents or sessions are available:
 Before starting implementation, confirm:
 
 - [ ] Every task has acceptance criteria
+- [ ] The plan defines final success targets and quality gates
 - [ ] Every task has a verification step
 - [ ] Every task has issue handoff guidance or an explicit reason issue
       handoff is unnecessary
@@ -285,5 +324,3 @@ Before starting implementation, confirm:
 - [ ] No task touches more than ~5 files
 - [ ] Checkpoints exist between major phases
 - [ ] The human has reviewed and approved the plan
-- [ ] `workflow-plan-record` is identified as the follow-up when a task-run
-      artifact is needed
