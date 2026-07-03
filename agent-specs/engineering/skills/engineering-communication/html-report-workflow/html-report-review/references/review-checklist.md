@@ -1,5 +1,14 @@
 # HTML Report Review Checklist
 
+## Scenario Fit
+
+- Report answers the user's actual question, decision, or communication need.
+- Audience, depth, and tone match the intended reader.
+- HTML is an appropriate artifact compared with a project doc, table, PR/MR
+  description, flowchart, task plan, or dashboard.
+- Scope is actionable and not padded with unrelated material.
+- The first screen makes the purpose and conclusion discoverable.
+
 ## Plan Adherence
 
 - Report goal is addressed.
@@ -9,6 +18,15 @@
   scan aids are reflected in the HTML.
 - Quality bar items are checked.
 - Unknowns and gaps remain visible.
+
+## Reader Intuition
+
+- Opening block states the useful conclusion, not only the topic.
+- Headings form a clear scan path.
+- Important findings are visually prioritized.
+- Facts, inferences, recommendations, and unknowns are easy to distinguish.
+- Tables, callouts, and appendices reduce cognitive load.
+- Reader can identify the next action without reading every detail.
 
 ## Evidence and Claims
 
