@@ -11,7 +11,7 @@ the package README files explain when to use each group.
 | [`development-skill-pack`](development-skill-pack/README.md) | General development lifecycle skills imported as a curated local pack. |
 | [`implementation-guides`](implementation-guides/README.md) | Skills for learning, reference implementations, and human-led landing from drafts. |
 | [`delivery-workflow`](delivery-workflow/README.md) | Skills for issue traceability, commits, PR/MR publishing, reviews, and releases. |
-| [`engineering-communication`](engineering-communication/README.md) | Skills for engineering diagrams and business-readable work summaries. |
+| [`engineering-communication`](engineering-communication/README.md) | Skills for engineering diagrams, HTML reports, and business-readable work summaries. |
 
 ## Usage
 

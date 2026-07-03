@@ -1,0 +1,4 @@
+interface:
+  display_name: "HTML Report Plan"
+  short_description: "v0.1.0 - Plan an evidence-backed HTML report"
+  default_prompt: "Use $html-report-plan to define the report goal, audience, claims, evidence, page organization, structure, quality bar, and plan artifact before creating any HTML."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "HTML Report Review"
+  short_description: "v0.1.0 - Review an HTML report against its plan and evidence"
+  default_prompt: "Use $html-report-review to check a generated HTML report for plan adherence, evidence grounding, claim labeling, local readability, placeholders, and sensitive data before sharing."
