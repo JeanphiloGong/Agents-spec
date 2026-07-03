@@ -1,6 +1,6 @@
 ---
 name: workflow-plan-record
-description: v0.1.1 - Records an already completed workflow-plan into a compact task-run plan.yaml artifact. Use after workflow-plan when a full human-readable implementation plan exists, when workflow-sketch or workflow-build needs a .agent-runs handoff, or when an approved plan revision must update an existing run.
+description: v0.1.2 - Records an already completed implementation plan into a compact task-run plan.yaml artifact. Use when a full human-readable implementation plan exists, when workflow-sketch or workflow-build needs a .agent-runs handoff, or when an approved plan revision with success targets must update an existing run.
 ---
 
 # Workflow Plan Record
@@ -17,7 +17,8 @@ issue handoff. Do not let YAML formatting drive the planning work.
 
 The artifact exists so later `workflow-sketch`, `workflow-build`, or another
 session can recover the approved goal, slice order, verification expectations,
-and issue references without replaying the whole conversation.
+success targets, quality gates, and issue references without replaying the
+whole conversation.
 
 ## When to Use
 
@@ -40,8 +41,8 @@ Before touching `.agent-runs/`, identify the final source plan to record:
 - Use the completed `workflow-plan` output from the current conversation or a
   provided plan document.
 - Confirm the source plan includes goal, scope, ordered tasks or slices,
-  verification, checkpoints or dependencies, risks or open questions when
-  relevant, and issue handoff.
+  success targets or quality gates, verification, checkpoints or dependencies,
+  risks or open questions when relevant, and issue handoff.
 - If there is no complete source plan, stop and ask for `workflow-plan` first.
 
 **Do NOT infer a plan from code diffs or rough conversation fragments.** This
@@ -91,9 +92,11 @@ Use `references/plan-record-template.yaml` and keep only durable handoff data:
 - `goal`
 - `scope.in`
 - `scope.out`
+- `success_targets`
 - `slices[].id`
 - `slices[].outcome`
 - `slices[].rationale`
+- `slices[].quality_target`
 - `slices[].target_areas`
 - `slices[].depends_on`
 - `slices[].verify`
@@ -110,7 +113,9 @@ Put only plan-level handoff in `plan.yaml`.
 Belongs in `plan.yaml`:
 
 - task goal and scope boundaries
+- final success targets and quality gates
 - slice order and dependency summary
+- slice-level quality targets
 - target areas, not exhaustive file diffs
 - verification commands or checks
 - issue refs
@@ -135,8 +140,9 @@ Before reporting success:
 
 - Confirm `plan.yaml` reflects the final source plan, not an earlier draft.
 - Confirm every slice maps to a source task, phase, or checkpoint.
-- Confirm each slice has a rationale, target areas, dependencies, and
-  verification.
+- Confirm success targets and slice-level quality targets were preserved.
+- Confirm each slice has a rationale, target areas, dependencies,
+  verification, and quality target.
 - Confirm `.agent-runs/` is ignored and not staged.
 - Confirm no business code was modified.
 
@@ -151,10 +157,19 @@ scope:
     - "<included area>"
   out:
     - "<excluded area>"
+success_targets:
+  - id: "<target-id>"
+    outcome: "<final user or system outcome>"
+    quality_bar:
+      - "<observable quality standard>"
+    evidence_required:
+      - "<test, log, trace, screenshot, metric, or manual check>"
+    failure_policy: "block | warn | follow-up"
 slices:
   - id: "<slice-id>"
     outcome: "<verifiable outcome>"
     rationale: "<why this slice is ordered here>"
+    quality_target: "<quality outcome this slice must reach>"
     target_areas:
       - "<module or subsystem>"
     depends_on: []
@@ -181,9 +196,13 @@ probably belongs in the human-readable plan or the slice sketch instead.
   artifact, not to `plan.yaml`.
 - If issue references are absent from the source plan, use `n/a` only when the
   plan explicitly says issue handoff is unnecessary.
+- If success targets are absent from the source plan, mark the source plan as
+  incomplete instead of inventing quality gates during recording.
 - If a slice is too broad to record with a specific outcome and verification,
   mark the source plan as needing refinement instead of recording a vague
   slice.
+- If a slice has no quality target, preserve the gap in blockers instead of
+  silently recording verification commands as the quality target.
 
 ## Recording Examples
 
@@ -221,15 +240,18 @@ must follow the completed plan.
 | "A new run_id is cleaner for every update." | Reuse the same run for the same implementation goal to avoid fragmented task history. |
 | "The plan is obvious from the branch name." | Branch names are context hints, not approved plan sources. |
 | "This is only temporary, so staging .agent-runs is fine." | Task-run artifacts are local workbench state and should stay out of commits. |
+| "Verification commands are enough quality data." | Commands are evidence; record the outcome and quality bar they are meant to prove. |
 
 ## Red Flags
 
 - `plan.yaml` is created before a complete human-readable plan exists.
 - The artifact includes implementation details that belong in `workflow-sketch`.
 - The artifact changes scope or task order without updating the source plan.
+- The artifact drops success targets or quality gates from the source plan.
 - A new run is created for a refinement of the same goal.
 - `.agent-runs/` appears in staged files.
 - Slices are named by file edits instead of verifiable outcomes.
+- A slice has verification commands but no quality target.
 - `verify` is missing or says only "manual check" without a concrete action.
 - `issue_refs` invents an issue or drops issue handoff from the source plan.
 - The output report presents the YAML record as the implementation plan.
@@ -240,7 +262,9 @@ must follow the completed plan.
 - [ ] `.agent-runs/<run-id>/plan.yaml` exists.
 - [ ] The artifact reflects the final plan, including task order and
       verification.
+- [ ] Success targets and quality gates were recorded from the source plan.
 - [ ] Each slice has a rationale.
+- [ ] Each slice has a quality target.
 - [ ] `.agent-runs/` is ignored by git.
 - [ ] No business code was modified.
 - [ ] `git status --short` does not show `.agent-runs/` as staged or
@@ -263,6 +287,9 @@ must follow the completed plan.
 
 ## Recorded Slices
 - <slice-id>: <outcome>
+
+## Success Targets
+- <target-id>: <outcome>
 
 ## Verification
 - source_plan_checked:
