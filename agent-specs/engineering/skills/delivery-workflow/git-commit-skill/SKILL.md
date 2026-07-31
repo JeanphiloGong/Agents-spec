@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.2.3 - Draft, split, and execute atomic scoped Git commits with issue traceability and structured Why/What/Impact/Tests/Refs bodies. Use when preparing final commits, reviewing commit wording, staging approved files, or enforcing repository commit conventions.
+description: v0.2.4 - Draft, split, and execute atomic scoped Git commits with verified traceability and concise, concrete Why/What/Impact/Tests/Refs bodies. Use when preparing final commits, reviewing commit wording, staging approved files, or enforcing repository commit conventions.
 ---
 
 # Git Commit Skill
@@ -10,7 +10,11 @@ description: v0.2.3 - Draft, split, and execute atomic scoped Git commits with i
 Prepare commit-stage work as a verified, traceable save point. This skill
 decides whether the current diff should be committed, split, or only drafted;
 then it stages only approved in-scope files and writes a repository-quality
-commit message with `Why / What / Impact / Tests / Refs`.
+commit message with concrete `Why / What / Impact / Tests / Refs` evidence.
+The sections must tell one causal story without replacing observable changes
+with intent summaries such as "clarify responsibility" or "improve
+consistency." Each supporting detail appears once, in the section that owns
+it; repeat the core behavior only when needed to connect the causal chain.
 
 Use the existing commit-message and execution references for details. The
 always-loaded behavior is: inspect first, preserve unrelated changes, verify
@@ -53,6 +57,10 @@ issue mapping, and use review or CI skills for review/CI failures.
 - commit body format: exact `Why / What / Impact / Tests / Refs`
 - section rule: each required body section appears exactly once; multiple
   checks are bullets under the single `Tests` section
+- evidence rule: derive the subject and every section from the user request,
+  issue, staged diff, or verification results
+- density rule: use one bullet with one sentence per section by default; add a
+  second bullet only for a separate fact required to understand the commit
 - execution mode: full commit execution for normal commit-stage work
 - split policy: atomic save-point commits, based on
   `commit-execution-policy.md`
@@ -90,20 +98,37 @@ issue mapping, and use review or CI skills for review/CI failures.
      reviewable and revertible save point.
    - Use stack, file-group, horizontal, or vertical splitting when the diff is
      too large or mixed by intent.
-5. Write the subject and body.
+5. Build the evidence card before writing prose.
+   - Read `references/commit-message-standard.md`.
+   - Record the concrete primary action and object from the staged diff.
+   - Record the previous behavior or pressure, the resulting behavior or
+     structure, the material impact boundary, the checks that actually ran,
+     and verified references.
+   - Select the smallest useful fact for each message section; do not render
+     every fact collected in the evidence card.
+6. Write and challenge the subject and body.
    - Choose the commit type and optional scope.
-   - Keep the subject imperative and one sentence.
-   - Use the exact body section order: `Why`, `What`, `Impact`, `Tests`,
-     `Refs`.
-   - Put multiple commands or checks as bullets under the single `Tests`
-     section.
-6. Execute the selected path.
+   - Write the shortest natural subject that still names the concrete action
+     and recognizable object.
+   - If the subject only states a goal or quality, replace it with the actual
+     rename, extraction, move, removal, behavior correction, or other staged
+     action.
+   - Keep long identifiers in `What` only when they materially improve
+     recognition; do not coin compressed domain terms to fit them in the
+     subject.
+   - Render the exact section order: `Why`, `What`, `Impact`, `Tests`, `Refs`.
+   - Give each section one job: reason, change, effect, proof, or reference.
+     Do not repeat tests, call-site counts, assertions, or state tables across
+     sections.
+   - Make the sections read as one chain: previous problem -> implemented
+     change -> observable result or preserved boundary -> proof -> reference.
+7. Execute the selected path.
    - For `draft_only` or `split_only`, return the draft or split plan without
      staging.
    - For `execute`, stage only approved in-scope files for one slice, run the
      required hygiene checks, write the final message to a file, and run
      `git commit -F <file>`.
-7. Report the save point.
+8. Report the save point.
    - Include commit hash when committed.
    - Include staged scope, traceability status, tests status, and any remaining
      unstaged scope.
@@ -118,6 +143,17 @@ issue mapping, and use review or CI skills for review/CI failures.
   blocker.
 - If traceability is optional and no canonical issue applies, use
   `Refs: - n/a`; do not invent an issue.
+- If the primary action or object cannot be named from the staged diff, inspect
+  again instead of substituting an intent phrase.
+- If a precise identifier makes the subject long or hard to read, use the
+  established project noun in the subject and leave the identifier to `What`
+  or the diff.
+- If a test fact appears in `Why`, `What`, or `Impact`, move it to `Tests`
+  unless the test itself is the primary change.
+- If call-site counts or individual assertions do not change the reader's
+  understanding, omit them.
+- If the reason or impact cannot be supported, state the narrow verified
+  boundary; do not invent a benefit or failure mode.
 - If the diff is one logical change around 300 changed lines, one commit is
   acceptable when the verification and rollback boundary are still clear.
 - If the diff is around 1000 changed lines or mixes unrelated concerns, split
@@ -132,15 +168,34 @@ issue mapping, and use review or CI skills for review/CI failures.
 | "All the files are already dirty, so staging everything is fastest." | Dirty is not the same as in scope. Stage only approved files for the current save point. |
 | "The issue is obvious, so I can write a plausible Refs line." | Traceability must come from `issue-gate-skill`, repository evidence, or `n/a`; never invent issue links. |
 | "This is just docs, so a one-line commit is fine." | Repository history still needs Why, What, Impact, Tests, and Refs. |
+| "Clarify responsibility summarizes a rename." | Intent is not an observable change. Name the renamed object, and use the real identifier when it improves recognition. |
+| "The body can report that the change improves consistency." | Broad quality claims hide behavior. State the previous and resulting behavior or the exact boundary that stayed unchanged. |
+| "More identifiers and state values make the message more concrete." | Detail is useful only in its owning section. Prefer the shortest established project terms that preserve meaning. |
+| "Every discovered fact should appear in the body." | The evidence card is an input filter, not an output checklist. Keep only what a future reader needs. |
 | "The diff is large but it is easier to review as one commit." | Large mixed commits hide intent and rollback boundaries; split unless the change is one inseparable unit. |
-| "I can add another Tests section for the second command." | The body has one `Tests` section with multiple bullets. |
+| "Tests are already in the execution report." | The repository requires durable verification evidence in the single Tests section. |
+| "I can add another Tests section for the second command." | The body has one Tests section with multiple bullets. |
 
 ## Red Flags
 
 - `git add .` or broad staging appears while unrelated dirty files exist.
 - The commit body lacks one of `Why`, `What`, `Impact`, `Tests`, or `Refs`.
 - The same required section appears more than once.
-- The subject explains cause and effect instead of the action.
+- The subject names an intention or quality such as "明确职责", "优化逻辑",
+  "提升一致性", or "clarify behavior" without naming the staged action.
+- The subject coins a dense noun phrase such as "完成态缓存恢复函数" instead
+  of using an established project term or a natural verb phrase.
+- The subject cannot answer "what did this commit do?" without reading the
+  body.
+- `Why` restates the subject instead of naming the previous problem or trigger.
+- `Why` explains why a test was added or speculates about a future regression.
+- `What` avoids the actual behavior, structure, identifier, or state value.
+- `What` reports call-site counts or test assertions that belong in the diff or
+  `Tests`.
+- `Impact` claims a generic benefit instead of an observable result or
+  preserved boundary.
+- `Impact` repeats a state-by-state result table for a behavior-preserving
+  refactor.
 - `Refs` names an issue that was not verified or supplied.
 - Independent feature, refactor, formatting, dependency, or generated-file
   changes are bundled together for speed.
@@ -152,10 +207,18 @@ issue mapping, and use review or CI skills for review/CI failures.
 - [ ] Branch, worktree, and diff were inspected before staging.
 - [ ] Staged files are limited to the approved in-scope slice.
 - [ ] Split decision is recorded with size and concern rationale.
-- [ ] Traceability is verified through `issue-gate-skill`, repository evidence,
-      explicit user input, or `Refs: - n/a`.
+- [ ] The subject names the primary staged action and object rather than its
+      intended quality.
+- [ ] The subject uses natural project language and contains no coined noun
+      stack.
+- [ ] `Why -> What -> Impact` forms a factual cause-and-result chain.
 - [ ] Commit message has exactly one `Why`, `What`, `Impact`, `Tests`, and
       `Refs` section in that order.
+- [ ] Every claim is grounded in the request, issue, staged diff, or tests.
+- [ ] Each supporting detail appears in only one owning section, with one
+      bullet per section unless a second independent fact is necessary.
+- [ ] Traceability is verified through `issue-gate-skill`, repository evidence,
+      explicit user input, or `Refs: - n/a`.
 - [ ] Required pre-commit hygiene checks from
       `references/commit-execution-policy.md` were run or explicitly blocked.
 - [ ] Execution result reports commit hash, test status, and remaining
@@ -212,8 +275,16 @@ issue mapping, and use review or CI skills for review/CI failures.
 - Do not require an AI session identifier unless the repository explicitly
   requires it.
 - Do not amend, rebase, or force-push unless the user explicitly asks.
+- Do not use an intention, benefit, or quality claim as a substitute for the
+  concrete action and object in the subject.
+- Do not treat specificity as permission to pack identifiers, state values,
+  call-site counts, and assertions into every section.
+- Do not invent Chinese domain labels by stacking translated technical nouns;
+  reuse established repository terms or leave code values unchanged.
 - Do not turn commit subjects into cause-and-effect sentences; keep reasons in
-  `Why` and `Impact`.
+  `Why` and consequences in `Impact`.
+- Do not invent a story unsupported by the staged change and its available
+  evidence.
 - If worktree or sandbox constraints block `git add` or `git commit`, surface
   the exact blocker and continue only after the required capability is
   available.
