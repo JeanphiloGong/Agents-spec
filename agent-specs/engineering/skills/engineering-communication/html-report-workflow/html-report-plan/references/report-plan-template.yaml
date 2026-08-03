@@ -1,0 +1,60 @@
+schema_version: 0.1
+report_goal: "<what decision, understanding, or action this report should support>"
+audience: "<primary reader>"
+output:
+  directory: "<target directory or unknown>"
+  filename: "<target html filename or proposed name>"
+  language: "<report language>"
+source_context:
+  inspected:
+    - "<file, command output, conversation analysis, or source>"
+  needs_verification:
+    - "<source or claim that still needs checking>"
+claims:
+  facts:
+    - claim: "<directly supported fact>"
+      evidence:
+        - "<source reference>"
+  inferences:
+    - claim: "<reasoned conclusion>"
+      based_on:
+        - "<fact or evidence>"
+  recommendations:
+    - claim: "<proposed action>"
+      rationale:
+        - "<why this follows from the evidence>"
+  unknowns:
+    - "<unresolved question or unverified assumption>"
+sections:
+  - title: "<section title>"
+    purpose: "<why this section belongs>"
+    primary_claims:
+      - "<claim ids or short claim labels this section explains>"
+page_organization:
+  reading_path:
+    - "<what the reader should understand first>"
+    - "<what the reader should inspect next>"
+    - "<what decision or action the reader should reach last>"
+  layout_model: "<single-column report | sidebar toc | comparison table | timeline | appendix-heavy report | other explicit shape>"
+  top_summary:
+    purpose: "<what the first viewport or opening block should clarify>"
+    contents:
+      - "<summary item, status, or key finding>"
+  section_pattern: "<how repeated sections should be organized>"
+  evidence_placement: "<inline references | source table | appendix | callouts | mixed>"
+  visual_grouping:
+    facts: "<how facts are labeled or grouped>"
+    inferences: "<how inferences are labeled or grouped>"
+    recommendations: "<how recommendations are labeled or grouped>"
+    unknowns: "<how unknowns are labeled or grouped>"
+  scan_aids:
+    - "<summary list, risk table, decision matrix, status badge, or other scan aid>"
+  mobile_notes:
+    - "<how wide tables, code blocks, or dense evidence stay readable>"
+quality_bar:
+  - "<checkable acceptance criterion>"
+build_constraints:
+  - "single self-contained HTML file unless assets are explicitly allowed"
+  - "facts, inferences, recommendations, and unknowns are visually distinct"
+  - "page organization follows the planned reading path, layout model, evidence placement, and scan aids"
+  - "no secrets, credentials, private data, or unsupported claims"
