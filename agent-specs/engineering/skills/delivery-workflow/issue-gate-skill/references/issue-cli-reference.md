@@ -15,11 +15,11 @@ gh issue list -R <owner>/<repo> --state open --search "<keyword>" --limit 20
 # view a single issue with stable JSON fields
 gh issue view <issue_number> --json number,title,state,url
 
-# create issue in current repo
-gh issue create --title "<title>" --body "<body>" --label "<label>"
+# create issue in current repo from the canonical rendered body
+gh issue create --title "<title>" --body-file <body-file> --label "<label>"
 
-# create issue in an explicit repo
-gh issue create -R <owner>/<repo> --title "<title>" --body "<body>" --label "<label>"
+# create issue in an explicit repo from the same body
+gh issue create -R <owner>/<repo> --title "<title>" --body-file <body-file> --label "<label>"
 
 # add comment for commit or branch linkage
 gh issue comment <issue_number> --body "Linked commit: <sha>"
@@ -40,11 +40,11 @@ glab issue view <issue_number>
 # view a single issue in an explicit repo
 glab issue view <issue_number> -R <group>/<repo>
 
-# create issue in current repo
-glab issue create --title "<title>" --description "<body>" --label "<label>"
+# create issue in current repo from the canonical rendered body
+glab issue create --title "<title>" --description "$(cat <body-file>)" --label "<label>"
 
-# create issue in an explicit repo
-glab issue create -R <group>/<repo> --title "<title>" --description "<body>" --label "<label>"
+# create issue in an explicit repo from the same body
+glab issue create -R <group>/<repo> --title "<title>" --description "$(cat <body-file>)" --label "<label>"
 
 # add comment for commit or branch linkage
 glab issue note <issue_number> -m "Linked commit: <sha>"

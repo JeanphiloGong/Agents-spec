@@ -1,6 +1,6 @@
 ---
 name: issue-gate-skill
-description: v0.1.22 - Check, draft, create, and link GitHub or GitLab issues for tracked work. Use when turning approved workflow-plan tasks into mapped issue-backed acceptance work items, confirming canonical issue traceability before implementation or commit preparation, targeting canonical repos, or producing commit Refs output.
+description: v0.1.23 - Check, draft, create, and link concise GitHub or GitLab issues for tracked work. Use when turning approved workflow-plan tasks into mapped issue-backed acceptance work items, confirming canonical issue traceability before implementation or commit preparation, targeting canonical repos, or producing commit Refs output.
 ---
 
 # Issue Gate Skill
@@ -9,8 +9,9 @@ description: v0.1.22 - Check, draft, create, and link GitHub or GitLab issues fo
 
 Keep meaningful tracked work connected to the canonical issue that explains
 purpose, scope, acceptance, and commit traceability. This skill checks whether
-the right GitHub or GitLab issue already exists, drafts a master-grade issue
-when it is missing, maps approved workflow-plan tasks into issue-backed
+the right GitHub or GitLab issue already exists, drafts the shortest
+decision-ready issue when it is missing, maps approved workflow-plan tasks into
+issue-backed
 acceptance units, and emits the deterministic `Refs` bridge used by
 `git-commit-skill`.
 
@@ -59,6 +60,8 @@ In scope:
   advances, investigates, or partially implements the work.
 - Keep commit flow human-controlled with automation guardrails.
 - Provide a deterministic bridge from issue lifecycle to commit metadata.
+- Render only facts needed to understand, bound, and accept the work; keep gate
+  administration out of the issue body.
 
 ## Bundled Resources
 
@@ -133,7 +136,10 @@ One of:
 - `create_policy=parent-first-child-second-confirmed`
 - `audience_profile=cross_functional`
 - `issue_level=parent_requirement`
-- `quality_bar=master_grade`
+- `quality_bar=decision_ready`
+- `content_selection=shortest_complete`
+- `optional_section_policy=omit_empty`
+- `section_density=one_to_three_facts_by_default`
 - `implementation_detail_mode=defer-unless-explicitly-requested`
 - `plan_handoff_mode=issue-ready-tasks-only`
 - `task_issue_policy=group-by-independent-delivery-slice`
@@ -266,6 +272,12 @@ One of:
   prefix before creating an issue.
 - Do not block reuse of an existing issue solely because its title lacks a
   recognized prefix. Reuse it and emit a `title_prefix_warning` instead.
+- The short title must name the concrete problem, outcome, or action and its
+  recognizable object; the prefix alone does not make a title useful.
+- For bugs, prefer the failing condition and incorrect result. For features,
+  tasks, and maintenance work, prefer a concrete action or delivered outcome.
+- Reject broad quality summaries such as "improve workflow clarity", "optimize
+  handling", "align behavior", or equivalent vague wording.
 
 ## Platform Selection
 
@@ -325,11 +337,19 @@ surface, remote-detection commands, or automation caveats.
   - `issue_level`: default `parent_requirement`; upgrade to `delivery_task` or
     `implementation_task` only when scope is execution-ready or the operator
     explicitly wants technical breakdown
-  - `quality_bar`: default `master_grade`; optimize for decision quality,
-    traceability, and execution clarity before optimizing for length
-- Default auto-drafts must be decision-ready first: enough context to justify
-  the work, enough scope to bound it, and enough acceptance detail to test it.
-  Brevity is secondary unless the operator explicitly asks for compression.
+  - `quality_bar`: default `decision_ready`; optimize for the shortest body
+    that still supports scope and acceptance decisions
+- Build a content card before drafting: concrete problem, target outcome,
+  in-scope work, out-of-scope boundary, observable acceptance, verification,
+  and only material risks or dependencies.
+- Select the smallest useful fact set from that card. Do not render every fact
+  merely because it was inferred.
+- Default auto-drafts must be shortest-complete: enough context to justify the
+  work, enough scope to bound it, and enough acceptance detail to test it.
+- Render each supporting fact once in its owning section. Repeat a core noun
+  only when needed to connect the problem, outcome, and acceptance.
+- Omit optional sections and fields when no supported fact exists. Never add
+  `n/a`, empty headings, or placeholder bullets to make a template look full.
 - Draft must respect template-required fields by the resolved
   `template_family` and `issue_level`.
 - Draft title must respect the Issue Title Prefix Rule. If an inferred or
@@ -342,10 +362,27 @@ surface, remote-detection commands, or automation caveats.
 - If the generated draft reads like a design doc, implementation plan, or
   speculative architecture proposal, rewrite it before presentation.
 
-## Master-Grade Issue Standard
+## Issue Content Ownership
 
-A master-grade issue is not defined by length. It is defined by decision
-quality. The draft should be:
+Assign each rendered fact before writing:
+
+- title: concrete problem, outcome, or action plus recognizable object
+- problem/background: current observable problem and why it matters now
+- target outcome: the state readers should see when the work succeeds
+- scope: included work and the one exclusion needed to prevent scope drift
+- acceptance: observable completion conditions, not implementation steps
+- verification: how completion will be checked, without repeating acceptance
+- risks/dependencies: only real blockers, coordination needs, or constraints
+- implementation detail: engineering child issue only when needed for action
+
+Administrative fields such as platform choice, template family, issue level,
+prefix source, missing-field warnings, creation order, and execution commands
+belong in the dry-run result, not in the issue body.
+
+## Decision-Ready Issue Standard
+
+A decision-ready issue is not defined by length or heading count. The draft
+should be:
 
 - clear on `why now`, not just `what to build`
 - scoped so readers know what is in and out
@@ -358,78 +395,29 @@ quality. The draft should be:
   completion
 - solution-aware but not solution-locked unless implementation detail is
   already approved and necessary
+- compact by default: typical maintenance tasks use four core sections, while
+  complex bugs or cross-functional features expand only for real evidence
 
-## Issue Layering Rule
+## Issue Layering Decision
 
-- Default parent issues to product-, outcome-, and scope-oriented framing.
-- A `parent_requirement` should be readable by PM, product, and cross-functional
-  stakeholders without requiring knowledge of the internal codebase.
-- Parent issues should focus on:
-  - background or problem
-  - target outcome
-  - scope boundary
-  - external contract or user impact
-  - acceptance criteria
-  - risks or dependencies
-- Parent issues should not default to:
-  - code snippets
-  - file paths
-  - class, function, or method names
-  - internal module splits
-  - planner, repo, service, Cypher, schema, table, or similar
-    implementation-facing nouns
-- The only technical detail that may remain in a parent issue by default is
-  external contract information that stakeholders need to reason about, such as
-  a user-facing API contract, compatibility note, or externally visible input /
-  output behavior.
-- If the draft needs detailed implementation paths, migration sequencing,
-  architecture comparisons, or component-by-component responsibilities, keep
-  the parent issue lean and split those details into a linked engineering child
-  issue, `delivery_task`, or `implementation_task`.
-
-## Child Issue Decision Rule
-
-- Default `child_issue_needed=no`.
-- Set `child_issue_needed=yes` when the parent issue would otherwise need:
-  - implementation paths or migration sequencing
-  - architecture comparisons or option tradeoff analysis
-  - module-by-module responsibilities
-  - engineering-only validation or rollout steps
-  - internal nouns such as planner, repo, service, Cypher, schema, table,
-    worker, class, file, or function to preserve actionable meaning
-- If the engineering detail is execution-ready but still one level above code,
-  use `child_issue_type=delivery_task`.
-- If the engineering detail requires implementation-facing structure such as
-  internal contracts, dataflow, module breakdown, migration steps, or approved
-  design details, use `child_issue_type=implementation_task`.
-- If parent-issue overspecification can be fixed by rewriting without losing
-  necessary execution detail, keep `child_issue_needed=no`.
-- If rewriting would hide necessary engineering work, keep the parent issue
-  product-facing and auto-draft a linked child issue.
-- When `child_issue_needed=yes`, the dry-run output must include both parent and
-  child drafts before any create action.
-
-## Framing Guardrails
-
-- `parent_requirement`: explain why the work matters, what outcome is expected,
-  what is in or out of scope, how success is judged, and what external contract
-  or user impact matters.
-- `parent_requirement`: do not include code blocks, file paths, function names,
-  class names, internal dataflow, or module-by-module implementation plans
-  unless that information is itself part of an approved external contract.
-- `delivery_task`: may mention affected modules or contracts, but should still
-  optimize for shared understanding over internal implementation detail.
-- `implementation_task`: technical detail is allowed only when the operator
-  explicitly asks for an engineering-facing issue or when a design has already
-  been approved.
-- For leadership, PM, frontend, or mixed-audience issues, prefer
-  business/problem language over internal architecture nouns.
-- Do not lock parent issues to speculative classes, files, routes, tables,
-  workers, or module splits unless those details are already approved and
-  necessary for disambiguation.
-- When tightening a draft, remove repetition before removing decision-critical
-  context; never trade away problem clarity, scope clarity, or acceptance
-  clarity just to save lines.
+- Default `child_issue_needed=no` and keep `parent_requirement` readable by PM,
+  product, and cross-functional stakeholders.
+- Parent issues own the problem, outcome, scope, external contract when
+  material, and acceptance. They do not carry code snippets, file paths,
+  internal dataflow, module breakdowns, or speculative implementation names.
+- Rewrite an over-specified parent first. Set `child_issue_needed=yes` only
+  when removing internal detail would make necessary engineering work
+  unactionable.
+- Use `delivery_task` for an execution-ready slice that can stay
+  contract-oriented. Use `implementation_task` when approved internal
+  contracts, dataflow, migrations, or module responsibilities are required.
+- When a child is needed, show both drafts before creation and keep their
+  relationship explicit.
+- When `plan_task_handoff` maps any task to `child_issue` or
+  `grouped_child_issue`, draft that child set unless the operator explicitly
+  approves parent-only tracking.
+- Remove repetition before decision-critical context. Do not shorten away the
+  problem, scope boundary, or acceptance surface.
 
 ## Issue Template Resolution
 
@@ -453,19 +441,20 @@ If `change_type` is ambiguous:
 Read `references/issue-templates.md` when you need:
 
 - the full template bodies
-- template-specific required and recommended fields
+- template-specific required and conditional fields
 - template validation notes
 - standard create payload shapes for `gh` or `glab`
 
 ## Template Validation Rule
 
-- Resolve `template_family` and `issue_level` first.
-- Validate semantic required fields against the selected template family, not a
-  single fixed heading set.
-- Validate new issue titles against the Issue Title Prefix Rule.
-- Validate issue quality as well as field presence: clear problem statement,
-  explicit target outcome, bounded scope, testable acceptance, and
-  audience-appropriate detail.
+- Resolve `template_family` and `issue_level`, then validate the selected
+  canonical body from `references/issue-templates.md`.
+- Validate the title prefix and concrete short-title meaning, required semantic
+  fields, information ownership, acceptance, and audience fit.
+- Validate that the rendered body follows one canonical template for the
+  selected family; command examples must not introduce a second body schema.
+- Do not report an absent optional field as missing and do not render it as
+  `n/a`; only required fields can block creation.
 - If template-required fields are missing:
   - `gate_mode=required` => `BLOCK`
   - `gate_mode=recommended` => `PASS_WITH_WARNING`
@@ -484,22 +473,11 @@ Read `references/issue-templates.md` when you need:
   - `child_issue_needed`
   - `child_issue_type`
   - `missing_required_fields`
-  - `missing_recommended_fields`
   - `overspecification_warnings`
-- For `parent_requirement`, if the body contains code snippets, file paths,
-  class names, function names, implementation-phase jargon, or architecture
-  comparisons that are not required to explain an external contract, emit an
-  `overspecification_warning` and rewrite or split before presentation.
-- If a parent issue still needs engineering detail after rewrite, require
-  `child_issue_needed=yes` and draft a linked child issue instead of keeping
-  that detail in the parent body.
-- For backend-, AI-, workflow-, or integration-heavy feature work, missing
-  `技术约束` or `验证方式` should emit an explicit warning.
-- For investigation work, missing a concrete `预期产出` or
-  `退出条件 / 范围边界` must be treated as a required-field failure.
-- If a `parent_requirement` draft contains speculative classes, files, routes,
-  tables, workers, or unapproved architecture splits, emit an
-  `overspecification_warning` and rewrite before presentation.
+- Rewrite or split a parent when unnecessary code, file, module, schema,
+  sequencing, or architecture detail triggers `overspecification_warning`.
+- Treat a missing investigation deliverable or exit boundary as a required
+  field failure.
 
 ## The Operating Loop
 
@@ -534,9 +512,14 @@ Read `references/issue-templates.md` when you need:
      a new draft from context only when no matching issue exists
 6. Draft or verify issue content:
    - ensure new issue titles use the required `<prefix>: <short title>` format
+   - reject titles that state only a quality or intention without a concrete
+     problem, outcome, action, and object
+   - build the content card and assign each selected fact to one owning section
    - ensure the draft explains why now, what outcome is expected, what is in or
      out of scope, how success is judged, and whether any material dependency
      or risk must be named
+   - omit unsupported optional sections instead of rendering placeholders or
+     `n/a`
    - strip unapproved implementation details from parent issues unless the
      operator explicitly wants an implementation-facing task
    - if detailed engineering reasoning is needed, keep the parent issue
@@ -631,11 +614,15 @@ happy-path example of the full required flow.
 | "Workflow-plan tasks map directly to issues." | Plan tasks are source material. Group or split by independently reviewable, assignable, and verifiable delivery slices. |
 | "An existing issue without a prefix is invalid." | Reuse matching existing issues and emit a title-prefix warning; prefix enforcement applies to new drafts. |
 | "The issue link means this commit resolves the issue." | Default linkage is a reference bridge, not closure semantics. |
+| "A complete issue renders every template section." | Completeness means the necessary decision facts are present. Empty optional sections and `n/a` rows make the issue harder to read. |
+| "More background bullets make the issue clearer." | Keep one concrete problem statement and move distinct boundaries or acceptance facts to their owning sections. |
 
 ## Red Flags
 
 - A new issue title lacks `<prefix>: <short title>` and no repository override
   is documented.
+- A new title passes the prefix rule but uses vague wording such as "improve",
+  "align", "optimize", or "clarify" without a concrete object and outcome.
 - `Plan Task Issue Mapping` is missing when `workflow-plan` tasks were
   supplied.
 - A multi-task plan is parent-only without concrete per-task rationale.
@@ -650,6 +637,12 @@ happy-path example of the full required flow.
   the issue.
 - CLI availability is treated as platform proof without matching the resolved
   repository host.
+- The body renders optional headings, links, metrics, logs, risks, or rollback
+  fields as `n/a`.
+- The same problem, outcome, state table, or test detail appears in several
+  sections.
+- A routine maintenance issue expands beyond its core problem, scope,
+  acceptance, and verification without a material reason.
 
 ## Verification
 
@@ -662,11 +655,15 @@ happy-path example of the full required flow.
       duplicate.
 - [ ] New issue drafts apply the Issue Title Prefix Rule or block for prefix
       confirmation.
+- [ ] New titles name a concrete problem, outcome, or action and recognizable
+      object.
 - [ ] Template validation reports family, issue level, title prefix, missing
       fields, child issue decision, and overspecification warnings.
 - [ ] `Plan Task Issue Mapping` is emitted whenever plan tasks are supplied.
 - [ ] Parent and child issue drafts are shown in dry-run output before any
       create action.
+- [ ] Issue bodies use one canonical template, omit empty optional sections,
+      and keep each supporting fact in one owning section.
 - [ ] Commit bridge emits a verified `refs_line` and does not modify commit
       message content directly.
 - [ ] Gate result is `PASS`, `PASS_WITH_WARNING`, or `BLOCK` with an explicit
@@ -674,24 +671,29 @@ happy-path example of the full required flow.
 
 ## Output Format
 
+Render only the blocks relevant to the requested mode. `Gate Result` and
+`Target` are always present. Omit every other block when it has no artifact;
+within an included block, omit optional fields without values. Do not render
+blank fields or `n/a` placeholders.
+
 ```text
 ## Gate Result
 - gate_mode:
 - result: PASS | PASS_WITH_WARNING | BLOCK
 - reason:
 
-## Layering Decision
-- parent_issue_level: parent_requirement | delivery_task | implementation_task
-- child_issue_needed: yes | no
-- child_issue_type: delivery_task | implementation_task | n/a
-- child_issue_reason:
-- parent_rewrite_applied: yes | no
-
-## Platform
-- selected: gh | glab
+## Target
+- selected_platform: gh | glab
 - cli_ready:
 - target_repo:
 - search_scope: current_repo | upstream_repo | explicit_override
+
+## Layering Decision (draft/create modes only)
+- parent_issue_level: parent_requirement | delivery_task | implementation_task
+- child_issue_needed: yes | no
+- child_issue_type: delivery_task | implementation_task
+- child_issue_reason:
+- parent_rewrite_applied: yes | no
 
 ## Issue Action
 - action: reuse | create | failed
@@ -700,43 +702,43 @@ happy-path example of the full required flow.
 - issue_url:
 - title_source: user_input | auto_draft
 - title_prefix:
-- title_prefix_source: change_type | repo_policy | user_input | n/a
+- title_prefix_source: change_type | repo_policy | user_input
 - title_prefix_warnings:
 
-## Parent Issue Draft
+## Parent Issue Draft (create mode only)
 - title:
 - draft_preview:
 
-## Child Issue Draft
+## Child Issue Draft (only when child_issue_needed=yes)
 - title:
 - draft_preview:
 - link_to_parent:
 
-## Plan Task Issue Mapping
+## Plan Task Issue Mapping (only with plan_task_handoff)
 - task:
 - decision: parent_only | child_issue | grouped_child_issue
-- issue_level: parent_requirement | delivery_task | implementation_task | n/a
+- issue_level: parent_requirement | delivery_task | implementation_task
 - grouping_key:
 - acceptance_source:
 - rationale:
 - child_issue_title:
 
-## Draft Decision
+## Draft Decision (draft/create modes only)
 - audience_profile:
 - issue_level: parent_requirement | delivery_task | implementation_task
 - quality_pass: yes | no
 
-## Execution Plan
+## Execution Plan (create mode only)
 - create_parent: yes | no
 - create_child: yes | no
 - create_policy: parent-first-child-second-confirmed
 - link_method: body_reference | comment_reference
 
-## Commit Bridge
+## Commit Bridge (commit bridge mode only)
 - refs_line: ISSUE: #<id>
 - next_for_commit_skill:
 
-## Execution Trace
+## Execution Trace (only after commands execute)
 - dry_run_plan:
 - executed_commands:
 - timestamp:
@@ -770,7 +772,10 @@ happy-path example of the full required flow.
 - Do not wrap issue references in backticks when the output is meant to keep
   clickable issue links.
 - Do not treat issue linkage as issue resolution by default.
-- Default to master-grade standard drafts.
+- Default to shortest-complete, decision-ready drafts.
+- Do not expose gate administration as issue-body headings.
+- Do not render empty optional sections or `n/a` filler in issue bodies or
+  mode-irrelevant output blocks.
 - Do not turn a parent requirement issue into a design doc or implementation
   plan.
 - Do not default parent issues to code, file, class, function, planner, repo,
