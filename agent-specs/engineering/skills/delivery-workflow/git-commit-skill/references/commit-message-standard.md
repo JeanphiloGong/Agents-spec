@@ -46,9 +46,16 @@ primary_object: <behavior, symbol, document, contract, or state transition>
 before: <specific previous behavior, ambiguity, failure, or request>
 after: <specific resulting behavior or structure>
 impact_boundary: <observable effect or behavior explicitly preserved>
-tests: <commands or checks that actually ran, with results>
+testing_boundary:
+  coverage: <behavior, scenario, or boundary exercised>
+  expected: <result observed or asserted, when material>
+  prevented: <incorrect behavior that did not occur, when material>
+execution_checks: <commands that ran, results, or skipped-check reason>
 refs: <verified issue/spec/incident/PR, or n/a when allowed>
 ```
+
+`testing_boundary` supplies `Tests`. `execution_checks` belongs in CI or the
+execution report. Do not turn it into `PASS: <command>` commit prose.
 
 Use these sources in this order:
 
@@ -57,7 +64,9 @@ Use these sources in this order:
 2. The issue or user request supplies the trigger and intended outcome.
 3. Tests establish verified behavior; they do not justify claims they do not
    exercise.
-4. Repository conventions determine type, scope, and reference syntax.
+4. Recent repository history supplies concrete verbs, behavior phrasing, and
+   project vocabulary when those patterns are consistent.
+5. Repository conventions determine type, scope, and reference syntax.
 
 Do not draft the subject until `primary_action` and `primary_object` are both
 known. Inspect the diff again when either field would otherwise contain an
@@ -67,9 +76,11 @@ After gathering evidence, select only what a future reader needs. Evidence can
 remain unrendered when the diff already carries it and omitting it does not
 make the message ambiguous.
 
-Use real identifiers and state values only when they improve recognition. Long
-identifiers belong in `What` or may stay in the diff when a familiar project
-noun is sufficient. Never invent a symbol name that is not in the staged diff.
+Default to omitting internal fields, files, helper names, call-site counts, and
+private types because the diff already records them. Keep an identifier only
+when it is a public contract, the direct object of a rename or move, or needed
+to distinguish a state transition such as `error` to `completed`. Never invent
+a symbol name that is not in the staged diff.
 
 ## Commit Message Format
 
@@ -95,9 +106,10 @@ Refs:
 ```
 
 This structure is mandatory. Do not add, omit, rename, or duplicate sections.
-When several checks ran, list them as separate bullets under the single
-`Tests` section. Use one bullet with one sentence in every section by default.
-Add another bullet only for a separate fact required to understand the commit.
+When several independent behavior boundaries were tested, list them as
+separate bullets under the single `Tests` section. Use one bullet with one
+sentence in every section by default. Add another bullet only for a separate
+fact required to understand the commit.
 
 ## Subject Rules
 
@@ -147,8 +159,9 @@ Assign each fact to one location before writing:
 | `Why` | one previous problem or trigger | test motivation, future speculation, solution details |
 | `What` | one resulting code, behavior, or document change | call-site counts, assertion lists, impact claims |
 | `Impact` | one observable effect or preserved boundary | repeated state tables, implementation details |
-| `Tests` | checks that ran and their result | why the production change was needed |
+| `Tests` | covered behavior or boundary and material expected result | commands, pass markers, test-file inventory |
 | `Refs` | verified traceability | extra explanation |
+| Execution report | commands, pass or fail results, skipped checks | behavior rationale |
 
 State each supporting detail once. Repeat the core behavior only when needed to
 connect `Why`, `What`, and `Impact`; do not repeat call-site counts, full state
@@ -164,6 +177,8 @@ Write natural project language:
   but less natural technical label.
 - Do not hard-wrap inside an identifier. Wrap surrounding prose or omit a long
   identifier when the established project noun is sufficient.
+- Use repository history to learn sentence style, not to copy its issue IDs,
+  generated trailers, internal names, or section layout.
 
 ## Body Quality Bar
 
@@ -180,8 +195,9 @@ Write natural project language:
 ### What
 
 - State the resulting behavior or structural change.
-- Use real function names, state values, or contract terms when they make the
-  change verifiable and easier to locate.
+- Describe the resulting behavior before implementation mechanics. Use a real
+  function name, state value, or contract term only when it carries meaning
+  under the internal-detail rule.
 - When both rename identifiers are long, name only the new identifier; the diff
   already records the old one.
 - Every bullet must be supported by the staged diff or tests.
@@ -204,14 +220,15 @@ Write natural project language:
 
 ### Tests
 
-- State what actually ran and whether it passed.
-- Put every test, compile command, lint command, manual check, or skipped-test
-  reason under the single `Tests` section.
-- If tests did not run, use a real reason such as:
-  - `not run (docs-only change)`
-  - `not run (config-only change)`
-  - `not run (blocked: <reason>)`
-- Do not use `not requested`.
+- State the behavior, scenario, or boundary covered.
+- Use a compact coverage list when `What` already makes the expected result
+  clear, such as "cover safe and ambiguous path forms." Add the expected result
+  when the prevented regression is the important fact.
+- Do not list commands, `PASS`, test file names, or "added a regression test."
+  Those describe execution or the diff, not the behavior protected.
+- If behavior verification did not run, state the unverified boundary and real
+  reason honestly; keep command-level details in the execution report.
+- Do not claim that one test guarantees behavior beyond its exercised scenario.
 
 ### Refs
 
@@ -267,7 +284,7 @@ Impact:
 - 缓存恢复和响应检查行为不变。
 
 Tests:
-- PASS: pytest tests/test_response_check.py -k empty_matrix_cache
+- 空矩阵缓存仍恢复为 completed，缓存缺失仍返回 None。
 
 Refs:
 - ISSUE: #168
@@ -291,7 +308,7 @@ Impact:
 - 命中空矩阵缓存的任务不再被错误标记为抽取失败。
 
 Tests:
-- PASS: pytest tests/test_response_check.py -k empty_matrix_cache
+- 空矩阵缓存恢复为 completed，不再进入抽取失败结果。
 
 Refs:
 - ISSUE: #168
@@ -312,11 +329,86 @@ Impact:
 - 读者可以仅按入门文档完成本地配置；运行时代码不变。
 
 Tests:
-- PASS: markdownlint docs/onboarding.md
+- 环境变量表同时包含 CACHE_URL 的用途、示例值和启动所需说明。
 
 Refs:
 - n/a
 ```
+
+### Repository-Language Contrasts
+
+The following scenarios are sanitized from recurring language patterns in a
+mature repository history. They teach wording only; this skill keeps its own
+required five-section structure.
+
+| Section | Avoid | Prefer |
+|---|---|---|
+| `Why` | `The metadata sources need better consistency.` | `A saved working directory can become stale after thread metadata changes, so reads and lists report different locations.` |
+| `What` | `Update the state overlay and recompute internal metadata.` | `Prefer the persisted working directory when it belongs to the requested thread, while retaining the saved fallback for older records.` |
+| `Impact` | `This improves thread reliability.` | `Thread reads and lists now agree on the saved location; older records without one keep their previous behavior.` |
+| `Tests` | `PASS: cargo test -p core thread_read` | `Stale and empty saved locations select the expected value, while a resumed thread still uses its requested live location.` |
+| `Tests` | `Add regression coverage for path handling.` | `Cover safe and ambiguous path forms, encoded traversal, and hosts that require inspection.` |
+
+The two preferred `Tests` forms are both valid:
+
+- `Cover ...` names a compact behavior boundary when the expected result is
+  already clear from `What`.
+- A full behavior assertion names the result when that result is the regression
+  future readers need to retain.
+
+### Complete Behavior-First Example
+
+```text
+fix(proxy): reject ambiguous paths before authorization
+
+Why:
+- Authorization runs before upstream parsing, so a path that normalizes to
+  another resource could match the wrong allowlist entry.
+
+What:
+- Reject traversal, malformed encoding, and encoded separators before matching
+  the request against allowed paths.
+
+Impact:
+- An allowed path cannot be reinterpreted as another resource; ordinary safe
+  paths keep their previous behavior.
+
+Tests:
+- Safe paths remain allowed, while ambiguous paths are rejected before they can
+  reach another resource.
+
+Refs:
+- ISSUE: #123
+```
+
+This message uses internal concepts only where they explain the authorization
+boundary. Parser helpers, changed files, assertions, and commands stay in the
+diff or execution report.
+
+### Overloaded Version of the Same Change
+
+```text
+fix(proxy): harden authorization consistency
+
+Why:
+- Path validation needed to be more robust.
+
+What:
+- Update parse_hook_path, normalize_percent_encoding, and three proxy callers.
+
+Impact:
+- Authorization is safer and more reliable.
+
+Tests:
+- PASS: cargo test -p network-proxy authorization
+
+Refs:
+- ISSUE: #123
+```
+
+The subject states a quality, `Why` is generic, `What` narrates the diff,
+`Impact` is unsupported, and `Tests` is an execution log. The structure is
+complete, but the behavior transition is still unclear.
 
 ## Anti-Patterns
 
@@ -336,9 +428,11 @@ For the behavior-preserving rename example, reject this overloaded body shape:
 
 | Section | Avoid | Prefer |
 |---|---|---|
-| `Why` | `空矩阵也是有效缓存结果，需要用测试固定其完成态边界，避免后续重新引入失败状态判断。` | Omit it; test motivation and speculative regressions do not explain the production rename. |
+| `Why` | `空矩阵也是有效缓存结果，需要用测试固定其完成态边界，避免后续重新引入失败状态判断。` | `原名称暗示会恢复所有抽取状态，实际只处理 completed 缓存结果。` |
 | `What` | `同步两处工作流调用，并验证 completed、100% 且无错误。` | State the rename once; report the check under `Tests`. |
 | `Impact` | `成功和空矩阵返回 completed，缺失缓存返回 None；运行时抽取失败仍写入 error。` | `缓存恢复和响应检查行为不变。` |
+| `Tests` | `PASS: pytest ...` | `空矩阵缓存仍恢复为 completed，缓存缺失仍返回 None。` |
+| `Tests` | `增加空矩阵回归测试。` | `空矩阵缓存恢复为 completed，不再进入抽取失败结果。` |
 
 ## Verification
 
@@ -352,12 +446,16 @@ Before accepting a message, confirm:
 - [ ] `Why` names the previous problem or trigger.
 - [ ] `What` names the actual behavior or structural change.
 - [ ] `Impact` names an observable result or precisely preserved boundary.
-- [ ] `Tests` reports every relevant check that actually ran, or a real
-      operational reason for not running it.
+- [ ] `Tests` states the behavior or boundary covered and includes the expected
+      result when it is material, or honestly states the unverified boundary.
+- [ ] Commands, pass or fail results, and skipped-check details stay in the
+      execution report rather than the commit message.
 - [ ] `Refs` contains only verified traceability or an allowed `n/a` fallback.
 - [ ] `Why -> What -> Impact` reads as one causal chain.
 - [ ] Each supporting detail appears in its owning location only.
 - [ ] Every section has one bullet unless another independent fact is required.
 - [ ] The message uses established project terms and no coined noun stack.
+- [ ] Internal identifiers appear only when they carry public contract,
+      change-object, or state-transition meaning.
 - [ ] No generic benefit, vague intent phrase, invented identifier, or
       unsupported impact remains.
