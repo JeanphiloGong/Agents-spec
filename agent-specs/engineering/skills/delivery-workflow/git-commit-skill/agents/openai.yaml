@@ -1,4 +1,4 @@
 interface:
   display_name: "Git Commit"
-  short_description: "v0.2.6 - Execute behavior-first Git commits with conditional references"
-  default_prompt: "Use $git-commit-skill to inspect staged evidence and recent repository language, split by concern, verify traceability, and execute each save-point commit with distinct behavior facts in the required Why/What/Impact/Tests sections, appending Refs only for a real verified reference while keeping command results in the execution report."
+  short_description: "v0.2.7 - Execute behavior-first Git commits with distinct impact and test evidence"
+  default_prompt: "Use $git-commit-skill to inspect staged evidence, split by concern, and execute each save-point commit with distinct Why/What/Impact/Tests facts: Impact states post-merge effects or preserved boundaries, Tests states actually verified conditions and expected results, and Refs appears only for a real verified reference."

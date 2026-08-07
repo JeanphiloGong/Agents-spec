@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.2.6 - Draft, split, and execute atomic scoped Git commits with behavior-first Why/What/Impact/Tests bodies, adding Refs only for verified references. Use when preparing final commits, reviewing commit wording, staging approved files, or enforcing repository commit conventions.
+description: v0.2.7 - Draft, split, and execute atomic scoped Git commits with behavior-first Why/What/Impact/Tests bodies, distinct effect and verification evidence, and Refs only for verified references. Use when preparing final commits, reviewing commit wording, staging approved files, or enforcing repository commit conventions.
 ---
 
 # Git Commit Skill
@@ -70,9 +70,12 @@ issue mapping, and use review or CI skills for review/CI failures.
 - language rule: default every section to behavior-level prose; keep an
   internal identifier only when it is a public contract, the direct change
   object, or necessary to distinguish a state transition
-- tests rule: state the behavior or boundary covered and add the expected
-  result when it is material; keep commands and pass or fail results in the
-  execution report
+- impact rule: state the post-merge observable effect, compatibility result,
+  or explicitly preserved boundary; do not describe how the change was
+  verified
+- tests rule: state the condition, scenario, or boundary actually verified
+  and its expected result when material; do not repeat `Impact`, claim
+  unverified behavior, or replace evidence with a command
 - execution mode: full commit execution for normal commit-stage work
 - split policy: atomic save-point commits, based on
   `commit-execution-policy.md`
@@ -84,6 +87,18 @@ issue mapping, and use review or CI skills for review/CI failures.
 - unrelated changes: ignore by default
 - mixed authorship files: ask once before staging
 - optional traceability fallback: omit the entire `Refs` section
+
+## Impact And Tests Boundary
+
+| Section | Write | Do not write |
+|---|---|---|
+| `Impact` | Post-merge observable effects, compatibility, and explicitly preserved boundaries | Test commands, test files, or verification steps |
+| `Tests` | Conditions, scenarios, and expected results actually verified | Generic "tested" claims, change benefits, repeated `Impact`, or command-only lists |
+
+Read the two sections independently before accepting them. `Impact` must still
+explain who or what is affected when `Tests` is hidden. `Tests` must still show
+what condition was exercised and what result was expected when `Impact` is
+hidden. If one sentence could fill both sections unchanged, rewrite it.
 
 ## The Operating Loop
 
@@ -257,6 +272,9 @@ issue mapping, and use review or CI skills for review/CI failures.
 - [ ] `Tests` states the behavior or boundary exercised and includes the
       expected result when it is material; commands and results stay in the
       execution report.
+- [ ] `Impact` remains meaningful without test context, while `Tests` remains
+      meaningful without impact context by naming an exercised condition and
+      expected result.
 - [ ] Internal identifiers appear only when they carry public contract,
       change-object, or state-transition meaning.
 - [ ] Traceability is verified through `issue-gate-skill`, repository evidence,
@@ -320,6 +338,8 @@ issue mapping, and use review or CI skills for review/CI failures.
   operational reason.
 - Do not put routine commands, `PASS` markers, or test-file inventory in the
   commit message; report them after execution.
+- Do not use the same sentence or claim for `Impact` and `Tests`; effect and
+  verification are separate evidence.
 - Do not require an AI session identifier unless the repository explicitly
   requires it.
 - Do not amend, rebase, or force-push unless the user explicitly asks.

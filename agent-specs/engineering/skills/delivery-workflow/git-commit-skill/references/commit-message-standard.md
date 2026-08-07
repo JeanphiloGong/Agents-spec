@@ -9,6 +9,7 @@ Use this reference when writing or reviewing the actual commit message.
 - [Commit Message Format](#commit-message-format)
 - [Subject Rules](#subject-rules)
 - [Information Ownership](#information-ownership)
+  - [Impact And Tests Boundary](#impact-and-tests-boundary)
 - [Body Quality Bar](#body-quality-bar)
 - [Type Selection](#type-selection)
 - [Full Examples](#full-examples)
@@ -167,14 +168,44 @@ Assign each fact to one location before writing:
 | Subject | shortest recognizable action and object | identifiers, reasons, tests, impact details |
 | `Why` | one previous problem or trigger | test motivation, future speculation, solution details |
 | `What` | one resulting code, behavior, or document change | call-site counts, assertion lists, impact claims |
-| `Impact` | one observable effect or preserved boundary | repeated state tables, implementation details |
-| `Tests` | covered behavior or boundary and material expected result | commands, pass markers, test-file inventory |
+| `Impact` | post-merge observable effects, compatibility, and explicitly preserved boundaries | test commands, test files, verification steps |
+| `Tests` | conditions, scenarios, and expected results actually verified | generic "tested" claims, change benefits, repeated `Impact`, command-only lists |
 | `Refs` (conditional) | verified traceability | placeholders, extra explanation |
 | Execution report | commands, pass or fail results, skipped checks | behavior rationale |
 
 State each supporting detail once. Repeat the core behavior only when needed to
 connect `Why`, `What`, and `Impact`; do not repeat call-site counts, full state
 tables, function ownership, or test assertions merely because they are true.
+
+### Impact And Tests Boundary
+
+`Impact` states the consequence of merging the change. `Tests` states the
+evidence used to check the change. Tests may prove an impact, but they must add
+the exercised condition and expected result instead of restating the same
+consequence.
+
+Apply these independent-reader checks:
+
+1. Hide `Tests`. `Impact` must still identify who or what is affected, the
+   compatibility result, or the behavior explicitly preserved.
+2. Hide `Impact`. `Tests` must still identify the condition or scenario
+   exercised and the expected result.
+3. If one sentence can fill both sections unchanged, rewrite it. Keep the
+   post-merge consequence in `Impact` and the verification evidence in
+   `Tests`.
+
+For documentation and configuration changes, use the same boundary. `Impact`
+states what readers, operators, or consumers can rely on after the change.
+`Tests` records only an actual consistency, completeness, parsing, rendering,
+or other relevant check. Never invent a runtime behavior test for a static
+change.
+
+Example for a documented six-digit business-code contract:
+
+| Section | Example |
+|---|---|
+| `Impact` | `调用方可以按统一的六位数字格式处理业务码；现有请求字段和响应结构不变。` |
+| `Tests` | `公开契约与联调说明对合法六位码、位数错误和非数字字符给出一致的接受或拒绝结果。` |
 
 Write natural project language:
 
@@ -226,6 +257,8 @@ Write natural project language:
 - State migration, rollout, or compatibility consequences when they exist.
 - For a local rename, one short behavior-preservation statement is enough. Do
   not enumerate every state returned by the function.
+- Do not mention the test scenario or verification method; those belong in
+  `Tests`.
 
 ### Tests
 
@@ -238,6 +271,11 @@ Write natural project language:
 - If behavior verification did not run, state the unverified boundary and real
   reason honestly; keep command-level details in the execution report.
 - Do not claim that one test guarantees behavior beyond its exercised scenario.
+- Do not repeat the `Impact` consequence without adding the condition exercised
+  and expected result.
+- For documentation or configuration changes, name the static check that
+  actually established consistency or completeness; do not claim runtime
+  behavior was tested.
 
 ### Refs
 
@@ -462,6 +500,11 @@ Before accepting a message, confirm:
 - [ ] `Impact` names an observable result or precisely preserved boundary.
 - [ ] `Tests` states the behavior or boundary covered and includes the expected
       result when it is material, or honestly states the unverified boundary.
+- [ ] `Impact` remains meaningful without test context, while `Tests` remains
+      meaningful without impact context by naming an exercised condition and
+      expected result.
+- [ ] Documentation and configuration changes report only checks that actually
+      ran and do not invent runtime behavior verification.
 - [ ] Commands, pass or fail results, and skipped-check details stay in the
       execution report rather than the commit message.
 - [ ] `Refs` appears after `Tests` only when it contains verified traceability;
