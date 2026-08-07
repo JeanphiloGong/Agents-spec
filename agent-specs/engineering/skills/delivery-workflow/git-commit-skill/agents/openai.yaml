@@ -1,4 +1,4 @@
 interface:
   display_name: "Git Commit"
-  short_description: "v0.2.4 - Execute concise, traceable Git commits"
-  default_prompt: "Use $git-commit-skill to inspect the staged evidence, split by size and concern, verify traceability, and execute each save-point commit with the shortest concrete subject plus one focused bullet in each required Why/What/Impact/Tests/Refs section."
+  short_description: "v0.2.5 - Execute behavior-first, traceable Git commits"
+  default_prompt: "Use $git-commit-skill to inspect staged evidence and recent repository language, split by concern, verify traceability, and execute each save-point commit with one distinct behavior fact in every required Why/What/Impact/Tests/Refs section while keeping command results in the execution report."

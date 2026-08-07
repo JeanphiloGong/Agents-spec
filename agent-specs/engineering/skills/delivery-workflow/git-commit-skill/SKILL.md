@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.2.4 - Draft, split, and execute atomic scoped Git commits with verified traceability and concise, concrete Why/What/Impact/Tests/Refs bodies. Use when preparing final commits, reviewing commit wording, staging approved files, or enforcing repository commit conventions.
+description: v0.2.5 - Draft, split, and execute atomic scoped Git commits with verified traceability and behavior-first Why/What/Impact/Tests/Refs bodies. Use when preparing final commits, reviewing commit wording, staging approved files, or enforcing repository commit conventions.
 ---
 
 # Git Commit Skill
@@ -15,6 +15,9 @@ The sections must tell one causal story without replacing observable changes
 with intent summaries such as "clarify responsibility" or "improve
 consistency." Each supporting detail appears once, in the section that owns
 it; repeat the core behavior only when needed to connect the causal chain.
+Describe background conditions, behavior changes, visible results, and tested
+boundaries in project language. Leave routine internal fields, file lists,
+helper names, commands, and pass markers to the diff or execution report.
 
 Use the existing commit-message and execution references for details. The
 always-loaded behavior is: inspect first, preserve unrelated changes, verify
@@ -56,11 +59,17 @@ issue mapping, and use review or CI skills for review/CI failures.
   another convention
 - commit body format: exact `Why / What / Impact / Tests / Refs`
 - section rule: each required body section appears exactly once; multiple
-  checks are bullets under the single `Tests` section
+  independent tested boundaries are bullets under the single `Tests` section
 - evidence rule: derive the subject and every section from the user request,
   issue, staged diff, or verification results
 - density rule: use one bullet with one sentence per section by default; add a
   second bullet only for a separate fact required to understand the commit
+- language rule: default every section to behavior-level prose; keep an
+  internal identifier only when it is a public contract, the direct change
+  object, or necessary to distinguish a state transition
+- tests rule: state the behavior or boundary covered and add the expected
+  result when it is material; keep commands and pass or fail results in the
+  execution report
 - execution mode: full commit execution for normal commit-stage work
 - split policy: atomic save-point commits, based on
   `commit-execution-policy.md`
@@ -84,6 +93,9 @@ issue mapping, and use review or CI skills for review/CI failures.
    - Run the branch/worktree checks described there.
    - Identify in-scope files, unrelated dirty files, generated files, and
      mixed-authorship files.
+   - When repository language is unclear, sample recent non-merge commits for
+     concrete verbs, background phrasing, behavior vocabulary, and testing
+     language. Do not replace this skill's required five-section structure.
    - Treat the save-point order as:
      `worktree -> issue -> verified slice -> issue-gate -> commit`.
 3. Run traceability gate when required.
@@ -102,8 +114,11 @@ issue mapping, and use review or CI skills for review/CI failures.
    - Read `references/commit-message-standard.md`.
    - Record the concrete primary action and object from the staged diff.
    - Record the previous behavior or pressure, the resulting behavior or
-     structure, the material impact boundary, the checks that actually ran,
-     and verified references.
+     structure, the material impact boundary, the behavior exercised by tests,
+     the checks that actually ran, and verified references.
+   - Keep tested behavior separate from execution evidence: `Tests` explains
+     coverage, while commands and pass or fail results belong in the execution
+     report.
    - Select the smallest useful fact for each message section; do not render
      every fact collected in the evidence card.
 6. Write and challenge the subject and body.
@@ -113,13 +128,16 @@ issue mapping, and use review or CI skills for review/CI failures.
    - If the subject only states a goal or quality, replace it with the actual
      rename, extraction, move, removal, behavior correction, or other staged
      action.
-   - Keep long identifiers in `What` only when they materially improve
-     recognition; do not coin compressed domain terms to fit them in the
-     subject.
+   - Omit internal fields, files, helper names, and call-site counts that the
+     diff already shows. Keep an identifier only when it materially improves
+     recognition under the language rule.
    - Render the exact section order: `Why`, `What`, `Impact`, `Tests`, `Refs`.
    - Give each section one job: reason, change, effect, proof, or reference.
      Do not repeat tests, call-site counts, assertions, or state tables across
      sections.
+   - In `Tests`, name the behavior or boundary covered. Add the expected result
+     or prevented failure when that is the important regression signal. Do not
+     write a command, `PASS`, or "added a test" there.
    - Make the sections read as one chain: previous problem -> implemented
      change -> observable result or preserved boundary -> proof -> reference.
 7. Execute the selected path.
@@ -148,8 +166,9 @@ issue mapping, and use review or CI skills for review/CI failures.
 - If a precise identifier makes the subject long or hard to read, use the
   established project noun in the subject and leave the identifier to `What`
   or the diff.
-- If a test fact appears in `Why`, `What`, or `Impact`, move it to `Tests`
-  unless the test itself is the primary change.
+- If a test fact appears in `Why`, `What`, or `Impact`, move the covered
+  behavior to `Tests` unless the test itself is the primary change. Keep the
+  command and result in the execution report.
 - If call-site counts or individual assertions do not change the reader's
   understanding, omit them.
 - If the reason or impact cannot be supported, state the narrow verified
@@ -174,7 +193,10 @@ issue mapping, and use review or CI skills for review/CI failures.
 | "Every discovered fact should appear in the body." | The evidence card is an input filter, not an output checklist. Keep only what a future reader needs. |
 | "The diff is large but it is easier to review as one commit." | Large mixed commits hide intent and rollback boundaries; split unless the change is one inseparable unit. |
 | "Tests are already in the execution report." | The repository requires durable verification evidence in the single Tests section. |
-| "I can add another Tests section for the second command." | The body has one Tests section with multiple bullets. |
+| "I can add another Tests section for the second command." | Commands stay in the execution report. The body has one Tests section for covered behavior. |
+| "Tests should list the command that passed." | Commands prove execution elsewhere. Commit prose should state the behavior covered and the result when it matters. |
+| "Tests should say that I added regression coverage." | That narrates the test diff. Name the behavior or boundary the coverage protects. |
+| "Internal names make every section more concrete." | Internal inventory is already visible in the diff. Keep only names that carry contract or state-transition meaning. |
 
 ## Red Flags
 
@@ -201,6 +223,10 @@ issue mapping, and use review or CI skills for review/CI failures.
   changes are bundled together for speed.
 - Tests are marked as "not requested" instead of giving a real operational
   reason.
+- `Tests` lists commands, `PASS`, test file names, or "added coverage" without
+  naming the behavior or boundary exercised.
+- Internal fields, helpers, paths, or call-site counts appear without explaining
+  their behavior-level significance.
 
 ## Verification
 
@@ -217,6 +243,11 @@ issue mapping, and use review or CI skills for review/CI failures.
 - [ ] Every claim is grounded in the request, issue, staged diff, or tests.
 - [ ] Each supporting detail appears in only one owning section, with one
       bullet per section unless a second independent fact is necessary.
+- [ ] `Tests` states the behavior or boundary exercised and includes the
+      expected result when it is material; commands and results stay in the
+      execution report.
+- [ ] Internal identifiers appear only when they carry public contract,
+      change-object, or state-transition meaning.
 - [ ] Traceability is verified through `issue-gate-skill`, repository evidence,
       explicit user input, or `Refs: - n/a`.
 - [ ] Required pre-commit hygiene checks from
@@ -272,6 +303,8 @@ issue mapping, and use review or CI skills for review/CI failures.
   signals.
 - Do not use `"not requested"` as the explanation for missing tests; use a real
   operational reason.
+- Do not put routine commands, `PASS` markers, or test-file inventory in the
+  commit message; report them after execution.
 - Do not require an AI session identifier unless the repository explicitly
   requires it.
 - Do not amend, rebase, or force-push unless the user explicitly asks.

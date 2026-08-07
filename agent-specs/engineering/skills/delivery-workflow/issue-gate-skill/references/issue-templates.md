@@ -1,37 +1,50 @@
 # Issue Templates
 
-Use this reference when resolving `template_family`, drafting the issue body,
+Use this reference when resolving a template family, drafting an issue body,
 or validating template-specific required fields.
 
 ## Table of Contents
 
-- [Template Style Rule](#template-style-rule)
-- [Bug / Incident Template](#bug--incident-template)
-- [Feature / Change Template](#feature--change-template)
+- [Rendering Contract](#rendering-contract)
+- [Issue Title Rule](#issue-title-rule)
+- [Information Ownership](#information-ownership)
+- [Bug or Incident Template](#bug-or-incident-template)
+- [Feature or Change Template](#feature-or-change-template)
 - [Engineering Child Issue Template](#engineering-child-issue-template)
-- [Task / Maintenance Template](#task--maintenance-template)
-- [Investigation / Spike Template](#investigation--spike-template)
-- [Issue Title Prefix Rule](#issue-title-prefix-rule)
-- [Template Validation Rule](#template-validation-rule)
-- [Template-to-Command Mapping Examples](#template-to-command-mapping-examples)
-- [Existing Issue => link for commit](#existing-issue--link-for-commit)
+- [Task or Maintenance Template](#task-or-maintenance-template)
+- [Investigation or Spike Template](#investigation-or-spike-template)
+- [Examples](#examples)
+- [Anti-Patterns](#anti-patterns)
+- [Template Validation](#template-validation)
+- [Template-to-Command Mapping](#template-to-command-mapping)
 
-## Template Style Rule
+## Rendering Contract
 
-- Prefer clean section headings without `（必填）` or `（可选）` in the rendered
-  issue body.
-- Keep requiredness in skill validation rules and repository templates, not in
-  user-facing heading text.
-- When a repository already provides canonical issue templates, mirror their
-  field names and heading structure unless there is a strong reason not to.
-- When referencing related issues in rendered markdown, use plain `#123`,
-  `owner/repo#123`, or a full URL in normal prose; do not wrap the issue
-  reference itself in backticks if the link should stay clickable.
+These templates are fallback body contracts. A repository-provided canonical
+template overrides them when its required fields are explicit.
 
-## Issue Title Prefix Rule
+- Select exactly one template family and render one body schema.
+- Render required sections and only those optional sections backed by facts.
+- Omit empty optional headings, placeholder bullets, and `n/a` rows.
+- Use one short paragraph or one to three facts per section by default.
+- Expand only when another fact changes scope, acceptance, risk, or a decision.
+- Keep internal gate fields, CLI commands, prefix sources, and warnings outside
+  the issue body.
+- Use plain headings. Requiredness belongs in validation, not visible labels or
+  decorative heading markers.
+- Follow the user's language or the repository's established issue language;
+  localize headings consistently without changing their semantic ownership.
+- Square brackets around an optional template block mark a drafting condition;
+  never copy the brackets into a rendered issue.
+- Use issue references such as #123 or owner/repo#123 as plain Markdown text so
+  they remain clickable.
 
-New issue titles must use `<prefix>: <short title>`. Resolve `prefix` from
-`change_type` before selecting the create command:
+Completeness means that another person can understand, bound, and accept the
+work. It does not mean rendering every field the agent inferred.
+
+## Issue Title Rule
+
+New titles use `<prefix>: <short title>`. Resolve the prefix from `change_type`:
 
 - `feat|integration|workflow|api` => `feat`
 - `fix|bugfix|incident` => `bugfix`
@@ -44,656 +57,378 @@ New issue titles must use `<prefix>: <short title>`. Resolve `prefix` from
 - `chore` => `chore`
 - `spike|research|proposal|investigation` => `proposal`
 
-Existing issue titles without this prefix should warn, not block reuse.
+The short title must carry meaning after the prefix is removed:
 
-## Bug / Incident Template
+- bugs: name the failing condition and incorrect result
+- features: name the capability or observable outcome being added
+- tasks and maintenance: name the concrete action and recognizable object
+- investigations: name the decision or uncertainty to resolve
 
-Required fields:
-- `问题概述`
-- `复现步骤`
-- `预期结果`
-- `实际结果`
+Prefer established repository language. Do not coin compressed domain labels
+or use quality-only summaries such as "improve consistency", "clarify
+workflow", "optimize handling", or "align behavior".
 
-Recommended fields:
-- `影响范围 / 严重程度`
-- `修复验收`
+Examples:
 
-Optional fields:
-- `日志`
-- `截图`
-- `环境信息（浏览器 / OS / 后端版本 / 模型版本等）`
-- `输入样例 / 文件类型 / 任务 ID`
+| Evidence | Avoid | Prefer |
+|---|---|---|
+| Non-trivial builds can skip a code-local skeleton. | `docs: improve workflow clarity` | `docs: require code-local skeletons before non-trivial builds` |
+| Tutorial checkpoints can proceed after self-review. | `bugfix: fix tutorial consistency` | `bugfix: require independent review before tutorial checkpoint commits` |
+| Empty extraction results pass validation. | `bugfix: align extraction status` | `bugfix: reject empty extraction results` |
 
-Template:
+Existing issues without a recognized prefix may still be reused. Emit a
+warning instead of creating a duplicate.
 
-```text
-## 🐛 问题概述
-...
+## Information Ownership
 
-## 🔁 复现步骤
-1. ...
-2. ...
-3. ...
+Assign each fact before rendering:
 
-## ✅ 预期结果
-...
+| Section | Owns | Does not own |
+|---|---|---|
+| Problem or Background | current behavior, trigger, and why it matters | solution steps, acceptance checklist |
+| Outcome | externally visible or decision-relevant success state | implementation plan |
+| Scope | included work and meaningful exclusions | repeated problem statement |
+| Expected and Actual | observed behavioral contrast | speculative root cause |
+| Acceptance or Done | observable completion conditions | file-by-file edits or test commands |
+| Verification | commands, checks, or review method | another copy of acceptance |
+| Risks or Dependencies | real blockers, constraints, or coordination | generic cautions |
+| Evidence | logs, screenshots, IDs, or links that exist | empty attachment slots |
 
-## ❌ 实际结果
-...
+State each supporting fact once. Repeat the core behavior only when necessary
+to connect the problem, expected outcome, and acceptance criteria.
 
-## 🎯 影响范围 / 严重程度
-- 影响范围：...
-- 严重程度：...
-- 是否可绕过：...
+## Bug or Incident Template
 
-## 🧪 修复验收
-- 修复完成的判断标准：...
-- 需要回归的场景：...
+Required semantic fields:
 
-## 📎 其他信息
-- 日志：...
-- 截图：...
-- 环境信息：...
-- 输入样例 / 文件类型 / 任务 ID：...
-```
+- problem
+- reproduction steps or triggering condition
+- expected result
+- actual result
+- fix acceptance
 
-## Feature / Change Template
+Optional sections, rendered only with evidence:
 
-Required fields:
-- `背景 / 问题`
-- `目标 / 期望结果`
-- `范围边界`
-- `外部契约或用户影响`
-- `验收标准`
+- impact and severity
+- evidence such as logs, screenshots, environment, or sample IDs
+- regression scope when it adds more than the acceptance criteria
 
-Recommended fields:
-- `风险 / 依赖`
-- `验证方式`
-
-Optional fields:
-- `兼容性说明`
-- `接口文档`
-- `设计稿`
-- `关联 Issue / 需求编号`
-
-Standard template:
+Canonical body:
 
 ```text
-## 🧩 背景 / 场景
-- 为什么现在要做：...
-- 当前主要问题：...
-- 如果不做会带来什么影响：...
+## Problem
+<what fails, under which condition, and who or what is affected>
 
-## 🎯 目标 / 期望结果
-- 这次希望达成什么结果：...
-- 完成后外部应该看到什么变化：...
+## Reproduction
+1. <first necessary step>
+2. <second necessary step>
+3. <observed failure>
 
-## 🎯 范围边界
-- 本次要做：...
-- 本次不做：...
+## Expected
+<expected behavior>
 
-## 🌐 外部契约或用户影响
-- 用户侧 / 调用方会感知到什么变化：...
-- 是否涉及对外接口、输入输出、兼容性要求：...
-- 如果需要提接口，只描述外部行为，不展开内部实现：...
+## Actual
+<observed behavior>
 
-## ✅ 验收标准
-- [ ] ...
-- [ ] ...
+## Acceptance
+- [ ] <observable corrected behavior>
+- [ ] <material regression boundary, when needed>
 
-## ⚠️ 风险 / 依赖
-- 依赖项：...
-- 风险点：...
-- 需要协调或确认的事项：...
+[## Impact]
+<only when severity, affected users, or workaround is known>
 
-## 🧪 验证方式
-- 手工验证：...
-- 自动化测试：...
-
-## 📎 其他信息
-- 兼容性说明：...
-- 接口文档：...
-- 设计稿：...
-- 关联 Issue / 需求编号：...
+[## Evidence]
+<only existing logs, links, environment facts, or sample identifiers>
 ```
 
-Parent issue default rules:
+Do not invent reproduction steps for a non-reproducible incident. Use a
+concrete triggering condition and available evidence instead, and rename the
+section to `Trigger` when that is more accurate.
 
-- Default this template to `parent_requirement` and `cross_functional` unless
-  the operator explicitly requests an engineering-facing issue.
-- Do not include code blocks, file paths, class names, function names, module
-  splits, or internal architecture comparison by default.
-- If detailed implementation discussion is required, create a linked
-  engineering child issue instead of expanding the parent body.
+## Feature or Change Template
+
+Required semantic fields:
+
+- problem or opportunity
+- target outcome
+- scope boundary
+- acceptance criteria
+
+Optional sections, rendered only when material:
+
+- external contract or user impact
+- dependencies or risks
+- verification method
+
+Canonical body:
+
+```text
+## Problem
+<current limitation and why it matters now>
+
+## Outcome
+<capability or observable result this work should deliver>
+
+## Scope
+- Include: <included delivery boundary>
+- Exclude: <one exclusion needed to prevent scope drift>
+
+## Acceptance
+- [ ] <observable success condition>
+- [ ] <second independent success condition, when needed>
+
+[## External Contract]
+<only externally visible input, output, compatibility, or migration behavior>
+
+[## Dependencies]
+<only real dependencies, risks, or coordination requirements>
+
+[## Verification]
+<only when the verification method adds information beyond acceptance>
+```
+
+Keep parent feature issues outcome-facing. Move internal modules, files,
+schemas, migration steps, and implementation sequencing to an engineering
+child issue when they are needed for execution.
 
 ## Engineering Child Issue Template
 
-Use this template when the parent issue must stay product-facing but the work
-still needs engineering execution detail.
+Required semantic fields:
 
-Required fields:
-- `父 Issue / 承接关系`
-- `本次工程目标`
-- `范围边界`
-- `验收标准`
+- parent relationship
+- engineering goal
+- scope boundary
+- acceptance criteria
 
-Recommended fields:
-- `涉及模块 / 契约`
-- `技术约束`
-- `实施要点`
-- `风险 / 依赖`
+Optional sections, rendered only when needed:
 
-Optional fields:
-- `迁移步骤`
-- `回滚方案`
-- `关联设计文档 / PR`
+- affected internal contract
+- technical constraints
+- migration or rollback steps
+- risks or dependencies
 
-Standard template:
+Canonical body:
 
 ```text
-## 🔗 父 Issue / 承接关系
-- 父 Issue：...
-- 本子任务承接的目标：...
+## Parent
+- Parent issue: <clickable issue reference>
+- Contribution: <which parent outcome this task advances>
 
-## 🎯 本次工程目标
-- 这次工程交付要完成什么：...
-- 完成后对父 Issue 有什么支撑：...
+## Goal
+<one engineering result this child issue must deliver>
 
-## 🎯 范围边界
-- 本次要做：...
-- 本次不做：...
+## Scope
+- Include: <owned execution boundary>
+- Exclude: <boundary delegated elsewhere>
 
-## 🧩 涉及模块 / 契约
-- 涉及的服务 / 模块 / 仓库：...
-- 涉及的内部契约 / 数据结构 / 接口：...
+## Acceptance
+- [ ] <observable or verifiable engineering result>
+- [ ] <second independent result, when needed>
 
-## ⚙️ 技术约束
-- 依赖限制：...
-- 迁移或兼容性要求：...
-- 回滚或降级要求：...
+[## Constraints]
+<only approved internal contracts, dependencies, compatibility, or rollback>
 
-## 🛠 实施要点
-- 主链路或实施步骤：...
-- 需要重点关注的内部约束：...
-
-## ✅ 验收标准
-- [ ] ...
-- [ ] ...
-
-## ⚠️ 风险 / 依赖
-- 风险点：...
-- 依赖项：...
-- 需要协调的事项：...
-
-## 📎 其他信息
-- 迁移步骤：...
-- 回滚方案：...
-- 关联设计文档 / PR：...
+[## Verification]
+<checks specific to this engineering task>
 ```
 
-Child issue default rules:
+Do not turn a child issue into a repository-wide implementation plan. Split it
+again when it contains independent delivery and rollback units.
 
-- Default this template to `delivery_task` or `implementation_task`.
-- Default audience is `engineering_only`.
-- Internal module, contract, and execution detail are allowed when they are
-  necessary to make the engineering task actionable.
-- Keep the child issue scoped to one execution layer; if it turns into a broad
-  program of work, split again instead of piling unrelated implementation
-  details into one engineering issue.
+## Task or Maintenance Template
 
-## Task / Maintenance Template
+Required semantic fields:
 
-Required fields:
-- `背景 / 目的`
-- `本次范围`
-- `完成标准`
+- concrete problem or maintenance pressure
+- scope
+- done criteria
+- verification
 
-Recommended fields:
-- `影响模块`
-- `风险 / 注意事项`
-- `验证方式`
+Optional sections, rendered only when material:
 
-Optional fields:
-- `兼容性说明`
-- `回滚说明`
-- `关联 Issue / 需求编号`
+- risk or dependency
+- compatibility or rollback consequence
+- related issue
 
-Standard template:
+Canonical body:
 
 ```text
-## 📦 影响模块
-- 涉及的服务 / 模块 / 仓库：...
-- 涉及的文件 / 流程 / 工具：...
+## Problem
+<current concrete problem or maintenance pressure>
 
-## 🎯 背景 / 目的
-- 为什么现在要做：...
-- 当前阻塞 / 低效 / 技术债：...
+## Scope
+- <primary change>
+- <meaningful exclusion, only when needed>
 
-## 🛠 本次范围
-- 本次要做：...
-- 本次不做：...
+## Done
+- [ ] <observable completion condition>
+- [ ] <second independent condition, when needed>
 
-## ✅ 完成标准
-- [ ] ...
-- [ ] ...
+## Verification
+- <check that proves completion>
 
-## 🧪 验证方式
-- 手工验证：...
-- 自动化测试：...
-
-## 📎 其他信息
-- 风险 / 注意事项：...
-- 回滚说明：...
+[## Risks]
+<only real risk, dependency, compatibility, or rollback information>
 ```
 
-## Investigation / Spike Template
+Do not add an `Impact Module` or `Other Information` section by default. Paths,
+tools, links, logs, metrics, compatibility, and rollback belong only when they
+change execution or review decisions.
 
-Required fields:
-- `研究问题`
-- `背景 / 动机`
-- `预期产出`
-- `退出条件 / 范围边界`
+## Investigation or Spike Template
 
-Recommended fields:
-- `备选方案 / 假设`
-- `验证方式`
+Required semantic fields:
 
-Optional fields:
-- `相关链接`
-- `风险说明`
-- `下阶段建议`
+- research question
+- context and uncertainty
+- expected output
+- exit condition and scope boundary
 
-Template:
+Optional sections, rendered only when useful:
+
+- hypotheses or alternatives
+- verification method
+- next decision
+
+Canonical body:
 
 ```text
-## ❓ 研究问题
-- 本次要回答什么问题：...
-- 当前最大不确定性：...
+## Question
+<decision or uncertainty this investigation must resolve>
 
-## 🧩 背景 / 动机
-- 为什么现在要做这次研究 / 预研：...
-- 当前已知限制或前提：...
+## Context
+<why the answer is needed and what is currently unknown>
 
-## 🧪 预期产出
-- 需要形成的结论：...
-- 需要交付的产物：...
+## Deliverables
+- <decision, comparison, prototype, or evidence to produce>
 
-## 🎯 退出条件 / 范围边界
-- 本次要确认：...
-- 本次不做：...
-- 什么情况下可以结束本次研究：...
+## Exit Criteria
+- <what must be known or demonstrated to stop>
+- Out of scope: <boundary that prevents open-ended research>
 
-## 📎 其他信息
-- 备选方案 / 假设：...
-- 验证方式：...
-- 相关链接：...
-- 风险说明：...
-- 下阶段建议：...
+[## Hypotheses]
+<only credible alternatives or assumptions to test>
+
+[## Verification]
+<how evidence will be collected or compared>
 ```
 
-## Template Validation Rule
+## Examples
 
-- Resolve `template_family` and `issue_level` first.
-- Resolve and validate the issue title prefix from `change_type` before create.
-- Validate semantic required fields against the selected template family, not
-  against a single fixed heading set.
-- Validate issue quality as well as field presence: clear problem statement,
-  explicit target outcome, bounded scope, testable acceptance, and
-  audience-appropriate detail.
-- If template-required fields are missing:
-  - `gate_mode=required` => `BLOCK`
-  - `gate_mode=recommended` => `PASS_WITH_WARNING`
-- Validation output must include the resolved `template_family` and
-  `issue_level`.
-- Validation output must distinguish:
-  - `title_prefix`
-  - `title_prefix_warnings`
-  - `missing_required_fields`
-  - `missing_recommended_fields`
-  - `overspecification_warnings`
-- For `feat|integration|workflow|api` work that is clearly backend-, AI-,
-  workflow-, or integration-heavy, missing `技术约束` or `验证方式` should emit
-  an explicit warning.
-- For `spike|research|proposal|investigation` work, missing a concrete
-  `预期产出` or `退出条件 / 范围边界` must be treated as a required-field
-  failure, not a soft omission.
-- If a `parent_requirement` draft contains speculative classes, files, routes,
-  tables, workers, or unapproved architecture splits, emit an
-  `overspecification_warning` and rewrite before presentation.
-- If `child_issue_needed=yes`, validate that:
-  - the parent issue stays product-facing
-  - the child issue carries the necessary engineering detail
-  - the parent/child relationship is explicit
-- Validation output must list missing fields explicitly.
+### Compact Maintenance Issue
 
-## Template-to-Command Mapping Examples
+```text
+docs: require code-local skeletons before non-trivial builds
 
-Use the resolved `template_family` to select template and command payload
-automatically. These examples are the standard drafting shape unless a
-repository-specific template overrides them.
+## Problem
+`workflow-build` accepts prose-only skeletons, so an agent can start a
+non-trivial implementation before exposing its control flow and invariants in
+the code context.
 
-### `feat|integration|workflow|api` => Feature / Change Template => create
+## Scope
+- Require a code-local skeleton before non-trivial implementation.
+- Keep simple edits exempt and preserve the direct-implementation rule.
 
-```bash
-gh issue create \
-  --title "feat: <short feature title>" \
-  --body "$(cat <<'EOF'
-## 📦 影响模块
-- 涉及的服务 / 模块 / 仓库：<module>
-- 涉及的接口 / 数据结构：<contract or n/a>
-- 是否影响现有兼容性：<yes/no + note>
+## Done
+- [ ] The workflow distinguishes code-local skeletons from prose-only exceptions.
+- [ ] The default prompt and skill version describe the same requirement.
 
-## 🧩 背景 / 场景
-- 为什么要做这个需求：<reason>
-- 当前遇到什么问题：<problem>
-- 现有替代方案：<alternative or n/a>
-- 不做的影响：<impact>
-
-## ✨ 需求描述
-1. 当 <trigger> 时，系统应 <behavior>
-2. 系统应 <expected behavior>
-3. 若出现异常或依赖不可用，系统应 <fallback>
-
-## 🎯 范围边界
-- 本次要做：<in scope>
-- 本次不做：<out of scope>
-
-## ⚙️ 技术约束
-- 依赖限制：<constraints or n/a>
-- 性能 / 时延要求：<requirements or n/a>
-- 数据来源 / 外部服务约束：<dependencies or n/a>
-- 回滚或降级要求：<rollback plan or n/a>
-
-## ✅ 验收标准
-- [ ] 功能场景一：<scenario 1>
-- [ ] 功能场景二：<scenario 2>
-- [ ] 兼容性要求：<compatibility>
-- [ ] 回归范围：<regression scope>
-- [ ] 异常 / 降级行为：<failure handling>
-
-## 🧪 验证方式
-- 手工验证：<manual check>
-- 自动化测试：<tests or n/a>
-- 日志 / 指标 / 观测点：<signals or n/a>
-
-## 📎 其他信息
-- 接口文档：<link or n/a>
-- 设计稿：<link or n/a>
-- 关联 Issue / 需求编号：<id or n/a>
-- 风险说明：<risk or n/a>
-EOF
-)"
+## Verification
+- Check the skill, metadata, and negative fixture for the same skeleton rule.
 ```
 
-```bash
-glab issue create \
-  --title "feat: <short feature title>" \
-  --description "$(cat <<'EOF'
-## 📦 影响模块
-- 涉及的服务 / 模块 / 仓库：<module>
-- 涉及的接口 / 数据结构：<contract or n/a>
-- 是否影响现有兼容性：<yes/no + note>
+This issue does not need module inventories, compatibility rows, metrics,
+rollback text, or an `Other Information` section.
 
-## 🧩 背景 / 场景
-- 为什么要做这个需求：<reason>
-- 当前遇到什么问题：<problem>
-- 现有替代方案：<alternative or n/a>
-- 不做的影响：<impact>
+### Detailed Bug Issue
 
-## ✨ 需求描述
-1. 当 <trigger> 时，系统应 <behavior>
-2. 系统应 <expected behavior>
-3. 若出现异常或依赖不可用，系统应 <fallback>
+```text
+bugfix: require independent review before tutorial checkpoint commits
 
-## 🎯 范围边界
-- 本次要做：<in scope>
-- 本次不做：<out of scope>
+## Problem
+The tutorial build workflow lets the author treat its own self-check as an
+acceptance verdict and continue to the next checkpoint.
 
-## ⚙️ 技术约束
-- 依赖限制：<constraints or n/a>
-- 性能 / 时延要求：<requirements or n/a>
-- 数据来源 / 外部服务约束：<dependencies or n/a>
-- 回滚或降级要求：<rollback plan or n/a>
+## Reproduction
+1. Build one tutorial step.
+2. Run the build skill's self-check.
+3. Continue to the next step without an independent review verdict.
 
-## ✅ 验收标准
-- [ ] 功能场景一：<scenario 1>
-- [ ] 功能场景二：<scenario 2>
-- [ ] 兼容性要求：<compatibility>
-- [ ] 回归范围：<regression scope>
-- [ ] 异常 / 降级行为：<failure handling>
+## Expected
+A checkpoint commit requires an independent review pass.
 
-## 🧪 验证方式
-- 手工验证：<manual check>
-- 自动化测试：<tests or n/a>
-- 日志 / 指标 / 观测点：<signals or n/a>
+## Actual
+The build agent can continue after its own self-check.
 
-## 📎 其他信息
-- 接口文档：<link or n/a>
-- 设计稿：<link or n/a>
-- 关联 Issue / 需求编号：<id or n/a>
-- 风险说明：<risk or n/a>
-EOF
-)"
+## Acceptance
+- [ ] Build stops after one step and requests review.
+- [ ] Checkpoint commit requires review-pass evidence.
+- [ ] The next step starts only after the review gate passes.
 ```
 
-### `fix|bugfix|hotfix|incident` => Bug / Incident Template => create
+This bug is longer because reproduction and expected/actual behavior are
+decision-critical, not because every optional template field was rendered.
+
+## Anti-Patterns
+
+| Pattern | Avoid | Prefer |
+|---|---|---|
+| Repeated background | Three bullets restating the same limitation and risk | One concrete current problem |
+| Module inventory | Paths and repositories already obvious from scope | Omit, or keep one affected contract when it changes ownership |
+| Empty optional data | `日志：n/a`, `设计稿：n/a`, `指标：n/a` | Omit the entire section |
+| Scope as implementation plan | File-by-file edits and speculative helper names | Delivery boundary and meaningful exclusion |
+| Acceptance as diff list | "Update file X" and "rename function Y" | Observable behavior or reviewable result |
+| Verification duplication | Restate every acceptance checkbox | Name the check or command that proves them |
+| Parent over-specification | Internal modules, schemas, and sequencing in a product issue | Keep the parent outcome-facing and create a child issue |
+
+## Template Validation
+
+Before accepting a draft:
+
+- [ ] One template family and one canonical body schema are used.
+- [ ] The title prefix matches `change_type`.
+- [ ] The short title names a concrete problem or outcome, or a concrete action
+      and object.
+- [ ] Every required semantic field is supported by user, issue, plan, diff, or
+      repository evidence.
+- [ ] Every supporting fact appears in one owning section.
+- [ ] Acceptance criteria describe observable completion.
+- [ ] Verification describes proof rather than repeating acceptance.
+- [ ] Empty optional sections, `n/a` rows, and placeholder bullets are absent.
+- [ ] Parent issues contain no unnecessary internal implementation detail.
+- [ ] Unknown required facts remain TODOs in dry-run and block confirmed
+      creation until resolved.
+
+## Template-to-Command Mapping
+
+Render the selected canonical template once into `<issue-body-file>`. GitHub
+and GitLab commands consume that same body; command examples must not redefine
+the issue schema.
+
+GitHub:
 
 ```bash
-gh issue create \
-  --title "<resolved-prefix>: <short bug title>" \
-  --body "$(cat <<'EOF'
-## 🐛 问题概述
-<problem summary>
-
-## 🔁 复现步骤
-1. <step 1>
-2. <step 2>
-3. <step 3>
-
-## ✅ 预期结果
-<expected>
-
-## ❌ 实际结果
-<actual>
-
-## 🎯 影响范围 / 严重程度
-- 影响范围：<scope>
-- 严重程度：<severity>
-- 是否可绕过：<yes/no + workaround>
-
-## 🧪 修复验收
-- 修复完成的判断标准：<done criteria>
-- 需要回归的场景：<regression scope>
-
-## 📎 其他信息
-- 日志：<log or n/a>
-- 截图：<link or n/a>
-- 环境信息：<env>
-- 输入样例 / 文件类型 / 任务 ID：<sample or n/a>
-EOF
-)"
+gh issue create -R <owner>/<repo> \
+  --title "<resolved-prefix>: <concrete title>" \
+  --body-file <issue-body-file>
 ```
 
+GitLab:
+
 ```bash
-glab issue create \
-  --title "<resolved-prefix>: <short bug title>" \
-  --description "$(cat <<'EOF'
-## 🐛 问题概述
-<problem summary>
-
-## 🔁 复现步骤
-1. <step 1>
-2. <step 2>
-3. <step 3>
-
-## ✅ 预期结果
-<expected>
-
-## ❌ 实际结果
-<actual>
-
-## 🎯 影响范围 / 严重程度
-- 影响范围：<scope>
-- 严重程度：<severity>
-- 是否可绕过：<yes/no + workaround>
-
-## 🧪 修复验收
-- 修复完成的判断标准：<done criteria>
-- 需要回归的场景：<regression scope>
-
-## 📎 其他信息
-- 日志：<log or n/a>
-- 截图：<link or n/a>
-- 环境信息：<env>
-- 输入样例 / 文件类型 / 任务 ID：<sample or n/a>
-EOF
-)"
+glab issue create -R <group>/<repo> \
+  --title "<resolved-prefix>: <concrete title>" \
+  --description "$(cat <issue-body-file>)"
 ```
 
-### `chore|docs|refactor|test|tooling|config` => Task / Maintenance Template => create
+Existing issue commit bridge:
 
 ```bash
-gh issue create \
-  --title "<resolved-prefix>: <short task title>" \
-  --body "$(cat <<'EOF'
-## 📦 影响模块
-- 涉及的服务 / 模块 / 仓库：<module>
-- 涉及的文件 / 流程 / 工具：<scope>
-- 是否影响现有兼容性：<yes/no + note>
-
-## 🎯 背景 / 目的
-- 为什么现在要做：<reason>
-- 当前阻塞 / 低效 / 技术债：<problem>
-
-## 🛠 本次范围
-- 本次要做：<in scope>
-- 本次不做：<out of scope>
-
-## ✅ 完成标准
-- [ ] <done criteria 1>
-- [ ] <done criteria 2>
-
-## 🧪 验证方式
-- 手工验证：<manual check or n/a>
-- 自动化测试：<tests or n/a>
-- 日志 / 指标 / 观测点：<signals or n/a>
-
-## 📎 其他信息
-- 风险 / 注意事项：<risk or n/a>
-- 兼容性说明：<compat note or n/a>
-- 回滚说明：<rollback or n/a>
-- 关联 Issue / 需求编号：<id or n/a>
-EOF
-)"
-```
-
-```bash
-glab issue create \
-  --title "<resolved-prefix>: <short task title>" \
-  --description "$(cat <<'EOF'
-## 📦 影响模块
-- 涉及的服务 / 模块 / 仓库：<module>
-- 涉及的文件 / 流程 / 工具：<scope>
-- 是否影响现有兼容性：<yes/no + note>
-
-## 🎯 背景 / 目的
-- 为什么现在要做：<reason>
-- 当前阻塞 / 低效 / 技术债：<problem>
-
-## 🛠 本次范围
-- 本次要做：<in scope>
-- 本次不做：<out of scope>
-
-## ✅ 完成标准
-- [ ] <done criteria 1>
-- [ ] <done criteria 2>
-
-## 🧪 验证方式
-- 手工验证：<manual check or n/a>
-- 自动化测试：<tests or n/a>
-- 日志 / 指标 / 观测点：<signals or n/a>
-
-## 📎 其他信息
-- 风险 / 注意事项：<risk or n/a>
-- 兼容性说明：<compat note or n/a>
-- 回滚说明：<rollback or n/a>
-- 关联 Issue / 需求编号：<id or n/a>
-EOF
-)"
-```
-
-### `spike|research|proposal|investigation` => Investigation / Spike Template => create
-
-```bash
-gh issue create \
-  --title "proposal: <short investigation title>" \
-  --body "$(cat <<'EOF'
-## ❓ 研究问题
-- 本次要回答什么问题：<question>
-- 当前最大不确定性：<unknown>
-
-## 🧩 背景 / 动机
-- 为什么现在要做这次研究 / 预研：<reason>
-- 当前已知限制或前提：<constraints>
-
-## 🧪 预期产出
-- 需要形成的结论：<expected conclusion>
-- 需要交付的产物：<artifact>
-
-## 🎯 退出条件 / 范围边界
-- 本次要确认：<in scope>
-- 本次不做：<out of scope>
-- 什么情况下可以结束本次研究：<exit condition>
-
-## 📎 其他信息
-- 备选方案 / 假设：<alternatives or hypotheses>
-- 验证方式：<validation>
-- 相关链接：<links or n/a>
-- 风险说明：<risk or n/a>
-- 下阶段建议：<next step or n/a>
-EOF
-)"
-```
-
-```bash
-glab issue create \
-  --title "proposal: <short investigation title>" \
-  --description "$(cat <<'EOF'
-## ❓ 研究问题
-- 本次要回答什么问题：<question>
-- 当前最大不确定性：<unknown>
-
-## 🧩 背景 / 动机
-- 为什么现在要做这次研究 / 预研：<reason>
-- 当前已知限制或前提：<constraints>
-
-## 🧪 预期产出
-- 需要形成的结论：<expected conclusion>
-- 需要交付的产物：<artifact>
-
-## 🎯 退出条件 / 范围边界
-- 本次要确认：<in scope>
-- 本次不做：<out of scope>
-- 什么情况下可以结束本次研究：<exit condition>
-
-## 📎 其他信息
-- 备选方案 / 假设：<alternatives or hypotheses>
-- 验证方式：<validation>
-- 相关链接：<links or n/a>
-- 风险说明：<risk or n/a>
-- 下阶段建议：<next step or n/a>
-EOF
-)"
-```
-
-### Existing Issue => link for commit
-
-```bash
-# gh
+# GitHub
 gh issue comment <issue_number> --body "Linking commit: <sha>"
 ```
 
 ```bash
-# glab
+# GitLab
 glab issue note <issue_number> -m "Linking commit: <sha>"
 ```

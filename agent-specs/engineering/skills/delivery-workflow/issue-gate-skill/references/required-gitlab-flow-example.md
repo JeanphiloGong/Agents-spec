@@ -29,13 +29,14 @@ export GITLAB_HOST=<gitlab-host>
 glab issue list -R <group>/<repo> --search "Cypher retriever" --per-page 20
 glab issue create -R <group>/<repo> \
   --title "feat: 完成 Cypher retriever 首版实现" \
-  --description "<auto-drafted feature template body>"
+  --description "$(cat <issue-body-file>)"
 ```
 
 Expected dry-run outcome:
 
 - no matching open issue is found
-- a feature-template issue draft is ready for confirmation
+- one canonical feature-template body is rendered to `<issue-body-file>` and
+  ready for confirmation
 - the future commit bridge will be ISSUE: #<issue_number>
 
 ## 3. Human Confirmation
@@ -72,9 +73,11 @@ Successful gate output should include:
 - result: PASS
 - reason: existing open issue not found; new issue created successfully
 
-## Platform
-- selected: glab
+## Target
+- selected_platform: glab
 - cli_ready: yes
+- target_repo: <group>/<repo>
+- search_scope: upstream_repo
 
 ## Issue Action
 - action: create

@@ -1,4 +1,4 @@
 interface:
   display_name: "Issue Gate"
-  short_description: "v0.1.22 - Map planned work into traceable acceptance issues"
-  default_prompt: "Use $issue-gate-skill to map approved workflow-plan tasks into issue-backed acceptance work items, emit a Plan Task Issue Mapping before deciding parent-only versus child issues, confirm or create the canonical issue for this tracked change, and produce the commit Refs bridge before commit preparation."
+  short_description: "v0.1.23 - Draft concise, traceable acceptance issues"
+  default_prompt: "Use $issue-gate-skill to find or draft the canonical issue, select the shortest decision-ready fact set, omit empty optional sections, map plan tasks only when supplied, confirm before creation, and emit the commit Refs bridge when requested."
