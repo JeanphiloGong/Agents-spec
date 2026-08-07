@@ -26,15 +26,17 @@ turn the diff into polished prose. Phrases such as "clarify responsibility,"
 "improve consistency," and "strengthen handling" describe desired qualities;
 they do not tell the reader what the commit did.
 
-The five required sections still form a story:
+The four required sections form the durable story. A verified reference extends
+that story when one exists:
 
 ```text
-previous problem -> concrete change -> observable result -> proof -> reference
-       Why              What              Impact       Tests      Refs
+previous problem -> concrete change -> observable result -> proof [-> reference]
+       Why              What              Impact       Tests       [Refs]
 ```
 
-Keep the structure visible. Improve readability by selecting one useful fact
-for each field, not by removing fields or rendering the entire evidence card.
+Keep the core structure visible. Improve readability by selecting one useful
+fact for each rendered field, not by rendering empty optional fields or the
+entire evidence card.
 
 ## Evidence Card
 
@@ -51,7 +53,7 @@ testing_boundary:
   expected: <result observed or asserted, when material>
   prevented: <incorrect behavior that did not occur, when material>
 execution_checks: <commands that ran, results, or skipped-check reason>
-refs: <verified issue/spec/incident/PR, or n/a when allowed>
+refs: <verified issue/spec/incident/PR; omit this key when none applies>
 ```
 
 `testing_boundary` supplies `Tests`. `execution_checks` belongs in CI or the
@@ -84,7 +86,7 @@ a symbol name that is not in the staged diff.
 
 ## Commit Message Format
 
-Use this exact structure:
+Use this exact core structure:
 
 ```text
 <type>(optional-scope): <subject>
@@ -100,16 +102,23 @@ Impact:
 
 Tests:
 - ...
+```
 
+When a real, verified reference exists, append:
+
+```text
 Refs:
 - ...
 ```
 
-This structure is mandatory. Do not add, omit, rename, or duplicate sections.
-When several independent behavior boundaries were tested, list them as
-separate bullets under the single `Tests` section. Use one bullet with one
-sentence in every section by default. Add another bullet only for a separate
-fact required to understand the commit.
+The four-section core is mandatory. Do not add, omit, rename, or duplicate its
+sections. `Refs` is conditional and may appear once after `Tests`; omit the
+entire section when no verified reference exists. Never render an empty `Refs`
+section or fill it with `n/a`, `none`, or another placeholder. When several
+independent behavior boundaries were tested, list them as separate bullets
+under the single `Tests` section. Use one bullet with one sentence in every
+rendered section by default. Add another bullet only for a separate fact
+required to understand the commit.
 
 ## Subject Rules
 
@@ -160,7 +169,7 @@ Assign each fact to one location before writing:
 | `What` | one resulting code, behavior, or document change | call-site counts, assertion lists, impact claims |
 | `Impact` | one observable effect or preserved boundary | repeated state tables, implementation details |
 | `Tests` | covered behavior or boundary and material expected result | commands, pass markers, test-file inventory |
-| `Refs` | verified traceability | extra explanation |
+| `Refs` (conditional) | verified traceability | placeholders, extra explanation |
 | Execution report | commands, pass or fail results, skipped checks | behavior rationale |
 
 State each supporting detail once. Repeat the core behavior only when needed to
@@ -235,8 +244,11 @@ Write natural project language:
 - Record verified decision and context references, not an attachment list.
 - If `issue-gate-skill` returned a `refs_line`, use it directly as the bullet
   content unless repository policy requires another representation.
-- Use `n/a` only when no canonical issue, spec, incident, or PR applies and
-  repository policy permits that fallback.
+- Omit the entire `Refs` section when no canonical issue, spec, incident, or PR
+  applies and repository policy does not require one.
+- If repository policy requires traceability but no verified reference exists,
+  block the commit instead of using a placeholder.
+- Never use `n/a`, `none`, an empty bullet, or similar filler.
 - Never invent a reference.
 
 ## Type Selection
@@ -330,16 +342,13 @@ Impact:
 
 Tests:
 - 环境变量表同时包含 CACHE_URL 的用途、示例值和启动所需说明。
-
-Refs:
-- n/a
 ```
 
 ### Repository-Language Contrasts
 
 The following scenarios are sanitized from recurring language patterns in a
 mature repository history. They teach wording only; this skill keeps its own
-required five-section structure.
+required four-section core and conditional `Refs` rule.
 
 | Section | Avoid | Prefer |
 |---|---|---|
@@ -412,6 +421,11 @@ complete, but the behavior transition is still unclear.
 
 ## Anti-Patterns
 
+| Traceability condition | Avoid | Required behavior |
+|---|---|---|
+| Optional and no verified reference exists. | Append `Refs:` with `n/a`, `none`, or an empty bullet. | Omit the entire `Refs` section. |
+| Required and no verified reference exists. | Use a placeholder so the commit can continue. | Block the commit and report the missing traceability. |
+
 | Evidence | Avoid | Prefer |
 |---|---|---|
 | Rename `restore_response_matrix_extract_status_from_cache`. | `refactor(response-check): 明确已完成缓存恢复职责` | `refactor(response-check): 重命名缓存恢复函数` |
@@ -441,8 +455,8 @@ Before accepting a message, confirm:
 - [ ] The staged diff supports the selected type and scope.
 - [ ] The subject contains a concrete action and real object.
 - [ ] The subject passes all four reader checks.
-- [ ] The message contains exactly one `Why`, `What`, `Impact`, `Tests`, and
-      `Refs` section in that order.
+- [ ] The message contains exactly one `Why`, `What`, `Impact`, and `Tests`
+      section in that order.
 - [ ] `Why` names the previous problem or trigger.
 - [ ] `What` names the actual behavior or structural change.
 - [ ] `Impact` names an observable result or precisely preserved boundary.
@@ -450,7 +464,8 @@ Before accepting a message, confirm:
       result when it is material, or honestly states the unverified boundary.
 - [ ] Commands, pass or fail results, and skipped-check details stay in the
       execution report rather than the commit message.
-- [ ] `Refs` contains only verified traceability or an allowed `n/a` fallback.
+- [ ] `Refs` appears after `Tests` only when it contains verified traceability;
+      otherwise the entire section is absent.
 - [ ] `Why -> What -> Impact` reads as one causal chain.
 - [ ] Each supporting detail appears in its owning location only.
 - [ ] Every section has one bullet unless another independent fact is required.

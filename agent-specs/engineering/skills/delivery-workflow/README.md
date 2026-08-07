@@ -12,7 +12,7 @@ whole package as a ritual sequence.
 | Situation | Use |
 | --- | --- |
 | Planned work needs canonical issue traceability, issue drafts, task-to-issue mapping, or a commit `Refs` bridge. | [`issue-gate-skill`](issue-gate-skill/SKILL.md) |
-| Verified local changes need staging, split decisions, and structured `Why / What / Impact / Tests / Refs` commits. | [`git-commit-skill`](git-commit-skill/SKILL.md) |
+| Verified local changes need staging, split decisions, and structured `Why / What / Impact / Tests` commits with references when available. | [`git-commit-skill`](git-commit-skill/SKILL.md) |
 | One tutorial or learning document checkpoint needs a Git save point with freeze metadata while the document body stays reader-friendly. | [`single-doc-checkpoint-commit-skill`](single-doc-checkpoint-commit-skill/SKILL.md) |
 | One mixed branch needs independent review slices, branches, and one PR/MR per accepted slice. | [`split-pr-publish-skill`](split-pr-publish-skill/SKILL.md) |
 | A GitHub PR or GitLab MR needs evidence-backed findings, a verdict, and optional review publication. | [`pr-mr-review-publish-skill`](pr-mr-review-publish-skill/SKILL.md) |

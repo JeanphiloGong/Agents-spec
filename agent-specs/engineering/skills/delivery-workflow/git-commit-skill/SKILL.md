@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.2.5 - Draft, split, and execute atomic scoped Git commits with verified traceability and behavior-first Why/What/Impact/Tests/Refs bodies. Use when preparing final commits, reviewing commit wording, staging approved files, or enforcing repository commit conventions.
+description: v0.2.6 - Draft, split, and execute atomic scoped Git commits with behavior-first Why/What/Impact/Tests bodies, adding Refs only for verified references. Use when preparing final commits, reviewing commit wording, staging approved files, or enforcing repository commit conventions.
 ---
 
 # Git Commit Skill
@@ -10,7 +10,8 @@ description: v0.2.5 - Draft, split, and execute atomic scoped Git commits with v
 Prepare commit-stage work as a verified, traceable save point. This skill
 decides whether the current diff should be committed, split, or only drafted;
 then it stages only approved in-scope files and writes a repository-quality
-commit message with concrete `Why / What / Impact / Tests / Refs` evidence.
+commit message with concrete `Why / What / Impact / Tests` evidence and a
+`Refs` section only when a real, verified reference exists.
 The sections must tell one causal story without replacing observable changes
 with intent summaries such as "clarify responsibility" or "improve
 consistency." Each supporting detail appears once, in the section that owns
@@ -57,9 +58,11 @@ issue mapping, and use review or CI skills for review/CI failures.
 
 - commit standard: Conventional Commits unless the repository explicitly uses
   another convention
-- commit body format: exact `Why / What / Impact / Tests / Refs`
-- section rule: each required body section appears exactly once; multiple
-  independent tested boundaries are bullets under the single `Tests` section
+- commit body format: exact `Why / What / Impact / Tests`, followed by `Refs`
+  only when a real, verified reference exists
+- section rule: each required body section appears exactly once; optional
+  `Refs` appears at most once; multiple independent tested boundaries are
+  bullets under the single `Tests` section
 - evidence rule: derive the subject and every section from the user request,
   issue, staged diff, or verification results
 - density rule: use one bullet with one sentence per section by default; add a
@@ -80,7 +83,7 @@ issue mapping, and use review or CI skills for review/CI failures.
 - staging policy: stage only approved, in-scope files
 - unrelated changes: ignore by default
 - mixed authorship files: ask once before staging
-- low-risk traceability fallback: `Refs: - n/a`
+- optional traceability fallback: omit the entire `Refs` section
 
 ## The Operating Loop
 
@@ -95,7 +98,8 @@ issue mapping, and use review or CI skills for review/CI failures.
      mixed-authorship files.
    - When repository language is unclear, sample recent non-merge commits for
      concrete verbs, background phrasing, behavior vocabulary, and testing
-     language. Do not replace this skill's required five-section structure.
+     language. Do not replace this skill's required four-section core or its
+     conditional `Refs` rule.
    - Treat the save-point order as:
      `worktree -> issue -> verified slice -> issue-gate -> commit`.
 3. Run traceability gate when required.
@@ -131,15 +135,18 @@ issue mapping, and use review or CI skills for review/CI failures.
    - Omit internal fields, files, helper names, and call-site counts that the
      diff already shows. Keep an identifier only when it materially improves
      recognition under the language rule.
-   - Render the exact section order: `Why`, `What`, `Impact`, `Tests`, `Refs`.
-   - Give each section one job: reason, change, effect, proof, or reference.
+   - Render the exact core section order: `Why`, `What`, `Impact`, `Tests`.
+     Append `Refs` only when verified traceability exists.
+   - Give each rendered section one job: reason, change, effect, proof, or
+     reference.
      Do not repeat tests, call-site counts, assertions, or state tables across
      sections.
    - In `Tests`, name the behavior or boundary covered. Add the expected result
      or prevented failure when that is the important regression signal. Do not
      write a command, `PASS`, or "added a test" there.
    - Make the sections read as one chain: previous problem -> implemented
-     change -> observable result or preserved boundary -> proof -> reference.
+     change -> observable result or preserved boundary -> proof, followed by a
+     reference only when one exists.
 7. Execute the selected path.
    - For `draft_only` or `split_only`, return the draft or split plan without
      staging.
@@ -159,8 +166,9 @@ issue mapping, and use review or CI skills for review/CI failures.
   file or require a narrower patch.
 - If `issue-gate-skill` returns `BLOCK`, stop commit execution and report the
   blocker.
-- If traceability is optional and no canonical issue applies, use
-  `Refs: - n/a`; do not invent an issue.
+- If traceability is optional and no verified issue, spec, incident, or PR
+  applies, omit the entire `Refs` section; do not invent a reference or render
+  a placeholder.
 - If the primary action or object cannot be named from the staged diff, inspect
   again instead of substituting an intent phrase.
 - If a precise identifier makes the subject long or hard to read, use the
@@ -185,8 +193,9 @@ issue mapping, and use review or CI skills for review/CI failures.
 | Rationalization | Reality |
 |---|---|
 | "All the files are already dirty, so staging everything is fastest." | Dirty is not the same as in scope. Stage only approved files for the current save point. |
-| "The issue is obvious, so I can write a plausible Refs line." | Traceability must come from `issue-gate-skill`, repository evidence, or `n/a`; never invent issue links. |
-| "This is just docs, so a one-line commit is fine." | Repository history still needs Why, What, Impact, Tests, and Refs. |
+| "The issue is obvious, so I can write a plausible Refs line." | Traceability must come from `issue-gate-skill`, repository evidence, or explicit user input. If it is optional and absent, omit `Refs`. |
+| "A fixed template is easier to validate, so an empty Refs needs n/a." | A placeholder records template administration, not project knowledge. Keep the traceability check, but omit the section when no reference exists. |
+| "This is just docs, so a one-line commit is fine." | Repository history still needs Why, What, Impact, and Tests; add Refs only for a real reference. |
 | "Clarify responsibility summarizes a rename." | Intent is not an observable change. Name the renamed object, and use the real identifier when it improves recognition. |
 | "The body can report that the change improves consistency." | Broad quality claims hide behavior. State the previous and resulting behavior or the exact boundary that stayed unchanged. |
 | "More identifiers and state values make the message more concrete." | Detail is useful only in its owning section. Prefer the shortest established project terms that preserve meaning. |
@@ -201,7 +210,7 @@ issue mapping, and use review or CI skills for review/CI failures.
 ## Red Flags
 
 - `git add .` or broad staging appears while unrelated dirty files exist.
-- The commit body lacks one of `Why`, `What`, `Impact`, `Tests`, or `Refs`.
+- The commit body lacks one of `Why`, `What`, `Impact`, or `Tests`.
 - The same required section appears more than once.
 - The subject names an intention or quality such as "明确职责", "优化逻辑",
   "提升一致性", or "clarify behavior" without naming the staged action.
@@ -218,7 +227,8 @@ issue mapping, and use review or CI skills for review/CI failures.
   preserved boundary.
 - `Impact` repeats a state-by-state result table for a behavior-preserving
   refactor.
-- `Refs` names an issue that was not verified or supplied.
+- `Refs` is empty, contains `n/a` or `none`, or names a reference that was not
+  verified or supplied.
 - Independent feature, refactor, formatting, dependency, or generated-file
   changes are bundled together for speed.
 - Tests are marked as "not requested" instead of giving a real operational
@@ -238,8 +248,9 @@ issue mapping, and use review or CI skills for review/CI failures.
 - [ ] The subject uses natural project language and contains no coined noun
       stack.
 - [ ] `Why -> What -> Impact` forms a factual cause-and-result chain.
-- [ ] Commit message has exactly one `Why`, `What`, `Impact`, `Tests`, and
-      `Refs` section in that order.
+- [ ] Commit message has exactly one `Why`, `What`, `Impact`, and `Tests`
+      section in that order; `Refs` appears after `Tests` only when verified
+      traceability exists.
 - [ ] Every claim is grounded in the request, issue, staged diff, or tests.
 - [ ] Each supporting detail appears in only one owning section, with one
       bullet per section unless a second independent fact is necessary.
@@ -249,7 +260,8 @@ issue mapping, and use review or CI skills for review/CI failures.
 - [ ] Internal identifiers appear only when they carry public contract,
       change-object, or state-transition meaning.
 - [ ] Traceability is verified through `issue-gate-skill`, repository evidence,
-      explicit user input, or `Refs: - n/a`.
+      or explicit user input; when optional and absent, the message omits
+      `Refs` entirely.
 - [ ] Required pre-commit hygiene checks from
       `references/commit-execution-policy.md` were run or explicitly blocked.
 - [ ] Execution result reports commit hash, test status, and remaining
@@ -271,7 +283,7 @@ issue mapping, and use review or CI skills for review/CI failures.
 
 ## Commit Message
 - subject:
-- refs:
+- refs: <omit this line when no verified reference exists>
 - preview:
 
 ## Execution Result
@@ -288,8 +300,11 @@ issue mapping, and use review or CI skills for review/CI failures.
   confirmation.
 - Do not continue to commit execution when `issue-gate-skill` returns `BLOCK`.
 - Do not write single-line commit messages.
-- Do not duplicate body sections; `Why`, `What`, `Impact`, `Tests`, and `Refs`
-  must each appear exactly once.
+- Do not duplicate body sections; `Why`, `What`, `Impact`, and `Tests` must each
+  appear exactly once, while `Refs` appears at most once when a verified
+  reference exists.
+- Do not render an empty `Refs` section or use `n/a`, `none`, or another
+  placeholder as traceability.
 - Do not create a second `Tests` section for another command; add another
   bullet under the existing `Tests` section.
 - Do not squash independent save points into one broad commit merely for speed.

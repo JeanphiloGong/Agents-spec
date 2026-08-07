@@ -118,7 +118,8 @@
 - Ask for missing requirements before writing.
 - Provide outcome-focused updates: deliverables, risks, next steps, support needed.
 - Do not auto-stage unrelated changes.
-- Keep commits in full template format (Why/What/Impact/Tests/Refs).
+- Keep `Why/What/Impact/Tests` in every structured commit body. Add `Refs`
+  only when a real, verified reference exists.
 
 ## Quality Bar
 - Every change must be explainable in one sentence.
