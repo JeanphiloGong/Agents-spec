@@ -118,8 +118,9 @@
 - Ask for missing requirements before writing.
 - Provide outcome-focused updates: deliverables, risks, next steps, support needed.
 - Do not auto-stage unrelated changes.
-- Keep `Why/What/Impact/Tests` in every structured commit body. Add `Refs`
-  only when a real, verified reference exists.
+- Keep `Why/What` in every structured commit body. Add `Impact` only for an
+  independent effect or preserved boundary, `Verification` only for actual
+  result-bearing evidence, and `Refs` only for a real, verified reference.
 
 ## Quality Bar
 - Every change must be explainable in one sentence.
