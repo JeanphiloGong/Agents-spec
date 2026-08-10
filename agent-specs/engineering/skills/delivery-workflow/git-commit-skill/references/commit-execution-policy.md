@@ -5,8 +5,8 @@ message template.
 
 This policy intentionally follows
 `development-skill-pack/supporting-skills/git-workflow-and-versioning`.
-`commit-message-standard.md` is only the source of truth for the final
-`Why / What / Impact / Tests / Refs` message format.
+`commit-message-standard.md` is only the source of truth for the required
+`Why / What` core and conditional `Impact / Verification / Refs` sections.
 
 ## Default Execution Rule
 
@@ -73,8 +73,8 @@ discipline still applies when a team uses another branching model.
 - If the gate returns `BLOCK`, stop commit output and report the blocker.
 - If the gate returns `refs_line`, use it in `Refs` unless the repository has a
   stricter traceability rule.
-- If no issue requirement is found and the change is low risk, use
-  `Refs: n/a`.
+- If traceability is optional and no verified reference applies, omit the
+  entire `Refs` section.
 
 ## Atomic Commit Boundary Rules
 
@@ -170,8 +170,8 @@ Before every executed commit:
 2. Check the staged diff for obvious secrets or credentials.
 3. Run the most relevant tests or checks for the staged change.
 4. If tests/checks are not run, record the operational reason in the execution
-   report and state the unverified behavior boundary honestly in `Tests`; do
-   not invent a passing result.
+   report and omit `Verification`; do not invent a passing result or render a
+   placeholder section.
 5. Confirm generated files, lockfiles, snapshots, and schema outputs are
    expected by the repository before including them.
 
@@ -196,11 +196,11 @@ For each commit slice:
 2. Confirm the slice is one logical change and satisfies the size guidance.
 3. Stage only those files.
 4. Run pre-commit hygiene.
-5. Write the final commit message using `commit-message-standard.md`; keep
-   routine commands and pass or fail results in the execution report.
+5. Write the final commit message using `commit-message-standard.md`; keep raw
+   commands and detailed pass or fail output in the execution report.
 6. Run `git commit -F <file>`.
-7. Report commit hash, staged scope, tests, `Refs`, and remaining unstaged
-   scope.
+7. Report commit hash, staged scope, tests, traceability status, and remaining
+   unstaged scope.
 
 If multiple commits are required, repeat these steps one slice at a time and
 show the remaining unstaged scope after each commit.

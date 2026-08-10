@@ -1,6 +1,6 @@
 ---
 name: single-doc-checkpoint-commit-skill
-description: v0.1.0 - Commit exactly one tutorial or learning document checkpoint with structured freeze metadata. Use when a single Markdown learning document has reached one verified Freeze/Checkpoint and the document body should stay reader-friendly while Pressure/Naive/Break/Change/Check/Freeze/Still-lacks/Next are recorded in the Git commit message.
+description: v0.1.1 - Commit exactly one tutorial or learning document checkpoint with structured freeze metadata. Use when a single Markdown learning document has reached one verified Freeze/Checkpoint and the document body should stay reader-friendly while Pressure/Naive/Break/Change/Check/Freeze/Still-lacks/Next are recorded in the Git commit message.
 ---
 
 # Single Doc Checkpoint Commit Skill
@@ -169,9 +169,8 @@ Next:
 - ...
 ```
 
-Do not use the normal `Why / What / Impact / Tests / Refs` body for this
-skill. The checkpoint body is the source of truth for learning-history
-traceability.
+Do not use the normal `git-commit-skill` body for this skill. The checkpoint
+body is the source of truth for learning-history traceability.
 
 ## Common Rationalizations
 
@@ -244,7 +243,7 @@ traceability.
 - Do not stage code or generated files.
 - Do not use `git add .`.
 - Do not write a one-line checkpoint commit.
-- Do not use `Why / What / Impact / Tests / Refs` for this skill.
+- Do not use the normal `git-commit-skill` body for this skill.
 - Do not commit when required checkpoint fields are missing.
 - Do not let internal tutorial fields leak into public prose as a workaround
   for a weak commit message.

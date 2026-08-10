@@ -1,6 +1,6 @@
 ---
 name: git-commit-skill
-description: v0.2.5 - Draft, split, and execute atomic scoped Git commits with verified traceability and behavior-first Why/What/Impact/Tests/Refs bodies. Use when preparing final commits, reviewing commit wording, staging approved files, or enforcing repository commit conventions.
+description: v0.2.8 - Draft, split, and execute atomic scoped Git commits with required behavior-first Why/What and conditional Impact/Verification/Refs evidence. Use when preparing final commits, reviewing commit wording, staging approved files, or enforcing repository commit conventions.
 ---
 
 # Git Commit Skill
@@ -10,7 +10,8 @@ description: v0.2.5 - Draft, split, and execute atomic scoped Git commits with v
 Prepare commit-stage work as a verified, traceable save point. This skill
 decides whether the current diff should be committed, split, or only drafted;
 then it stages only approved in-scope files and writes a repository-quality
-commit message with concrete `Why / What / Impact / Tests / Refs` evidence.
+commit message with a concrete `Why / What` core. It adds `Impact`,
+`Verification`, and `Refs` only when each section has independent evidence.
 The sections must tell one causal story without replacing observable changes
 with intent summaries such as "clarify responsibility" or "improve
 consistency." Each supporting detail appears once, in the section that owns
@@ -57,9 +58,10 @@ issue mapping, and use review or CI skills for review/CI failures.
 
 - commit standard: Conventional Commits unless the repository explicitly uses
   another convention
-- commit body format: exact `Why / What / Impact / Tests / Refs`
-- section rule: each required body section appears exactly once; multiple
-  independent tested boundaries are bullets under the single `Tests` section
+- commit body format: exact `Why / What`, followed in order by `Impact`,
+  `Verification`, and `Refs` only when each conditional section has evidence
+- section rule: `Why` and `What` appear exactly once; each conditional section
+  appears at most once, with multiple verification results listed as bullets
 - evidence rule: derive the subject and every section from the user request,
   issue, staged diff, or verification results
 - density rule: use one bullet with one sentence per section by default; add a
@@ -67,9 +69,12 @@ issue mapping, and use review or CI skills for review/CI failures.
 - language rule: default every section to behavior-level prose; keep an
   internal identifier only when it is a public contract, the direct change
   object, or necessary to distinguish a state transition
-- tests rule: state the behavior or boundary covered and add the expected
-  result when it is material; keep commands and pass or fail results in the
-  execution report
+- impact rule: state the post-merge observable effect, compatibility result,
+  or explicitly preserved boundary; do not describe how the change was
+  verified
+- verification rule: pair every recorded check, condition, or scenario with an
+  observed result; allow concise suite counts, but keep raw commands and
+  `PASS:` markers in the execution report
 - execution mode: full commit execution for normal commit-stage work
 - split policy: atomic save-point commits, based on
   `commit-execution-policy.md`
@@ -80,7 +85,23 @@ issue mapping, and use review or CI skills for review/CI failures.
 - staging policy: stage only approved, in-scope files
 - unrelated changes: ignore by default
 - mixed authorship files: ask once before staging
-- low-risk traceability fallback: `Refs: - n/a`
+- optional impact fallback: omit `Impact` when it adds no consequence,
+  compatibility fact, or preserved boundary beyond `What`
+- optional verification fallback: omit `Verification` when no useful result
+  evidence exists and report the operational reason after execution
+- optional traceability fallback: omit the entire `Refs` section
+
+## Conditional Impact And Verification
+
+| Section | Write | Do not write |
+|---|---|---|
+| `Impact` | Post-merge observable effects, compatibility, and explicitly preserved boundaries | Test commands, test files, or verification steps |
+| `Verification` | Actual suite outcomes or checked conditions paired with observed results | Bare coverage inventories, raw commands, `PASS:` prefixes, or repeated `Impact` |
+
+Render either section only when it remains useful by itself. `Impact` must add
+a consequence beyond `What`; `Verification` must add evidence beyond the
+change claim. If a section only repeats another section or fills the template,
+omit it.
 
 ## The Operating Loop
 
@@ -95,7 +116,8 @@ issue mapping, and use review or CI skills for review/CI failures.
      mixed-authorship files.
    - When repository language is unclear, sample recent non-merge commits for
      concrete verbs, background phrasing, behavior vocabulary, and testing
-     language. Do not replace this skill's required five-section structure.
+     language. Do not replace this skill's required `Why / What` core or its
+     conditional section rules.
    - Treat the save-point order as:
      `worktree -> issue -> verified slice -> issue-gate -> commit`.
 3. Run traceability gate when required.
@@ -114,11 +136,10 @@ issue mapping, and use review or CI skills for review/CI failures.
    - Read `references/commit-message-standard.md`.
    - Record the concrete primary action and object from the staged diff.
    - Record the previous behavior or pressure, the resulting behavior or
-     structure, the material impact boundary, the behavior exercised by tests,
-     the checks that actually ran, and verified references.
-   - Keep tested behavior separate from execution evidence: `Tests` explains
-     coverage, while commands and pass or fail results belong in the execution
-     report.
+     structure, any independent impact, useful verification results, the checks
+     that actually ran, and verified references.
+   - Keep concise result evidence in `Verification`; keep raw commands,
+     `PASS:` markers, and skipped-check reasons in the execution report.
    - Select the smallest useful fact for each message section; do not render
      every fact collected in the evidence card.
 6. Write and challenge the subject and body.
@@ -131,15 +152,18 @@ issue mapping, and use review or CI skills for review/CI failures.
    - Omit internal fields, files, helper names, and call-site counts that the
      diff already shows. Keep an identifier only when it materially improves
      recognition under the language rule.
-   - Render the exact section order: `Why`, `What`, `Impact`, `Tests`, `Refs`.
-   - Give each section one job: reason, change, effect, proof, or reference.
+   - Render `Why` and `What` exactly once. Append `Impact`, `Verification`, and
+     `Refs` in that order only when each section has independent evidence.
+   - Give each rendered section one job: reason, change, effect, proof, or
+     reference.
      Do not repeat tests, call-site counts, assertions, or state tables across
      sections.
-   - In `Tests`, name the behavior or boundary covered. Add the expected result
-     or prevented failure when that is the important regression signal. Do not
-     write a command, `PASS`, or "added a test" there.
-   - Make the sections read as one chain: previous problem -> implemented
-     change -> observable result or preserved boundary -> proof -> reference.
+   - In `Verification`, pair every retained check or condition with an observed
+     result. A named suite and total may be concise evidence; a list of
+     components or "covered boundaries" is not.
+   - Make the rendered sections read as one chain: previous problem ->
+     implemented change [-> independent consequence] [-> evidence]
+     [-> reference].
 7. Execute the selected path.
    - For `draft_only` or `split_only`, return the draft or split plan without
      staging.
@@ -148,7 +172,7 @@ issue mapping, and use review or CI skills for review/CI failures.
      `git commit -F <file>`.
 8. Report the save point.
    - Include commit hash when committed.
-   - Include staged scope, traceability status, tests status, and any remaining
+   - Include staged scope, traceability status, checks status, and any remaining
      unstaged scope.
 
 ## Decision Points
@@ -159,16 +183,18 @@ issue mapping, and use review or CI skills for review/CI failures.
   file or require a narrower patch.
 - If `issue-gate-skill` returns `BLOCK`, stop commit execution and report the
   blocker.
-- If traceability is optional and no canonical issue applies, use
-  `Refs: - n/a`; do not invent an issue.
+- If traceability is optional and no verified issue, spec, incident, or PR
+  applies, omit the entire `Refs` section; do not invent a reference or render
+  a placeholder.
 - If the primary action or object cannot be named from the staged diff, inspect
   again instead of substituting an intent phrase.
 - If a precise identifier makes the subject long or hard to read, use the
   established project noun in the subject and leave the identifier to `What`
   or the diff.
-- If a test fact appears in `Why`, `What`, or `Impact`, move the covered
-  behavior to `Tests` unless the test itself is the primary change. Keep the
-  command and result in the execution report.
+- If `Impact` only restates the result already clear from `What`, omit it.
+- If verification evidence is only a raw command, `PASS:` marker, file name,
+  component list, or uncovered claim, omit `Verification` and keep the
+  execution detail in the report.
 - If call-site counts or individual assertions do not change the reader's
   understanding, omit them.
 - If the reason or impact cannot be supported, state the narrow verified
@@ -185,23 +211,22 @@ issue mapping, and use review or CI skills for review/CI failures.
 | Rationalization | Reality |
 |---|---|
 | "All the files are already dirty, so staging everything is fastest." | Dirty is not the same as in scope. Stage only approved files for the current save point. |
-| "The issue is obvious, so I can write a plausible Refs line." | Traceability must come from `issue-gate-skill`, repository evidence, or `n/a`; never invent issue links. |
-| "This is just docs, so a one-line commit is fine." | Repository history still needs Why, What, Impact, Tests, and Refs. |
+| "The issue is obvious, so I can write a plausible Refs line." | Traceability must come from `issue-gate-skill`, repository evidence, or explicit user input. If it is optional and absent, omit `Refs`. |
+| "A fixed template is easier to validate, so an empty Refs needs n/a." | A placeholder records template administration, not project knowledge. Keep the traceability check, but omit the section when no reference exists. |
+| "This is just docs, so a one-line commit is fine." | Repository history still needs Why and What; add conditional sections only for independent evidence. |
 | "Clarify responsibility summarizes a rename." | Intent is not an observable change. Name the renamed object, and use the real identifier when it improves recognition. |
 | "The body can report that the change improves consistency." | Broad quality claims hide behavior. State the previous and resulting behavior or the exact boundary that stayed unchanged. |
 | "More identifiers and state values make the message more concrete." | Detail is useful only in its owning section. Prefer the shortest established project terms that preserve meaning. |
 | "Every discovered fact should appear in the body." | The evidence card is an input filter, not an output checklist. Keep only what a future reader needs. |
 | "The diff is large but it is easier to review as one commit." | Large mixed commits hide intent and rollback boundaries; split unless the change is one inseparable unit. |
-| "Tests are already in the execution report." | The repository requires durable verification evidence in the single Tests section. |
-| "I can add another Tests section for the second command." | Commands stay in the execution report. The body has one Tests section for covered behavior. |
-| "Tests should list the command that passed." | Commands prove execution elsewhere. Commit prose should state the behavior covered and the result when it matters. |
-| "Tests should say that I added regression coverage." | That narrates the test diff. Name the behavior or boundary the coverage protects. |
+| "Verification should list every command that passed." | Commands stay in the execution report. Keep only concise suite outcomes or behavior results that help future readers. |
+| "No Verification section means no checks ran." | Section presence records durable evidence, not execution completeness; the execution report still records checks and omissions. |
 | "Internal names make every section more concrete." | Internal inventory is already visible in the diff. Keep only names that carry contract or state-transition meaning. |
 
 ## Red Flags
 
 - `git add .` or broad staging appears while unrelated dirty files exist.
-- The commit body lacks one of `Why`, `What`, `Impact`, `Tests`, or `Refs`.
+- The commit body lacks `Why` or `What`.
 - The same required section appears more than once.
 - The subject names an intention or quality such as "明确职责", "优化逻辑",
   "提升一致性", or "clarify behavior" without naming the staged action.
@@ -212,19 +237,22 @@ issue mapping, and use review or CI skills for review/CI failures.
 - `Why` restates the subject instead of naming the previous problem or trigger.
 - `Why` explains why a test was added or speculates about a future regression.
 - `What` avoids the actual behavior, structure, identifier, or state value.
-- `What` reports call-site counts or test assertions that belong in the diff or
-  `Tests`.
+- `What` reports call-site counts or assertions that belong in the diff or
+  `Verification`.
 - `Impact` claims a generic benefit instead of an observable result or
   preserved boundary.
 - `Impact` repeats a state-by-state result table for a behavior-preserving
   refactor.
-- `Refs` names an issue that was not verified or supplied.
+- `Impact` repeats `What` without adding an affected user, compatibility fact,
+  or preserved boundary.
+- `Refs` is empty, contains `n/a` or `none`, or names a reference that was not
+  verified or supplied.
 - Independent feature, refactor, formatting, dependency, or generated-file
   changes are bundled together for speed.
-- Tests are marked as "not requested" instead of giving a real operational
-  reason.
-- `Tests` lists commands, `PASS`, test file names, or "added coverage" without
-  naming the behavior or boundary exercised.
+- `Verification` is empty, contains a skipped-check reason, or exists only to
+  satisfy the template.
+- `Verification` lists raw commands, `PASS:` prefixes, files, components, or
+  covered boundaries without a concise observed result.
 - Internal fields, helpers, paths, or call-site counts appear without explaining
   their behavior-level significance.
 
@@ -237,22 +265,26 @@ issue mapping, and use review or CI skills for review/CI failures.
       intended quality.
 - [ ] The subject uses natural project language and contains no coined noun
       stack.
-- [ ] `Why -> What -> Impact` forms a factual cause-and-result chain.
-- [ ] Commit message has exactly one `Why`, `What`, `Impact`, `Tests`, and
-      `Refs` section in that order.
-- [ ] Every claim is grounded in the request, issue, staged diff, or tests.
+- [ ] `Why -> What` forms a factual cause-and-result core; each conditional
+      section adds independent information.
+- [ ] Commit message has exactly one `Why` and `What`; conditional `Impact`,
+      `Verification`, and `Refs` appear at most once in that order.
+- [ ] Every claim is grounded in the request, issue, staged diff, or
+      verification results.
 - [ ] Each supporting detail appears in only one owning section, with one
       bullet per section unless a second independent fact is necessary.
-- [ ] `Tests` states the behavior or boundary exercised and includes the
-      expected result when it is material; commands and results stay in the
-      execution report.
+- [ ] `Impact` appears only when it adds an independent consequence,
+      compatibility fact, or preserved boundary.
+- [ ] `Verification` appears only when it records an actual suite outcome or
+      checked condition with an observed result.
 - [ ] Internal identifiers appear only when they carry public contract,
       change-object, or state-transition meaning.
 - [ ] Traceability is verified through `issue-gate-skill`, repository evidence,
-      explicit user input, or `Refs: - n/a`.
+      or explicit user input; when optional and absent, the message omits
+      `Refs` entirely.
 - [ ] Required pre-commit hygiene checks from
       `references/commit-execution-policy.md` were run or explicitly blocked.
-- [ ] Execution result reports commit hash, test status, and remaining
+- [ ] Execution result reports commit hash, checks status, and remaining
       unstaged scope.
 
 ## Output Format
@@ -271,13 +303,13 @@ issue mapping, and use review or CI skills for review/CI failures.
 
 ## Commit Message
 - subject:
-- refs:
+- refs: <omit this line when no verified reference exists>
 - preview:
 
 ## Execution Result
 - committed: yes | no
 - commit_hash:
-- tests_status:
+- checks_status:
 - notes:
 ```
 
@@ -288,10 +320,11 @@ issue mapping, and use review or CI skills for review/CI failures.
   confirmation.
 - Do not continue to commit execution when `issue-gate-skill` returns `BLOCK`.
 - Do not write single-line commit messages.
-- Do not duplicate body sections; `Why`, `What`, `Impact`, `Tests`, and `Refs`
-  must each appear exactly once.
-- Do not create a second `Tests` section for another command; add another
-  bullet under the existing `Tests` section.
+- Do not duplicate body sections; `Why` and `What` must each appear exactly
+  once, while `Impact`, `Verification`, and `Refs` appear at most once when
+  supported.
+- Do not render an empty conditional section or use `n/a`, `none`, or another
+  placeholder.
 - Do not squash independent save points into one broad commit merely for speed.
 - Do not accumulate verified increments into a giant end-of-task commit.
 - Do not split tightly coupled code, tests, and docs when they form one
@@ -301,10 +334,12 @@ issue mapping, and use review or CI skills for review/CI failures.
   inseparable.
 - Do not treat size limits as hard math; use them as review and rollback risk
   signals.
-- Do not use `"not requested"` as the explanation for missing tests; use a real
-  operational reason.
-- Do not put routine commands, `PASS` markers, or test-file inventory in the
-  commit message; report them after execution.
+- Do not put raw commands, `PASS:` markers, skipped-check reasons, or test-file
+  inventory in the commit message; report them after execution.
+- Do not accept `Verification` that only enumerates components, scenarios, or
+  boundaries; every retained item needs an observed result.
+- Do not use the same sentence or claim for `Impact` and `Verification`;
+  consequence and evidence are separate facts.
 - Do not require an AI session identifier unless the repository explicitly
   requires it.
 - Do not amend, rebase, or force-push unless the user explicitly asks.
