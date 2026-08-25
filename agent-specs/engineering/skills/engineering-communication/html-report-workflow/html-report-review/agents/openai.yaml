@@ -1,4 +1,4 @@
 interface:
-  display_name: "HTML Report Review"
-  short_description: "v0.1.0 - Review an HTML report for scenario fit, clarity, plan adherence, and evidence"
-  default_prompt: "Use $html-report-review to check a generated HTML report for scenario fit, reader intuition, plan adherence, evidence grounding, claim labeling, local readability, placeholders, and sensitive data before sharing."
+  display_name: "HTML Report Deck Review"
+  short_description: "v0.2.0 - Review an HTML report deck before sharing"
+  default_prompt: "Use $html-report-review to accept or reject a generated HTML report deck through argument, evidence, rendered readability, presentation behavior, offline, and safety checks."

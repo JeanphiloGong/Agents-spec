@@ -1,163 +1,245 @@
 ---
 name: html-report-build
-description: v0.1.0 - Builds a local self-contained HTML report from an approved report plan. Use when a report plan exists and the user wants a readable HTML artifact written to a target directory without adding new claims or changing the report scope.
+description: v0.2.0 - Builds a self-contained fixed 16:9 HTML report deck from an approved report plan. Use when a v0.2 report-deck plan has an action-title slide sequence and the user wants a browser-playable briefing. Use when the output must remain evidence-backed, offline-readable, keyboard-operable, and printable without adding new claims.
 ---
 
-# HTML Report Build
+# HTML Report Deck Build
 
 ## Overview
 
-Create a local HTML report from an approved report plan. This skill translates
-the plan into a self-contained `.html` file with readable structure, restrained
-styling, clear evidence labels, and explicit unknowns.
+Create a professional, self-reading HTML report deck from an approved
+`html-report-plan` contract. Build translates the planned logic spine and slide
+sequence into one fixed 1600 x 900 HTML presentation that scales to the browser,
+supports keyboard navigation, and prints cleanly.
 
-The build phase does not re-plan the report. It follows the report goal,
-sections, claims, and quality bar from `html-report-plan`.
-It also follows the planned page organization instead of inventing layout or
-reading order during implementation.
+Build does not re-plan the argument. It preserves action titles, claim IDs,
+evidence IDs, source notes, slide order, and the requested reader action.
 
 ## When to Use
 
-- A report plan exists and the user wants the HTML file created.
-- The output should be a static local report, not an app or website.
-- The report should be readable offline with inline CSS.
-- The user provides a target directory or asks to place the report in a local
-  folder.
+- A v0.2 report-deck plan exists and its titles-only check passes.
+- The user wants a static browser presentation rather than a long web document.
+- The output must open locally, work offline, and support live or self-guided
+  reading.
+- The report needs stable evidence references and repeatable acceptance checks.
 
-**When NOT to use:** before the report plan exists, when the user wants an
-interactive UI, when source claims still need investigation, or when the output
-belongs in released project documentation.
+**When NOT to use:** before the logic spine and slide sequence exist, when new
+investigation is still required, for dashboards or applications, or when the
+user needs a native editable `.pptx` file.
+
+## Fixed Defaults
+
+- One self-contained `.html` file.
+- Fixed 1600 x 900 slide canvas, scaled to fit without reflow.
+- All planned evidence on the current slide is visible immediately.
+- No transitions, staged reveals, narration, or decorative motion by default.
+- No remote fonts, scripts, stylesheets, images, or chart libraries.
+- Previous, next, overview, fullscreen, print, page counter, and keyboard
+  navigation are included.
 
 ## The Build Process
 
-### Step 1: Load the Report Plan
+### Step 1: Load the Plan
 
-Read the report plan from the current conversation or a provided file. Confirm:
+Read the conversation plan or `<report-name>.plan.yaml`. Confirm:
 
-- report goal
-- audience
-- output directory and filename
-- source context
-- claims and evidence status
-- section order
-- page organization: reading path, layout model, evidence placement, visual
-  grouping, scan aids, and mobile notes
-- quality bar
+- `schema_version` is `"0.2"`
+- report job, audience, and requested action
+- `one_thing`, `ask`, `through_line`, and narrative pattern
+- inspected evidence and unresolved verification gaps
+- claims with stable IDs and evidence mappings
+- ordered slides with questions, action titles, `so_what`, and transitions
+- titles-only check passed
+- output path and quality bar
 
-If no usable plan exists, stop and ask for `html-report-plan`.
+If these fields are missing or inconsistent, stop and return to
+`html-report-plan`. Do not repair the content contract while writing HTML.
 
-### Step 2: Confirm the Output Path
+### Step 2: Resolve the Output Path
 
-Use the user-provided target directory when available. Create the directory if
-it does not exist. Choose a stable filename such as
-`<topic>-report.html` when the user did not provide one.
+Use the requested directory and filename. Create the directory when needed.
+If only a directory is known, choose `<topic>-report-deck.html`.
 
-Do not write outside the requested or inferred target directory.
+Do not write outside the requested or clearly inferred directory. Do not
+overwrite an unrelated file.
 
-### Step 3: Compose the Report
+### Step 3: Compose One Slide at a Time
 
-Write sections from the plan:
+Use one direct child `<section class="slide">` per planned slide. Preserve the
+planned order and use this minimum contract:
 
-- executive summary or overview
-- findings and evidence
-- recommendations or implementation guidance
-- risks and tradeoffs
-- open questions or unverified assumptions
-- evidence appendix when useful
+```html
+<section
+  class="slide"
+  id="S1"
+  data-claim-id="C1"
+  data-evidence-ids="E1 E2"
+>
+  <header class="slide-header">
+    <p class="slide-label">Executive summary</p>
+    <h1>The evidence supports one immediate decision.</h1>
+  </header>
+  <div class="slide-body">
+    <!-- One evidence object that supports the action title. -->
+  </div>
+  <footer class="slide-footer">
+    <p class="source-note">Source: E1, E2</p>
+    <p class="page-number" aria-hidden="true"></p>
+  </footer>
+</section>
+```
 
-Keep facts, inferences, recommendations, and unknowns visually distinct.
-Follow the planned reading path, layout model, evidence placement, scan aids,
-and mobile notes. If the page organization is impossible with static HTML,
-stop and revise the plan instead of inventing a different report shape.
+For each slide:
 
-### Step 4: Build One Self-Contained HTML File
+- copy the approved action title; do not replace it with a topic label
+- include one primary claim and only the support needed for it
+- keep `data-claim-id` and `data-evidence-ids` aligned with the plan
+- show the source note or a clear `Unverified` label
+- make the planned `so_what` visible in the conclusion or recommendation
+- prefer a direct table, comparison, chart, or diagram over decorative media
+- move detailed support to appendix slides when the plan says to do so
 
-Use `assets/html-report-template.html` as the structural baseline:
+Do not shrink text to rescue a slide that contains too much. Split or revise
+the plan instead.
 
-- inline CSS
-- semantic headings
-- readable typography
-- responsive width
-- tables or callouts only when they improve scanning
-- no remote assets unless explicitly allowed
-- no decorative landing-page hero unless the user asked for a public-facing
-  page
+### Step 4: Use the Bundled Template
 
-### Step 5: Verify the File
+Use `assets/html-report-template.html` as the structural baseline. Replace:
 
-Before reporting success:
+- `{{REPORT_LANG}}` with the correct BCP 47 language tag
+- `{{REPORT_TITLE}}` with the report title
+- `{{REPORT_SLIDES}}` with the completed slide sections
 
-- confirm the file exists at the target path
-- confirm it has valid basic HTML structure
-- search for unresolved placeholders
-- confirm key sections from the plan appear
-- confirm the page organization from the plan is reflected
-- confirm unverified items are labeled
-- confirm no secrets or private data were inserted
+Keep the template's fixed stage, scale-to-fit behavior, print CSS, semantic
+buttons, overview dialog, keyboard navigation, and source/page footer.
 
-Use a browser screenshot only when visual inspection is needed or the user asks
-for rendered validation.
+Use the bundled layout classes when they fit the evidence:
+
+- `layout-columns` or `layout-comparison`
+- `layout-main-aside`
+- `metric-row` and `metric`
+- `evidence-panel`, `recommendation-panel`, and `unknown-panel`
+- `claim-type fact|inference|recommendation|unknown`
+
+Add report-specific CSS only when the planned evidence requires it. Do not add
+a framework, theme system, component library, or remote dependency.
+
+### Step 5: Preserve Report Semantics
+
+- Use heading levels in order; each slide has one `h1` or `h2` action title.
+- Keep facts, inferences, recommendations, and unknowns distinguishable by text
+  labels, not color alone.
+- Add `alt` text for informative images; use empty `alt` for decoration.
+- Keep tables as semantic tables with headers.
+- Keep code in `pre > code` and let it scroll inside its evidence region.
+- Do not hide evidence behind hover, click, or staged reveal.
+- Do not add visible instructions or keyboard-shortcut copy to the deck.
+
+### Step 6: Run Deterministic Validation
+
+Run:
+
+```bash
+python3 scripts/validate_report_deck.py <output.html>
+```
+
+Fix all errors. Review warnings individually. The validator checks the file
+contract, unresolved placeholders, external dependencies, slide IDs, action
+titles, claim/evidence mappings, source notes, and required deck controls.
+
+### Step 7: Verify the Argument
+
+Extract the rendered action titles in slide order and read them without bodies.
+Confirm they still match the approved sequence and form the same argument.
+
+Fail the build if HTML authoring changed the conclusion, introduced a logical
+jump, or detached a slide from its planned claim.
+
+### Step 8: Render and Inspect Every Slide
+
+Open the generated file in a real browser and inspect every slide at the fixed
+canvas and at a common scaled viewport such as 1366 x 768.
+
+Check:
+
+- no clipped, overlapping, or unreadably small text
+- action title and primary evidence are visible in one glance
+- source notes and page numbers do not collide with content
+- tables, charts, diagrams, and code remain inside the safe area
+- previous, next, overview, fullscreen, print, Home, End, and arrow keys work
+- focus indicators are visible and controls have accessible names
+- the browser console has no errors
+
+Save screenshots when visual inspection is required by the environment or the
+user. A source-only inspection is not enough for a `pass` handoff.
 
 ## Decision Points
 
-- If the plan and source context disagree, stop and ask instead of choosing
-  silently.
-- If the target path is ambiguous, pick the requested directory and a
-  descriptive filename; ask only when the directory itself is unclear.
-- If the report needs new investigation, stop and return to planning or
-  research; do not add unsupported claims during build.
-- If the user asks for an app, dashboard, or interactive controls, route to
-  frontend work instead of this static report skill.
+- If the plan and source evidence disagree, stop and return to planning.
+- If the action-title sequence fails after composition, revise the content
+  contract before continuing.
+- If a slide overflows, reduce or split content; do not reduce typography below
+  the report's readable scale.
+- If the report requires a complex interactive exploration, route to frontend
+  work instead of expanding this static deck.
+- If an asset cannot be embedded, ask before allowing a remote dependency.
+- If browser rendering is unavailable, report visual verification as blocked;
+  deterministic validation alone cannot produce a complete pass.
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "The report will be better if I add a few extra conclusions." | Build follows the plan. New conclusions need evidence and plan revision. |
-| "A fancy hero will make it look professional." | Engineering reports should prioritize evidence, scanning, and clarity. |
-| "External fonts and CDNs are fine." | Local reports should be self-contained unless assets are explicitly allowed. |
-| "Unknowns make the report look weaker." | Labeled unknowns make the report trustworthy. |
-| "I can choose the layout while coding." | Page organization is part of the plan contract; build executes it. |
+| "I can improve the title while building." | Action titles are approved content; changes belong in the plan. |
+| "A smaller font will make it fit." | Overflow usually means the slide carries too much information. |
+| "A CDN is harmless." | The default deliverable must remain usable offline. |
+| "The evidence can appear after a click." | A self-reading report shows the support immediately. |
+| "The HTML validator passed, so the deck is done." | Structural checks cannot see wrapping, overlap, or reading hierarchy. |
 
 ## Red Flags
 
-- HTML is created without a report plan.
-- The report introduces major claims not present in the plan.
-- The report ignores the planned reading path, evidence placement, or scan
-  aids.
-- Facts, inferences, and recommendations are visually indistinguishable.
-- The output depends on remote assets without approval.
-- The file contains placeholders such as `TODO`, `TBD`, or `<section>`.
-- The report reads like a marketing page instead of an engineering report.
+- HTML is created without a v0.2 plan or a passing titles-only check.
+- Slides use labels such as "Results" instead of conclusion sentences.
+- `data-claim-id`, `data-evidence-ids`, or source notes are missing.
+- A slide contains multiple unrelated conclusions.
+- Remote assets or libraries are added without approval.
+- Motion hides evidence or changes the meaning of a static slide.
+- Build passes without rendering every slide.
+- Generated HTML is edited instead of rebuilding from the approved plan.
 
 ## Verification
 
-- [ ] Report plan was loaded.
+- [ ] A v0.2 report-deck plan was loaded.
 - [ ] Output directory and filename were resolved.
-- [ ] HTML file exists.
-- [ ] Basic HTML structure is present.
-- [ ] Planned sections are present.
-- [ ] Planned page organization is reflected in the HTML.
-- [ ] Unsupported claims and unknowns are labeled.
-- [ ] No unresolved placeholders remain.
-- [ ] No secrets, credentials, or private data were added.
+- [ ] Fixed canvas, offline behavior, and navigation come from the template.
+- [ ] Every slide preserves its action title, primary claim, evidence IDs,
+      source note, and `so_what`.
+- [ ] Titles-only sequence still forms the approved argument.
+- [ ] `validate_report_deck.py` passes with no errors.
+- [ ] Every slide was rendered and visually inspected.
+- [ ] Controls and keyboard navigation work with visible focus.
+- [ ] No unresolved placeholders, remote dependencies, secrets, or unsupported
+      claims remain.
 
 ## Output Format
 
 ```text
-## Report Built
+## Report Deck Built
 - path:
+- slide_count:
 - status:
 
 ## Source Plan
-- report_goal:
-- audience:
+- one_thing:
+- audience_action:
+- titles_only_check:
 
 ## Verification
-- file_exists:
-- sections_present:
-- page_organization_followed:
-- placeholders:
+- structural_validator:
+- rendered_viewports:
+- slides_inspected:
+- controls_checked:
+- console_errors:
 - sensitive_data_check:
 
 ## Gaps
@@ -166,16 +248,17 @@ for rendered validation.
 
 ## Guardrails
 
-- Do not invent evidence, inspected files, command output, or source links.
-- Do not rewrite the report plan while building.
-- Do not invent a different page organization when the plan already defines
-  one.
+- Do not invent claims, evidence, command output, or source links.
+- Do not rewrite the plan while building.
+- Do not add compatibility output for the old long-document format.
+- Do not add external assets, frameworks, or animation by default.
 - Do not auto-commit the report.
-- Do not use external assets unless explicitly allowed.
 - Do not put secrets, credentials, private data, or raw sensitive logs in the
-  report.
+  output.
 
-## Assets
+## Assets and Scripts
 
 - `assets/html-report-template.html`
-  Self-contained HTML report starter.
+  Fixed 1600 x 900 self-contained report-deck shell.
+- `scripts/validate_report_deck.py`
+  Deterministic structural and contract validator shared with review.

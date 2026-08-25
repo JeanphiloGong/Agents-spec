@@ -1,60 +1,97 @@
-schema_version: 0.1
-report_goal: "<what decision, understanding, or action this report should support>"
-audience: "<primary reader>"
+schema_version: "0.2"
+skill_version: "0.2.0"
+artifact_type: html_report_deck
+
+report_job:
+  topic: "<report subject>"
+  goal: "<decision, understanding, or action this deck should support>"
+  delivery_mode: "self_read | live | both"
+
+audience:
+  primary_reader: "<reader or decision-maker>"
+  decision_context: "<where and why the deck will be used>"
+  audience_action: "<what the reader should decide or do>"
+
 output:
   directory: "<target directory or unknown>"
   filename: "<target html filename or proposed name>"
   language: "<report language>"
+  canvas: "1600x900"
+
+logic_spine:
+  one_thing: "<single conclusion the reader should remember>"
+  ask: "<decision or action requested>"
+  through_line: "<reasoning path from evidence to conclusion and action>"
+  narrative_pattern: "answer-support-action | situation-diagnosis-resolution | finding-evidence-implication"
+
 source_context:
   inspected:
-    - "<file, command output, conversation analysis, or source>"
+    - id: E1
+      source: "<file, command output, inspected image, or source>"
+      location: "<path, section, line, timestamp, or other locator>"
+      supports:
+        - C1
   needs_verification:
-    - "<source or claim that still needs checking>"
+    - id: E2
+      source: "<source or claim that still needs checking>"
+      reason: "<why verification is incomplete>"
+
 claims:
-  facts:
-    - claim: "<directly supported fact>"
-      evidence:
-        - "<source reference>"
-  inferences:
-    - claim: "<reasoned conclusion>"
-      based_on:
-        - "<fact or evidence>"
-  recommendations:
-    - claim: "<proposed action>"
-      rationale:
-        - "<why this follows from the evidence>"
-  unknowns:
-    - "<unresolved question or unverified assumption>"
-sections:
-  - title: "<section title>"
-    purpose: "<why this section belongs>"
-    primary_claims:
-      - "<claim ids or short claim labels this section explains>"
-page_organization:
+  - id: C1
+    type: "fact | inference | recommendation | unknown"
+    statement: "<one major claim>"
+    evidence_ids:
+      - E1
+    rationale: "<required for inference or recommendation; empty only for a directly supported fact>"
+
+slides:
+  - id: S1
+    role: "<opening | summary | finding | evidence | implication | risk | recommendation | action | appendix>"
+    question: "<single question this slide answers>"
+    action_title: "<short complete sentence stating the slide conclusion>"
+    primary_claim_id: C1
+    evidence_ids:
+      - E1
+    content_points:
+      - "<only the support needed for the action title>"
+    visual_role: "text-summary | chart | table | comparison | diagram"
+    so_what: "<why this conclusion matters to the reader>"
+    transition: "<how this conclusion leads to the next slide>"
+    source_note: "<visible source wording or explicitly labeled unknown>"
+
+titles_only_check:
+  sequence:
+    - "<S1 action title>"
+  reads_as_argument: false
+  gaps:
+    - "<missing setup, unsupported jump, unclear antecedent, or none>"
+
+deck_organization:
   reading_path:
-    - "<what the reader should understand first>"
-    - "<what the reader should inspect next>"
-    - "<what decision or action the reader should reach last>"
-  layout_model: "<single-column report | sidebar toc | comparison table | timeline | appendix-heavy report | other explicit shape>"
-  top_summary:
-    purpose: "<what the first viewport or opening block should clarify>"
-    contents:
-      - "<summary item, status, or key finding>"
-  section_pattern: "<how repeated sections should be organized>"
-  evidence_placement: "<inline references | source table | appendix | callouts | mixed>"
-  visual_grouping:
-    facts: "<how facts are labeled or grouped>"
-    inferences: "<how inferences are labeled or grouped>"
-    recommendations: "<how recommendations are labeled or grouped>"
-    unknowns: "<how unknowns are labeled or grouped>"
-  scan_aids:
-    - "<summary list, risk table, decision matrix, status badge, or other scan aid>"
-  mobile_notes:
-    - "<how wide tables, code blocks, or dense evidence stay readable>"
+    - "<what the reader should conclude first>"
+    - "<which evidence the reader should inspect next>"
+    - "<which decision or action the reader should reach last>"
+  first_slide: "<subject, context, and main conclusion>"
+  navigation:
+    - previous
+    - next
+    - overview
+    - fullscreen
+    - print
+  evidence_placement: "<inline source notes | evidence slides | appendix | mixed>"
+  density: "<how dense evidence is split or moved to appendix slides>"
+
 quality_bar:
-  - "<checkable acceptance criterion>"
+  - "titles alone form a coherent argument"
+  - "each slide has one primary conclusion and one visible evidence object"
+  - "every major claim maps to inspected evidence or is explicitly labeled"
+  - "the fixed 1600x900 canvas scales without content reflow"
+  - "keyboard navigation, overview, fullscreen, and print work"
+  - "every slide is rendered and visually inspected"
+  - "no placeholders, secrets, credentials, private data, or unsupported claims"
+
 build_constraints:
-  - "single self-contained HTML file unless assets are explicitly allowed"
-  - "facts, inferences, recommendations, and unknowns are visually distinct"
-  - "page organization follows the planned reading path, layout model, evidence placement, and scan aids"
-  - "no secrets, credentials, private data, or unsupported claims"
+  - "one self-contained HTML file with no required remote assets"
+  - "all evidence on the current slide is visible without staged reveals"
+  - "facts, inferences, recommendations, and unknowns are distinguishable"
+  - "the build follows the approved slide sequence and action titles"
