@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{REPORT_LANG}}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,120 +7,689 @@
   <style>
     :root {
       color-scheme: light;
-      --bg: #f7f8fa;
+      --canvas-w: 1600px;
+      --canvas-h: 900px;
+      --stage: #171a1d;
       --paper: #ffffff;
-      --text: #1f2933;
-      --muted: #617083;
-      --line: #d9e0e8;
-      --accent: #2f6f73;
-      --warn: #8a5a00;
-      --danger: #9b2c2c;
+      --text: #17202a;
+      --muted: #5e6b78;
+      --line: #d7dde3;
+      --soft: #f3f5f7;
+      --accent: #165d68;
+      --fact: #225ea8;
+      --inference: #8a5b12;
+      --recommendation: #24704a;
+      --unknown: #9a3434;
+      --control-bg: #f9fafb;
+      --control-text: #202830;
+      --focus: #f0b429;
     }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
     body {
+      width: 100%;
+      height: 100%;
       margin: 0;
-      background: var(--bg);
+    }
+
+    body {
+      overflow: hidden;
+      background: var(--stage);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.55;
+      font-family: Arial, "Noto Sans", "Noto Sans CJK SC", sans-serif;
+      line-height: 1.45;
     }
-    main {
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 40px 24px 56px;
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
     }
-    article {
+
+    button:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .stage {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 56px 24px 70px;
+    }
+
+    .deck {
+      position: relative;
+      width: var(--canvas-w);
+      height: var(--canvas-h);
+      transform: scale(var(--deck-scale, 1));
+      transform-origin: center center;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: none;
+      width: var(--canvas-w);
+      height: var(--canvas-h);
+      overflow: hidden;
+      padding: 58px 72px 48px;
       background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 32px;
+      color: var(--text);
     }
-    h1, h2, h3 {
-      line-height: 1.2;
+
+    .slide[aria-hidden="false"] {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide-header {
+      flex: 0 0 auto;
+      max-width: 1320px;
+    }
+
+    .slide-label {
       margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: 0;
+      text-transform: uppercase;
     }
-    h1 {
-      font-size: 2rem;
+
+    .slide h1,
+    .slide h2,
+    .slide h3,
+    .slide p {
+      letter-spacing: 0;
     }
-    h2 {
-      margin-top: 32px;
-      padding-top: 20px;
-      border-top: 1px solid var(--line);
-      font-size: 1.35rem;
+
+    .slide h1,
+    .slide h2 {
+      margin: 0;
+      max-width: 1280px;
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1.14;
     }
-    p, ul, ol, table {
+
+    .slide h3 {
+      margin: 0 0 12px;
+      font-size: 27px;
+      line-height: 1.25;
+    }
+
+    .slide-body {
+      display: flex;
+      flex: 1 1 auto;
+      min-height: 0;
+      flex-direction: column;
+      justify-content: center;
+      margin-top: 30px;
+      font-size: 25px;
+    }
+
+    .slide-body > :first-child {
       margin-top: 0;
     }
+
+    .slide-body > :last-child {
+      margin-bottom: 0;
+    }
+
+    .slide p,
+    .slide ul,
+    .slide ol {
+      margin-top: 0;
+    }
+
+    .slide li + li {
+      margin-top: 12px;
+    }
+
+    .lead {
+      max-width: 1180px;
+      margin: 0;
+      color: #2d3944;
+      font-size: 31px;
+      line-height: 1.45;
+    }
+
+    .layout-columns,
+    .layout-comparison {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 32px;
+      align-items: stretch;
+      min-height: 0;
+    }
+
+    .layout-main-aside {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.8fr);
+      gap: 36px;
+      align-items: stretch;
+      min-height: 0;
+    }
+
+    .evidence-panel,
+    .comparison-panel,
+    .recommendation-panel,
+    .unknown-panel {
+      min-width: 0;
+      padding: 24px 28px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--soft);
+    }
+
+    .recommendation-panel {
+      border-color: #a8c9b7;
+      background: #eef7f1;
+    }
+
+    .unknown-panel {
+      border-color: #dab4b4;
+      background: #fff2f2;
+    }
+
+    .claim-type {
+      display: inline-block;
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .claim-type.fact {
+      color: var(--fact);
+    }
+
+    .claim-type.inference {
+      color: var(--inference);
+    }
+
+    .claim-type.recommendation {
+      color: var(--recommendation);
+    }
+
+    .claim-type.unknown {
+      color: var(--unknown);
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .metric {
+      padding: 22px 24px;
+      border-top: 4px solid var(--accent);
+      background: var(--soft);
+    }
+
+    .metric-value {
+      display: block;
+      font-size: 52px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .metric-label {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 19px;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 16px 0;
-      font-size: 0.95rem;
+      font-size: 21px;
+      line-height: 1.35;
     }
-    th, td {
+
+    th,
+    td {
+      padding: 12px 14px;
       border: 1px solid var(--line);
-      padding: 10px 12px;
       vertical-align: top;
-    }
-    th {
-      background: #eef3f6;
       text-align: left;
     }
-    .meta, .muted {
-      color: var(--muted);
+
+    th {
+      background: #e9eef1;
+      font-weight: 700;
     }
-    .callout {
-      border-left: 4px solid var(--accent);
-      background: #eef7f6;
-      padding: 12px 16px;
-      margin: 16px 0;
-    }
-    .warning {
-      border-left-color: var(--warn);
-      background: #fff8e8;
-    }
-    .danger {
-      border-left-color: var(--danger);
-      background: #fff0f0;
-    }
-    .tag {
-      display: inline-block;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 2px 8px;
-      margin-right: 6px;
-      color: var(--muted);
-      font-size: 0.82rem;
-    }
+
     code {
-      background: #eef1f4;
-      border-radius: 4px;
-      padding: 1px 4px;
+      padding: 2px 5px;
+      border-radius: 3px;
+      background: #e8ecef;
+      font-family: "Courier New", monospace;
+      font-size: 0.9em;
     }
-    @media (max-width: 720px) {
-      main {
-        padding: 20px 12px 36px;
+
+    pre {
+      max-width: 100%;
+      margin: 0;
+      overflow: auto;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #101820;
+      color: #eef3f6;
+      font-family: "Courier New", monospace;
+      font-size: 18px;
+      line-height: 1.45;
+      white-space: pre;
+    }
+
+    pre code {
+      padding: 0;
+      background: transparent;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    .slide-footer {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 32px;
+      margin-top: 28px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.25;
+    }
+
+    .source-note {
+      max-width: 1260px;
+      margin: 0;
+    }
+
+    .page-number {
+      flex: 0 0 auto;
+      margin: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .deck-controls {
+      position: fixed;
+      z-index: 20;
+      bottom: 14px;
+      left: 50%;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transform: translateX(-50%);
+      padding: 4px;
+      border: 1px solid #59636d;
+      border-radius: 6px;
+      background: var(--control-bg);
+      color: var(--control-text);
+    }
+
+    .deck-controls button {
+      display: grid;
+      width: 40px;
+      height: 40px;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .deck-controls button:hover {
+      background: #e7ebee;
+    }
+
+    .deck-controls button:disabled {
+      color: #9ba4ac;
+      cursor: default;
+    }
+
+    .deck-controls button:disabled:hover {
+      background: transparent;
+    }
+
+    .slide-counter {
+      min-width: 74px;
+      padding: 0 8px;
+      text-align: center;
+      font-size: 15px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .overview-dialog {
+      width: min(900px, calc(100vw - 32px));
+      max-height: calc(100vh - 48px);
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--paper);
+      color: var(--text);
+    }
+
+    .overview-dialog::backdrop {
+      background: rgb(0 0 0 / 0.68);
+    }
+
+    .overview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .overview-header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .overview-close {
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .overview-list {
+      display: grid;
+      gap: 8px;
+      max-height: calc(100vh - 150px);
+      margin: 0;
+      padding: 16px;
+      overflow: auto;
+      list-style: none;
+    }
+
+    .overview-item {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #ffffff;
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .overview-item:hover,
+    .overview-item[aria-current="true"] {
+      border-color: var(--accent);
+      background: #edf5f5;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 520px) {
+      .stage {
+        padding-right: 8px;
+        padding-left: 8px;
       }
-      article {
-        padding: 22px 16px;
+
+      .deck-controls {
+        width: calc(100vw - 16px);
+        justify-content: center;
       }
-      table {
+    }
+
+    @media print {
+      @page {
+        size: 13.333in 7.5in;
+        margin: 0;
+      }
+
+      html,
+      body {
+        width: auto;
+        height: auto;
+        overflow: visible;
+        background: #ffffff;
+      }
+
+      .stage {
+        position: static;
         display: block;
-        overflow-x: auto;
+        padding: 0;
+      }
+
+      .deck {
+        width: auto;
+        height: auto;
+        transform: none !important;
+      }
+
+      .slide,
+      .slide[aria-hidden="true"],
+      .slide[aria-hidden="false"] {
+        position: relative;
+        display: flex !important;
+        width: 13.333in;
+        height: 7.5in;
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .deck-controls,
+      .overview-dialog,
+      .sr-only {
+        display: none !important;
       }
     }
   </style>
 </head>
 <body>
-  <main>
-    <article>
-      <header>
-        <p class="meta">{{REPORT_META}}</p>
-        <h1>{{REPORT_TITLE}}</h1>
-        <p>{{REPORT_SUMMARY}}</p>
-      </header>
-
-      {{REPORT_BODY}}
-    </article>
+  <main class="stage">
+    <div class="deck" id="report-deck" aria-label="{{REPORT_TITLE}}">
+      {{REPORT_SLIDES}}
+    </div>
   </main>
+
+  <nav class="deck-controls" aria-label="Presentation controls">
+    <button id="previous-slide" type="button" aria-label="Previous slide" title="Previous slide">&larr;</button>
+    <button id="slide-overview" type="button" aria-label="Open slide overview" title="Slide overview">&#9638;</button>
+    <span class="slide-counter" id="slide-counter" aria-live="polite">1 / 1</span>
+    <button id="print-deck" type="button" aria-label="Print report" title="Print report">&#9113;</button>
+    <button id="fullscreen-deck" type="button" aria-label="Enter fullscreen" title="Fullscreen">&#x26F6;</button>
+    <button id="next-slide" type="button" aria-label="Next slide" title="Next slide">&rarr;</button>
+  </nav>
+
+  <dialog class="overview-dialog" id="overview-dialog" aria-labelledby="overview-title">
+    <header class="overview-header">
+      <h2 id="overview-title">Slide overview</h2>
+      <button class="overview-close" id="overview-close" type="button" aria-label="Close slide overview">&times;</button>
+    </header>
+    <ol class="overview-list" id="overview-list"></ol>
+  </dialog>
+
+  <p class="sr-only" id="slide-announcement" aria-live="assertive"></p>
+
+  <script>
+    (() => {
+      const deck = document.getElementById("report-deck");
+      const slides = Array.from(deck.querySelectorAll(":scope > .slide"));
+      const previousButton = document.getElementById("previous-slide");
+      const nextButton = document.getElementById("next-slide");
+      const overviewButton = document.getElementById("slide-overview");
+      const printButton = document.getElementById("print-deck");
+      const fullscreenButton = document.getElementById("fullscreen-deck");
+      const counter = document.getElementById("slide-counter");
+      const announcement = document.getElementById("slide-announcement");
+      const overviewDialog = document.getElementById("overview-dialog");
+      const overviewClose = document.getElementById("overview-close");
+      const overviewList = document.getElementById("overview-list");
+
+      if (slides.length === 0) {
+        counter.textContent = "0 / 0";
+        previousButton.disabled = true;
+        nextButton.disabled = true;
+        return;
+      }
+
+      const titleFor = (slide) => {
+        const heading = slide.querySelector("h1, h2");
+        return heading ? heading.textContent.trim() : slide.id;
+      };
+
+      const indexFromHash = () => {
+        const id = decodeURIComponent(window.location.hash.slice(1));
+        const found = slides.findIndex((slide) => slide.id === id);
+        return found >= 0 ? found : 0;
+      };
+
+      let currentIndex = indexFromHash();
+
+      slides.forEach((slide, index) => {
+        if (!slide.id) slide.id = `slide-${index + 1}`;
+        slide.setAttribute("role", "group");
+        slide.setAttribute("aria-roledescription", "slide");
+        slide.setAttribute("aria-label", `Slide ${index + 1} of ${slides.length}: ${titleFor(slide)}`);
+        slide.dataset.page = String(index + 1);
+
+        const pageNumber = slide.querySelector(".page-number");
+        if (pageNumber) pageNumber.textContent = `${index + 1} / ${slides.length}`;
+
+        const item = document.createElement("li");
+        const button = document.createElement("button");
+        button.className = "overview-item";
+        button.type = "button";
+        button.textContent = `${index + 1}. ${titleFor(slide)}`;
+        button.addEventListener("click", () => {
+          overviewDialog.close();
+          showSlide(index, true);
+        });
+        item.append(button);
+        overviewList.append(item);
+      });
+
+      const overviewItems = Array.from(overviewList.querySelectorAll("button"));
+
+      const fitDeck = () => {
+        const availableWidth = Math.max(160, window.innerWidth - 48);
+        const availableHeight = Math.max(90, window.innerHeight - 126);
+        const scale = Math.min(availableWidth / 1600, availableHeight / 900, 1);
+        deck.style.setProperty("--deck-scale", String(scale));
+      };
+
+      const showSlide = (nextIndex, announce = false) => {
+        currentIndex = Math.max(0, Math.min(nextIndex, slides.length - 1));
+
+        slides.forEach((slide, index) => {
+          const active = index === currentIndex;
+          slide.setAttribute("aria-hidden", active ? "false" : "true");
+          slide.toggleAttribute("inert", !active);
+          overviewItems[index].setAttribute("aria-current", active ? "true" : "false");
+        });
+
+        counter.textContent = `${currentIndex + 1} / ${slides.length}`;
+        previousButton.disabled = currentIndex === 0;
+        nextButton.disabled = currentIndex === slides.length - 1;
+
+        const currentSlide = slides[currentIndex];
+        window.history.replaceState(null, "", `#${encodeURIComponent(currentSlide.id)}`);
+        if (announce) announcement.textContent = `Slide ${currentIndex + 1}: ${titleFor(currentSlide)}`;
+      };
+
+      const openOverview = () => {
+        overviewDialog.showModal();
+        overviewItems[currentIndex].focus();
+      };
+
+      const toggleFullscreen = async () => {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        } else {
+          await document.documentElement.requestFullscreen();
+        }
+      };
+
+      previousButton.addEventListener("click", () => showSlide(currentIndex - 1, true));
+      nextButton.addEventListener("click", () => showSlide(currentIndex + 1, true));
+      overviewButton.addEventListener("click", openOverview);
+      overviewClose.addEventListener("click", () => overviewDialog.close());
+      printButton.addEventListener("click", () => window.print());
+      fullscreenButton.addEventListener("click", () => void toggleFullscreen());
+
+      document.addEventListener("fullscreenchange", () => {
+        const active = Boolean(document.fullscreenElement);
+        fullscreenButton.setAttribute("aria-label", active ? "Exit fullscreen" : "Enter fullscreen");
+        fullscreenButton.title = active ? "Exit fullscreen" : "Fullscreen";
+        fitDeck();
+      });
+
+      window.addEventListener("hashchange", () => showSlide(indexFromHash()));
+      window.addEventListener("resize", fitDeck);
+
+      document.addEventListener("keydown", (event) => {
+        const target = event.target;
+        const editing = target instanceof HTMLElement && (
+          target.isContentEditable ||
+          ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)
+        );
+        if (editing || overviewDialog.open) return;
+
+        if (["ArrowRight", "PageDown", " "].includes(event.key)) {
+          event.preventDefault();
+          showSlide(currentIndex + 1, true);
+        } else if (["ArrowLeft", "PageUp"].includes(event.key)) {
+          event.preventDefault();
+          showSlide(currentIndex - 1, true);
+        } else if (event.key === "Home") {
+          event.preventDefault();
+          showSlide(0, true);
+        } else if (event.key === "End") {
+          event.preventDefault();
+          showSlide(slides.length - 1, true);
+        } else if (event.key.toLowerCase() === "o") {
+          event.preventDefault();
+          openOverview();
+        } else if (event.key.toLowerCase() === "f") {
+          event.preventDefault();
+          void toggleFullscreen();
+        }
+      });
+
+      showSlide(currentIndex);
+      fitDeck();
+    })();
+  </script>
 </body>
 </html>

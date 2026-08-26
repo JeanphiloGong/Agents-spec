@@ -1,241 +1,254 @@
 ---
 name: html-report-review
-description: v0.1.0 - Reviews a generated HTML report against its current scenario, report plan, evidence, and local-readability requirements. Use when an HTML report should be checked for scenario fit, intuitive communication, factual grounding, claim labeling, structure, offline usability, placeholders, and sensitive data before sharing.
+description: v0.2.0 - Reviews a fixed 16:9 HTML report deck for argument clarity, evidence traceability, rendered readability, and presentation controls. Use when a browser-playable report deck must be accepted before sharing. Use when a polished deck may still have topic-label titles, logical gaps, unsupported claims, overflow, or broken offline and keyboard behavior.
 ---
 
-# HTML Report Review
+# HTML Report Deck Review
 
 ## Overview
 
-Review a generated HTML report against the plan that authorized it. This skill
-checks whether the report is appropriate for the current scenario, intuitive
-for its intended reader, accurate, evidence-backed, locally readable, and clear
-about facts, inferences, recommendations, and unknowns.
+Review a generated HTML report deck against the v0.2 plan that authorized it.
+Acceptance is based on whether a decision-maker can understand the argument,
+inspect its evidence, and use the artifact reliably. Visual polish alone does
+not earn a pass.
 
-The review phase does not rewrite the report by default. It reports findings
-and concrete next actions.
+Review reports findings and next actions. It does not rewrite the plan or HTML
+unless the user explicitly asks for repair.
 
 ## When to Use
 
-- An HTML report has been generated and needs acceptance review.
-- The report will be shared with a human decision-maker.
-- The report contains technical findings, recommendations, or implementation
-  guidance that must be evidence-backed.
-- A report looks polished but may contain unsupported claims or missing
-  caveats.
-- A report needs a judgment on whether HTML is the right artifact for the
-  situation, or whether a doc, table, PR note, diagram, or task plan would serve
-  the reader better.
+- A report deck has been built and needs acceptance before sharing.
+- A self-reading briefing must remain understandable without a presenter.
+- Claim-to-evidence traceability or source labeling needs verification.
+- The fixed canvas, keyboard controls, overview, fullscreen, or print behavior
+  needs browser validation.
+- A deck looks professional but may still contain logical jumps, overflow, or
+  unsupported conclusions.
 
-**When NOT to use:** before the HTML file exists, for general code review, for
-marketing copy review, or for project documentation lifecycle review.
+**When NOT to use:** before the HTML deck exists, for long-form web documents,
+for native `.pptx` review, for general code review, or when the user has asked
+to repair the artifact rather than assess it.
+
+## Required Inputs
+
+- the v0.2 report-deck plan
+- the generated `.html` file
+- referenced evidence that is available locally or in the current context
+- the intended reader, decision, and delivery mode
+
+If the plan is missing, structural and rendered checks may continue, but the
+result is `blocked` because argument and evidence adherence cannot be accepted.
 
 ## The Review Process
 
-### Step 1: Load Inputs
+### Step 1: Establish the Review Contract
 
-Read:
+Read the plan and HTML. Record:
 
-- the report plan
-- the generated HTML file
-- any source context or evidence references available
-- the current scenario, audience, and intended use from the user request or
-  plan
+- report path and plan path or conversation source
+- `one_thing`, `ask`, `through_line`, and audience action
+- approved slide order and action titles
+- claim IDs, evidence IDs, source gaps, and explicit unknowns
+- delivery mode and quality bar
 
-If the plan is missing, review the HTML as `plan_missing` and state the reduced
-confidence.
+Do not infer a missing claim or silently substitute a different audience need.
 
-### Step 2: Check Scenario Fit
+### Step 2: Run Deterministic Validation
 
-Judge whether this HTML report is the right artifact for the current situation:
+Run the builder's validator:
 
-- the report answers the user's actual question or decision need
-- the audience, depth, and tone match the intended reader
-- the report format is appropriate compared with alternatives such as a project
-  doc, summary, table, PR/MR description, flowchart, task plan, or dashboard
-- the scope is neither too broad to act on nor too narrow to explain the issue
-- the report's first screen makes the purpose and conclusion discoverable
+```bash
+python3 ../html-report-build/scripts/validate_report_deck.py <report.html>
+```
 
-If HTML is not the right artifact, mark the result `fail` unless the user
-explicitly asked for HTML as the deliverable and the report is otherwise useful.
+All structural errors are blocking. Review warnings against the plan instead
+of dismissing them. Also scan for secrets, credentials, private data, and raw
+sensitive logs without repeating any discovered value.
 
-### Step 3: Check Plan Adherence
+### Step 3: Test the Argument Without Layout
 
-Verify:
+Extract action titles in slide order and read only those titles.
 
-- report goal is addressed
-- intended audience is respected
-- planned sections are present or deviations are explained
-- planned page organization is followed, including reading path, layout model,
-  evidence placement, visual grouping, scan aids, and mobile notes
-- quality bar is met
-- unknowns and gaps from the plan remain visible
+Fail the logic gate when:
 
-### Step 4: Check Reader Intuition
+- the main conclusion is delayed or absent
+- a title is a topic label rather than a complete conclusion
+- two adjacent titles require an unstated inference
+- a pronoun, metric, or comparison lacks context
+- the sequence does not reach the requested decision or action
+- appendix slides interrupt the main argument
 
-Judge whether the report is easy to understand in one pass:
+Then apply the stranger test: a smart reader unfamiliar with the source should
+be able to summarize the argument from the titles alone.
 
-- the first screen or opening block states the useful conclusion, not just the
-  topic
-- headings form a clear scan path
-- the most important findings are visually prioritized
-- facts, inferences, recommendations, and unknowns are easy to distinguish
-- tables, callouts, and appendices reduce cognitive load instead of adding
-  decoration
-- the reader can tell what to do next without reading every detail
+### Step 4: Check Claim and Evidence Traceability
 
-Flag reports that are accurate but hard to use.
+For every slide:
 
-### Step 5: Check Evidence and Claim Labeling
+- match `data-claim-id` to the planned primary claim
+- match `data-evidence-ids` and the visible source note to the plan
+- confirm the evidence object actually supports the action title
+- confirm facts, inferences, recommendations, and unknowns are labeled or
+  phrased distinctly
+- confirm `so_what` is visible as an implication, decision, or next action
 
-Classify major statements:
+Fail when a major claim lacks inspected evidence, an inference is presented as
+fact, or a source note names evidence that is not represented on the slide.
 
-- facts with evidence
-- inferences with rationale
-- recommendations with rationale
-- unknowns or assumptions
+### Step 5: Inspect Every Slide in a Browser
 
-Flag any major claim that lacks support or presents inference as fact.
+Render every slide at the native 1600 x 900 canvas and at a common scaled
+viewport such as 1366 x 768. Inspect screenshots or the live browser, not only
+the source.
 
-### Step 6: Check HTML Usability
+For each slide check:
 
-Verify:
+- action title, evidence, implication, source note, and page number are visible
+- no text, table, chart, code, or diagram is clipped or overlaps another item
+- the primary conclusion and supporting evidence can be understood at a glance
+- typography remains readable and long words stay inside their containers
+- visual grouping expresses the argument rather than creating decoration
+- facts, inferences, recommendations, and unknowns are not distinguished by
+  color alone
 
-- file exists and opens as static HTML
-- basic structure has `doctype`, `html`, `head`, `title`, and `body`
-- content is readable without external assets unless allowed
-- tables or code blocks do not destroy mobile readability
-- headings form a useful scan path
-- opening summary, evidence placement, and scan aids match the plan when the
-  plan defines them
+Fail if any main slide has overflow, overlap, unreadably small text, or an
+unclear evidence hierarchy. Detailed support may be dense only when it is in a
+clearly labeled appendix and remains readable.
 
-### Step 7: Check Safety and Completeness
+### Step 6: Exercise Presentation Behavior
 
-Scan for:
+Verify in a real browser:
 
-- placeholders such as `TODO`, `TBD`, `{{...}}`
-- broken local references
-- secrets, credentials, private data, or raw sensitive logs
-- missing evidence appendix when evidence is central
-- over-decorated layout that hides substance
+- previous and next buttons
+- Left, Right, Page Up, Page Down, Space, Home, and End keys
+- overview opens, lists every slide, navigates correctly, and returns focus
+- fullscreen enters and exits when the browser permits it
+- print preview includes every slide at 16:9 without controls
+- current slide, counter, hash, and disabled boundary buttons stay aligned
+- all controls have accessible names and visible keyboard focus
+- browser console contains no errors
 
-### Step 8: Decide the Result
+Report a browser permission limitation separately from an implementation
+failure. Do not claim a behavior passed when it could not be exercised.
 
-Use:
+### Step 7: Decide the Result
 
-- `pass`: report fits the scenario, is intuitive for the reader, matches the
-  plan, claims are grounded, HTML is locally usable, and no blocking safety
-  issue exists.
-- `fail`: report has unsupported major claims, missing required sections,
-  scenario mismatch, weak reader intuition, unsafe content, or serious
-  usability problems.
-- `blocked`: required files or evidence are missing, preventing a meaningful
-  review.
+Use exactly one result:
+
+- `pass`: plan, argument, evidence, structure, rendering, controls, safety, and
+  offline behavior all pass.
+- `fail`: the review ran and found at least one fixable acceptance failure.
+- `blocked`: a required plan, evidence source, file, or browser capability is
+  unavailable, so acceptance cannot be determined.
+
+A structural validator pass is necessary but never sufficient. A deck cannot
+pass without every slide being rendered and inspected.
 
 ## Decision Points
 
-- If unsupported claims are minor, recommend edits and mark the result `fail`
-  until fixed.
-- If the plan is missing but the user still wants review, proceed with reduced
-  confidence and mark plan adherence as `blocked`.
-- If sensitive content appears, fail the review and identify the area without
-  repeating the sensitive value.
-- If the report needs new research, recommend returning to `html-report-plan`
-  or an investigation step.
-- If the report is well formed but the wrong artifact for the task, fail with a
-  replacement recommendation instead of only listing HTML issues.
-- If the report is accurate but not intuitive, fail with concrete reading-path
-  fixes.
+- If the plan and deck disagree, fail plan adherence; do not choose the better
+  wording during review.
+- If the titles-only sequence fails, report the first logical break and the
+  smallest content-contract revision needed.
+- If evidence is unavailable, mark the affected gate `blocked`; do not treat a
+  citation label as proof.
+- If one slide overflows, fail the rendered gate even when other slides pass.
+- If sensitive content appears, fail safety and identify only its location and
+  category.
+- If the deck is sound but HTML PPT is the wrong requested artifact, state the
+  mismatch without rewriting it into another format.
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "It opens in the browser, so it passes." | A report can render while still being unsupported or misleading. |
-| "The design looks polished." | Visual polish is secondary to evidence, claim labeling, and readability. |
-| "The reader can infer what is uncertain." | Unknowns and assumptions must be explicit. |
-| "I can fix it while reviewing." | Review reports findings; rewriting is a separate build pass unless requested. |
-| "The page organization is subjective." | The plan's reading path and evidence placement are reviewable acceptance criteria. |
-| "The user asked for HTML, so scenario fit is already solved." | Review still checks whether this HTML report actually serves the user's current decision or communication need. |
-| "Accurate means good enough." | A report can be accurate and still fail if the reader cannot quickly understand the point. |
+| "The validator passed." | Structural checks cannot see logical jumps, overlap, or reading hierarchy. |
+| "The slides look consistent." | Consistency cannot replace evidence or a coherent argument. |
+| "The presenter can explain the gap." | The default deck must support independent reading. |
+| "A source note proves the claim." | Review must verify that the cited evidence supports the conclusion. |
+| "Only one slide clips slightly." | Every slide is part of the deliverable and must remain readable. |
+| "I can fix the wording while reviewing." | Review identifies failures; plan or build owns the repair. |
 
 ## Red Flags
 
-- The report does not answer the user's actual decision or communication need.
-- HTML is the wrong artifact for the situation, but the review ignores that.
-- The first screen does not expose the purpose, conclusion, or next action.
-- Major recommendations have no cited fact or rationale.
-- Inferences are written as facts.
-- The report contains unresolved placeholders.
-- The report uses remote assets without approval.
-- The report ignores the planned reading path or evidence placement.
-- The report hides unknowns or omits risks from the plan.
-- The review rewrites the report instead of producing findings.
+- Review begins without identifying `one_thing`, `ask`, and audience action.
+- Titles are checked individually but never read as one sequence.
+- Evidence IDs are present but their support relationship is not inspected.
+- Only the first slide or current viewport is rendered.
+- Screenshots are accepted without testing navigation and print behavior.
+- Design polish is discussed before blocking logic or evidence failures.
+- A pass is issued despite a missing plan, missing evidence, or unavailable
+  rendered inspection.
+- The reviewer edits the artifact without explicit repair authorization.
 
 ## Verification
 
-- [ ] Report plan was read or missing-plan status was declared.
-- [ ] HTML file was read.
-- [ ] Current scenario, audience, and intended use were checked.
-- [ ] Planned sections were checked.
-- [ ] Planned page organization was checked.
-- [ ] Reader intuition and first-screen clarity were checked.
-- [ ] Major claims were checked for evidence or rationale.
-- [ ] Static HTML usability was checked.
-- [ ] Placeholders and sensitive data were scanned.
-- [ ] Result is `pass`, `fail`, or `blocked`.
+- [ ] The v0.2 plan and generated HTML were loaded.
+- [ ] `one_thing`, `ask`, audience action, and approved titles were recorded.
+- [ ] Deterministic validation completed with no errors.
+- [ ] Titles-only and stranger tests passed.
+- [ ] Every slide's primary claim, evidence IDs, source note, and `so_what`
+      match the plan.
+- [ ] Every slide was rendered at 1600 x 900 and a scaled viewport.
+- [ ] No clipping, overlap, unreadable text, or unclear evidence hierarchy was
+      found.
+- [ ] Navigation, overview, fullscreen, print, focus, and console were checked.
+- [ ] Offline dependencies, placeholders, and sensitive data were checked.
+- [ ] Result is exactly `pass`, `fail`, or `blocked` and follows gate status.
 
 ## Output Format
 
 ```text
 ## Review Result
-- result:
+- result: pass | fail | blocked
 - report:
 - plan:
-- scenario_fit:
-- reader_intuition:
+- slide_count:
 
-## Scenario Fit
-- findings:
-- better_artifact_if_any:
+## Blocking Findings
+- none | <severity, slide, evidence, required correction>
 
-## Plan Adherence
-- findings:
-- page_organization:
+## Logic Gate
+- titles_only:
+- stranger_test:
+- first_break:
 
-## Reader Intuition
-- first_screen:
-- scan_path:
-- next_action_clarity:
+## Evidence Gate
+- claim_mapping:
+- unsupported_or_mislabeled:
 
-## Evidence and Claims
-- unsupported_claims:
-- mislabeled_inferences:
+## Render Gate
+- viewports:
+- slides_inspected:
+- overflow_or_overlap:
 
-## HTML Usability
-- findings:
+## Behavior Gate
+- navigation:
+- overview:
+- fullscreen:
+- print:
+- accessibility:
+- console:
 
-## Safety and Completeness
+## Safety Gate
+- external_dependencies:
 - placeholders:
 - sensitive_data:
-- missing_sections:
 
 ## Next Actions
-- none | <actions>
+- none | <ordered corrections>
 ```
 
 ## Guardrails
 
-- Do not rewrite the HTML unless the user explicitly asks for repair.
+- Do not rewrite the plan or HTML unless the user explicitly asks for repair.
+- Do not invent, reinterpret, or strengthen evidence to make a claim pass.
 - Do not expose secrets or private data found during review.
-- Do not invent evidence to make a claim pass.
-- Do not treat visual polish as a substitute for evidence.
-- Do not treat factual correctness as enough when the report fails the current
-  scenario or reader comprehension need.
-- Do not mark `pass` when plan adherence is blocked or major claims are
-  unsupported.
+- Do not accept a deck from source inspection alone.
+- Do not lower the quality bar for an appendix unless readability is preserved.
+- Do not mark `pass` when any required gate is failed or blocked.
 
 ## References
 
 - `references/review-checklist.md`
-  Checklist for HTML report acceptance review.
+  Gate-by-gate acceptance checklist for v0.2 HTML report decks.
