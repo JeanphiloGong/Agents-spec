@@ -55,8 +55,8 @@ def validate_plan(plan):
 
     if plan.get("schema_version") != "0.3":
         errors.append('schema_version must be "0.3"')
-    if plan.get("skill_version") != "0.3.1":
-        errors.append('skill_version must be "0.3.1"')
+    if plan.get("skill_version") != "0.3.2":
+        errors.append('skill_version must be "0.3.2"')
     if plan.get("artifact_type") != "html_report_deck":
         errors.append("artifact_type must be html_report_deck")
     if plan.get("output", {}).get("canvas") != "1600x900":
@@ -184,7 +184,44 @@ def validate_plan(plan):
         if isinstance(slide, dict) and slide.get("id")
     }
 
+    chapters = plan.get("chapters")
+    if not isinstance(chapters, list) or not chapters:
+        chapters = []
+        errors.append("chapters must contain at least one chapter")
+    chapter_ids = [chapter.get("id") for chapter in chapters if isinstance(chapter, dict)]
+    for chapter_id in _duplicates(chapter_ids):
+        errors.append(f"duplicate chapter id: {chapter_id}")
+    chapters_by_id = {
+        chapter.get("id"): chapter
+        for chapter in chapters
+        if isinstance(chapter, dict) and chapter.get("id")
+    }
+    chapter_main_ids = []
+    chapter_for_main_id = {}
+    for chapter in chapters:
+        if not isinstance(chapter, dict):
+            errors.append("every chapter must be a mapping")
+            continue
+        chapter_id = chapter.get("id") or "unknown"
+        if not chapter.get("id"):
+            errors.append("chapter id is required")
+        if not chapter.get("title"):
+            errors.append(f"chapter {chapter_id}: title is required")
+        if not chapter.get("purpose"):
+            errors.append(f"chapter {chapter_id}: purpose is required")
+        main_slide_ids = chapter.get("main_slide_ids")
+        if not isinstance(main_slide_ids, list) or not main_slide_ids:
+            errors.append(f"chapter {chapter_id}: main_slide_ids must contain at least one slide")
+            continue
+        for main_slide_id in main_slide_ids:
+            if main_slide_id in chapter_for_main_id:
+                errors.append(f"main slide {main_slide_id}: belongs to more than one chapter")
+            else:
+                chapter_for_main_id[main_slide_id] = chapter_id
+            chapter_main_ids.append(main_slide_id)
+
     main_slides = []
+    divider_slides = []
     appendix_slides = []
     seen_appendix = False
     for slide in slides:
@@ -195,27 +232,68 @@ def validate_plan(plan):
         section = slide.get("story_section")
         if section == "main":
             if seen_appendix:
-                errors.append("appendix slides must follow all main slides")
+                errors.append("appendix slides must follow all main and divider slides")
             main_slides.append(slide)
+        elif section == "divider":
+            if seen_appendix:
+                errors.append("appendix slides must follow all main and divider slides")
+            divider_slides.append(slide)
+        elif section == "front_matter":
+            pass
         elif section == "appendix":
             seen_appendix = True
             appendix_slides.append(slide)
         else:
-            errors.append(f"slide {slide_id}: story_section must be main or appendix")
+            errors.append(
+                f"slide {slide_id}: story_section must be front_matter, main, divider, or appendix"
+            )
 
-        claim_id = slide.get("answer_claim_id")
-        claim = claims_by_id.get(claim_id)
-        if not claim:
-            errors.append(f"slide {slide_id}: references unknown answer claim {claim_id!r}")
-        elif slide.get("action_title") != claim.get("statement"):
-            errors.append(f"slide {slide_id}: action_title must equal its answer claim statement")
-        for evidence_id in slide.get("evidence_ids", []):
-            if evidence_id not in evidence_ids:
-                errors.append(f"slide {slide_id}: references unknown evidence {evidence_id!r}")
+        if section in {"main", "appendix"}:
+            claim_id = slide.get("answer_claim_id")
+            claim = claims_by_id.get(claim_id)
+            if not claim:
+                errors.append(f"slide {slide_id}: references unknown answer claim {claim_id!r}")
+            elif slide.get("action_title") != claim.get("statement"):
+                errors.append(f"slide {slide_id}: action_title must equal its answer claim statement")
+            for evidence_id in slide.get("evidence_ids", []):
+                if evidence_id not in evidence_ids:
+                    errors.append(f"slide {slide_id}: references unknown evidence {evidence_id!r}")
+        elif any(
+            key in slide
+            for key in ("answer_claim_id", "evidence_ids", "question_in", "question_out", "concept_ids")
+        ):
+            errors.append(f"slide {slide_id}: navigation slides must not declare narrative fields")
+
+    front_matter_positions = [
+        index for index, slide in enumerate(slides)
+        if isinstance(slide, dict) and slide.get("story_section") == "front_matter"
+    ]
+    front_matter_roles = [
+        slides[index].get("role") for index in front_matter_positions
+    ]
+    if front_matter_positions != [0, 1] or front_matter_roles != ["cover", "contents"]:
+        errors.append("plan must start with exactly two front matter slides: cover and contents")
+
+    contents_slide = slides[1] if len(slides) > 1 and isinstance(slides[1], dict) else {}
+    if contents_slide.get("story_section") == "front_matter" and contents_slide.get("role") == "contents":
+        contents_chapter_ids = contents_slide.get("chapter_ids")
+        if contents_chapter_ids != chapter_ids:
+            errors.append("contents chapter_ids must exactly match chapter order")
 
     if not main_slides:
         errors.append("plan must contain at least one main slide")
     else:
+        ordered_main_ids = [slide.get("id") for slide in main_slides]
+        if chapter_main_ids != ordered_main_ids:
+            errors.append("chapter main_slide_ids must exactly match main slide order")
+        for slide in main_slides:
+            slide_id = slide.get("id") or "unknown"
+            chapter_id = slide.get("chapter_id")
+            if chapter_id not in chapters_by_id:
+                errors.append(f"slide {slide_id}: references unknown chapter {chapter_id!r}")
+            elif chapter_for_main_id.get(slide_id) != chapter_id:
+                errors.append(f"slide {slide_id}: chapter_id does not match chapter membership")
+
         first_question = main_slides[0].get("question_in")
         if not _question_matches(first_question, governing_question):
             errors.append("first main slide must answer the governing question")
@@ -243,6 +321,54 @@ def validate_plan(plan):
                 errors.append(f"slide {slide_id}: final main slide must close the question chain")
         for question_id in _duplicates(question_in_ids):
             errors.append(f"main story reuses incoming question {question_id}")
+
+        slide_positions_by_id = {
+            slide.get("id"): index
+            for index, slide in enumerate(slides)
+            if isinstance(slide, dict) and slide.get("id")
+        }
+        for index, slide in enumerate(main_slides):
+            slide_id = slide.get("id") or f"main position {index + 1}"
+            position = slide_positions_by_id.get(slide.get("id"), -1)
+            previous = slides[position - 1] if position > 0 and isinstance(slides[position - 1], dict) else {}
+            if index == 0:
+                if previous.get("story_section") == "divider":
+                    errors.append("first chapter must follow contents without a divider")
+                continue
+            previous_chapter_id = main_slides[index - 1].get("chapter_id")
+            chapter_id = slide.get("chapter_id")
+            if chapter_id != previous_chapter_id and previous.get("story_section") != "divider":
+                errors.append(f"chapter change requires a divider before slide {slide_id}")
+
+    for divider in divider_slides:
+        divider_id = divider.get("id") or "unknown"
+        position = slides.index(divider)
+        next_slide = slides[position + 1] if position + 1 < len(slides) and isinstance(slides[position + 1], dict) else {}
+        if divider.get("role") != "section_divider":
+            errors.append(f"slide {divider_id}: divider role must be section_divider")
+        chapter_id = divider.get("chapter_id")
+        chapter = chapters_by_id.get(chapter_id)
+        if not chapter:
+            errors.append(f"slide {divider_id}: references unknown chapter {chapter_id!r}")
+        else:
+            if divider.get("title") != chapter.get("title"):
+                errors.append(f"slide {divider_id}: title must match its chapter title")
+            if divider.get("purpose") != chapter.get("purpose"):
+                errors.append(f"slide {divider_id}: purpose must match its chapter purpose")
+        if next_slide.get("story_section") != "main":
+            errors.append(f"slide {divider_id}: divider must immediately precede a main slide")
+            continue
+        if divider.get("next_main_slide_id") != next_slide.get("id"):
+            errors.append(f"slide {divider_id}: next_main_slide_id must match the following main slide")
+        next_main_index = main_slides.index(next_slide)
+        if next_main_index == 0:
+            errors.append("first chapter must follow contents without a divider")
+        else:
+            previous_chapter_id = main_slides[next_main_index - 1].get("chapter_id")
+            if next_slide.get("chapter_id") == previous_chapter_id:
+                errors.append(f"slide {divider_id}: divider is only allowed at a chapter change")
+        if chapter_id != next_slide.get("chapter_id"):
+            errors.append(f"slide {divider_id}: chapter_id must match the following main slide")
 
     main_ids = {slide.get("id") for slide in main_slides if slide.get("id")}
     for slide in appendix_slides:
@@ -285,6 +411,8 @@ def validate_plan(plan):
             errors.append(f"concept {concept_id}: introduced_on_slide_id is unknown")
             continue
         introduced_by_slide[introduced_slide_id] += 1
+        if slide.get("story_section") in {"front_matter", "divider"}:
+            errors.append(f"concept {concept_id}: navigation slides must not introduce concepts")
         if concept_id not in slide.get("concept_ids", []):
             errors.append(f"concept {concept_id}: introduction slide must use the concept")
         if slide.get("story_section") == "main":
@@ -321,6 +449,8 @@ def validate_plan(plan):
         errors.append("concept-continuity check must pass")
     if checks.get("appendix_separation", {}).get("passes") is not True:
         errors.append("appendix-separation check must pass")
+    if checks.get("chapter_navigation", {}).get("passes") is not True:
+        errors.append("chapter-navigation check must pass")
 
     deletion = checks.get("deletion_test", {})
     indispensable = set(deletion.get("indispensable_main_slide_ids", []))

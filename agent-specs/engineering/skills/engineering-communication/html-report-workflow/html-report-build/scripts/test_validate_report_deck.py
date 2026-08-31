@@ -10,7 +10,18 @@ def valid_deck_html():
 <style>:root { --canvas-w: 1600px; --canvas-h: 900px; }</style></head>
 <body>
   <div id="report-deck" data-report-schema="0.3">
+    <section class="slide" id="F1" data-story-section="front_matter"
+      data-front-matter-role="cover">
+      <h1>Tender discovery V1</h1>
+      <p class="page-number"></p>
+    </section>
+    <section class="slide" id="F2" data-story-section="front_matter"
+      data-front-matter-role="contents" data-chapter-ids="CH1">
+      <h2>Argument map</h2>
+      <p class="page-number"></p>
+    </section>
     <section class="slide" id="S1" data-story-section="main"
+      data-chapter-id="CH1"
       data-question-in-id="Q0" data-question-out-id="Q1"
       data-claim-id="C0" data-supports-claim-id="" data-evidence-ids="E1">
       <h1>Adopt the smallest user loop before expanding the platform.</h1>
@@ -18,6 +29,7 @@ def valid_deck_html():
       <p class="page-number"></p>
     </section>
     <section class="slide" id="S2" data-story-section="main"
+      data-chapter-id="CH1"
       data-question-in-id="Q1" data-question-out-id=""
       data-claim-id="C1" data-supports-claim-id="C0" data-evidence-ids="E2">
       <h2>The current search cannot keep executing user intent.</h2>
@@ -46,13 +58,30 @@ def valid_deck_html():
 </html>"""
 
 
+def two_chapter_deck_html(include_divider=True):
+    html = valid_deck_html().replace('data-chapter-ids="CH1"', 'data-chapter-ids="CH1 CH2"')
+    html = html.replace(
+        'id="S2" data-story-section="main"\n      data-chapter-id="CH1"',
+        'id="S2" data-story-section="main"\n      data-chapter-id="CH2"',
+    )
+    if include_divider:
+        divider = """    <section class="slide" id="D2" data-story-section="divider"
+      data-chapter-id="CH2" data-next-main-slide-id="S2">
+      <h2>Current gap</h2>
+      <p class="page-number"></p>
+    </section>
+"""
+        html = html.replace('    <section class="slide" id="S2"', divider + '    <section class="slide" id="S2"')
+    return html
+
+
 class ValidateReportDeckTests(unittest.TestCase):
-    def test_accepts_a_complete_storylined_deck_without_visible_source_notes(self):
+    def test_accepts_a_complete_deck_with_cover_and_contents(self):
         errors, warnings, slide_count = validate_html(valid_deck_html())
 
         self.assertEqual(errors, [])
         self.assertEqual(warnings, [])
-        self.assertEqual(slide_count, 3)
+        self.assertEqual(slide_count, 5)
 
     def test_rejects_unresolved_placeholders_and_external_assets(self):
         html = valid_deck_html().replace(
@@ -67,7 +96,7 @@ class ValidateReportDeckTests(unittest.TestCase):
 
     def test_rejects_slide_contract_gaps(self):
         html = valid_deck_html().replace(
-            'data-story-section="main"\n      data-question-in-id="Q0" data-question-out-id="Q1"\n      data-claim-id="C0" data-supports-claim-id="" data-evidence-ids="E1"',
+            'data-story-section="main"\n      data-chapter-id="CH1"\n      data-question-in-id="Q0" data-question-out-id="Q1"\n      data-claim-id="C0" data-supports-claim-id="" data-evidence-ids="E1"',
             'data-story-section="main"',
             1,
         ).replace(
@@ -178,6 +207,75 @@ class ValidateReportDeckTests(unittest.TestCase):
         errors, _, _ = validate_html(html)
 
         self.assertTrue(any("1600 x 900" in error for error in errors))
+
+    def test_rejects_a_deck_without_default_cover_and_contents(self):
+        html = valid_deck_html()
+        start = html.index('    <section class="slide" id="F1"')
+        end = html.index('    <section class="slide" id="S1"')
+        html = html[:start] + html[end:]
+
+        errors, _, _ = validate_html(html)
+
+        self.assertTrue(any("cover and contents" in error for error in errors))
+
+    def test_accepts_a_divider_at_each_chapter_change(self):
+        errors, warnings, slide_count = validate_html(two_chapter_deck_html())
+
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, [])
+        self.assertEqual(slide_count, 6)
+
+    def test_rejects_a_missing_divider_at_a_chapter_change(self):
+        errors, _, _ = validate_html(two_chapter_deck_html(include_divider=False))
+
+        self.assertTrue(any("chapter change requires a divider" in error for error in errors))
+
+    def test_rejects_contents_that_omit_a_chapter(self):
+        html = two_chapter_deck_html().replace('data-chapter-ids="CH1 CH2"', 'data-chapter-ids="CH1"')
+
+        errors, _, _ = validate_html(html)
+
+        self.assertTrue(any("contents chapter IDs" in error for error in errors))
+
+    def test_rejects_a_divider_before_the_first_chapter(self):
+        divider = """    <section class="slide" id="D1" data-story-section="divider"
+      data-chapter-id="CH1" data-next-main-slide-id="S1">
+      <h2>Decision</h2>
+      <p class="page-number"></p>
+    </section>
+"""
+        html = valid_deck_html().replace(
+            '    <section class="slide" id="S1"', divider + '    <section class="slide" id="S1"'
+        )
+
+        errors, _, _ = validate_html(html)
+
+        self.assertTrue(any("first chapter" in error for error in errors))
+
+    def test_rejects_a_divider_inside_one_chapter(self):
+        divider = """    <section class="slide" id="D1" data-story-section="divider"
+      data-chapter-id="CH1" data-next-main-slide-id="S2">
+      <h2>Current gap</h2>
+      <p class="page-number"></p>
+    </section>
+"""
+        html = valid_deck_html().replace(
+            '    <section class="slide" id="S2"', divider + '    <section class="slide" id="S2"'
+        )
+
+        errors, _, _ = validate_html(html)
+
+        self.assertTrue(any("only allowed at a chapter change" in error for error in errors))
+
+    def test_rejects_narrative_attributes_on_navigation_slides(self):
+        html = valid_deck_html().replace(
+            'data-front-matter-role="cover"',
+            'data-front-matter-role="cover" data-evidence-ids="E1"',
+        )
+
+        errors, _, _ = validate_html(html)
+
+        self.assertTrue(any("navigation slides" in error for error in errors))
 
 
 if __name__ == "__main__":

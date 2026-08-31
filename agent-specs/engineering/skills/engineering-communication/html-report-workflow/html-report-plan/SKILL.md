@@ -1,6 +1,6 @@
 ---
 name: html-report-plan
-description: v0.3.1 - Plans evidence-backed HTML report decks as a Minto-style argument pyramid and closed reader-question chain. Use when a report, proposal, diagnosis, or technical recommendation must progress without topic jumps. Use when main-story conclusions, supporting claims, concept introductions, appendix material, and the final decision need a build-ready contract before slide authoring.
+description: v0.3.2 - Plans evidence-backed HTML report decks as a Minto-style argument pyramid, chapter map, and closed reader-question chain. Use when a report, proposal, diagnosis, or technical recommendation must progress without topic jumps. Use when cover, contents, chapter boundaries, main-story conclusions, concept introductions, appendix material, and the final decision need one build-ready contract before slide authoring.
 ---
 
 # HTML Report Deck Plan
@@ -38,6 +38,9 @@ needs primary investigation.
 
 - Artifact: one self-contained fixed 1600 x 900 HTML report deck.
 - Logic model: Minto argument pyramid plus a closed reader-question chain.
+- Front matter: one cover followed by one chapter-level argument map.
+- Chapters: the first chapter follows contents directly; every later chapter
+  change has one dedicated divider.
 - Opening: answer the governing question on the first main slide.
 - Main story: only claims indispensable to the reader's decision.
 - Appendix: supporting detail that proves or implements a main-story claim but
@@ -121,10 +124,11 @@ For each main slide define:
 - `answer_claim_id`: the claim that answers the question
 - `question_out`: the one natural question created by that answer
 
-Apply these hard rules:
+Apply these hard rules to main slides, ignoring navigation pages:
 
-- Slide 1 `question_in` equals the governing question.
-- Slide N `question_out` equals Slide N+1 `question_in` in ID and wording.
+- The first main slide's `question_in` equals the governing question.
+- Main slide N `question_out` equals main slide N+1 `question_in` in ID and
+  wording, even when a chapter divider sits between them.
 - The final main slide has `question_out: null` and closes on the requested
   decision or action.
 - A transition such as "next we discuss" is not a question handoff.
@@ -151,19 +155,40 @@ Prefer at most one new concept per main slide. A service boundary, API shape,
 data model, queue, OCR path, or external contract that does not answer the
 current question belongs in the appendix.
 
-### Step 7: Separate Main Story and Appendix
+### Step 7: Define Chapters and Separate Navigation, Main Story, and Appendix
 
-Mark every slide `story_section: main | appendix`.
+Create `chapters` only after the main question chain is closed. Each chapter
+must name one coherent phase of the argument and declare:
+
+- stable `id`, title, and purpose
+- ordered `main_slide_ids`
+
+Then mark every slide `story_section: front_matter | main | divider | appendix`.
+
+Front matter:
+
+- is always exactly two leading slides: `cover`, then `contents`
+- uses contents as a chapter-level argument map in chapter order
+- never lists every slide title and never declares Claims, evidence, questions,
+  or concepts
+
+Chapter dividers:
+
+- appear immediately before the first main slide of Chapters 2..N
+- copy the target chapter's title and purpose and point to that main slide
+- do not appear before Chapter 1 or between slides in the same chapter
+- orient the reader without introducing a Claim, concept, or detour
 
 Main slides:
 
 - advance the governing answer toward the audience decision
+- belong to exactly one chapter and remain contiguous within it
 - belong to the closed question chain
 - are indispensable under the deletion test
 
 Appendix slides:
 
-- appear after all main slides
+- appear after all main and divider slides
 - declare `appendix_for_slide_ids`
 - contain evidence, API tables, JSON, data models, detailed flows, ownership
   matrices, or implementation contracts that support named main slides
@@ -190,6 +215,9 @@ Run all gates before build:
    main story, and every appendix slide points back to a main slide.
 7. **Decision-closure test**: the final main slide leaves the reader with a
    concrete decision, action, owner, or acceptance boundary.
+8. **Chapter-navigation test**: contents names the argument phases in order,
+   Chapter 1 follows it directly, and each later divider announces only the
+   next phase already present in the main-story logic.
 
 Record the first break, not a generic pass explanation. Do not mark a gate
 passed merely because the corresponding fields are filled.
@@ -205,7 +233,8 @@ python3 ../html-report-build/scripts/validate_report_plan.py <report-name>.plan.
 
 Fix every structural error and review warnings. The validator proves IDs,
 references, graph reachability, question handoffs, concept licensing, appendix
-order, deletion-test declarations, and absence of target page counts. Human
+order, chapter navigation, deletion-test declarations, and absence of target
+page counts. Human
 review still owns semantic sufficiency and whether one answer truly creates
 the next question.
 
@@ -223,6 +252,8 @@ conversation. Do not create HTML in this skill.
   move technical detail to the appendix.
 - If the deletion test removes a slide without breaking the argument, it is
   not a main slide.
+- If a proposed chapter does not represent a real change in the argument phase,
+  merge it with the adjacent chapter instead of adding a visual divider.
 - If the user requests a fixed slide count, explain that page count is an
   output of the argument and do not encode the target.
 
@@ -236,6 +267,7 @@ conversation. Do not create HTML in this skill.
 | "Twelve pages will look complete." | A target page count manufactures claims and weakens the argument. |
 | "All claims have evidence." | Evidence makes a claim supportable, not necessary to the governing answer. |
 | "The reader can skip the architecture slide." | A skippable slide fails the main-story deletion test. |
+| "A divider will make this topic change feel smoother." | Dividers expose chapter logic; they cannot repair a broken question handoff. |
 
 ## Red Flags
 
@@ -247,6 +279,9 @@ conversation. Do not create HTML in this skill.
 - A main slide introduces several services, interfaces, models, or future
   capabilities not required by its incoming question.
 - An appendix slide advances the decision instead of supporting it.
+- Cover or contents is missing, contents lists pages instead of argument phases,
+  or a divider introduces a new concept.
+- A divider appears before Chapter 1 or inside one chapter.
 - A page-count target appears anywhere in the plan.
 - Storyline checks are marked passed without a recorded test result.
 
@@ -260,6 +295,10 @@ conversation. Do not create HTML in this skill.
 - [ ] Question handoffs are exact and the final main slide closes the chain.
 - [ ] New concepts are licensed by incoming questions and introduced once.
 - [ ] Every main slide is indispensable under the deletion test.
+- [ ] Cover and chapter-level contents are the first two slides.
+- [ ] Every main slide belongs to one chapter; Chapter 1 has no divider and
+      each later chapter begins with exactly one matching divider.
+- [ ] Front matter and dividers contain no Claims, evidence, questions, or concepts.
 - [ ] All appendix slides follow the main story and point to main slides.
 - [ ] No target page count is present.
 - [ ] Evidence maps through `source_context` and `evidence_ids` without a
@@ -277,6 +316,7 @@ conversation. Do not create HTML in this skill.
 ## Governing Question and Answer
 ## Argument Pyramid
 ## Reader-Question Chain
+## Chapter Map and Navigation
 ## Concept Ledger
 ## Main Story
 ## Appendix Map
@@ -293,6 +333,8 @@ conversation. Do not create HTML in this skill.
 - Do not put a claim in the main story merely because evidence exists for it.
 - Do not introduce a main-story concept before an incoming question requires it.
 - Do not mix appendix detail into the main question chain.
+- Do not use cover, contents, or dividers to add Claims or concepts.
+- Do not create chapters or dividers merely to improve appearance or page count.
 - Do not plan to a fixed, minimum, or preferred page count.
 - Do not require repeated visible source notes when metadata preserves the
   evidence mapping.

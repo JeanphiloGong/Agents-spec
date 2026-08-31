@@ -2,9 +2,14 @@
 
 Use this package to turn evidence-backed analysis, comparison, diagnosis, or
 implementation guidance into a professional, self-reading HTML presentation.
-The v0.3 contract uses a Minto argument pyramid and closed reader-question
-chain so main slides advance one decision while implementation detail stays in
-linked appendices.
+The v0.3 contract uses a Minto argument pyramid, chapter-level argument map,
+and closed reader-question chain so main slides advance one decision while
+implementation detail stays in linked appendices.
+
+Every deck follows `cover -> argument-map contents -> Chapter 1 -> divided
+later chapters -> appendix`. Chapter 1 follows contents directly; each later
+chapter begins with one divider. Navigation pages orient the reader but add no
+Claims, evidence, questions, or concepts.
 
 Evidence remains traceable through the plan and slide metadata. Generated decks
 do not repeat source notes in a visible footer by default; page numbers remain.
@@ -13,9 +18,9 @@ do not repeat source notes in a visible footer by default; page numbers remain.
 
 | Skill | Use when | Output |
 | --- | --- | --- |
-| [`html-report-plan`](html-report-plan/SKILL.md) | Define the governing answer, Claim pyramid, question chain, concept order, and appendix map. | v0.3 report-deck plan |
-| [`html-report-build`](html-report-build/SKILL.md) | Turn an approved v0.3 plan into one offline deck without changing its storyline. | Self-contained `.html` deck |
-| [`html-report-review`](html-report-review/SKILL.md) | Accept or reject the pyramid, question chain, deletion test, appendix split, evidence, rendering, behavior, and safety. | `pass`, `fail`, or `blocked` review |
+| [`html-report-plan`](html-report-plan/SKILL.md) | Define the governing answer, Claim pyramid, chapter map, question chain, concept order, and appendix map. | v0.3 report-deck plan |
+| [`html-report-build`](html-report-build/SKILL.md) | Turn an approved v0.3 plan into one offline chaptered deck without changing its storyline. | Self-contained `.html` deck |
+| [`html-report-review`](html-report-review/SKILL.md) | Accept or reject chapter navigation, the pyramid, question chain, deletion test, appendix split, evidence, rendering, behavior, and safety. | `pass`, `fail`, or `blocked` review |
 
 ## Sequence
 

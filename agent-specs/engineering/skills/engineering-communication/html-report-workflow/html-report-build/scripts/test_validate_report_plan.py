@@ -3,10 +3,14 @@ import unittest
 from validate_report_plan import validate_plan
 
 
+def slide_by_id(plan, slide_id):
+    return next(slide for slide in plan["slides"] if slide["id"] == slide_id)
+
+
 def valid_plan():
     return {
         "schema_version": "0.3",
-        "skill_version": "0.3.1",
+        "skill_version": "0.3.2",
         "artifact_type": "html_report_deck",
         "report_job": {
             "topic": "Tender discovery",
@@ -85,10 +89,33 @@ def valid_plan():
                 "required_by_question_id": "Q1",
             },
         ],
+        "chapters": [
+            {
+                "id": "CH1",
+                "title": "Decision and current gap",
+                "purpose": "Establish the smallest useful V1 and why it is needed.",
+                "main_slide_ids": ["S1", "S2"],
+            }
+        ],
         "slides": [
+            {
+                "id": "F1",
+                "story_section": "front_matter",
+                "role": "cover",
+                "title": "Tender discovery V1",
+                "subtitle": "Decision report",
+            },
+            {
+                "id": "F2",
+                "story_section": "front_matter",
+                "role": "contents",
+                "title": "Argument map",
+                "chapter_ids": ["CH1"],
+            },
             {
                 "id": "S1",
                 "story_section": "main",
+                "chapter_id": "CH1",
                 "role": "answer",
                 "question_in": {"id": "Q0", "text": "What should V1 prove first?"},
                 "action_title": "Adopt the smallest user loop before expanding the platform.",
@@ -103,6 +130,7 @@ def valid_plan():
             {
                 "id": "S2",
                 "story_section": "main",
+                "chapter_id": "CH1",
                 "role": "diagnosis",
                 "question_in": {"id": "Q1", "text": "Why is the current flow insufficient?"},
                 "action_title": "The current search cannot keep executing user intent.",
@@ -137,12 +165,46 @@ def valid_plan():
             },
             "concept_continuity": {"passes": True, "first_unlicensed_concept": None},
             "appendix_separation": {"passes": True, "misplaced_slide_ids": []},
+            "chapter_navigation": {"passes": True, "first_break": None},
         },
     }
 
 
+def two_chapter_plan(include_divider=True):
+    plan = valid_plan()
+    plan["chapters"] = [
+        {
+            "id": "CH1",
+            "title": "Decision",
+            "purpose": "State the smallest useful V1.",
+            "main_slide_ids": ["S1"],
+        },
+        {
+            "id": "CH2",
+            "title": "Current gap",
+            "purpose": "Show why the current flow is insufficient.",
+            "main_slide_ids": ["S2"],
+        },
+    ]
+    slide_by_id(plan, "F2")["chapter_ids"] = ["CH1", "CH2"]
+    slide_by_id(plan, "S2")["chapter_id"] = "CH2"
+    if include_divider:
+        divider = {
+            "id": "D2",
+            "story_section": "divider",
+            "role": "section_divider",
+            "chapter_id": "CH2",
+            "title": "Current gap",
+            "purpose": "Show why the current flow is insufficient.",
+            "next_main_slide_id": "S2",
+        }
+        s2_index = plan["slides"].index(slide_by_id(plan, "S2"))
+        plan["slides"].insert(s2_index, divider)
+    return plan
+
+
 class ValidateReportPlanTests(unittest.TestCase):
-    def test_accepts_a_closed_argument_plan(self):
+    def test_accepts_a_closed_argument_plan_with_cover_and_contents(self):
         errors, warnings = validate_plan(valid_plan())
 
         self.assertEqual(errors, [])
@@ -150,11 +212,11 @@ class ValidateReportPlanTests(unittest.TestCase):
 
     def test_rejects_the_previous_skill_version(self):
         plan = valid_plan()
-        plan["skill_version"] = "0.3.0"
+        plan["skill_version"] = "0.3.1"
 
         errors, _ = validate_plan(plan)
 
-        self.assertTrue(any('skill_version must be "0.3.1"' in error for error in errors))
+        self.assertTrue(any('skill_version must be "0.3.2"' in error for error in errors))
 
     def test_rejects_a_requested_slide_count(self):
         plan = valid_plan()
@@ -184,8 +246,8 @@ class ValidateReportPlanTests(unittest.TestCase):
 
     def test_requires_the_opening_slide_to_answer_with_the_governing_claim(self):
         plan = valid_plan()
-        plan["slides"][0]["action_title"] = plan["claims"][1]["statement"]
-        plan["slides"][0]["answer_claim_id"] = "C1"
+        slide_by_id(plan, "S1")["action_title"] = plan["claims"][1]["statement"]
+        slide_by_id(plan, "S1")["answer_claim_id"] = "C1"
 
         errors, _ = validate_plan(plan)
 
@@ -211,10 +273,12 @@ class ValidateReportPlanTests(unittest.TestCase):
 
     def test_rejects_repeated_main_claims_and_questions(self):
         plan = valid_plan()
-        plan["slides"][1]["answer_claim_id"] = "C0"
-        plan["slides"][1]["action_title"] = plan["claims"][0]["statement"]
-        plan["slides"][1]["question_in"] = plan["slides"][0]["question_in"].copy()
-        plan["slides"][0]["question_out"] = plan["slides"][1]["question_in"].copy()
+        s1 = slide_by_id(plan, "S1")
+        s2 = slide_by_id(plan, "S2")
+        s2["answer_claim_id"] = "C0"
+        s2["action_title"] = plan["claims"][0]["statement"]
+        s2["question_in"] = s1["question_in"].copy()
+        s1["question_out"] = s2["question_in"].copy()
 
         errors, _ = validate_plan(plan)
 
@@ -223,7 +287,7 @@ class ValidateReportPlanTests(unittest.TestCase):
 
     def test_rejects_a_broken_question_handoff(self):
         plan = valid_plan()
-        plan["slides"][1]["question_in"] = {"id": "Q9", "text": "A new topic?"}
+        slide_by_id(plan, "S2")["question_in"] = {"id": "Q9", "text": "A new topic?"}
 
         errors, _ = validate_plan(plan)
 
@@ -266,15 +330,100 @@ class ValidateReportPlanTests(unittest.TestCase):
 
     def test_rejects_appendix_content_inside_the_main_sequence(self):
         plan = valid_plan()
-        plan["slides"][1]["story_section"] = "appendix"
-        plan["slides"][1]["appendix_for_slide_ids"] = ["S1"]
-        plan["slides"][2]["story_section"] = "main"
-        plan["slides"][2]["question_in"] = {"id": "Q1", "text": "Why is the current flow insufficient?"}
-        plan["slides"][2]["question_out"] = None
+        s2 = slide_by_id(plan, "S2")
+        appendix = slide_by_id(plan, "A1")
+        s2["story_section"] = "appendix"
+        s2["appendix_for_slide_ids"] = ["S1"]
+        appendix["story_section"] = "main"
+        appendix["chapter_id"] = "CH1"
+        appendix["question_in"] = {"id": "Q1", "text": "Why is the current flow insufficient?"}
+        appendix["question_out"] = None
 
         errors, _ = validate_plan(plan)
 
         self.assertTrue(any("appendix slides must follow" in error for error in errors))
+
+    def test_rejects_a_plan_without_default_cover_and_contents(self):
+        plan = valid_plan()
+        plan["slides"] = [slide for slide in plan["slides"] if slide["story_section"] != "front_matter"]
+
+        errors, _ = validate_plan(plan)
+
+        self.assertTrue(any("cover and contents" in error for error in errors))
+
+    def test_accepts_a_divider_at_each_chapter_change(self):
+        errors, warnings = validate_plan(two_chapter_plan())
+
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, [])
+
+    def test_rejects_a_missing_divider_at_a_chapter_change(self):
+        errors, _ = validate_plan(two_chapter_plan(include_divider=False))
+
+        self.assertTrue(any("chapter change requires a divider" in error for error in errors))
+
+    def test_rejects_contents_that_omit_a_chapter(self):
+        plan = two_chapter_plan()
+        slide_by_id(plan, "F2")["chapter_ids"] = ["CH1"]
+
+        errors, _ = validate_plan(plan)
+
+        self.assertTrue(any("contents chapter_ids" in error for error in errors))
+
+    def test_rejects_a_divider_before_the_first_chapter(self):
+        plan = valid_plan()
+        plan["slides"].insert(
+            2,
+            {
+                "id": "D1",
+                "story_section": "divider",
+                "role": "section_divider",
+                "chapter_id": "CH1",
+                "title": "Decision and current gap",
+                "purpose": "Establish the smallest useful V1 and why it is needed.",
+                "next_main_slide_id": "S1",
+            },
+        )
+
+        errors, _ = validate_plan(plan)
+
+        self.assertTrue(any("first chapter" in error for error in errors))
+
+    def test_rejects_a_divider_inside_one_chapter(self):
+        plan = valid_plan()
+        s2_index = plan["slides"].index(slide_by_id(plan, "S2"))
+        plan["slides"].insert(
+            s2_index,
+            {
+                "id": "D1",
+                "story_section": "divider",
+                "role": "section_divider",
+                "chapter_id": "CH1",
+                "title": "Decision and current gap",
+                "purpose": "Establish the smallest useful V1 and why it is needed.",
+                "next_main_slide_id": "S2",
+            },
+        )
+
+        errors, _ = validate_plan(plan)
+
+        self.assertTrue(any("only allowed at a chapter change" in error for error in errors))
+
+    def test_rejects_narrative_fields_on_navigation_slides(self):
+        plan = valid_plan()
+        slide_by_id(plan, "F1")["evidence_ids"] = ["E1"]
+
+        errors, _ = validate_plan(plan)
+
+        self.assertTrue(any("navigation slides" in error for error in errors))
+
+    def test_rejects_an_unapproved_chapter_navigation_gate(self):
+        plan = valid_plan()
+        plan["storyline_checks"]["chapter_navigation"]["passes"] = False
+
+        errors, _ = validate_plan(plan)
+
+        self.assertTrue(any("chapter-navigation check" in error for error in errors))
 
 
 if __name__ == "__main__":

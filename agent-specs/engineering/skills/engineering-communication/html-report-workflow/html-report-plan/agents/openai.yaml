@@ -1,4 +1,4 @@
 interface:
   display_name: "HTML Report Deck Plan"
-  short_description: "v0.3.1 - Plan a storylined HTML report deck"
-  default_prompt: "Use $html-report-plan to build a Minto argument pyramid, closed reader-question chain, licensed concept order, and appendix map before creating an HTML report deck."
+  short_description: "v0.3.2 - Plan a chaptered HTML report deck"
+  default_prompt: "Use $html-report-plan to build a Minto argument pyramid, closed reader-question chain, chapter-level argument map, required navigation pages, licensed concept order, and appendix map before creating an HTML report deck."

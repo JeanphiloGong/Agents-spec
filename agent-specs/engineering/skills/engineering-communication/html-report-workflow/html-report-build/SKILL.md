@@ -1,6 +1,6 @@
 ---
 name: html-report-build
-description: v0.3.1 - Builds a fixed 16:9 HTML report deck from an approved Minto-pyramid plan and closed reader-question chain. Use when a validated v0.3 plan must become a browser-playable briefing without changing its claim hierarchy, concept order, main story, or appendix boundary. Use when offline navigation, print, evidence traceability, and narrative continuity must remain verifiable.
+description: v0.3.2 - Builds a fixed 16:9 HTML report deck from an approved Minto-pyramid plan, chapter map, and closed reader-question chain. Use when a validated v0.3 plan must become a browser-playable briefing with a cover, argument-map contents, chapter dividers, and appendix. Use when offline navigation, print, evidence traceability, and narrative continuity must remain verifiable.
 ---
 
 # HTML Report Deck Build
@@ -33,7 +33,9 @@ applications; or when the user needs a native editable `.pptx` file.
 
 - One self-contained `.html` file.
 - Fixed 1600 x 900 slide canvas, scaled without content reflow.
-- Main slides first; appendix slides afterward.
+- Sequence: cover, argument-map contents, Chapter 1, divided later chapters,
+  then appendix.
+- Chapter 1 follows contents directly; Chapters 2..N each begin with one divider.
 - No target, minimum, preferred, or padded page count.
 - All planned evidence on the current slide is visible immediately.
 - No transitions, staged reveals, narration, or decorative motion by default.
@@ -55,11 +57,12 @@ python3 scripts/validate_report_plan.py <report-name>.plan.yaml
 
 Confirm:
 
-- schema is v0.3 and skill version is v0.3.1
+- schema is v0.3 and skill version is v0.3.2
 - governing question, governing answer, key line, and audience decision
 - every claim reaches the governing answer
 - exact `question_in` and `question_out` handoffs
 - concept ledger and licensed introduction order
+- chapter map, required front matter and chapter transitions
 - main-story and appendix separation
 - titles-only, question-chain, deletion, concept, and appendix gates passed
 - no target page count appears
@@ -74,7 +77,70 @@ only a directory is known, choose `<topic>-report-deck.html`.
 
 Do not overwrite an unrelated file or write outside the requested directory.
 
-### Step 3: Compose the Main Story
+### Step 3: Compose Front Matter and Chapter Dividers
+
+Create exactly one cover and one chapter-level contents slide before the first
+main slide. They are navigation, so omit Claim, evidence, question, support,
+and concept attributes.
+
+```html
+<section class="slide cover-slide" id="F1"
+  data-story-section="front_matter" data-front-matter-role="cover">
+  <div class="cover-content">
+    <p class="cover-kicker">Decision report</p>
+    <h1>Tender discovery V1</h1>
+    <p class="cover-subtitle">Scope decision and delivery boundary</p>
+  </div>
+  <footer class="slide-footer" aria-label="Page number">
+    <p class="page-number" aria-hidden="true"></p>
+  </footer>
+</section>
+
+<section class="slide contents-slide" id="F2"
+  data-story-section="front_matter" data-front-matter-role="contents"
+  data-chapter-ids="CH1 CH2">
+  <header class="slide-header"><h2>Argument map</h2></header>
+  <div class="slide-body">
+    <ol class="argument-map">
+      <li class="argument-map-item">
+        <span class="argument-map-number">01</span>
+        <div><h3>Decision</h3><p>State the smallest useful V1.</p></div>
+      </li>
+      <li class="argument-map-item">
+        <span class="argument-map-number">02</span>
+        <div><h3>Current gap</h3><p>Show why the current flow is insufficient.</p></div>
+      </li>
+    </ol>
+  </div>
+  <footer class="slide-footer" aria-label="Page number">
+    <p class="page-number" aria-hidden="true"></p>
+  </footer>
+</section>
+```
+
+Contents must show chapter titles and purposes in argument order, not a list of
+every slide. The first main slide follows contents directly. Immediately before
+the first main slide of each later chapter, add:
+
+```html
+<section class="slide chapter-divider" id="D2"
+  data-story-section="divider" data-chapter-id="CH2"
+  data-next-main-slide-id="S4">
+  <div class="chapter-divider-content">
+    <p class="chapter-index">Chapter 02</p>
+    <h2>Current gap</h2>
+    <p class="chapter-purpose">Show why the current flow is insufficient.</p>
+  </div>
+  <footer class="slide-footer" aria-label="Page number">
+    <p class="page-number" aria-hidden="true"></p>
+  </footer>
+</section>
+```
+
+Copy the chapter title and purpose exactly. A divider cannot repair a weak
+question handoff or introduce a new topic.
+
+### Step 4: Compose the Main Story
 
 Create main slides in approved order. Use this contract:
 
@@ -83,6 +149,7 @@ Create main slides in approved order. Use this contract:
   class="slide"
   id="S1"
   data-story-section="main"
+  data-chapter-id="CH1"
   data-question-in-id="Q0"
   data-question-out-id="Q1"
   data-claim-id="C0"
@@ -113,9 +180,9 @@ closure. For each main slide:
 - do not add an architecture, API, model, future capability, or risk merely
   because source material exists for it
 
-### Step 4: Compose the Appendix
+### Step 5: Compose the Appendix
 
-Appendix slides follow every main slide and use:
+Appendix slides follow every main and divider slide and use:
 
 ```html
 <section
@@ -137,7 +204,7 @@ story, but each must name the main slides it supports.
 
 Do not promote appendix material into the main sequence to reach a page count.
 
-### Step 5: Use the Bundled Template
+### Step 6: Use the Bundled Template
 
 Use `assets/html-report-template.html` as the structural baseline. Replace:
 
@@ -152,9 +219,10 @@ Use bundled layout classes when they fit the evidence. Add report-specific CSS
 only when evidence requires it. Do not add a framework, theme system,
 component library, or remote dependency.
 
-### Step 6: Preserve Semantics and Accessibility
+### Step 7: Preserve Semantics and Accessibility
 
-- Use ordered heading levels and exactly one action title per slide.
+- Use ordered heading levels and exactly one `h1` or `h2` heading per slide;
+  main and appendix headings are action titles.
 - Distinguish facts, inferences, recommendations, and unknowns by words as well
   as color.
 - Use semantic tables, `pre > code`, and informative `alt` text.
@@ -163,7 +231,7 @@ component library, or remote dependency.
   visible citation only when the user or audience explicitly needs one.
 - Do not add visible keyboard instructions or authoring commentary.
 
-### Step 7: Validate the Deck Contract
+### Step 8: Validate the Deck Contract
 
 Run:
 
@@ -173,11 +241,12 @@ python3 scripts/validate_report_deck.py <output.html>
 
 Fix all errors. The validator checks v0.3 schema, fixed canvas, offline
 dependencies, controls, slide structure, Claim references, main/appendix
-order, exact question ID handoffs, appendix ownership, and explicit closure.
+order, front matter, chapter transitions, exact question ID handoffs, appendix
+ownership, and explicit closure.
 It also requires evidence IDs and exactly one page-number target per slide; it
 does not require a visible source note.
 
-### Step 8: Re-run the Semantic Storyline Gates
+### Step 9: Re-run the Semantic Storyline Gates
 
 Rendered HTML can preserve IDs while weakening prose, so re-run:
 
@@ -187,12 +256,13 @@ Rendered HTML can preserve IDs while weakening prose, so re-run:
 - concept-continuity test
 - appendix-separation test
 - decision-closure test
+- chapter-navigation test
 
 Fail the build if a new term appears before it is needed, a main slide can be
 removed without breaking the decision chain, or an appendix conclusion is
 required to understand the main story.
 
-### Step 9: Render and Inspect Every Slide
+### Step 10: Render and Inspect Every Slide
 
 Inspect all slides at 1600 x 900 and a scaled viewport such as 1366 x 768.
 
@@ -200,7 +270,8 @@ Check:
 
 - no clipping, overlap, or unreadably small text
 - action title and primary evidence are visible in one glance
-- main and appendix slides are identifiable without distracting decoration
+- cover, contents, divider, main, and appendix roles are identifiable without
+  distracting decoration
 - page numbers do not collide with content
 - controls, overview, fullscreen, print, Home, End, arrows, Page Up, Page Down,
   and Space work
@@ -215,6 +286,8 @@ Source inspection alone cannot produce a passing handoff.
   plan first.
 - If a main slide is too dense, move support to a linked appendix; do not
   shrink typography or split it into unrelated main concepts.
+- If a divider is needed only to disguise a topic jump, return to the plan and
+  repair the chapter or question chain.
 - If the action-title chain changes during build, stop and restore the approved
   claims.
 - If browser rendering is unavailable, report visual verification as blocked.
@@ -230,11 +303,15 @@ Source inspection alone cannot produce a passing handoff.
 | "I can rename the title to fit the layout." | The title is an approved Claim statement, not presentation copy. |
 | "A smaller font will make the detail fit." | Dense support moves to an appendix linked to the main claim. |
 | "Evidence traceability requires a source footer on every slide." | Preserve source locations in the plan and evidence IDs in HTML metadata; show citations only when the audience needs them. |
+| "A contents page should list every slide." | Contents exposes the chapter-level argument; page titles belong in the overview control. |
 
 ## Red Flags
 
 - HTML is built without a v0.3 validated plan.
 - Main slides lack question IDs or Claim support IDs.
+- Cover or contents is missing, a divider precedes Chapter 1, or a later
+  chapter starts without its divider.
+- Front matter or a divider introduces a Claim, evidence ID, question, or concept.
 - `data-question-out-id` does not match the next main slide.
 - An appendix appears before the final main slide.
 - API, model, ownership, queue, OCR, or future-service detail interrupts the
@@ -247,11 +324,14 @@ Source inspection alone cannot produce a passing handoff.
 
 - [ ] The v0.3 plan validator passed.
 - [ ] Output path was resolved without overwriting unrelated content.
+- [ ] Cover and chapter-level contents are the first two slides.
+- [ ] Chapter 1 follows contents directly and every later chapter begins with
+      exactly one matching divider.
 - [ ] Every main slide preserves its question IDs, exact Claim statement,
       support relationship, evidence IDs, and licensed concepts.
-- [ ] Every slide has evidence IDs and exactly one visible page number, without
-      a default visible source note.
-- [ ] Main slides precede all appendix slides.
+- [ ] Every narrative slide has evidence IDs; every slide has exactly one
+      visible page number, without a default visible source note.
+- [ ] All main and divider slides precede appendix slides.
 - [ ] Every appendix slide points to at least one main slide.
 - [ ] No target page count influenced the build.
 - [ ] `validate_report_deck.py` passes with no errors.
@@ -267,6 +347,8 @@ Source inspection alone cannot produce a passing handoff.
 ## Report Deck Built
 - path:
 - main_slide_count:
+- chapter_count:
+- divider_slide_count:
 - appendix_slide_count:
 - status:
 
@@ -275,6 +357,7 @@ Source inspection alone cannot produce a passing handoff.
 - governing_answer:
 - audience_decision:
 - question_chain:
+- chapter_navigation:
 
 ## Storyline Gates
 - titles_only:
@@ -304,6 +387,8 @@ Source inspection alone cannot produce a passing handoff.
 - Do not add a v0.2 compatibility output path.
 - Do not accept or manufacture a target page count.
 - Do not mix appendix detail into the main question chain.
+- Do not put narrative attributes or new concepts on front matter or dividers.
+- Do not add a divider before Chapter 1 or inside a chapter.
 - Do not add external assets, frameworks, or animation by default.
 - Do not auto-commit the report.
 - Do not put secrets, credentials, private data, or raw sensitive logs in output.

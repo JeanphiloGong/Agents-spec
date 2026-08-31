@@ -1,6 +1,6 @@
 ---
 name: html-report-review
-description: v0.3.1 - Reviews a fixed 16:9 HTML report deck against its Minto argument pyramid, reader-question chain, concept order, and appendix boundary. Use when individually plausible slides may still jump between unrelated concepts. Use when a browser-playable report must prove narrative necessity, evidence traceability, rendered readability, and presentation behavior before sharing.
+description: v0.3.2 - Reviews a fixed 16:9 HTML report deck against its Minto argument pyramid, chapter navigation, reader-question chain, concept order, and appendix boundary. Use when individually plausible slides may still jump between unrelated concepts. Use when cover, argument-map contents, chapter dividers, narrative necessity, evidence traceability, rendered readability, and presentation behavior must be proven before sharing.
 ---
 
 # HTML Report Deck Review
@@ -52,6 +52,7 @@ Record:
 - governing question and governing answer Claim
 - audience decision
 - reasoning mode and key-line Claims
+- chapter order, purposes, front matter, and divider map
 - main slide sequence and appendix map
 - concept ledger and source gaps
 
@@ -68,8 +69,9 @@ python3 ../html-report-build/scripts/validate_report_deck.py <report.html>
 
 All errors are blocking. These validators establish the mechanical contract:
 IDs, Claim graph reachability, exact question handoffs, concept introduction
-references, main/appendix order, page-count prohibition, offline structure,
-and controls. They do not prove that an argument is persuasive or sufficient.
+references, navigation/main/appendix order, page-count prohibition, offline
+structure, front matter, chapter transitions, and controls. They do not prove that an
+argument is persuasive or sufficient.
 
 ### Step 3: Review the Argument Pyramid
 
@@ -88,7 +90,23 @@ For each parent Claim ask:
 Fail on the first unsupported parent-child relationship, missing key-line
 reason, mixed abstraction level, or interesting-but-irrelevant Claim.
 
-### Step 4: Review the Reader-Question Chain
+### Step 4: Review Chapter Navigation
+
+Check navigation independently from the argument:
+
+- cover and contents are exactly the first two slides
+- contents presents chapter titles and purposes as one argument path rather
+  than listing every page
+- the first main slide follows contents without a Chapter 1 divider
+- each later chapter begins with exactly one divider that repeats its approved
+  title and purpose
+- chapter membership is contiguous and every divider points to the next main slide
+- front matter and dividers add no Claims, evidence, questions, or concepts
+
+Fail a divider that disguises a topic jump. Navigation may clarify a valid
+storyline; it cannot make unrelated main slides necessary.
+
+### Step 5: Review the Reader-Question Chain
 
 Read each main slide as:
 
@@ -98,7 +116,7 @@ question_in -> action-title answer -> question_out
 
 Check:
 
-- Slide 1 answers the governing question immediately.
+- The first main slide answers the governing question immediately.
 - Each answer makes its outgoing question the single natural next question.
 - The next slide answers that exact question without changing subject.
 - A transition is causal or evidential, not "next we discuss".
@@ -108,7 +126,9 @@ Check:
 Report the first pair where the next slide is relevant but not necessary. That
 distinction is the most common source of a deck that reads like a topic list.
 
-### Step 5: Run the Storyline Tests
+Read the chain across dividers as if the dividers were absent.
+
+### Step 6: Run the Storyline Tests
 
 Run all tests on main slides:
 
@@ -129,9 +149,9 @@ Run all tests on main slides:
 Do not reduce these tests to boolean fields from the plan. Reperform them on
 the rendered titles and content.
 
-### Step 6: Check Evidence and Claim Labels
+### Step 7: Check Evidence and Claim Labels
 
-For every slide:
+For every main and appendix slide:
 
 - match the rendered Claim and support IDs to the plan
 - match evidence IDs to the plan's inspected sources or verification gaps
@@ -143,7 +163,10 @@ A citation label is not proof. Fail unsupported major Claims and inferences
 presented as facts. Visible source notes are optional; their absence is not a
 failure when the evidence metadata maps back to the plan.
 
-### Step 7: Inspect Every Slide in a Browser
+Confirm separately that front matter and dividers contain no evidence or Claim
+metadata.
+
+### Step 8: Inspect Every Slide in a Browser
 
 Render every slide at 1600 x 900 and at a scaled viewport such as 1366 x 768.
 
@@ -151,6 +174,7 @@ Check:
 
 - no clipping, overlap, or unreadably small text
 - title, evidence, implication, and page number are visible
+- cover, argument map, and chapter dividers have clear but restrained hierarchy
 - main slides emphasize the decision chain
 - appendix slides remain readable but do not visually impersonate new main
   conclusions
@@ -159,7 +183,7 @@ Check:
 
 One overflowing slide fails the rendered gate.
 
-### Step 8: Exercise Presentation Behavior
+### Step 9: Exercise Presentation Behavior
 
 Verify:
 
@@ -174,7 +198,7 @@ Verify:
 
 Report a browser limitation separately from an implementation failure.
 
-### Step 9: Decide the Result
+### Step 10: Decide the Result
 
 Use exactly one result:
 
@@ -194,6 +218,8 @@ when one main slide is removable or one new concept is unlicensed.
   question that would make the next slide necessary.
 - If a technical slide is useful but removable, move it to an appendix and
   link it to the main slide it supports.
+- If a divider introduces a new idea or tries to repair a non-necessary
+  transition, fail the chapter-navigation gate and return to the plan.
 - If a requested page count caused padding, fail scope discipline and derive
   the sequence again from indispensable Claims.
 - If sensitive content appears, fail safety and report only its location and
@@ -210,12 +236,15 @@ when one main slide is removable or one new concept is unlicensed.
 | "The plan says the deletion test passed." | Review must actually remove each main title and retest the chain. |
 | "Twelve pages were requested." | Page count cannot authorize new Claims or concepts. |
 | "The validator passed." | A structural graph can still contain weak reasoning. |
+| "The divider makes the transition feel natural." | Remove it mentally; the previous answer must still create the next main question. |
 
 ## Red Flags
 
 - Review starts from visuals instead of the governing question.
 - Claims have evidence but no necessary relationship to their parent.
 - `question_out` is a disguised agenda label.
+- Contents is a page-title list, or a divider adds a Claim or new concept.
+- A chapter exists only to create visual variety.
 - A main slide can be deleted without changing the decision.
 - New services, interfaces, data models, queues, OCR, or future capabilities
   appear before a reader question requires them.
@@ -227,6 +256,9 @@ when one main slide is removable or one new concept is unlicensed.
 
 - [ ] The v0.3 plan and HTML were loaded.
 - [ ] Both deterministic validators passed.
+- [ ] Cover, chapter-level contents, Chapter 1 entry, and every later divider
+      match the approved chapter map.
+- [ ] Navigation slides add no Claim, evidence, question, or concept.
 - [ ] Governing answer, key line, and all Claim support relationships were reviewed.
 - [ ] Every main question handoff is exact and semantically necessary.
 - [ ] Titles-only and stranger tests passed on rendered content.
@@ -248,6 +280,8 @@ when one main slide is removable or one new concept is unlicensed.
 - report:
 - plan:
 - main_slides:
+- chapters:
+- divider_slides:
 - appendix_slides:
 
 ## Blocking Findings
@@ -257,6 +291,13 @@ when one main slide is removable or one new concept is unlicensed.
 - governing_answer:
 - key_line:
 - first_weak_support_relationship:
+
+## Chapter-Navigation Gate
+- cover_and_contents:
+- contents_argument_map:
+- first_chapter_entry:
+- later_chapter_dividers:
+- navigation_adds_concepts:
 
 ## Question-Chain Gate
 - first_handoff_break:
@@ -302,6 +343,7 @@ when one main slide is removable or one new concept is unlicensed.
 - Do not invent, reinterpret, or strengthen evidence.
 - Do not treat structural validity as semantic validity.
 - Do not accept a main slide that is merely relevant or removable.
+- Do not let a divider excuse a broken main-slide handoff.
 - Do not require visible per-slide source notes when evidence IDs remain
   traceable through the plan.
 - Do not expose secrets or private data found during review.

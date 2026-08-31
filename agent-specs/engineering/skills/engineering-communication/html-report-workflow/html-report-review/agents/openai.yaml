@@ -1,4 +1,4 @@
 interface:
   display_name: "HTML Report Deck Review"
-  short_description: "v0.3.1 - Review deck narrative logic before sharing"
-  default_prompt: "Use $html-report-review to accept or reject an HTML report deck through its Minto pyramid, reader-question chain, deletion test, concept continuity, appendix boundary, evidence, rendering, behavior, and safety."
+  short_description: "v0.3.2 - Review chaptered deck logic before sharing"
+  default_prompt: "Use $html-report-review to accept or reject an HTML report deck through its Minto pyramid, chapter navigation, reader-question chain, deletion test, concept continuity, appendix boundary, evidence, rendering, behavior, and safety."
