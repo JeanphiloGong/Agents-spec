@@ -1,4 +1,4 @@
 interface:
   display_name: "HTML Report Deck Build"
-  short_description: "v0.2.0 - Build a self-contained HTML report deck"
-  default_prompt: "Use $html-report-build to turn the approved v0.2 report plan into a fixed 16:9 offline HTML deck without changing its claims or evidence."
+  short_description: "v0.3.0 - Build a storylined HTML report deck"
+  default_prompt: "Use $html-report-build to turn an approved v0.3 Minto-pyramid plan into a fixed 16:9 offline deck while preserving its question chain and appendix boundary."

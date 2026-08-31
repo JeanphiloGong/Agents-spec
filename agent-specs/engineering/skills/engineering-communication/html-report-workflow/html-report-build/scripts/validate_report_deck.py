@@ -80,6 +80,10 @@ def _class_names(attrs):
     return set(attrs.get("class", "").split())
 
 
+def _duplicates(values):
+    return sorted(value for value, count in Counter(values).items() if value and count > 1)
+
+
 class ReportDeckParser(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
@@ -91,6 +95,7 @@ class ReportDeckParser(HTMLParser):
         self.stack = []
         self.ids = []
         self.dependencies = []
+        self.report_schema = ""
         self.slides = []
         self.current_slide = None
         self.slide_section_depth = 0
@@ -121,6 +126,8 @@ class ReportDeckParser(HTMLParser):
             self.ids.append(attrs["id"])
         if tag == "html":
             self.html_lang = attrs.get("lang", "").strip()
+        if attrs.get("id") == "report-deck":
+            self.report_schema = attrs.get("data-report-schema", "").strip()
         self._inspect_resource(tag, attrs)
 
         if tag == "title":
@@ -131,8 +138,16 @@ class ReportDeckParser(HTMLParser):
                 self.parse_errors.append("slide sections must not be nested")
             self.current_slide = {
                 "id": attrs.get("id", "").strip(),
+                "story_section": attrs.get("data-story-section", "").strip(),
+                "question_in_id": attrs.get("data-question-in-id", "").strip(),
+                "has_question_in": "data-question-in-id" in attrs,
+                "question_out_id": attrs.get("data-question-out-id", "").strip(),
+                "has_question_out": "data-question-out-id" in attrs,
                 "claim_id": attrs.get("data-claim-id", "").strip(),
+                "supports_claim_id": attrs.get("data-supports-claim-id", "").strip(),
+                "has_supports_claim": "data-supports-claim-id" in attrs,
                 "evidence_ids": attrs.get("data-evidence-ids", "").strip(),
+                "appendix_for": attrs.get("data-appendix-for", "").strip(),
                 "headings": [],
                 "active_heading": None,
                 "source_parts": [],
@@ -230,6 +245,8 @@ def validate_html(html):
         errors.append("missing non-empty <html lang> value")
     if not _normalized_text(parser.title_parts):
         errors.append("missing non-empty document title")
+    if parser.report_schema != "0.3":
+        errors.append("#report-deck must declare report schema 0.3")
 
     canvas_width = re.search(r"--canvas-w\s*:\s*1600px\s*;", html, flags=re.IGNORECASE)
     canvas_height = re.search(r"--canvas-h\s*:\s*900px\s*;", html, flags=re.IGNORECASE)
@@ -276,6 +293,9 @@ def validate_html(html):
     if not parser.slides:
         errors.append("no direct report slides were found")
 
+    main_slides = []
+    appendix_slides = []
+    seen_appendix = False
     for position, slide in enumerate(parser.slides, start=1):
         label = slide["id"] or f"position {position}"
         if not slide["direct_child"]:
@@ -284,6 +304,29 @@ def validate_html(html):
             errors.append(f"slide at position {position}: missing id")
         if not slide["claim_id"]:
             errors.append(f"slide {label}: missing data-claim-id")
+        if not slide["has_supports_claim"]:
+            errors.append(f"slide {label}: missing data-supports-claim-id")
+
+        story_section = slide["story_section"]
+        if story_section == "main":
+            if seen_appendix:
+                errors.append("appendix slides must follow all main slides")
+            main_slides.append(slide)
+            if not slide["question_in_id"]:
+                errors.append(f"slide {label}: missing data-question-in-id")
+            if not slide["has_question_out"]:
+                errors.append(f"slide {label}: missing data-question-out-id")
+            if slide["appendix_for"]:
+                errors.append(f"slide {label}: main slide must not declare data-appendix-for")
+        elif story_section == "appendix":
+            seen_appendix = True
+            appendix_slides.append(slide)
+            if not slide["appendix_for"]:
+                errors.append(f"slide {label}: appendix slide requires data-appendix-for")
+            if slide["has_question_in"] or slide["has_question_out"]:
+                errors.append(f"slide {label}: appendix slide must not declare question attributes")
+        else:
+            errors.append(f"slide {label}: data-story-section must be 'main' or 'appendix'")
 
         headings = [_normalized_text(parts) for parts in slide["headings"]]
         headings = [heading for heading in headings if heading]
@@ -303,6 +346,47 @@ def validate_html(html):
             errors.append(
                 f"slide {label}: missing data-evidence-ids; use a visible Unverified source note for a known gap"
             )
+
+    if not main_slides:
+        errors.append("deck must contain at least one main slide")
+    else:
+        if main_slides[0]["supports_claim_id"]:
+            errors.append("opening main slide must not support another claim")
+        question_in_ids = [slide["question_in_id"] for slide in main_slides]
+        for question_id in _duplicates(question_in_ids):
+            errors.append(f"main story reuses data-question-in-id {question_id}")
+        for index, slide in enumerate(main_slides):
+            label = slide["id"] or f"main position {index + 1}"
+            if index > 0 and not slide["supports_claim_id"]:
+                errors.append(f"slide {label}: non-opening main slide requires data-supports-claim-id")
+            if index < len(main_slides) - 1:
+                if not slide["question_out_id"]:
+                    errors.append(f"slide {label}: non-final main slide requires a next question")
+                next_slide = main_slides[index + 1]
+                if slide["question_out_id"] != next_slide["question_in_id"]:
+                    errors.append(
+                        f"question handoff breaks between {label} and {next_slide['id'] or index + 2}: "
+                        f"{slide['question_out_id']!r} != {next_slide['question_in_id']!r}"
+                    )
+            elif slide["question_out_id"]:
+                errors.append(f"slide {label}: final main slide must close the question chain")
+
+    main_ids = {slide["id"] for slide in main_slides if slide["id"]}
+    for claim_id in _duplicates(slide["claim_id"] for slide in parser.slides):
+        errors.append(f"duplicate data-claim-id: {claim_id}")
+    claim_ids = {slide["claim_id"] for slide in parser.slides if slide["claim_id"]}
+    for slide in parser.slides:
+        label = slide["id"] or "unknown"
+        if slide["supports_claim_id"] and slide["supports_claim_id"] not in claim_ids:
+            errors.append(
+                f"slide {label}: data-supports-claim-id references unknown claim {slide['supports_claim_id']!r}"
+            )
+    for slide in appendix_slides:
+        label = slide["id"] or "unknown"
+        references = set(slide["appendix_for"].split())
+        unknown = sorted(references - main_ids)
+        if unknown:
+            errors.append(f"slide {label}: data-appendix-for references unknown main slides: {', '.join(unknown)}")
 
     return errors, warnings, len(parser.slides)
 
