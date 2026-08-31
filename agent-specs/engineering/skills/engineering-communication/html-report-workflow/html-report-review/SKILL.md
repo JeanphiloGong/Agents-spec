@@ -1,6 +1,6 @@
 ---
 name: html-report-review
-description: v0.3.0 - Reviews a fixed 16:9 HTML report deck against its Minto argument pyramid, reader-question chain, concept order, and appendix boundary. Use when individually plausible slides may still jump between unrelated concepts. Use when a browser-playable report must prove narrative necessity, evidence traceability, rendered readability, and presentation behavior before sharing.
+description: v0.3.1 - Reviews a fixed 16:9 HTML report deck against its Minto argument pyramid, reader-question chain, concept order, and appendix boundary. Use when individually plausible slides may still jump between unrelated concepts. Use when a browser-playable report must prove narrative necessity, evidence traceability, rendered readability, and presentation behavior before sharing.
 ---
 
 # HTML Report Deck Review
@@ -134,13 +134,14 @@ the rendered titles and content.
 For every slide:
 
 - match the rendered Claim and support IDs to the plan
-- match evidence IDs and visible source wording
+- match evidence IDs to the plan's inspected sources or verification gaps
 - confirm the evidence supports the action title, not merely the topic
 - distinguish fact, inference, recommendation, and unknown in wording
 - keep unknowns and verification gaps visible
 
 A citation label is not proof. Fail unsupported major Claims and inferences
-presented as facts.
+presented as facts. Visible source notes are optional; their absence is not a
+failure when the evidence metadata maps back to the plan.
 
 ### Step 7: Inspect Every Slide in a Browser
 
@@ -149,7 +150,7 @@ Render every slide at 1600 x 900 and at a scaled viewport such as 1366 x 768.
 Check:
 
 - no clipping, overlap, or unreadably small text
-- title, evidence, implication, source note, and page number are visible
+- title, evidence, implication, and page number are visible
 - main slides emphasize the decision chain
 - appendix slides remain readable but do not visually impersonate new main
   conclusions
@@ -233,7 +234,7 @@ when one main slide is removable or one new concept is unlicensed.
 - [ ] Every new main-story concept is licensed by an incoming question.
 - [ ] Appendix slides follow and point back to the main story.
 - [ ] The final main slide closes on the audience decision.
-- [ ] Evidence, inference labels, unknowns, and source wording were checked.
+- [ ] Evidence IDs, source mapping, inference labels, and unknowns were checked.
 - [ ] Every slide was rendered at native and scaled viewports.
 - [ ] Navigation, overview, fullscreen, print, focus, and console were checked.
 - [ ] Placeholders, remote dependencies, and sensitive data were checked.
@@ -301,6 +302,8 @@ when one main slide is removable or one new concept is unlicensed.
 - Do not invent, reinterpret, or strengthen evidence.
 - Do not treat structural validity as semantic validity.
 - Do not accept a main slide that is merely relevant or removable.
+- Do not require visible per-slide source notes when evidence IDs remain
+  traceable through the plan.
 - Do not expose secrets or private data found during review.
 - Do not mark `pass` when any required gate fails or is blocked.
 

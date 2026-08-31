@@ -54,10 +54,11 @@ makes the result `fail`; one untestable required gate makes it `blocked`.
 ## Evidence Gate
 
 - Rendered Claim and support IDs match the plan.
-- Evidence IDs and visible source notes match inspected sources.
+- Evidence IDs map to inspected sources or explicit verification gaps in the plan.
 - Visible evidence supports the conclusion rather than only its topic.
 - Facts, inferences, recommendations, and unknowns remain distinguishable.
 - Unknowns and verification gaps remain visible.
+- Visible per-slide source notes are optional and are not an acceptance gate.
 
 ## Render Gate
 

@@ -1,5 +1,5 @@
 schema_version: "0.3"
-skill_version: "0.3.0"
+skill_version: "0.3.1"
 artifact_type: html_report_deck
 
 report_job:
@@ -90,7 +90,6 @@ slides:
     question_out:
       id: Q1
       text: "<one natural question created by the answer>"
-    source_note: "<visible source wording or explicit unknown>"
 
   - id: S2
     story_section: main
@@ -110,7 +109,6 @@ slides:
     visual_role: "text-summary | chart | table | comparison | diagram"
     so_what: "<why this answer advances the audience decision>"
     question_out: null
-    source_note: "<visible source wording or explicit unknown>"
 
   - id: A1
     story_section: appendix
@@ -126,7 +124,6 @@ slides:
     so_what: "<which implementation or evidence question this detail settles>"
     appendix_for_slide_ids:
       - S2
-    source_note: "<visible source wording or explicit unknown>"
 
 storyline_checks:
   titles_only:
@@ -152,7 +149,7 @@ deck_organization:
     - "<governing answer>"
     - "<necessary diagnosis or proof>"
     - "<decision and action>"
-  evidence_placement: "<inline source notes | evidence slides | appendix | mixed>"
+  evidence_placement: "<visible evidence | evidence slides | appendix | mixed>"
   density: "<how dense evidence is moved to appendix slides>"
   navigation:
     - previous
@@ -178,5 +175,6 @@ build_constraints:
   - "one self-contained HTML file with no required remote assets"
   - "main slides precede all appendix slides"
   - "all current-slide evidence is visible without staged reveals"
+  - "evidence traceability stays in source_context and evidence_ids, not repeated source footers"
   - "build preserves the approved claim and question relationships"
   - "no fixed, minimum, preferred, or requested page count"

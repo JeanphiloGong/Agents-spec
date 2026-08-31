@@ -6,7 +6,7 @@ from validate_report_plan import validate_plan
 def valid_plan():
     return {
         "schema_version": "0.3",
-        "skill_version": "0.3.0",
+        "skill_version": "0.3.1",
         "artifact_type": "html_report_deck",
         "report_job": {
             "topic": "Tender discovery",
@@ -99,7 +99,6 @@ def valid_plan():
                 "visual_role": "text-summary",
                 "so_what": "Approve the smallest V1.",
                 "question_out": {"id": "Q1", "text": "Why is the current flow insufficient?"},
-                "source_note": "Source: E1",
             },
             {
                 "id": "S2",
@@ -114,7 +113,6 @@ def valid_plan():
                 "visual_role": "comparison",
                 "so_what": "A persistent loop is required.",
                 "question_out": None,
-                "source_note": "Source: E1",
             },
             {
                 "id": "A1",
@@ -128,7 +126,6 @@ def valid_plan():
                 "visual_role": "table",
                 "so_what": "Implementation can preserve ownership.",
                 "appendix_for_slide_ids": ["S2"],
-                "source_note": "Source: E1",
             },
         ],
         "storyline_checks": {
@@ -150,6 +147,14 @@ class ValidateReportPlanTests(unittest.TestCase):
 
         self.assertEqual(errors, [])
         self.assertEqual(warnings, [])
+
+    def test_rejects_the_previous_skill_version(self):
+        plan = valid_plan()
+        plan["skill_version"] = "0.3.0"
+
+        errors, _ = validate_plan(plan)
+
+        self.assertTrue(any('skill_version must be "0.3.1"' in error for error in errors))
 
     def test_rejects_a_requested_slide_count(self):
         plan = valid_plan()

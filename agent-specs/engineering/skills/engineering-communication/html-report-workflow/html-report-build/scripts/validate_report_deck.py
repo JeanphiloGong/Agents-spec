@@ -100,7 +100,6 @@ class ReportDeckParser(HTMLParser):
         self.current_slide = None
         self.slide_section_depth = 0
         self.heading_depth = 0
-        self.source_depth = 0
         self.parse_errors = []
 
     def handle_decl(self, declaration):
@@ -150,7 +149,6 @@ class ReportDeckParser(HTMLParser):
                 "appendix_for": attrs.get("data-appendix-for", "").strip(),
                 "headings": [],
                 "active_heading": None,
-                "source_parts": [],
                 "page_number_count": 0,
                 "direct_child": bool(parent and parent[1].get("id") == "report-deck"),
             }
@@ -165,11 +163,6 @@ class ReportDeckParser(HTMLParser):
                 self.heading_depth = 1
             elif self.heading_depth:
                 self.heading_depth += 1
-
-            if "source-note" in classes:
-                self.source_depth = 1
-            elif self.source_depth:
-                self.source_depth += 1
 
             if "page-number" in classes:
                 self.current_slide["page_number_count"] += 1
@@ -191,9 +184,6 @@ class ReportDeckParser(HTMLParser):
         if self.current_slide is not None and self.heading_depth:
             index = self.current_slide["active_heading"]
             self.current_slide["headings"][index].append(data)
-        if self.current_slide is not None and self.source_depth:
-            self.current_slide["source_parts"].append(data)
-
     def handle_endtag(self, tag):
         tag = tag.lower()
 
@@ -205,9 +195,6 @@ class ReportDeckParser(HTMLParser):
                 self.heading_depth -= 1
                 if self.heading_depth == 0:
                     self.current_slide["active_heading"] = None
-            if self.source_depth:
-                self.source_depth -= 1
-
             if tag == "section":
                 self.slide_section_depth -= 1
                 if self.slide_section_depth == 0:
@@ -335,17 +322,12 @@ def validate_html(html):
         elif headings[0].lower().strip(" .:-") in TOPIC_LABEL_TITLES:
             warnings.append(f"slide {label}: action title appears to be a topic label: {headings[0]!r}")
 
-        source_note = _normalized_text(slide["source_parts"])
-        if not source_note:
-            errors.append(f"slide {label}: missing visible source note")
         if slide["page_number_count"] != 1:
             errors.append(
                 f"slide {label}: expected exactly one .page-number target, found {slide['page_number_count']}"
             )
-        if not slide["evidence_ids"] and "unverified" not in source_note.lower():
-            errors.append(
-                f"slide {label}: missing data-evidence-ids; use a visible Unverified source note for a known gap"
-            )
+        if not slide["evidence_ids"]:
+            errors.append(f"slide {label}: missing data-evidence-ids")
 
     if not main_slides:
         errors.append("deck must contain at least one main slide")

@@ -15,21 +15,18 @@ def valid_deck_html():
       data-claim-id="C0" data-supports-claim-id="" data-evidence-ids="E1">
       <h1>Adopt the smallest user loop before expanding the platform.</h1>
       <p>Evidence</p>
-      <p class="source-note">Source: E1</p>
       <p class="page-number"></p>
     </section>
     <section class="slide" id="S2" data-story-section="main"
       data-question-in-id="Q1" data-question-out-id=""
       data-claim-id="C1" data-supports-claim-id="C0" data-evidence-ids="E2">
       <h2>The current search cannot keep executing user intent.</h2>
-      <p class="source-note">Source: E2</p>
       <p class="page-number"></p>
     </section>
     <section class="slide" id="A1" data-story-section="appendix"
       data-appendix-for="S2" data-claim-id="C2"
       data-supports-claim-id="C1" data-evidence-ids="E3">
       <h2>The API contract preserves user isolation.</h2>
-      <p class="source-note">Source: E3</p>
       <p class="page-number"></p>
     </section>
   </div>
@@ -50,7 +47,7 @@ def valid_deck_html():
 
 
 class ValidateReportDeckTests(unittest.TestCase):
-    def test_accepts_a_complete_storylined_deck(self):
+    def test_accepts_a_complete_storylined_deck_without_visible_source_notes(self):
         errors, warnings, slide_count = validate_html(valid_deck_html())
 
         self.assertEqual(errors, [])
@@ -76,9 +73,6 @@ class ValidateReportDeckTests(unittest.TestCase):
         ).replace(
             "<h1>Adopt the smallest user loop before expanding the platform.</h1>",
             "",
-        ).replace(
-            '<p class="source-note">Source: E1</p>',
-            "",
         )
 
         errors, _, _ = validate_html(html)
@@ -86,7 +80,7 @@ class ValidateReportDeckTests(unittest.TestCase):
         self.assertTrue(any("data-claim-id" in error for error in errors))
         self.assertTrue(any("question-in" in error for error in errors))
         self.assertTrue(any("action title" in error for error in errors))
-        self.assertTrue(any("source note" in error for error in errors))
+        self.assertTrue(any("data-evidence-ids" in error for error in errors))
 
     def test_rejects_a_broken_main_question_handoff(self):
         html = valid_deck_html().replace('data-question-in-id="Q1"', 'data-question-in-id="Q9"')

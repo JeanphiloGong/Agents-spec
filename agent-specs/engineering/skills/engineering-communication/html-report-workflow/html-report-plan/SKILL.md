@@ -1,6 +1,6 @@
 ---
 name: html-report-plan
-description: v0.3.0 - Plans evidence-backed HTML report decks as a Minto-style argument pyramid and closed reader-question chain. Use when a report, proposal, diagnosis, or technical recommendation must progress without topic jumps. Use when main-story conclusions, supporting claims, concept introductions, appendix material, and the final decision need a build-ready contract before slide authoring.
+description: v0.3.1 - Plans evidence-backed HTML report decks as a Minto-style argument pyramid and closed reader-question chain. Use when a report, proposal, diagnosis, or technical recommendation must progress without topic jumps. Use when main-story conclusions, supporting claims, concept introductions, appendix material, and the final decision need a build-ready contract before slide authoring.
 ---
 
 # HTML Report Deck Plan
@@ -44,6 +44,8 @@ needs primary investigation.
   does not advance the decision.
 - Page count: derived from indispensable claims and evidence; never a target.
 - Motion: none by default; evidence on the current slide is visible at once.
+- Source traceability: exact locations stay in `source_context` and slide
+  `evidence_ids`; no repeated visible source footer is planned by default.
 
 ## The Planning Process
 
@@ -67,6 +69,9 @@ locations and which claims each source can support.
 
 Keep unverified material in `needs_verification`. An unverified statement may
 become an explicit unknown; it may not become a fact for narrative convenience.
+
+Do not plan a visible source note on every slide. Put citations in slide content
+or an appendix only when the user or audience needs to inspect them directly.
 
 ### Step 3: State the Governing Question and Answer
 
@@ -257,6 +262,8 @@ conversation. Do not create HTML in this skill.
 - [ ] Every main slide is indispensable under the deletion test.
 - [ ] All appendix slides follow the main story and point to main slides.
 - [ ] No target page count is present.
+- [ ] Evidence maps through `source_context` and `evidence_ids` without a
+      required visible source footer.
 - [ ] `validate_report_plan.py` passes and semantic gates were reviewed.
 - [ ] The plan was persisted when a target directory was known.
 - [ ] No HTML was created.
@@ -287,6 +294,8 @@ conversation. Do not create HTML in this skill.
 - Do not introduce a main-story concept before an incoming question requires it.
 - Do not mix appendix detail into the main question chain.
 - Do not plan to a fixed, minimum, or preferred page count.
+- Do not require repeated visible source notes when metadata preserves the
+  evidence mapping.
 - Do not store secrets, credentials, private data, or raw sensitive logs.
 
 ## References

@@ -55,8 +55,8 @@ def validate_plan(plan):
 
     if plan.get("schema_version") != "0.3":
         errors.append('schema_version must be "0.3"')
-    if plan.get("skill_version") != "0.3.0":
-        errors.append('skill_version must be "0.3.0"')
+    if plan.get("skill_version") != "0.3.1":
+        errors.append('skill_version must be "0.3.1"')
     if plan.get("artifact_type") != "html_report_deck":
         errors.append("artifact_type must be html_report_deck")
     if plan.get("output", {}).get("canvas") != "1600x900":

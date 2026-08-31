@@ -6,6 +6,9 @@ The v0.3 contract uses a Minto argument pyramid and closed reader-question
 chain so main slides advance one decision while implementation detail stays in
 linked appendices.
 
+Evidence remains traceable through the plan and slide metadata. Generated decks
+do not repeat source notes in a visible footer by default; page numbers remain.
+
 ## Skills
 
 | Skill | Use when | Output |
