@@ -1,5 +1,5 @@
-schema_version: "0.2"
-skill_version: "0.2.0"
+schema_version: "0.3"
+skill_version: "0.3.2"
 artifact_type: html_report_deck
 
 report_job:
@@ -18,11 +18,16 @@ output:
   language: "<report language>"
   canvas: "1600x900"
 
-logic_spine:
-  one_thing: "<single conclusion the reader should remember>"
-  ask: "<decision or action requested>"
-  through_line: "<reasoning path from evidence to conclusion and action>"
-  narrative_pattern: "answer-support-action | situation-diagnosis-resolution | finding-evidence-implication"
+argument:
+  method: minto_pyramid
+  governing_question:
+    id: Q0
+    text: "<single question the whole deck must answer>"
+  governing_answer_claim_id: C0
+  audience_decision: "<decision or action enabled by the answer>"
+  reasoning_mode: "deductive | inductive"
+  key_line_claim_ids:
+    - C1
 
 source_context:
   inspected:
@@ -30,6 +35,7 @@ source_context:
       source: "<file, command output, inspected image, or source>"
       location: "<path, section, line, timestamp, or other locator>"
       supports:
+        - C0
         - C1
   needs_verification:
     - id: E2
@@ -37,61 +43,180 @@ source_context:
       reason: "<why verification is incomplete>"
 
 claims:
+  - id: C0
+    type: recommendation
+    statement: "<governing answer; also the first main action title>"
+    supports_claim_id: null
+    evidence_ids:
+      - E1
+    rationale: "<why this answer follows from the key line>"
   - id: C1
     type: "fact | inference | recommendation | unknown"
-    statement: "<one major claim>"
+    statement: "<one necessary supporting claim>"
+    supports_claim_id: C0
     evidence_ids:
       - E1
-    rationale: "<required for inference or recommendation; empty only for a directly supported fact>"
+    rationale: "<required for inference or recommendation; otherwise empty>"
+
+concept_ledger:
+  - id: K0
+    term: "<concept already known to the audience>"
+    status: given
+    introduced_on_slide_id: null
+    required_by_question_id: null
+  - id: K1
+    term: "<new concept needed to answer one incoming question>"
+    status: introduced
+    introduced_on_slide_id: S2
+    required_by_question_id: Q1
+
+chapters:
+  - id: CH1
+    title: "<governing decision>"
+    purpose: "<what the reader will understand or decide in this chapter>"
+    main_slide_ids:
+      - S1
+  - id: CH2
+    title: "<necessary proof or diagnosis>"
+    purpose: "<question this chapter resolves for the reader>"
+    main_slide_ids:
+      - S2
 
 slides:
+  - id: F1
+    story_section: front_matter
+    role: cover
+    title: "<report title>"
+    subtitle: "<decision context, audience, or reporting period>"
+
+  - id: F2
+    story_section: front_matter
+    role: contents
+    title: "<argument map, not a page-by-page agenda>"
+    chapter_ids:
+      - CH1
+      - CH2
+
   - id: S1
-    role: "<opening | summary | finding | evidence | implication | risk | recommendation | action | appendix>"
-    question: "<single question this slide answers>"
-    action_title: "<short complete sentence stating the slide conclusion>"
-    primary_claim_id: C1
+    story_section: main
+    chapter_id: CH1
+    role: answer
+    question_in:
+      id: Q0
+      text: "<same governing question>"
+    action_title: "<exact C0 statement>"
+    answer_claim_id: C0
     evidence_ids:
       - E1
+    concept_ids:
+      - K0
     content_points:
-      - "<only the support needed for the action title>"
+      - "<only support needed to understand the governing answer>"
     visual_role: "text-summary | chart | table | comparison | diagram"
-    so_what: "<why this conclusion matters to the reader>"
-    transition: "<how this conclusion leads to the next slide>"
-    source_note: "<visible source wording or explicitly labeled unknown>"
+    so_what: "<why the answer matters to this reader>"
+    question_out:
+      id: Q1
+      text: "<one natural question created by the answer>"
 
-titles_only_check:
-  sequence:
-    - "<S1 action title>"
-  reads_as_argument: false
-  gaps:
-    - "<missing setup, unsupported jump, unclear antecedent, or none>"
+  - id: D2
+    story_section: divider
+    role: section_divider
+    chapter_id: CH2
+    title: "<exact CH2 title>"
+    purpose: "<exact CH2 purpose>"
+    next_main_slide_id: S2
+
+  - id: S2
+    story_section: main
+    chapter_id: CH2
+    role: "support | diagnosis | implication | risk | decision | action"
+    question_in:
+      id: Q1
+      text: "<exact S1 question_out text>"
+    action_title: "<exact C1 statement>"
+    answer_claim_id: C1
+    evidence_ids:
+      - E1
+    concept_ids:
+      - K0
+      - K1
+    content_points:
+      - "<only support needed to answer Q1>"
+    visual_role: "text-summary | chart | table | comparison | diagram"
+    so_what: "<why this answer advances the audience decision>"
+    question_out: null
+
+  - id: A1
+    story_section: appendix
+    role: appendix
+    action_title: "<exact statement of an appendix claim>"
+    answer_claim_id: "<claim that supports a main-story claim>"
+    evidence_ids:
+      - E1
+    concept_ids: []
+    content_points:
+      - "<API, JSON, model, ownership, flow, or other supporting detail>"
+    visual_role: "table | diagram | code | text-summary"
+    so_what: "<which implementation or evidence question this detail settles>"
+    appendix_for_slide_ids:
+      - S2
+
+storyline_checks:
+  titles_only:
+    reads_as_argument: false
+    first_break: "<slide pair or none>"
+  question_chain:
+    closed: false
+    first_break: "<question handoff or none>"
+  deletion_test:
+    indispensable_main_slide_ids: []
+    removable_main_slide_ids:
+      - "<main slide that should be removed or none>"
+  concept_continuity:
+    passes: false
+    first_unlicensed_concept: "<concept and slide or none>"
+  appendix_separation:
+    passes: false
+    misplaced_slide_ids:
+      - "<detail slide still interrupting the main story or none>"
+  chapter_navigation:
+    passes: false
+    first_break: "<contents, chapter transition, or none>"
 
 deck_organization:
   reading_path:
-    - "<what the reader should conclude first>"
-    - "<which evidence the reader should inspect next>"
-    - "<which decision or action the reader should reach last>"
-  first_slide: "<subject, context, and main conclusion>"
+    - "<governing answer>"
+    - "<necessary diagnosis or proof>"
+    - "<decision and action>"
+  evidence_placement: "<visible evidence | evidence slides | appendix | mixed>"
+  density: "<how dense evidence is moved to appendix slides>"
   navigation:
     - previous
     - next
     - overview
     - fullscreen
     - print
-  evidence_placement: "<inline source notes | evidence slides | appendix | mixed>"
-  density: "<how dense evidence is split or moved to appendix slides>"
 
 quality_bar:
-  - "titles alone form a coherent argument"
-  - "each slide has one primary conclusion and one visible evidence object"
-  - "every major claim maps to inspected evidence or is explicitly labeled"
+  - "the deck starts with a cover and chapter-level argument map"
+  - "the first chapter follows contents directly; every later chapter change has one divider"
+  - "front matter and dividers navigate the story without adding claims or concepts"
+  - "the governing answer appears on the first main slide"
+  - "every claim reaches the governing answer"
+  - "each main slide answers the previous slide's outgoing question"
+  - "every main slide is indispensable under the deletion test"
+  - "new concepts are licensed by incoming questions"
+  - "appendix slides follow the main story and point back to it"
+  - "page count is derived rather than targeted"
+  - "every major claim maps to inspected evidence or is explicitly unknown"
   - "the fixed 1600x900 canvas scales without content reflow"
   - "keyboard navigation, overview, fullscreen, and print work"
   - "every slide is rendered and visually inspected"
-  - "no placeholders, secrets, credentials, private data, or unsupported claims"
 
 build_constraints:
   - "one self-contained HTML file with no required remote assets"
-  - "all evidence on the current slide is visible without staged reveals"
-  - "facts, inferences, recommendations, and unknowns are distinguishable"
-  - "the build follows the approved slide sequence and action titles"
+  - "sequence is cover, contents, first chapter, divided later chapters, then appendix"
+  - "all current-slide evidence is visible without staged reveals"
+  - "evidence traceability stays in source_context and evidence_ids, not repeated source footers"
+  - "build preserves the approved claim and question relationships"
+  - "no fixed, minimum, preferred, or requested page count"

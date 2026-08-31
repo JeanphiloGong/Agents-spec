@@ -1,44 +1,54 @@
 ---
 name: html-report-plan
-description: v0.2.0 - Plans evidence-backed, self-reading HTML report decks before slide authoring. Use when analysis, investigation, comparison, or implementation guidance should become a fixed 16:9 browser presentation. Use when a professional report needs an action-title narrative, claim-to-evidence traceability, and a build-ready slide contract.
+description: v0.3.2 - Plans evidence-backed HTML report decks as a Minto-style argument pyramid, chapter map, and closed reader-question chain. Use when a report, proposal, diagnosis, or technical recommendation must progress without topic jumps. Use when cover, contents, chapter boundaries, main-story conclusions, concept introductions, appendix material, and the final decision need one build-ready contract before slide authoring.
 ---
 
 # HTML Report Deck Plan
 
 ## Overview
 
-Plan a professional HTML report deck before generating slides. The default
-artifact is a fixed 16:9, self-reading presentation: a reader should understand
-the argument by scanning the slide titles, then inspect evidence on the slides
-that support each conclusion.
+Plan a professional HTML report deck before generating slides. Use Barbara
+Minto's Pyramid Principle as the default logic model:
 
-The output is a report-deck plan, not HTML. Use `html-report-build` only after
-the logic spine, evidence mapping, and page-by-page sequence are clear enough to
-execute without inventing content during build.
+- vertical logic: each supporting claim answers the question raised by the
+  claim above it
+- horizontal logic: sibling claims form a valid inductive group or deductive
+  sequence that supports their parent
+- storyline logic: each main slide answers the reader's current question and
+  creates the exact question answered by the next slide
+
+The output is a v0.3 report-deck plan, not HTML. Action titles are the visible
+surface of the argument; they do not replace the claim hierarchy or question
+chain.
 
 ## When to Use
 
 - The user wants a report, briefing, review, diagnosis, comparison, proposal,
-  or technical recommendation in browser-playable PPT form.
-- The source material contains multiple findings that must become a concise,
-  decision-oriented slide sequence.
-- A previous report was factually correct but read like a long web document or
-  a collection of topic labels.
-- The final artifact must work for live presentation and independent reading.
+  or recommendation in browser-playable PPT form.
+- A previous deck had individually correct slides but introduced unrelated
+  concepts from page to page.
+- Technical details need to be separated from the decision narrative.
+- The final deck must work for independent reading as well as live delivery.
 
-**When NOT to use:** long-form reading documents, released project docs,
-marketing pages, dashboards, interactive applications, or native `.pptx`
-files. Route those to documentation, frontend, or PowerPoint-specific skills.
+**When NOT to use:** long-form documents, marketing pages, dashboards,
+interactive applications, native `.pptx` files, or a deck whose evidence still
+needs primary investigation.
 
 ## Fixed Defaults
 
-- Artifact: one self-contained HTML report deck.
-- Canvas: fixed 1600 x 900, scaled to fit the browser without content reflow.
-- Reading mode: self-reading first; live presentation is supported.
-- Motion: none by default; all evidence on the current slide is visible at
-  once.
-- Narrative: answer first, then evidence, implications, risks, and action.
-- Slide contract: one primary conclusion per slide.
+- Artifact: one self-contained fixed 1600 x 900 HTML report deck.
+- Logic model: Minto argument pyramid plus a closed reader-question chain.
+- Front matter: one cover followed by one chapter-level argument map.
+- Chapters: the first chapter follows contents directly; every later chapter
+  change has one dedicated divider.
+- Opening: answer the governing question on the first main slide.
+- Main story: only claims indispensable to the reader's decision.
+- Appendix: supporting detail that proves or implements a main-story claim but
+  does not advance the decision.
+- Page count: derived from indispensable claims and evidence; never a target.
+- Motion: none by default; evidence on the current slide is visible at once.
+- Source traceability: exact locations stay in `source_context` and slide
+  `evidence_ids`; no repeated visible source footer is planned by default.
 
 ## The Planning Process
 
@@ -46,200 +56,291 @@ files. Route those to documentation, frontend, or PowerPoint-specific skills.
 
 Identify:
 
-- report topic and target reader
-- decision, understanding, or action the deck should support
+- report topic and primary decision-maker
+- decision context and the action requested from the reader
 - delivery mode: self-read, live, or both
-- target output directory and filename when supplied
-- language, tone, and any brand constraints
+- output directory, filename, language, tone, and real brand constraints
 
-If the user only gives a directory, infer a filename from the topic. Ask only
-when the report subject or intended decision is unclear.
+If the reader action is unclear, ask for that one missing input. Do not start
+from a requested page count or a list of technical topics.
 
-### Step 2: Gather Source Context
+### Step 2: Gather Evidence
 
-List evidence inputs with stable IDs such as `E1`, `E2`, and `E3`:
+Assign stable IDs such as `E1`, `E2`, and `E3` to inspected files, commands,
+screenshots, logs, traces, or approved external sources. Record exact
+locations and which claims each source can support.
 
-- local files and exact locations
-- command outputs
-- inspected screenshots, diagrams, traces, or logs
-- previous analysis that can be verified
-- external sources only when browsing was requested or required
+Keep unverified material in `needs_verification`. An unverified statement may
+become an explicit unknown; it may not become a fact for narrative convenience.
 
-Separate inspected evidence from sources that still need verification. Do not
-invent a source or promote an unverified statement to fact.
+Do not plan a visible source note on every slide. Put citations in slide content
+or an appendix only when the user or audience needs to inspect them directly.
 
-### Step 3: Set the Logic Spine
+### Step 3: State the Governing Question and Answer
 
-Write three binding fields:
+Write:
 
-- `one_thing`: the single conclusion the reader should remember
-- `ask`: the decision or action requested from the reader
-- `through_line`: the reasoning path that connects evidence to the conclusion
+- `governing_question`: the single question the whole deck must answer
+- `governing_answer_claim_id`: the claim that directly answers it
+- `audience_decision`: the decision or action the answer should enable
+- `reasoning_mode`: `deductive` or `inductive`
 
-Choose the simplest narrative pattern that fits:
+The governing answer becomes the first main slide's action title. It must be
+specific enough that the reader can disagree with it and decide on it.
 
-- `answer-support-action`: executive briefings and recommendations
-- `situation-diagnosis-resolution`: diagnoses, incidents, and change proposals
-- `finding-evidence-implication`: research, analytics, and technical reports
+Use SCQA only when it sharpens the opening:
 
-Use chronological order only when sequence itself explains the conclusion.
-Do not force a named framework when a direct argument is clearer.
+- situation: stable context already accepted by the audience
+- complication: the change, conflict, or failure that creates urgency
+- question: the governing question
+- answer: the governing answer
 
-### Step 4: Define Claims and Evidence
+Do not add an SCQA page for each label. It is an argument setup, not a slide
+quota.
 
-Give every major claim a stable ID such as `C1` and classify it as:
+### Step 4: Build the Argument Pyramid
 
-- `fact`: directly supported by inspected evidence
-- `inference`: reasoned conclusion based on facts
-- `recommendation`: proposed action with rationale
-- `unknown`: unresolved assumption or source gap
+Create claims with stable IDs such as `C0`, `C1`, and `C2`.
 
-Map claims to evidence IDs. A recommendation may be supported by facts and
-inferences, but its rationale must still be explicit. Unknowns remain visible;
-they are not filler to remove for polish.
+- `C0` is the governing answer and has no parent.
+- Each key-line claim directly sets `supports_claim_id: C0`.
+- Every other claim sets one parent and must eventually reach `C0`.
+- Sibling claims must be mutually distinct and collectively sufficient for
+  their parent at the level of detail required by the decision.
+- A deductive group follows premise, observation, and implication.
+- An inductive group uses comparable statements under one plural noun.
 
-### Step 5: Build the Slide Sequence
+Reject cycles, orphan claims, repeated claims, and facts that are merely
+interesting. Evidence supports claims; claims support other claims.
 
-For every slide define:
+### Step 5: Build the Reader-Question Chain
 
-- `id` and `role` in the argument
-- `question` the slide answers
-- `action_title`: one short complete sentence that states the conclusion
-- `primary_claim_id` and supporting `evidence_ids`
-- `content_points`: only the information needed to support the title
-- `visual_role`: chart, table, comparison, diagram, or text summary
-- `so_what`: why the conclusion matters to this reader
-- `transition`: how this conclusion creates the need for the next slide
-- `source_note`: visible source wording for the slide
+Plan main slides only after the argument pyramid exists.
 
-Do not use label titles such as "Current State", "Analysis", or "Results".
-The title must tell the reader what the slide means.
+For each main slide define:
 
-### Step 6: Run the Titles-Only Test
+- `question_in`: the question the reader brings into the slide
+- `action_title`: the answer, copied exactly from its claim statement
+- `answer_claim_id`: the claim that answers the question
+- `question_out`: the one natural question created by that answer
 
-Read every action title in order without the slide bodies.
+Apply these hard rules to main slides, ignoring navigation pages:
 
-The sequence passes only when:
+- The first main slide's `question_in` equals the governing question.
+- Main slide N `question_out` equals main slide N+1 `question_in` in ID and
+  wording, even when a chapter divider sits between them.
+- The final main slide has `question_out: null` and closes on the requested
+  decision or action.
+- A transition such as "next we discuss" is not a question handoff.
+- If several next questions are equally plausible, the current answer is too
+  broad or the sequence is not resolved.
 
-- it states the report conclusion early
-- each title advances or supports the previous title
-- new subjects and pronouns have clear antecedents
-- the sequence reaches the requested action without a logical jump
-- a smart reader unfamiliar with the source can understand the argument
+Typical handoffs are `why?`, `how do we know?`, `what follows?`, `what should
+we do?`, `what could fail?`, and `what must be decided now?`.
 
-If the titles read like a table of contents, rewrite the slide sequence before
-build.
+### Step 6: License New Concepts
 
-### Step 7: Define Deck Organization
+Create a `concept_ledger` for terms essential to the main story.
 
-Specify:
+- `given`: already known from the request, audience context, or opening setup
+- `introduced`: first appears on one slide because that slide's incoming
+  question requires it
 
-- fixed canvas and scale-to-fit behavior
-- opening slide: subject, context, and main conclusion
-- reading path and section rhythm
-- evidence placement and source-note format
-- navigation: previous, next, overview, fullscreen, and print
-- density rules for tables, code, diagrams, and appendices
-- which detailed evidence belongs in appendix slides
+An introduced main-story concept records:
 
-The plan owns the argument and page order. Build owns HTML implementation, not
-content strategy.
+- `introduced_on_slide_id`
+- `required_by_question_id`, equal to that slide's `question_in.id`
 
-### Step 8: Define the Quality Bar
+Prefer at most one new concept per main slide. A service boundary, API shape,
+data model, queue, OCR path, or external contract that does not answer the
+current question belongs in the appendix.
 
-Acceptance criteria for the final HTML must include:
+### Step 7: Define Chapters and Separate Navigation, Main Story, and Appendix
 
-- opens locally as a self-contained file with no required remote assets
-- fixed 1600 x 900 slides scale without content reflow
-- one primary conclusion and one action title per slide
-- titles-only sequence forms a coherent argument
-- every major claim maps to inspected evidence or is labeled
-- facts, inferences, recommendations, and unknowns are distinguishable
-- keyboard navigation, overview, fullscreen, and print work
-- every slide is rendered and visually inspected before acceptance
-- no secrets, credentials, private data, placeholders, or unsupported claims
+Create `chapters` only after the main question chain is closed. Each chapter
+must name one coherent phase of the argument and declare:
 
-### Step 9: Produce or Persist the Plan
+- stable `id`, title, and purpose
+- ordered `main_slide_ids`
 
-Write the plan using `references/report-plan-template.yaml` or the same fields
-in readable Markdown. If the user gave a target directory, write
-`<report-name>.plan.yaml` there. If no target directory is known, output the
-complete plan in the conversation. Do not create HTML in this skill.
+Then mark every slide `story_section: front_matter | main | divider | appendix`.
+
+Front matter:
+
+- is always exactly two leading slides: `cover`, then `contents`
+- uses contents as a chapter-level argument map in chapter order
+- never lists every slide title and never declares Claims, evidence, questions,
+  or concepts
+
+Chapter dividers:
+
+- appear immediately before the first main slide of Chapters 2..N
+- copy the target chapter's title and purpose and point to that main slide
+- do not appear before Chapter 1 or between slides in the same chapter
+- orient the reader without introducing a Claim, concept, or detour
+
+Main slides:
+
+- advance the governing answer toward the audience decision
+- belong to exactly one chapter and remain contiguous within it
+- belong to the closed question chain
+- are indispensable under the deletion test
+
+Appendix slides:
+
+- appear after all main and divider slides
+- declare `appendix_for_slide_ids`
+- contain evidence, API tables, JSON, data models, detailed flows, ownership
+  matrices, or implementation contracts that support named main slides
+- never introduce a new decision or conclusion required to understand the
+  main story
+
+Do not preserve a requested number of pages. Remove unsupported pages; add
+appendix pages only when evidence needs them.
+
+### Step 8: Run the Storyline Gates
+
+Run all gates before build:
+
+1. **Titles-only test**: main titles alone state one coherent argument.
+2. **Stranger test**: an informed outsider can state the conclusion, reasons,
+   and requested decision without slide bodies.
+3. **Question-chain test**: every `question_out` exactly hands off to the next
+   `question_in`, and the final question closes.
+4. **Deletion test**: remove each main slide in turn; if the decision chain
+   still works, move or delete that slide.
+5. **Concept-continuity test**: every new main-story concept is required by an
+   already-open question and appears first on its licensed slide.
+6. **Appendix-separation test**: implementation detail does not interrupt the
+   main story, and every appendix slide points back to a main slide.
+7. **Decision-closure test**: the final main slide leaves the reader with a
+   concrete decision, action, owner, or acceptance boundary.
+8. **Chapter-navigation test**: contents names the argument phases in order,
+   Chapter 1 follows it directly, and each later divider announces only the
+   next phase already present in the main-story logic.
+
+Record the first break, not a generic pass explanation. Do not mark a gate
+passed merely because the corresponding fields are filled.
+
+### Step 9: Validate and Persist the Plan
+
+Write `<report-name>.plan.yaml` using
+`references/report-plan-template.yaml`. Run:
+
+```bash
+python3 ../html-report-build/scripts/validate_report_plan.py <report-name>.plan.yaml
+```
+
+Fix every structural error and review warnings. The validator proves IDs,
+references, graph reachability, question handoffs, concept licensing, appendix
+order, chapter navigation, deletion-test declarations, and absence of target
+page counts. Human
+review still owns semantic sufficiency and whether one answer truly creates
+the next question.
+
+If no target directory is known, return the same complete contract in the
+conversation. Do not create HTML in this skill.
 
 ## Decision Points
 
-- If the report decision is unclear, ask for the intended reader action.
-- If evidence is insufficient, record a source gap instead of fabricating a
-  conclusion.
-- If source material supports fewer slides than requested, reduce the slide
-  count rather than padding the deck.
-- If detailed material cannot fit one conclusion, split it or move it to an
-  appendix slide.
-- If the user needs a long document, dashboard, or native PowerPoint file,
-  route away from this workflow.
-- If sensitive material appears, exclude or redact it in the plan.
+- If the governing question cannot be stated, ask for the reader's decision.
+- If the governing answer lacks evidence, record an unknown instead of shaping
+  a confident storyline around it.
+- If a claim does not reach the governing answer, remove it or place its detail
+  in an appendix linked to a relevant main slide.
+- If a main slide introduces multiple new concepts, narrow its question or
+  move technical detail to the appendix.
+- If the deletion test removes a slide without breaking the argument, it is
+  not a main slide.
+- If a proposed chapter does not represent a real change in the argument phase,
+  merge it with the adjacent chapter instead of adding a visual divider.
+- If the user requests a fixed slide count, explain that page count is an
+  output of the argument and do not encode the target.
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "The section names are clear enough." | Labels organize files; action titles communicate conclusions. |
-| "The reader can connect the slides." | The title sequence must carry the argument without hidden inference. |
-| "More slides will make it look complete." | Unsupported slides dilute the conclusion and reduce trust. |
-| "Layout can solve a dense page." | A slide with two conclusions is a planning failure, not a CSS problem. |
-| "Sources can be added at the end." | Claim-to-evidence mapping is part of the plan contract. |
+| "Every slide has an action title, so the story works." | Action titles can still be unrelated conclusions. |
+| "The transition explains why the next topic appears." | A narrative sentence cannot replace an exact reader-question handoff. |
+| "This technical concept will be useful later." | Main-story concepts must answer the current question; future detail belongs in the appendix. |
+| "Twelve pages will look complete." | A target page count manufactures claims and weakens the argument. |
+| "All claims have evidence." | Evidence makes a claim supportable, not necessary to the governing answer. |
+| "The reader can skip the architecture slide." | A skippable slide fails the main-story deletion test. |
+| "A divider will make this topic change feel smoother." | Dividers expose chapter logic; they cannot repair a broken question handoff. |
 
 ## Red Flags
 
-- No `one_thing`, `ask`, or `through_line` is defined.
-- Slide titles are topics rather than conclusions.
-- Slides have no stable claim and evidence IDs.
-- A slide answers more than one primary question.
-- Titles cannot be read as a coherent paragraph.
-- Page count comes from a requested number rather than supported content.
-- The plan leaves argument order or evidence placement for build time.
+- No governing question or governing answer exists.
+- Claims map to evidence but not to a parent claim.
+- A claim cycle or orphan claim exists.
+- `question_out` and the next `question_in` differ.
+- A main slide is justified only by "next we discuss".
+- A main slide introduces several services, interfaces, models, or future
+  capabilities not required by its incoming question.
+- An appendix slide advances the decision instead of supporting it.
+- Cover or contents is missing, contents lists pages instead of argument phases,
+  or a divider introduces a new concept.
+- A divider appears before Chapter 1 or inside one chapter.
+- A page-count target appears anywhere in the plan.
+- Storyline checks are marked passed without a recorded test result.
 
 ## Verification
 
-- [ ] Report topic, reader, decision, and delivery mode are explicit.
-- [ ] Evidence sources have stable IDs and inspection status.
-- [ ] `one_thing`, `ask`, `through_line`, and narrative pattern are explicit.
-- [ ] Claims have stable IDs, types, and evidence mappings.
-- [ ] Every slide has one question, action title, primary claim, `so_what`, and
-      transition.
-- [ ] The titles-only test passes.
-- [ ] Deck organization covers canvas, navigation, evidence, and density.
-- [ ] Final HTML quality criteria are concrete and checkable.
+- [ ] Reader, governing question, governing answer, and audience decision are explicit.
+- [ ] Every claim reaches the governing answer through `supports_claim_id`.
+- [ ] Key-line claims form a valid deductive or inductive group.
+- [ ] Every main slide has one incoming question, one exact answer claim, and
+      one outgoing question or final closure.
+- [ ] Question handoffs are exact and the final main slide closes the chain.
+- [ ] New concepts are licensed by incoming questions and introduced once.
+- [ ] Every main slide is indispensable under the deletion test.
+- [ ] Cover and chapter-level contents are the first two slides.
+- [ ] Every main slide belongs to one chapter; Chapter 1 has no divider and
+      each later chapter begins with exactly one matching divider.
+- [ ] Front matter and dividers contain no Claims, evidence, questions, or concepts.
+- [ ] All appendix slides follow the main story and point to main slides.
+- [ ] No target page count is present.
+- [ ] Evidence maps through `source_context` and `evidence_ids` without a
+      required visible source footer.
+- [ ] `validate_report_plan.py` passes and semantic gates were reviewed.
 - [ ] The plan was persisted when a target directory was known.
-- [ ] No HTML file was created.
+- [ ] No HTML was created.
 
 ## Output Format
 
 ```text
 ## Report Job
-## Audience and Action
-## Source Context
-## Logic Spine
-## Claims and Evidence
-## Slide Sequence
-## Titles-Only Check
-## Deck Organization
+## Audience and Decision
+## Evidence
+## Governing Question and Answer
+## Argument Pyramid
+## Reader-Question Chain
+## Chapter Map and Navigation
+## Concept Ledger
+## Main Story
+## Appendix Map
+## Storyline Gate Results
 ## Quality Bar
-## Open Questions
 ## Build Handoff
 ```
 
 ## Guardrails
 
-- Do not create or edit the HTML report deck in this skill.
-- Do not invent evidence, command output, files, screenshots, or sources.
-- Do not hide unknowns or present inference as fact.
-- Do not use topic labels where the plan requires action titles.
-- Do not add slides solely to meet a page-count expectation.
-- Do not plan animation, narration, or decoration unless explicitly requested.
+- Do not create or edit the HTML deck in this skill.
+- Do not invent evidence, claims, files, command output, or sources.
+- Do not keep v0.2 `transition` or topic-sequence fields as a compatibility path.
+- Do not put a claim in the main story merely because evidence exists for it.
+- Do not introduce a main-story concept before an incoming question requires it.
+- Do not mix appendix detail into the main question chain.
+- Do not use cover, contents, or dividers to add Claims or concepts.
+- Do not create chapters or dividers merely to improve appearance or page count.
+- Do not plan to a fixed, minimum, or preferred page count.
+- Do not require repeated visible source notes when metadata preserves the
+  evidence mapping.
 - Do not store secrets, credentials, private data, or raw sensitive logs.
 
 ## References
 
 - `references/report-plan-template.yaml`
-  Structured v0.2 report-deck plan for `html-report-build`.
+  Structured v0.3 Minto-pyramid and reader-question-chain contract for build.

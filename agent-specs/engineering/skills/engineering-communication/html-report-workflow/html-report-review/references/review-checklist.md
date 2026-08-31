@@ -1,78 +1,103 @@
 # HTML Report Deck Review Checklist
 
-Use this checklist after loading the v0.2 plan and generated deck. One failed
-required item makes the result `fail`; one untestable required gate makes it
-`blocked`.
+Use after loading the v0.3 plan and generated deck. One failed required item
+makes the result `fail`; one untestable required gate makes it `blocked`.
 
 ## Contract
 
-- Plan schema is `"0.2"`.
-- `one_thing`, `ask`, `through_line`, audience action, and delivery mode are
-  explicit.
-- Approved slide order, action titles, claim IDs, and evidence IDs are known.
-- Generated file is the artifact authorized by the plan.
+- Plan schema is v0.3 and skill version is v0.3.2.
+- Governing question, governing answer, audience decision, and reasoning mode
+  are explicit.
+- Claim graph, chapter map, main sequence, concept ledger, and appendix map are available.
+- No target, minimum, preferred, or requested page count exists.
 
 ## Structural Gate
 
+- `validate_report_plan.py` exits successfully with no errors.
 - `validate_report_deck.py` exits successfully with no errors.
-- HTML contains one fixed 1600 x 900 deck and at least one direct-child slide.
-- Slide IDs are unique.
-- Every slide has one action title, primary claim ID, evidence mapping, source
-  note, and page-number target.
-- No unresolved placeholders or required remote dependencies remain.
-- No unapproved motion, staged reveal, framework, or theme selector exists.
+- Every Claim reaches the governing answer without a cycle.
+- Main-slide question IDs form one closed chain.
+- Cover and chapter-level contents are exactly the first two slides.
+- Chapter 1 follows contents without a divider; every later chapter begins with
+  exactly one matching divider.
+- Front matter and dividers have no Claim, evidence, question, or concept contract.
+- Main and divider slides precede all appendix slides.
+- Every appendix slide names at least one supported main slide.
+- Deck is fixed 1600 x 900, offline, placeholder-free, and structurally complete.
 
-## Logic Gate
+## Pyramid Gate
 
-- Titles alone state the main conclusion early.
-- Every title is a short complete conclusion, not a topic label.
-- Each title supports or advances the title before it.
-- Subjects, pronouns, metrics, and comparisons have enough context.
-- The sequence reaches the planned ask without an unstated logical jump.
-- A reader unfamiliar with the source can summarize the argument from titles.
-- Appendix slides follow the main argument and are labeled as support.
+- Governing answer directly answers the governing question.
+- Key-line Claims directly support the governing answer.
+- Each child Claim answers the question raised by its parent.
+- Sibling Claims are mutually distinct and collectively sufficient.
+- Deductive groups follow premise, observation, and implication.
+- Inductive groups use comparable statements under one plural noun.
+- No Claim is included merely because evidence exists for it.
+
+## Chapter-Navigation Gate
+
+- Contents exposes chapter titles and purposes as the argument path, not a
+  page-by-page title list.
+- Main slide chapter membership is complete, ordered, and contiguous.
+- Each divider names only the approved next chapter and points to its first main slide.
+- Removing dividers leaves the main question chain intact.
+- No divider is used to disguise a topic jump or add a new concept.
+
+## Question-Chain Gate
+
+- The first main slide answers the governing question immediately.
+- Every answer creates one natural outgoing question.
+- Each outgoing question is exactly the next incoming question.
+- Adjacent slides are necessary, not merely related.
+- No transition relies on "next we discuss" or presenter narration.
+- The final main slide closes on a decision, action, owner, or acceptance boundary.
+
+## Storyline Tests
+
+- Main titles alone reproduce the argument and requested decision.
+- An informed outsider can summarize the deck from titles.
+- Removing any main slide breaks the decision chain.
+- Every new concept is required by the incoming question and introduced once.
+- Main terminology remains stable after introduction.
+- API, JSON, model, ownership, queue, OCR, and future-service detail stays in
+  the appendix unless the current decision explicitly requires it.
+- Appendix slides support but do not advance the main story.
 
 ## Evidence Gate
 
-- Every `data-claim-id` matches the planned primary claim.
-- Every `data-evidence-ids` value maps to inspected evidence or a declared gap.
-- Visible source notes match the mapped evidence IDs.
-- The visible evidence supports the action title, not merely the slide topic.
-- Facts, inferences, recommendations, and unknowns remain distinguishable in
-  wording and labels.
-- Recommendations include rationale and a visible implication or next action.
+- Rendered main/appendix Claim and support IDs match the plan.
+- Evidence IDs map to inspected sources or explicit verification gaps in the plan.
+- Visible evidence supports the conclusion rather than only its topic.
+- Facts, inferences, recommendations, and unknowns remain distinguishable.
 - Unknowns and verification gaps remain visible.
+- Visible per-slide source notes are optional and are not an acceptance gate.
 
 ## Render Gate
 
-- Every slide was rendered at 1600 x 900.
-- Every slide was rendered in a scaled viewport such as 1366 x 768.
-- No title, body, footer, table, chart, diagram, or code block clips or overlaps.
-- Text is readable and long content stays inside its container.
-- The conclusion and its primary evidence are understandable at a glance.
-- Source note and page number stay visible without competing with content.
-- Visual grouping reinforces the argument and does not add decoration.
-- Color is not the sole indicator of claim type or status.
+- Every slide was rendered at 1600 x 900 and a scaled viewport.
+- No title, body, footer, table, chart, diagram, or code clips or overlaps.
+- Cover, contents, and divider hierarchy is clear without decorative filler.
+- Conclusion and primary evidence are understandable at a glance.
+- Main and appendix hierarchy is visually clear without decorative noise.
+- Text is readable and color is not the sole status indicator.
 
 ## Behavior Gate
 
-- Previous and next controls move exactly one slide and stop at boundaries.
-- Arrow, Page Up, Page Down, Space, Home, and End keys work.
-- Overview lists every title, identifies the current slide, and navigates.
-- Overview close returns keyboard focus to a logical control.
-- Fullscreen enters and exits when browser permissions allow it.
-- Print preview includes every slide at 16:9 and excludes controls.
-- Slide counter, URL hash, and current slide remain synchronized.
-- Controls have accessible names and visible focus indicators.
+- Previous, next, arrows, Page Up, Page Down, Space, Home, and End work.
+- Overview lists every title, identifies the current slide, navigates, and
+  returns focus logically.
+- Fullscreen enters and exits when permissions allow.
+- Print preview includes every 16:9 slide and excludes controls.
+- Counter, hash, current slide, and boundary buttons stay synchronized.
+- Controls have accessible names and visible focus.
 - Browser console has no errors.
 
 ## Safety Gate
 
-- File works offline with no required remote fonts, scripts, styles, images, or
-  chart libraries.
-- No `TODO`, `TBD`, template token, or sample content remains.
+- No required remote dependency remains.
+- No TODO, TBD, template token, sample content, or broken local reference remains.
 - No secrets, credentials, private data, or raw sensitive logs appear.
-- No broken local asset reference remains.
 
 ## Result
 

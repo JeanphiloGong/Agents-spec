@@ -1,200 +1,276 @@
 ---
 name: html-report-review
-description: v0.2.0 - Reviews a fixed 16:9 HTML report deck for argument clarity, evidence traceability, rendered readability, and presentation controls. Use when a browser-playable report deck must be accepted before sharing. Use when a polished deck may still have topic-label titles, logical gaps, unsupported claims, overflow, or broken offline and keyboard behavior.
+description: v0.3.2 - Reviews a fixed 16:9 HTML report deck against its Minto argument pyramid, chapter navigation, reader-question chain, concept order, and appendix boundary. Use when individually plausible slides may still jump between unrelated concepts. Use when cover, argument-map contents, chapter dividers, narrative necessity, evidence traceability, rendered readability, and presentation behavior must be proven before sharing.
 ---
 
 # HTML Report Deck Review
 
 ## Overview
 
-Review a generated HTML report deck against the v0.2 plan that authorized it.
-Acceptance is based on whether a decision-maker can understand the argument,
-inspect its evidence, and use the artifact reliably. Visual polish alone does
-not earn a pass.
+Review a generated HTML report deck against the v0.3 plan that authorized it.
+Judge the deck on two independent logic dimensions:
 
-Review reports findings and next actions. It does not rewrite the plan or HTML
-unless the user explicitly asks for repair.
+- pyramid logic: every claim supports a parent and eventually supports the
+  governing answer
+- storyline logic: each main slide answers the reader's current question and
+  creates the exact question answered next
+
+Visual polish and individually correct slides do not earn a pass. Review
+reports the first narrative break and the smallest plan-level correction. It
+does not rewrite the plan or HTML unless the user explicitly asks for repair.
 
 ## When to Use
 
-- A report deck has been built and needs acceptance before sharing.
-- A self-reading briefing must remain understandable without a presenter.
-- Claim-to-evidence traceability or source labeling needs verification.
-- The fixed canvas, keyboard controls, overview, fullscreen, or print behavior
-  needs browser validation.
-- A deck looks professional but may still contain logical jumps, overflow, or
-  unsupported conclusions.
+- A v0.3 HTML report deck needs acceptance before sharing.
+- A deck feels jumpy because each page introduces a new service, model, method,
+  or future capability.
+- Main-story and appendix boundaries need verification.
+- Claim-to-evidence or claim-to-claim support needs inspection.
+- Fixed-canvas rendering, controls, fullscreen, or print needs browser testing.
 
-**When NOT to use:** before the HTML deck exists, for long-form web documents,
-for native `.pptx` review, for general code review, or when the user has asked
-to repair the artifact rather than assess it.
+**When NOT to use:** before the plan and HTML exist, for native `.pptx`, for
+long-form documents, for general code review, or when the user has already
+asked for direct repair rather than assessment.
 
 ## Required Inputs
 
-- the v0.2 report-deck plan
-- the generated `.html` file
-- referenced evidence that is available locally or in the current context
-- the intended reader, decision, and delivery mode
+- v0.3 report-deck plan
+- generated `.html` deck
+- referenced evidence available locally or in the current context
+- intended reader, governing question, audience decision, and delivery mode
 
-If the plan is missing, structural and rendered checks may continue, but the
-result is `blocked` because argument and evidence adherence cannot be accepted.
+If the plan is missing or invalid, structural HTML checks may continue, but
+the result is `blocked`; a deck cannot establish its own authorization contract.
 
 ## The Review Process
 
-### Step 1: Establish the Review Contract
+### Step 1: Establish the Contract
 
-Read the plan and HTML. Record:
+Record:
 
-- report path and plan path or conversation source
-- `one_thing`, `ask`, `through_line`, and audience action
-- approved slide order and action titles
-- claim IDs, evidence IDs, source gaps, and explicit unknowns
-- delivery mode and quality bar
+- report and plan paths
+- governing question and governing answer Claim
+- audience decision
+- reasoning mode and key-line Claims
+- chapter order, purposes, front matter, and divider map
+- main slide sequence and appendix map
+- concept ledger and source gaps
 
-Do not infer a missing claim or silently substitute a different audience need.
+Do not infer a missing relationship or choose a more convenient audience need.
 
-### Step 2: Run Deterministic Validation
+### Step 2: Run Both Deterministic Validators
 
-Run the builder's validator:
+Run:
 
 ```bash
+python3 ../html-report-build/scripts/validate_report_plan.py <report.plan.yaml>
 python3 ../html-report-build/scripts/validate_report_deck.py <report.html>
 ```
 
-All structural errors are blocking. Review warnings against the plan instead
-of dismissing them. Also scan for secrets, credentials, private data, and raw
-sensitive logs without repeating any discovered value.
+All errors are blocking. These validators establish the mechanical contract:
+IDs, Claim graph reachability, exact question handoffs, concept introduction
+references, navigation/main/appendix order, page-count prohibition, offline
+structure, front matter, chapter transitions, and controls. They do not prove that an
+argument is persuasive or sufficient.
 
-### Step 3: Test the Argument Without Layout
+### Step 3: Review the Argument Pyramid
 
-Extract action titles in slide order and read only those titles.
+Start at the governing answer and inspect downward.
 
-Fail the logic gate when:
+For each parent Claim ask:
 
-- the main conclusion is delayed or absent
-- a title is a topic label rather than a complete conclusion
-- two adjacent titles require an unstated inference
-- a pronoun, metric, or comparison lacks context
-- the sequence does not reach the requested decision or action
-- appendix slides interrupt the main argument
+- Does each child answer the question raised by the parent?
+- Are sibling Claims mutually distinct rather than restatements?
+- Are they collectively sufficient at the decision's required depth?
+- If deductive, do premise and observation actually produce the implication?
+- If inductive, are the statements comparable under one plural noun?
+- Does every Claim belong to the governing answer rather than merely having
+  evidence?
 
-Then apply the stranger test: a smart reader unfamiliar with the source should
-be able to summarize the argument from the titles alone.
+Fail on the first unsupported parent-child relationship, missing key-line
+reason, mixed abstraction level, or interesting-but-irrelevant Claim.
 
-### Step 4: Check Claim and Evidence Traceability
+### Step 4: Review Chapter Navigation
 
-For every slide:
+Check navigation independently from the argument:
 
-- match `data-claim-id` to the planned primary claim
-- match `data-evidence-ids` and the visible source note to the plan
-- confirm the evidence object actually supports the action title
-- confirm facts, inferences, recommendations, and unknowns are labeled or
-  phrased distinctly
-- confirm `so_what` is visible as an implication, decision, or next action
+- cover and contents are exactly the first two slides
+- contents presents chapter titles and purposes as one argument path rather
+  than listing every page
+- the first main slide follows contents without a Chapter 1 divider
+- each later chapter begins with exactly one divider that repeats its approved
+  title and purpose
+- chapter membership is contiguous and every divider points to the next main slide
+- front matter and dividers add no Claims, evidence, questions, or concepts
 
-Fail when a major claim lacks inspected evidence, an inference is presented as
-fact, or a source note names evidence that is not represented on the slide.
+Fail a divider that disguises a topic jump. Navigation may clarify a valid
+storyline; it cannot make unrelated main slides necessary.
 
-### Step 5: Inspect Every Slide in a Browser
+### Step 5: Review the Reader-Question Chain
 
-Render every slide at the native 1600 x 900 canvas and at a common scaled
-viewport such as 1366 x 768. Inspect screenshots or the live browser, not only
-the source.
+Read each main slide as:
 
-For each slide check:
+```text
+question_in -> action-title answer -> question_out
+```
 
-- action title, evidence, implication, source note, and page number are visible
-- no text, table, chart, code, or diagram is clipped or overlaps another item
-- the primary conclusion and supporting evidence can be understood at a glance
-- typography remains readable and long words stay inside their containers
-- visual grouping expresses the argument rather than creating decoration
-- facts, inferences, recommendations, and unknowns are not distinguished by
-  color alone
+Check:
 
-Fail if any main slide has overflow, overlap, unreadably small text, or an
-unclear evidence hierarchy. Detailed support may be dense only when it is in a
-clearly labeled appendix and remains readable.
+- The first main slide answers the governing question immediately.
+- Each answer makes its outgoing question the single natural next question.
+- The next slide answers that exact question without changing subject.
+- A transition is causal or evidential, not "next we discuss".
+- The final main slide closes on a decision, action, owner, or acceptance
+  boundary and does not leave a new central question open.
 
-### Step 6: Exercise Presentation Behavior
+Report the first pair where the next slide is relevant but not necessary. That
+distinction is the most common source of a deck that reads like a topic list.
 
-Verify in a real browser:
+Read the chain across dividers as if the dividers were absent.
 
-- previous and next buttons
-- Left, Right, Page Up, Page Down, Space, Home, and End keys
-- overview opens, lists every slide, navigates correctly, and returns focus
-- fullscreen enters and exits when the browser permits it
-- print preview includes every slide at 16:9 without controls
-- current slide, counter, hash, and disabled boundary buttons stay aligned
-- all controls have accessible names and visible keyboard focus
+### Step 6: Run the Storyline Tests
+
+Run all tests on main slides:
+
+1. **Titles-only test**: titles alone reproduce the governing answer, necessary
+   reasons, and requested decision.
+2. **Stranger test**: an informed outsider can summarize the argument without
+   slide bodies or presenter narration.
+3. **Deletion test**: remove each main slide; if the decision chain still
+   works, the slide is removable and the deck fails.
+4. **Concept-continuity test**: each new concept is required by the incoming
+   question, introduced once, and reused consistently afterward.
+5. **Appendix-separation test**: APIs, JSON, models, ownership tables, queues,
+   OCR flows, and future service contracts stay out of the main story unless
+   they are themselves required for the audience decision.
+6. **Decision-closure test**: the last main slide makes the requested action
+   operational rather than adding another design topic.
+
+Do not reduce these tests to boolean fields from the plan. Reperform them on
+the rendered titles and content.
+
+### Step 7: Check Evidence and Claim Labels
+
+For every main and appendix slide:
+
+- match the rendered Claim and support IDs to the plan
+- match evidence IDs to the plan's inspected sources or verification gaps
+- confirm the evidence supports the action title, not merely the topic
+- distinguish fact, inference, recommendation, and unknown in wording
+- keep unknowns and verification gaps visible
+
+A citation label is not proof. Fail unsupported major Claims and inferences
+presented as facts. Visible source notes are optional; their absence is not a
+failure when the evidence metadata maps back to the plan.
+
+Confirm separately that front matter and dividers contain no evidence or Claim
+metadata.
+
+### Step 8: Inspect Every Slide in a Browser
+
+Render every slide at 1600 x 900 and at a scaled viewport such as 1366 x 768.
+
+Check:
+
+- no clipping, overlap, or unreadably small text
+- title, evidence, implication, and page number are visible
+- cover, argument map, and chapter dividers have clear but restrained hierarchy
+- main slides emphasize the decision chain
+- appendix slides remain readable but do not visually impersonate new main
+  conclusions
+- long words and dense objects stay inside their containers
+- color is not the sole status indicator
+
+One overflowing slide fails the rendered gate.
+
+### Step 9: Exercise Presentation Behavior
+
+Verify:
+
+- previous and next controls
+- Left, Right, Page Up, Page Down, Space, Home, and End
+- overview count, current state, navigation, close, and focus return
+- fullscreen enter and exit when permissions allow
+- print preview includes every 16:9 slide and excludes controls
+- counter, hash, active slide, and disabled boundaries remain aligned
+- controls have accessible names and visible focus
 - browser console contains no errors
 
-Report a browser permission limitation separately from an implementation
-failure. Do not claim a behavior passed when it could not be exercised.
+Report a browser limitation separately from an implementation failure.
 
-### Step 7: Decide the Result
+### Step 10: Decide the Result
 
 Use exactly one result:
 
-- `pass`: plan, argument, evidence, structure, rendering, controls, safety, and
-  offline behavior all pass.
-- `fail`: the review ran and found at least one fixable acceptance failure.
-- `blocked`: a required plan, evidence source, file, or browser capability is
-  unavailable, so acceptance cannot be determined.
+- `pass`: plan contract, pyramid, question chain, storyline tests, evidence,
+  rendering, behavior, offline use, and safety all pass.
+- `fail`: review completed and found at least one fixable acceptance failure.
+- `blocked`: a required plan, source, file, or runtime capability is missing.
 
-A structural validator pass is necessary but never sufficient. A deck cannot
-pass without every slide being rendered and inspected.
+Structural validation is necessary but never sufficient. A deck cannot pass
+when one main slide is removable or one new concept is unlicensed.
 
 ## Decision Points
 
-- If the plan and deck disagree, fail plan adherence; do not choose the better
-  wording during review.
-- If the titles-only sequence fails, report the first logical break and the
-  smallest content-contract revision needed.
-- If evidence is unavailable, mark the affected gate `blocked`; do not treat a
-  citation label as proof.
-- If one slide overflows, fail the rendered gate even when other slides pass.
-- If sensitive content appears, fail safety and identify only its location and
+- If the Claim graph is structurally valid but semantically weak, fail the
+  first parent-child relationship that does not answer a real reader question.
+- If two adjacent slides are merely related, fail the handoff and name the
+  question that would make the next slide necessary.
+- If a technical slide is useful but removable, move it to an appendix and
+  link it to the main slide it supports.
+- If a divider introduces a new idea or tries to repair a non-necessary
+  transition, fail the chapter-navigation gate and return to the plan.
+- If a requested page count caused padding, fail scope discipline and derive
+  the sequence again from indispensable Claims.
+- If sensitive content appears, fail safety and report only its location and
   category.
-- If the deck is sound but HTML PPT is the wrong requested artifact, state the
-  mismatch without rewriting it into another format.
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "The validator passed." | Structural checks cannot see logical jumps, overlap, or reading hierarchy. |
-| "The slides look consistent." | Consistency cannot replace evidence or a coherent argument. |
-| "The presenter can explain the gap." | The default deck must support independent reading. |
-| "A source note proves the claim." | Review must verify that the cited evidence supports the conclusion. |
-| "Only one slide clips slightly." | Every slide is part of the deliverable and must remain readable. |
-| "I can fix the wording while reviewing." | Review identifies failures; plan or build owns the repair. |
+| "Every title is a conclusion." | Unrelated conclusions still produce a jumpy deck. |
+| "The next slide is relevant." | Main-story slides must be necessary, not merely relevant. |
+| "The transition explains the jump." | The previous answer must create the next incoming question. |
+| "The API slide proves feasibility." | Put it in the appendix unless the current decision depends on API shape. |
+| "The plan says the deletion test passed." | Review must actually remove each main title and retest the chain. |
+| "Twelve pages were requested." | Page count cannot authorize new Claims or concepts. |
+| "The validator passed." | A structural graph can still contain weak reasoning. |
+| "The divider makes the transition feel natural." | Remove it mentally; the previous answer must still create the next main question. |
 
 ## Red Flags
 
-- Review begins without identifying `one_thing`, `ask`, and audience action.
-- Titles are checked individually but never read as one sequence.
-- Evidence IDs are present but their support relationship is not inspected.
-- Only the first slide or current viewport is rendered.
-- Screenshots are accepted without testing navigation and print behavior.
-- Design polish is discussed before blocking logic or evidence failures.
-- A pass is issued despite a missing plan, missing evidence, or unavailable
-  rendered inspection.
-- The reviewer edits the artifact without explicit repair authorization.
+- Review starts from visuals instead of the governing question.
+- Claims have evidence but no necessary relationship to their parent.
+- `question_out` is a disguised agenda label.
+- Contents is a page-title list, or a divider adds a Claim or new concept.
+- A chapter exists only to create visual variety.
+- A main slide can be deleted without changing the decision.
+- New services, interfaces, data models, queues, OCR, or future capabilities
+  appear before a reader question requires them.
+- Appendix details are needed to understand the main argument.
+- A pass is issued from plan booleans without repeating semantic tests.
+- The reviewer rewrites the artifact without repair authorization.
 
 ## Verification
 
-- [ ] The v0.2 plan and generated HTML were loaded.
-- [ ] `one_thing`, `ask`, audience action, and approved titles were recorded.
-- [ ] Deterministic validation completed with no errors.
-- [ ] Titles-only and stranger tests passed.
-- [ ] Every slide's primary claim, evidence IDs, source note, and `so_what`
-      match the plan.
-- [ ] Every slide was rendered at 1600 x 900 and a scaled viewport.
-- [ ] No clipping, overlap, unreadable text, or unclear evidence hierarchy was
-      found.
+- [ ] The v0.3 plan and HTML were loaded.
+- [ ] Both deterministic validators passed.
+- [ ] Cover, chapter-level contents, Chapter 1 entry, and every later divider
+      match the approved chapter map.
+- [ ] Navigation slides add no Claim, evidence, question, or concept.
+- [ ] Governing answer, key line, and all Claim support relationships were reviewed.
+- [ ] Every main question handoff is exact and semantically necessary.
+- [ ] Titles-only and stranger tests passed on rendered content.
+- [ ] Every main slide proved indispensable under the deletion test.
+- [ ] Every new main-story concept is licensed by an incoming question.
+- [ ] Appendix slides follow and point back to the main story.
+- [ ] The final main slide closes on the audience decision.
+- [ ] Evidence IDs, source mapping, inference labels, and unknowns were checked.
+- [ ] Every slide was rendered at native and scaled viewports.
 - [ ] Navigation, overview, fullscreen, print, focus, and console were checked.
-- [ ] Offline dependencies, placeholders, and sensitive data were checked.
-- [ ] Result is exactly `pass`, `fail`, or `blocked` and follows gate status.
+- [ ] Placeholders, remote dependencies, and sensitive data were checked.
+- [ ] Result is exactly `pass`, `fail`, or `blocked`.
 
 ## Output Format
 
@@ -203,19 +279,41 @@ pass without every slide being rendered and inspected.
 - result: pass | fail | blocked
 - report:
 - plan:
-- slide_count:
+- main_slides:
+- chapters:
+- divider_slides:
+- appendix_slides:
 
 ## Blocking Findings
-- none | <severity, slide, evidence, required correction>
+- none | <gate, first break, evidence, required correction>
 
-## Logic Gate
+## Pyramid Gate
+- governing_answer:
+- key_line:
+- first_weak_support_relationship:
+
+## Chapter-Navigation Gate
+- cover_and_contents:
+- contents_argument_map:
+- first_chapter_entry:
+- later_chapter_dividers:
+- navigation_adds_concepts:
+
+## Question-Chain Gate
+- first_handoff_break:
+- necessity:
+- final_closure:
+
+## Storyline Tests
 - titles_only:
 - stranger_test:
-- first_break:
+- deletion_test:
+- concept_continuity:
+- appendix_separation:
 
 ## Evidence Gate
-- claim_mapping:
 - unsupported_or_mislabeled:
+- source_mapping:
 
 ## Render Gate
 - viewports:
@@ -236,19 +334,22 @@ pass without every slide being rendered and inspected.
 - sensitive_data:
 
 ## Next Actions
-- none | <ordered corrections>
+- none | <ordered plan-level corrections>
 ```
 
 ## Guardrails
 
-- Do not rewrite the plan or HTML unless the user explicitly asks for repair.
-- Do not invent, reinterpret, or strengthen evidence to make a claim pass.
+- Do not rewrite the plan or HTML unless explicitly asked for repair.
+- Do not invent, reinterpret, or strengthen evidence.
+- Do not treat structural validity as semantic validity.
+- Do not accept a main slide that is merely relevant or removable.
+- Do not let a divider excuse a broken main-slide handoff.
+- Do not require visible per-slide source notes when evidence IDs remain
+  traceable through the plan.
 - Do not expose secrets or private data found during review.
-- Do not accept a deck from source inspection alone.
-- Do not lower the quality bar for an appendix unless readability is preserved.
-- Do not mark `pass` when any required gate is failed or blocked.
+- Do not mark `pass` when any required gate fails or is blocked.
 
 ## References
 
 - `references/review-checklist.md`
-  Gate-by-gate acceptance checklist for v0.2 HTML report decks.
+  Gate-by-gate v0.3 Minto-pyramid and storyline acceptance checklist.

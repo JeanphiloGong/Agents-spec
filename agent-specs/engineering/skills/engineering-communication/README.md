@@ -7,9 +7,9 @@ reader-friendly communication artifacts.
 
 | Skill | Use when |
 | --- | --- |
-| [`html-report-plan`](html-report-workflow/html-report-plan/SKILL.md) | Evidence-backed analysis needs a decision-oriented, action-title slide plan. |
-| [`html-report-build`](html-report-workflow/html-report-build/SKILL.md) | An approved v0.2 plan should become a fixed 16:9, self-contained HTML report deck. |
-| [`html-report-review`](html-report-workflow/html-report-review/SKILL.md) | An HTML report deck needs logic, evidence, rendered readability, behavior, and safety acceptance. |
+| [`html-report-plan`](html-report-workflow/html-report-plan/SKILL.md) | Evidence-backed analysis needs a Minto Claim pyramid, closed question chain, and appendix map. |
+| [`html-report-build`](html-report-workflow/html-report-build/SKILL.md) | An approved v0.3 plan should become a fixed 16:9 deck without changing its storyline. |
+| [`html-report-review`](html-report-workflow/html-report-review/SKILL.md) | A deck needs pyramid, question-chain, deletion, concept, appendix, evidence, render, behavior, and safety acceptance. |
 | [`project-flowchart-template-skill`](project-flowchart-template-skill/SKILL.md) | A project needs reusable Mermaid flowchart templates grounded in code evidence. |
 | [`summary-writing-skill`](summary-writing-skill/SKILL.md) | Daily, weekly, monthly, quarterly, or yearly work summaries need clear business-facing phrasing. |
 

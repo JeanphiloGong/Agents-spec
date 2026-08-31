@@ -2,16 +2,25 @@
 
 Use this package to turn evidence-backed analysis, comparison, diagnosis, or
 implementation guidance into a professional, self-reading HTML presentation.
-The default artifact is a fixed 1600 x 900 deck whose action titles carry the
-argument and whose slides expose the supporting evidence.
+The v0.3 contract uses a Minto argument pyramid, chapter-level argument map,
+and closed reader-question chain so main slides advance one decision while
+implementation detail stays in linked appendices.
+
+Every deck follows `cover -> argument-map contents -> Chapter 1 -> divided
+later chapters -> appendix`. Chapter 1 follows contents directly; each later
+chapter begins with one divider. Navigation pages orient the reader but add no
+Claims, evidence, questions, or concepts.
+
+Evidence remains traceable through the plan and slide metadata. Generated decks
+do not repeat source notes in a visible footer by default; page numbers remain.
 
 ## Skills
 
 | Skill | Use when | Output |
 | --- | --- | --- |
-| [`html-report-plan`](html-report-plan/SKILL.md) | Define the reader decision, logic spine, claims, evidence, and action-title sequence. | v0.2 report-deck plan |
-| [`html-report-build`](html-report-build/SKILL.md) | Turn an approved v0.2 plan into one offline, browser-playable HTML deck. | Self-contained `.html` deck |
-| [`html-report-review`](html-report-review/SKILL.md) | Accept or reject the deck through logic, evidence, render, behavior, and safety gates. | `pass`, `fail`, or `blocked` review |
+| [`html-report-plan`](html-report-plan/SKILL.md) | Define the governing answer, Claim pyramid, chapter map, question chain, concept order, and appendix map. | v0.3 report-deck plan |
+| [`html-report-build`](html-report-build/SKILL.md) | Turn an approved v0.3 plan into one offline chaptered deck without changing its storyline. | Self-contained `.html` deck |
+| [`html-report-review`](html-report-review/SKILL.md) | Accept or reject chapter navigation, the pyramid, question chain, deletion test, appendix split, evidence, rendering, behavior, and safety. | `pass`, `fail`, or `blocked` review |
 
 ## Sequence
 
@@ -20,5 +29,5 @@ argument and whose slides expose the supporting evidence.
 3. `$html-report-review`
 
 Use only the requested phase when a valid upstream artifact already exists.
-This v0.2 workflow does not produce the previous long-document report format
-and does not add a compatibility output path.
+This v0.3 workflow derives page count from indispensable Claims. It does not
+accept fixed page targets or retain v0.2 compatibility paths.
