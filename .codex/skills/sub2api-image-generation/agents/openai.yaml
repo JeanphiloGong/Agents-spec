@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sub2API Image Generation"
+  short_description: "v0.1.0 - Generate images via Sub2API"
+  default_prompt: "Use $sub2api-image-generation to generate an image through the configured Sub2API endpoint and verify the saved output."
