@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Tutorial Build"
+  short_description: "v0.1.0 - Write verified real-project tutorials"
+  default_prompt: "Use $project-implementation-tutorial-build to turn our agreed feature version into a complete tutorial grounded in the actual project, without changing the source worktree."

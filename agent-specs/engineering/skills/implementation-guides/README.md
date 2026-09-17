@@ -10,11 +10,21 @@ implementation.
 
 | User situation | Skill | Purpose |
 | --- | --- | --- |
+| Turn an agreed feature into a tutorial against the actual project | [`project-implementation-tutorial-build`](project-implementation-tutorial-workflow/project-implementation-tutorial-build/SKILL.md) | Teach complete real-file edits, integration and tests; use its sibling plan/review skills when needed. |
 | Learn the core from first principles before trusting final code | [`from-scratch-tutorial-build`](from-scratch-tutorial-workflow/from-scratch-tutorial-build/SKILL.md) | Derive one feature or method through connected code versions that add to or replace the previous version until the final step yields complete code. |
 | A project, module, or AI draft has multiple unclear core logic chains | [`reference-core-scan`](reference-core-workflow/reference-core-scan/SKILL.md) | Inventory candidate chains and recommend the first extraction target. |
 | A selected chain should become a blog, nano project, or personal knowledge asset | [`reference-core-teaching-plan`](reference-core-workflow/reference-core-teaching-plan/SKILL.md) | Gate the chain against missing prerequisite assets, then convert it into a from-zero teaching promise and constraints for the learning module plan. |
 | A selected chain is ready to become a runnable nano learning module | [`reference-core-build`](reference-core-workflow/reference-core-build/SKILL.md) | Build a standalone learning module that implements the core logic, preserves the defining invariant, and is ready for review. |
 | AI draft or reference output needs to land on `main` under human control | [`human-led-main-landing-skill`](human-led-main-landing-skill/SKILL.md) | Plan one human-led, main-first wave with `Human-Owned` logic, AI reference boundaries, verification, and `commit_when` checkpoints. |
+
+## Project Implementation Tutorial Workflow
+
+[`project-implementation-tutorial-workflow/`](project-implementation-tutorial-workflow/README.md)
+plans versions, builds tutorials, and reviews them against the actual source
+baseline. Use it for discussion -> implementation tutorial -> human execution,
+without requiring a standalone project or changing production code. An agreed
+solution can go directly to build. It preserves version and teaching discipline
+without depending on the two learning-asset packages below.
 
 ## From-Scratch Tutorial Workflow
 
