@@ -1,6 +1,6 @@
 ---
 name: project-implementation-tutorial-build
-description: v0.1.0 - Write complete, verified feature implementation tutorials against real project code. Use when the user has discussed a solution and wants exact files, full implementations, caller integration, migrations, tests, and incremental explanations. Use when rebuilding a vague or standalone tutorial into an actionable existing-project guide.
+description: v0.1.0 - Write step-by-step feature implementation tutorials against real project code. Use when the user has discussed a solution and wants exact files, complete code examples, caller integration, migrations, and test guidance. Use when rebuilding a vague or standalone tutorial into an actionable existing-project guide.
 ---
 
 # Project Implementation Tutorial Build
@@ -11,6 +11,13 @@ Teach the reader to implement the selected capability in the existing project.
 Produce a tutorial, not a production patch or a standalone mock application.
 Use the actual baseline as the starting point and replay the tutorial changes
 in an isolated copy to establish what the document really delivers.
+
+The reader must be able to apply the code in order. Every implementation step
+shows the real file path, the symbol or insertion point, the complete code
+needed for that step, and the next observable result. Explain tests without
+turning the tutorial into a test-writing lesson: name the test location,
+behavior to cover, setup, expected result, and why it matters, but omit test
+source-code examples unless the user explicitly asks for them.
 
 Version planning and teaching are both essential. Reuse an agreed plan from
 conversation or a document; a separate planning skill invocation is optional.
@@ -57,13 +64,16 @@ for review-only work.
    will observe after this version. Name the few concepts and invariants needed
    to understand the change. Scope down the feature, not away its required real
    authentication, persistence, caller, or transaction boundaries.
-5. Write and verify one connected step.
+5. Write and verify one connected code step.
    Show a concrete input, call, or failure exposing the baseline's gap. Explain
    the requirement and why the selected change solves it. Name the exact file,
-   class/method, and `patch` or `checkpoint` operation. Supply complete code for
-   the declared target, imports, and affected callers. Explain new fields and
-   helper inputs/outputs, side effects, and ownership where non-obvious. Replay
-   this step in the verification copy; run its check and state what now works.
+   class/method, and `patch` or `checkpoint` operation. Supply a code example
+   that the reader can paste or apply at that point, including imports,
+   signatures, surrounding context, and affected callers. Do not replace a
+   required implementation with a prose instruction such as "add this in the
+   Service". Explain new fields and helper inputs/outputs, side effects, and
+   ownership where non-obvious. Replay this step in the verification copy; run
+   its check and state what now works.
    Fix the earliest failure before proceeding, or mark the blocked verification.
    Update `progress.yaml` after this step with its stable ID, drafting status,
    actual check result, input identity, blocker, and next action. Record results
@@ -74,6 +84,12 @@ for review-only work.
    this capability requires them. Existing code is reused by verified path and
    symbol; newly proposed helpers must be fully implemented before the
    checkpoint that calls them is declared runnable.
+   Keep code changes in numbered implementation steps. A migration, model,
+   repository, service, route, worker, or caller that the reader must add gets
+   its own code example or is included in a clearly ordered complete example.
+   Tests are documented after the corresponding code step as test guidance:
+   path, scenario, fixture/input, expected result, and boundary. Do not include
+   test implementation blocks by default.
 7. Freeze the complete version.
    Ensure the final connected step leaves all declared targets fully specified;
    no hidden edits or new logic in an appendix. Replay the final tutorial state
@@ -111,12 +127,14 @@ Write in the user's language and match existing tutorial conventions.
 
 1. Version goal, baseline, prerequisites, and explicit exclusions.
 2. A short real scenario and the behavior/contracts to preserve.
-3. Connected implementation steps: why, exact target, complete change, check.
+3. Numbered implementation steps: why, exact target, complete code example,
+   reader check, and test guidance.
 4. Final capability checkpoint: reader checks, expected results, known limits.
 5. The next agreed capability, without pulling it into this version.
 
-Use natural explanatory paragraphs and code, not repeated internal compliance
-forms. Explain decisions and tricky mechanics; do not narrate every assignment.
+Use natural explanatory paragraphs and ordered code blocks, not repeated
+internal compliance forms. Explain decisions and tricky mechanics; do not
+narrate every assignment. Keep test guidance concise and prose-based.
 Do not add an isolated final code dump that introduces unexplained behavior.
 Keep execution logs, step statuses, audit fields, and detailed review history
 in local records. Give a concise verification summary and record path in the
@@ -136,6 +154,10 @@ it must remain understandable without the records.
 ## Red Flags
 
 - `pass`, ellipses, undefined helpers, or omitted caller changes in required code.
+- A required implementation step has only prose or a fragment the reader
+  cannot apply without guessing surrounding code.
+- Test source code takes more space than the feature code even though the user
+  asked for test guidance only.
 - "Put this somewhere in a Service" without a real file and method.
 - A function-body fragment is not identified as a patch inside a named method.
 - An ORM-only change is described as a completed database migration.
@@ -147,8 +169,12 @@ it must remain understandable without the records.
 
 - [ ] The baseline and agreed version are explicit and source-backed.
 - [ ] Every code block is an applicable change or clearly labeled illustration.
+- [ ] Each required implementation step has an ordered, complete code example
+      with a real path, symbol, imports, and application point.
 - [ ] Every changed/new symbol, import, caller, and test fixture is accounted for.
 - [ ] Each step explains a real gap, changes it, and checks the new behavior.
+- [ ] Tests are described by location, scenario, setup, expected result, and
+      boundary without unnecessary test source-code examples.
 - [ ] The complete entrypoint-to-output path exists for the promised scope.
 - [ ] Boundary/failure tests cover relevant invariants, not only the happy path.
 - [ ] Replayed tutorial changes match the verified implementation.

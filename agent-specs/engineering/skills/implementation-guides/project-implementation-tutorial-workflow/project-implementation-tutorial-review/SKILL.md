@@ -1,6 +1,6 @@
 ---
 name: project-implementation-tutorial-review
-description: v0.1.0 - Review existing-project implementation tutorials for source accuracy, version completeness, teaching continuity, and executable evidence. Use when a guide may omit real callers, migrations, tests, or complete code. Use before accepting a tutorial checkpoint as ready for a reader to implement.
+description: v0.1.0 - Review existing-project implementation tutorials for source accuracy, step-by-step code completeness, teaching continuity, and executable evidence. Use when a guide may omit real callers, migrations, tests, or complete code. Use before accepting a tutorial checkpoint as ready for a reader to implement.
 ---
 
 # Project Implementation Tutorial Review
@@ -47,9 +47,12 @@ sibling build skill after identifying the defects.
    An unresolved dependency required for the promise is a finding.
 4. Trace the teaching chain.
    For each step check the real motivating gap, previous baseline, exact edit,
-   explanation, test, and next baseline. Check imports and full method context.
-   Reject hidden rewrites, unexplained abstractions, and disconnected code
-   dumps even when their final behavior could be correct.
+   complete code example, explanation, reader check, test guidance, and next
+   baseline. Check imports and full method context. Reject hidden rewrites,
+   unexplained abstractions, and disconnected code dumps even when their final
+   behavior could be correct. Test guidance should name the scenario and
+   expected result; test source examples are optional and should not be required
+   when the authoring request asked for prose guidance.
    Check that removing local records would not hide instructions or essential
    scope from the reader, and that audit fields stay out of the lesson.
 5. Verify the evidence safely.
@@ -104,6 +107,10 @@ sibling build skill after identifying the defects.
 ## Red Flags
 
 - Undefined variables, invented repository APIs, or ambiguous code placement.
+- Required code steps contain only prose, pseudocode, or fragments that force
+  the reader to reconstruct the implementation.
+- Test guidance is missing its scenario or expected result, or the guide is
+  padded with test source code that was not requested.
 - Commit/freeze claims with no reproducible baseline or acceptance evidence.
 - A renamed ORM without the required physical schema or caller changes.
 - Unstated behavior changes introduced as teaching simplifications.

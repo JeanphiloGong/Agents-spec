@@ -9,7 +9,7 @@ modifying the production worktree by default.
 | Situation | Skill | Deliverable |
 | --- | --- | --- |
 | Requirements need versions and checkpoints | [plan](project-implementation-tutorial-plan/SKILL.md) | Source-backed version line, selected scope, ordered edits and acceptance checks |
-| The solution is agreed; write the tutorial | [build](project-implementation-tutorial-build/SKILL.md) | Complete real-file changes, connected explanations, integration and tests |
+| The solution is agreed; write the tutorial | [build](project-implementation-tutorial-build/SKILL.md) | Ordered, complete real-file code examples, connected explanations, integration and test guidance |
 | Check whether the tutorial is ready to follow | [review](project-implementation-tutorial-review/SKILL.md) | Evidence-backed findings and scoped readiness verdict |
 
 Typical path: discussion and source inspection -> version plan when needed ->
@@ -25,8 +25,9 @@ the next version, real files, prerequisites, exclusions, and commit_when checks.
 
 $project-implementation-tutorial-build
 Turn our agreed version into a tutorial against the actual code. Give exact
-file/method edits, complete implementations and tests. Verify in isolation;
-do not modify the source worktree.
+file/method edits and complete implementations that can be applied step by
+step. Describe the tests and expected results without test code examples unless
+requested. Verify in isolation; do not modify the source worktree.
 
 $project-implementation-tutorial-review
 Review this tutorial against its baseline and promised version. Check missing
@@ -68,8 +69,8 @@ can run with its own inputs; explicitly supplied upstream artifacts are optional
 handoff evidence. Keep generated records local and uncommitted in the tutorial
 workspace. No fourth record skill or extra user invocation is required.
 
-Tutorial prose retains explanations, exact code changes, reader checks and
-expected results. Internal checklists, execution logs and review history stay
+Tutorial prose retains explanations, ordered code changes, reader checks,
+expected results, and concise test guidance. Internal checklists, execution logs and review history stay
 in the workbench. Record conclusions and evidence, not raw thinking transcripts.
 The lesson must remain usable without these files. Resume from recorded state,
 but revalidate affected checks when the source or tutorial changes.

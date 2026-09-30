@@ -60,6 +60,29 @@ successive fragments changed the same method, show its assembled final method
 in that step. Do not repeat every unaffected source file or add unexplained
 logic in a detached final code section.
 
+## Code Examples First, Test Guidance Second
+
+The tutorial is an implementation lesson. For every required change, write a
+numbered code step that the reader can apply in sequence:
+
+```text
+Step -> real path/symbol -> complete code -> why it fits the previous step
+     -> reader check -> next step
+```
+
+The code block must contain enough context to apply the change safely: imports,
+type/signature, surrounding method or insertion point, and the caller update
+when the caller is part of the promised behavior. A short diff is acceptable
+only when its location and unchanged context make the edit unambiguous. A
+sentence such as "add a Repository method" is not an implementation example.
+
+Tests remain part of the feature's acceptance, but they are not the tutorial's
+main teaching material. Describe each needed test in prose with its path,
+scenario, setup or fixture, expected result, and boundary. Show the command the
+reader runs when useful. Do not include test source-code blocks by default;
+include them only after the user explicitly requests test examples or a test
+itself is the feature being taught.
+
 ## Integration Is Part of the Promise
 
 If the version promises an HTTP feature, cover its actual route, service,
@@ -83,8 +106,8 @@ Record the source revision and relevant dirty baseline without copying secrets.
 Use a disposable copy with isolated connection settings; merely copying a repo
 does not isolate its external services. Check test configuration before running.
 
-Apply the document's edits in order. At each runnable checkpoint, run its named
-check. Deliberately incomplete substeps must say which next step completes them
+Apply the document's code edits in order. At each runnable checkpoint, run its
+named reader check. Deliberately incomplete substeps must say which next step completes them
 and must not be presented as runnable or ready to commit.
 
 Test relevant positive and negative behavior: authorization boundaries,
