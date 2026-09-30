@@ -58,9 +58,11 @@ the last case, use `project-implementation-tutorial-build` directly.
    say it is not yet a user-visible feature.
 5. Select the current version and order its teaching steps.
    Map each step to exact real files and symbols, the previous step's gap, the
-   change, and a check. Include migrations, callers, configuration, and tests
-   needed for this version's promise. Multiple files may implement one coherent
-   behavior. Future versions remain a roadmap, not hidden current tasks.
+   change, and a check. Include migrations, callers, configuration, and test
+   guidance needed for this version's promise. The plan names test scenarios,
+   expected outcomes, and boundaries; it does not need test source examples.
+   Multiple files may implement one coherent behavior. Future versions remain
+   a roadmap, not hidden current tasks.
 6. Define the freeze and handoff.
    Name the baseline needed to reproduce the tutorial, executable checks with
    expected results, regression scope, and a `commit_when` condition. Separate
@@ -123,6 +125,8 @@ record path and unresolved decisions separately in the handoff.
 - [ ] Every version has prerequisites, additions, exclusions, and acceptance.
 - [ ] The selected version includes all integration required by its promise.
 - [ ] Current tasks have concrete checks, including a boundary or failure case.
+- [ ] Test expectations are described as scenarios and outcomes; test source
+      examples are not required by the plan.
 - [ ] Existing decisions are reused; blocking choices are explicit.
 - [ ] Tutorial writing and production implementation are separate permissions.
 - [ ] The planning record matches the plan; no build/review record is required.
