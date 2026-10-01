@@ -1,0 +1,4 @@
+interface:
+  display_name: "VM Browser Control"
+  short_description: "Create and control a browser inside a Windows VM"
+  default_prompt: "Use $vm-browser-control to create an independent browser inside the Windows VM through desktop control, then work in it through CDP without MCP."

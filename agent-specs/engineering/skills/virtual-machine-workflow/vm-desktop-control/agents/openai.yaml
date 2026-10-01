@@ -1,0 +1,4 @@
+interface:
+  display_name: "VM Desktop Control"
+  short_description: "Operate a QEMU Windows desktop through QMP"
+  default_prompt: "Use $vm-desktop-control to inspect and operate the existing Windows VM desktop without MCP."

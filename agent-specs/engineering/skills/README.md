@@ -12,6 +12,7 @@ the package README files explain when to use each group.
 | [`implementation-guides`](implementation-guides/README.md) | Skills for learning, reference implementations, and human-led landing from drafts. |
 | [`delivery-workflow`](delivery-workflow/README.md) | Skills for issue traceability, commits, PR/MR publishing, reviews, and releases. |
 | [`engineering-communication`](engineering-communication/README.md) | Skills for engineering diagrams, HTML reports, and business-readable work summaries. |
+| [`virtual-machine-workflow`](virtual-machine-workflow/README.md) | QEMU desktop control and independent browsers running inside a Windows VM, without MCP. |
 
 ## Usage
 
