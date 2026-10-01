@@ -11,6 +11,30 @@ installation; do not launch a host browser or use MCP as a substitute.
 
 ## Choose the Instance
 
+Before starting or attaching to a browser, read the VM-resident instance
+registry at `%LOCALAPPDATA%\AgentVMBrowsers\registry.json`. This registry is the
+source of truth for reusable browser configurations inside the persistent
+Windows VM. Record only the instance name, purpose, profile directory, guest
+debug port, host relay endpoint, status, and last verification. Never store
+passwords, cookies, tokens, proxy subscriptions, or other secrets.
+
+Use this persistent layout inside the VM:
+
+```text
+%LOCALAPPDATA%\AgentVMBrowsers\
+|-- registry.json
+`-- <instance>\
+    |-- Profile\
+    `-- launch.ps1
+```
+
+If the registry has no entry for the requested purpose, inspect the directory
+and available ports before creating an instance. After the first successful
+launch and CDP verification, add the instance to the registry before doing
+task work. When an existing entry is stopped, reuse its profile and ports
+instead of creating another profile. If it is already running, attach to its
+endpoint instead of launching a second process with the same profile.
+
 Distinguish a new tab, an isolated context, and a new browser process. A request
 for a new independent browser means a unique persistent `--user-data-dir`
 and an unused guest debug port. A context isolates cookies/page state inside
@@ -42,6 +66,11 @@ and an already-running instance. Keep the browser non-elevated; any network
 setup elevation is a separate step. Inspect a desktop screenshot to verify
 startup, and handle any native dialogs through desktop control.
 
+After startup, verify the exact `/json/version` endpoint and update the VM
+registry status to `ready` with the observed browser version and verification
+time. If startup fails, keep the entry as `stopped` or `error` with a short
+non-sensitive note; do not silently create a replacement profile.
+
 ## Reach the Guest CDP
 
 Use an existing verified forwarding route when it belongs to this instance.
@@ -53,8 +82,14 @@ prerequisite if it cannot be established within the authorized scope.
 
 The existing Windows setup has used debug `9222`, guest relay `19222`, and
 host `http://127.0.0.1:19222`. These are examples to inspect, not ports to reuse
-for a second simultaneous browser. The profile `%LOCALAPPDATA%\LensAgentBrowser\Profile`
-may contain the user's Figma session; leave it intact.
+for a second simultaneous browser. Use the profile path recorded for the named
+instance, normally `%LOCALAPPDATA%\AgentVMBrowsers\<instance>\Profile`; do not
+assume that it contains a particular application's login session.
+
+The registry's endpoint belongs to the named instance. Do not infer a free
+browser from a port alone: check the registry, `/json/version`, and the profile
+path together. If a relay or debug route is newly created, record it in the
+same entry and keep the host listener loopback-only.
 
 Discover using exactly `/json/version`. Some Edge builds reject the trailing
 slash requested by Playwright's HTTP endpoint discovery. The bundled
@@ -103,6 +138,12 @@ Use the instance's existing default context for that signed-in session; creating
 a fresh isolated context will not inherit its cookies. Do not read credentials
 or copy another profile's authentication state.
 
+When a task creates a new persistent browser configuration, finish by reporting
+the instance name and updating the VM registry. When a task changes its purpose,
+profile, port, or lifecycle state, update the same entry rather than adding a
+duplicate record. A stopped instance remains reusable until its profile is
+explicitly retired.
+
 Native file pickers and system dialogs require serial desktop control. For
 small host-side assets, pass file contents rather than a raw host path:
 
@@ -123,4 +164,7 @@ transfers them; screenshots taken by Playwright are written by the host script.
 Close only pages/contexts created for temporary checks. For this CDP connection,
 `browser.close()` disconnects the client; do not send `Browser.close` or terminate
 Edge to finish a task that should leave the VM browser open. Report the instance,
-endpoint, owned pages, visible result, and any remaining human step.
+endpoint, owned pages, visible result, and any remaining human step. Include the
+registry entry's instance name and current status in the handoff. When a
+temporary staging server is used to deliver a launcher, stop it after the
+launcher has been transferred and verified.
