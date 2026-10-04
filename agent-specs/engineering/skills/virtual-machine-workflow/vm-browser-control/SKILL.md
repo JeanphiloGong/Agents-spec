@@ -99,6 +99,7 @@ host to the local forwarded endpoint, and connects to the WebSocket directly.
 ```bash
 node "$browser_skill/scripts/connect_browser.mjs" \
   --endpoint http://127.0.0.1:19223 \
+  --instance agent-design-02 --task browser-check \
   --package /absolute/path/to/existing/project/package.json \
   --screenshot /tmp/vm-browser-check.png
 ```
@@ -116,19 +117,78 @@ Import `connectVmBrowser` from the helper in a task script:
 const browser = await connectVmBrowser({
   endpoint: 'http://127.0.0.1:19223',
   packagePath: '/absolute/path/to/existing/project/package.json',
+  instance: 'agent-design-02',
+  task: 'documents-v2-design',
+  resources: ['figma:FILE_KEY'],
 });
-const context = await browser.newContext();
-const page = await context.newPage();
-await page.goto('http://10.0.2.2:18082/index.html');
-// Use locators, fill(), page.mouse, and screenshots in this Windows page.
+let context;
+try {
+  context = await browser.newContext();
+  const page = await context.newPage();
+  await page.goto('http://10.0.2.2:18082/index.html');
+  // Use locators, fill(), page.mouse, and screenshots in this Windows page.
+} finally {
+  try { if (context) await context.close(); }
+  finally { await browser.close(); }
+}
 ```
+
+## Ownership And Heartbeats
+
+Use the bundled connection helper for every automation script, supplying the
+registry's `instance` name and a short non-sensitive `task` name. It acquires
+exclusive instance and endpoint locks before CDP discovery and writes a
+heartbeat every 10 seconds. Use `resources` for additional shared write targets,
+such as `figma:FILE_KEY` across browser instances or `page:TARGET_ID`. Do not
+record full URLs, page content, passwords, cookies, or tokens in these fields.
+Existing scripts must add ownership metadata; untracked connections are not a
+fallback when another owner blocks acquisition.
+
+Host-side runtime records live under
+`~/.local/state/vm-browser-control/leases/`, outside business repositories.
+All controllers for the same VM must use this shared directory (or the same
+explicit `leaseDirectory` / `--lease-directory`). The Windows instance registry
+continues to own persistent browser configuration; `ready` there does not mean
+available. Runtime records contain run ID, task, instance, endpoint, PID,
+claimed resources, start time, last heartbeat, and expiry duration.
+
+Inspect occupancy without attaching to or changing the browser:
+
+```bash
+node "$browser_skill/scripts/connect_browser.mjs" --status
+```
+
+`active` means a participating script is renewing ownership. After 45 seconds
+without a heartbeat, status becomes `unresponsive`; an unreadable or unfinished
+record is `unknown`. Both still block acquisition. A heartbeat proves script
+liveness, not progress or human inactivity; old scripts and manual users are
+not detected. Inspect the existing pages and coordinate with their operator
+before assigning an instance. Never automatically reclaim an expired record.
+
+Connection setup failure, disconnection, `browser.close()`, and normal process
+exit release this run's records. Always disconnect in `finally`; SIGKILL and
+other abrupt termination can leave records for inspection. A failed close
+retains ownership until disconnection or process exit. After independently
+confirming the exact owner has stopped, release only its run ID:
+
+```bash
+node "$browser_skill/scripts/connect_browser.mjs" \
+  --release RUN_ID --confirm-owner-stopped
+```
+
+The confirmation flag records the operator's decision; it does not establish
+that the owner stopped. Do not remove unknown lock directories until their
+creation state and ownership have been resolved. Locks coordinate cooperating
+scripts on one host; they are not a security boundary or a distributed lock.
 
 Verify Windows runtime identity, inspect the target page, and test an actual
 interaction. For host development servers, guest `localhost` is Windows;
 QEMU user networking normally reaches the host at `10.0.2.2`. Confirm the
 server binding and access route without changing unrelated services.
 
-Assign separate contexts/pages to parallel agents. CDP page input does not use
+Within one owning script, assign separate contexts/pages when concurrency is
+authorized. Separate scripts should use separate instances; shared write
+targets must still have one owner. CDP page input does not use
 the shared Windows pointer. Agents still need separate ownership for mutable
 remote documents: two Figma pages editing one file can conflict. Use one writer
 per shared document or agreed independent regions.
