@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI Reference Workspace"
+  short_description: "v0.1.0 - Build code references without production writes"
+  default_prompt: "Use $ai-reference-workspace-skill to create one isolated spec-only reference workspace by default, run a sandboxed Codex implementation there, return the runnable artifact and diff for human inspection, and make no production edits, merges, or copy-back actions."
