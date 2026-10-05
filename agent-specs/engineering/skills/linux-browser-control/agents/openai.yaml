@@ -1,0 +1,4 @@
+interface:
+  display_name: "Linux Browser Control"
+  short_description: "v0.1.0 - Control isolated Linux browsers through local CDP"
+  default_prompt: "Use $linux-browser-control to discover or attach to an isolated Linux browser profile through local CDP."
