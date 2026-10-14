@@ -1,6 +1,6 @@
 ---
 name: linux-browser-control
-description: "v0.1.0 - Discover, launch, and control isolated Linux browser profiles through local CDP. Use when a user needs a separate Linux browser login. Use when an agent must attach to a recorded Chrome or Chromium profile without copying credentials or opening a second writer."
+description: "v0.1.1 - Discover, launch, and control visible isolated Linux browser profiles through local CDP while preserving desktop focus. Use when a user needs a separate Linux browser login. Use when an agent must attach to a recorded Chrome or Chromium profile without copying credentials or opening a second writer."
 ---
 
 # Linux Browser Control
@@ -45,6 +45,8 @@ copy authentication state.
   `google-chrome-stable`, `chromium`, `chromium-browser`.
 - Default ownership: one agent per profile endpoint and one writer per shared
   document, expressed with `resources` such as `figma:FILE_KEY`.
+- Keep the browser visible and preserve the user's desktop focus by default.
+  Visible page updates do not require activating or raising the browser window.
 
 ## Operating Loop
 
@@ -67,9 +69,13 @@ copy authentication state.
 6. Connect through `scripts/connect_browser.mjs` or `connectLinuxBrowser`.
    Use the existing default context for a user's signed-in session; do not
    create a fresh context expecting it to inherit cookies.
-7. Keep one writer for a mutable Figma or design document. Separate read-only
+7. Before interacting, read [Focus-Preserving Interaction](references/focus-preserving-interaction.md).
+   Prefer inspected DOM controls and page-local events. Verify both the visible
+   result and unchanged desktop focus for each new kind of action; do not
+   silently switch to native/CDP input when a page rejects synthetic events.
+8. Keep one writer for a mutable Figma or design document. Separate read-only
    pages may use separate contexts or pages under the same owner.
-8. In `finally`, close only pages/contexts created by the task and disconnect
+9. In `finally`, close only pages/contexts created by the task and disconnect
    the CDP client. Do not terminate the browser process or delete its profile.
    Release the lease on normal disconnect; leave an unresponsive lease for
    explicit owner confirmation.
@@ -86,6 +92,14 @@ copy authentication state.
   proves liveness failure, not that it is safe to take over.
 - If a task requires credentials, let the user authenticate visibly. Never
   read passwords, cookies, local storage, tokens, or browser databases.
+- If a control requires trusted input, a native dialog, or a canvas gesture
+  that has not been verified to preserve focus, explain the specific step and
+  use a user-performed gesture or an already-agreed foreground operation.
+  A request for visible operation alone does not authorize stealing focus.
+- If focus changes unexpectedly, stop input, identify the triggering action
+  and any modal window, and verify the next method before continuing. Keep
+  rendering visible; do not substitute headless operation or repeatedly force
+  focus back to another window.
 
 ## CLI Examples
 
@@ -125,6 +139,9 @@ does not install dependencies.
 | "The port is free, so launch another process." | The profile may already be running or locked. Inspect registry, profile, and process together. |
 | "The lease timed out, so take it." | Timeout is evidence for investigation, not proof that the owner stopped. |
 | "Reading cookies is the easiest login check." | Login state is sensitive. Verify only visible page behavior or the user's own interaction. |
+| "I did not call `bringToFront`, so clicks cannot steal focus." | Chromium's CDP input path can focus the native window internally. Measure desktop focus. |
+| "The user wants to watch, so I should activate Chrome on every action." | Page visibility and desktop input focus are separate. Preserve the current active window. |
+| "A synthetic event was dispatched, so the action succeeded." | Pages may reject untrusted events. Verify the resulting visible state before proceeding. |
 
 ## Red Flags
 
@@ -134,10 +151,14 @@ does not install dependencies.
   or a non-loopback endpoint.
 - Two agents claim the same `figma:FILE_KEY` writer resource.
 - The task deletes a profile or kills Chrome to release a lock.
+- Ordinary interaction calls `bringToFront`, activates a desktop window, or
+  silently falls back to `click`, `press`, mouse, or keyboard CDP input.
+- A page screenshot is treated as proof that no native modal dialog is open,
+  or `document.hasFocus()` is treated as proof of desktop focus ownership.
 
 ## Verification
 
-- [ ] `SKILL.md` and `agents/openai.yaml` report matching version `v0.1.0` scope.
+- [ ] `SKILL.md` and `agents/openai.yaml` report matching version `v0.1.1` scope.
 - [ ] `scripts/registry.mjs --name figma-design --inspect` reads the actual
       Linux registry and validates the loopback endpoint.
 - [ ] `scripts/lease.mjs` rejects duplicate endpoint/profile/document claims,
@@ -148,11 +169,18 @@ does not install dependencies.
       processes, invalid ports, and non-HTTP start URLs.
 - [ ] No password, cookie, token, page body, or local-storage value is written
       to the registry, lease records, or command output.
+- [ ] New interaction methods produce the intended visible page state without
+      changing the desktop active window or raising the browser. On X11, inspect
+      `_NET_ACTIVE_WINDOW` and `_NET_CLIENT_LIST_STACKING`, including transitions.
+- [ ] Unsupported synthetic actions are reported; no trusted-input fallback,
+      headless substitution, or forced focus restoration happens silently.
 
 ## Output Format
 
 Report the selected profile name, purpose, profile directory, loopback endpoint,
 status, owned resources, visible page result, and any remaining user action.
+State whether desktop focus preservation was verified and identify any
+remaining step that requires foreground input.
 Do not report credentials, cookies, tokens, or page contents.
 
 ## Guardrails
@@ -163,3 +191,7 @@ Do not report credentials, cookies, tokens, or page contents.
 - Do not delete profiles, kill unrelated browser processes, or modify remote
   design documents without the user's requested scope.
 - Preserve the registry and lease records as non-secret operational metadata.
+- Avoid `Page.bringToFront`, `Target.activateTarget`, window activation commands,
+  and native/CDP mouse or keyboard input unless that focus-changing operation
+  is already within the user's agreed scope. Browser startup and native dialogs
+  may also activate windows; announce those steps before they occur.
