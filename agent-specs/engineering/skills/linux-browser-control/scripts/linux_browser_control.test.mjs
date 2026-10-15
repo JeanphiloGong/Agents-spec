@@ -233,14 +233,29 @@ async function connectionFixture(t) {
   const existing = { ...page, targetId: "existing-tab", close: t.mock.fn(async () => {}) };
   const disconnect = t.mock.fn(async () => {});
   const browserEvents = new Map();
+  const pages = [existing];
+  const targetSession = {
+    send: t.mock.fn(async (method, params) => {
+      assert.equal(method, "Target.createTarget");
+      assert.deepEqual(params, { url: "about:blank", background: true, newWindow: false });
+      pages.push(page);
+      return { targetId: "new-tab" };
+    }),
+    detach: t.mock.fn(async () => {}),
+  };
   const context = {
-    pages: () => [existing], newPage: async () => page,
+    pages: () => pages,
     newCDPSession: async candidate => ({
       send: async () => ({ targetInfo: { targetId: candidate.targetId } }),
       detach: async () => {},
     }),
   };
-  const browser = { contexts: () => [context], once: (event, handler) => browserEvents.set(event, handler), close: disconnect };
+  const browser = {
+    contexts: () => [context],
+    newBrowserCDPSession: async () => targetSession,
+    once: (event, handler) => browserEvents.set(event, handler),
+    close: disconnect,
+  };
   playwright.chromium = { connectOverCDP: async socket => {
     assert.equal(socket, `${endpoint.replace("http:", "ws:")}/devtools/browser/browser-1`);
     return browser;

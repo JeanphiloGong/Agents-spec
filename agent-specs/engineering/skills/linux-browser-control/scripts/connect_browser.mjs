@@ -48,6 +48,8 @@ export async function connectLinuxBrowser({
   let page;
   let createdPage = false;
   let boundTargetId = targetId ?? null;
+  let createdTargetId = null;
+  let targetSession;
   let closed = false;
   try {
     const require = createRequire(resolve(packagePath));
@@ -70,9 +72,25 @@ export async function connectLinuxBrowser({
         }
         if (!page) throw new Error(`target is not an open page: ${targetId}`);
       } else {
-        page = await context.newPage();
+        targetSession = await browser.newBrowserCDPSession();
+        const createdTarget = await targetSession.send("Target.createTarget", {
+          url: "about:blank",
+          background: true,
+          newWindow: false,
+        });
+        createdTargetId = createdTarget.targetId;
+        const deadline = Date.now() + 15000;
+        while (!page && Date.now() < deadline) {
+          for (const candidate of context.pages()) {
+            if (await targetIdOf(candidate) === createdTargetId) { page = candidate; break; }
+          }
+          if (!page) await new Promise(resolveDelay => setTimeout(resolveDelay, 50));
+        }
+        if (!page) throw new Error(`created target did not attach as a page: ${createdTargetId}`);
+        await targetSession.detach().catch(() => {});
+        targetSession = null;
         createdPage = true;
-        boundTargetId = await targetIdOf(page);
+        boundTargetId = createdTargetId;
         lease.claimTab(boundTargetId);
         if (startUrl != null) await page.goto(startUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
       }
@@ -98,6 +116,10 @@ export async function connectLinuxBrowser({
     browser.close = close;
     return { browser, page, targetId: boundTargetId, profile, version, lease, close };
   } catch (error) {
+    if (targetSession) {
+      if (createdTargetId) await targetSession.send("Target.closeTarget", { targetId: createdTargetId }).catch(() => {});
+      await targetSession.detach().catch(() => {});
+    }
     if (createdPage && page && !page.isClosed()) await page.close().catch(() => {});
     if (browser) await browser.close().catch(() => {});
     lease.release();

@@ -76,8 +76,9 @@ copy authentication state.
 5. Before CDP work, list current tabs and acquire a lease with a stable
    `owner`, `instance`, short `task`, the observed `browserId`, and any shared
    resources. A normal tab lease may select an observed `targetId`; when no
-   target is supplied, `connectLinuxBrowser` creates one page in the existing
-   default context and binds it before returning. Inspect
+   target is supplied, `connectLinuxBrowser` creates one background CDP target
+   in the existing default context and binds it before returning. This keeps
+   tab creation from activating the desktop window. Inspect
    `scripts/lease.mjs --status` when access is denied. Never reclaim an active,
    unresponsive, or unknown lease without confirming the exact owner stopped.
 6. Connect through `scripts/connect_browser.mjs` or `connectLinuxBrowser`.
