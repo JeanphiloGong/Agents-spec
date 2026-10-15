@@ -77,7 +77,13 @@ export async function connectLinuxBrowser({
         if (startUrl != null) await page.goto(startUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
       }
     }
-    browser.once("disconnected", lease.release);
+    if (scope === "tab" && page && typeof page.once === "function") {
+      page.once("close", () => lease.markTargetGone("page closed"));
+    }
+    browser.once("disconnected", () => {
+      if (scope === "tab") lease.markTargetGone("browser disconnected");
+      lease.release();
+    });
     const disconnect = browser.close.bind(browser);
     const close = async () => {
       if (closed) return;
@@ -97,6 +103,12 @@ export async function connectLinuxBrowser({
     lease.release();
     throw error;
   }
+}
+
+export function pagesForReport(scope, contexts, ownedPage) {
+  return scope === "tab"
+    ? (ownedPage ? [ownedPage] : [])
+    : contexts.flatMap(context => context.pages());
 }
 
 async function main() {
@@ -148,7 +160,7 @@ async function main() {
   });
   try {
     const contexts = connection.browser.contexts();
-    const pages = contexts.flatMap((context) => context.pages());
+    const pages = pagesForReport(values.scope, contexts, connection.page);
     console.log(JSON.stringify({
       profile: connection.profile.name,
       purpose: connection.profile.purpose,

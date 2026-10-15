@@ -42,9 +42,13 @@ export function listLeases(directory = defaultLeaseDirectory, now = Date.now()) 
         const endpoint = new URL(record.endpoint);
         if (endpoint.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(endpoint.hostname))
           throw new Error("invalid endpoint");
+        const state = record.state || "active";
+        if (!["active", "target_gone"].includes(state)) throw new Error("invalid lease state");
         return {
           ...record,
-          status: now - Date.parse(record.lastHeartbeat) > record.ttlMs ? "unresponsive" : "active",
+          status: state === "target_gone"
+            ? "target_gone"
+            : now - Date.parse(record.lastHeartbeat) > record.ttlMs ? "unresponsive" : "active",
         };
       } catch {
         return { lock: name, status: "unknown" };
@@ -104,6 +108,7 @@ export function acquireLease({
     endpoint: origin.origin,
     pid: process.pid,
     resources: claims,
+    state: "active",
     startedAt: new Date().toISOString(),
     lastHeartbeat: new Date().toISOString(),
     ttlMs,
@@ -134,11 +139,16 @@ export function acquireLease({
     }
   };
   const assertOwned = () => {
-    if (released) throw new Error("browser lease was released; stop this controller");
     if (ownershipError) throw ownershipError;
+    if (released) throw new Error("browser lease was released; stop this controller");
     for (const path of held) {
       const current = JSON.parse(readFileSync(join(path, "lease.json"), "utf8"));
       if (current.runId !== runId) throw new Error("browser ownership changed; stop this controller");
+      if (current.state === "target_gone") {
+        const error = new Error("browser target is gone; stop this controller");
+        error.code = "target_gone";
+        throw error;
+      }
     }
   };
   const heartbeat = (verifyOwner = true) => {
@@ -148,6 +158,26 @@ export function acquireLease({
       const temporary = join(path, `${runId}.tmp`);
       writeFileSync(temporary, JSON.stringify(record, null, 2) + "\n", { mode: 0o600 });
       renameSync(temporary, join(path, "lease.json"));
+    }
+  };
+  const markTargetGone = (reason = "target disappeared") => {
+    if (!ownershipError || ownershipError.code !== "target_gone") {
+      const error = new Error(`browser target is gone (${reason}); stop this controller`);
+      error.code = "target_gone";
+      ownershipError = error;
+    }
+    record.state = "target_gone";
+    if (released) return;
+    for (const path of held) {
+      try {
+        const current = JSON.parse(readFileSync(join(path, "lease.json"), "utf8"));
+        if (current.runId !== runId) continue;
+        const temporary = join(path, `${runId}.tmp`);
+        writeFileSync(temporary, JSON.stringify(record, null, 2) + "\n", { mode: 0o600 });
+        renameSync(temporary, join(path, "lease.json"));
+      } catch {
+        // The local ownership error still fails closed when the record is unavailable.
+      }
     }
   };
   const hold = resource => {
@@ -196,7 +226,7 @@ export function acquireLease({
       claims.push(resource);
       heartbeat(false);
     };
-    return { runId, assertOwned, claimTab, release };
+    return { runId, assertOwned, claimTab, markTargetGone, release };
   } catch (error) {
     release();
     throw error;

@@ -1,4 +1,4 @@
 interface:
   display_name: "Linux Browser Control"
-  short_description: "v0.1.2 - Discover browser tabs and coordinate per-tab CDP leases"
+  short_description: "v0.1.3 - Discover browser tabs and coordinate per-tab CDP leases"
   default_prompt: "Use $linux-browser-control to list visible Linux browser tabs, reserve one target or the browser scope, and control only the owned page through local CDP while preserving desktop focus."

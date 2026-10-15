@@ -17,7 +17,7 @@ import {
   validateProfile,
 } from "./registry.mjs";
 import { acquireLease, listLeases, releaseLease } from "./lease.mjs";
-import { connectLinuxBrowser } from "./connect_browser.mjs";
+import { connectLinuxBrowser, pagesForReport } from "./connect_browser.mjs";
 
 function fixture(t) {
   const directory = mkdtempSync(join(tmpdir(), "linux-browser-control-"));
@@ -222,9 +222,17 @@ async function connectionFixture(t) {
   mkdirSync(modulePath, { recursive: true });
   writeFileSync(join(modulePath, "index.js"), "module.exports = {};\n");
   const playwright = createRequire(packagePath)("playwright");
-  const page = { targetId: "new-tab", isClosed: () => false, close: t.mock.fn(async () => {}), goto: async () => {} };
+  const pageEvents = new Map();
+  const page = {
+    targetId: "new-tab",
+    isClosed: () => false,
+    close: t.mock.fn(async () => {}),
+    goto: async () => {},
+    once: (event, handler) => pageEvents.set(event, handler),
+  };
   const existing = { ...page, targetId: "existing-tab", close: t.mock.fn(async () => {}) };
   const disconnect = t.mock.fn(async () => {});
+  const browserEvents = new Map();
   const context = {
     pages: () => [existing], newPage: async () => page,
     newCDPSession: async candidate => ({
@@ -232,15 +240,26 @@ async function connectionFixture(t) {
       detach: async () => {},
     }),
   };
-  const browser = { contexts: () => [context], once: () => {}, close: disconnect };
+  const browser = { contexts: () => [context], once: (event, handler) => browserEvents.set(event, handler), close: disconnect };
   playwright.chromium = { connectOverCDP: async socket => {
     assert.equal(socket, `${endpoint.replace("http:", "ws:")}/devtools/browser/browser-1`);
     return browser;
   } };
-  return { page, existing, disconnect, connectionOptions: {
-    name: "design", owner: "agent-a", task: "connection-check", registryPath: options.registryPath,
-    packagePath, leaseDirectory: join(options.directory, "leases"),
-  } };
+  return {
+    page,
+    existing,
+    disconnect,
+    closePage: () => pageEvents.get("close")?.(),
+    disconnectBrowser: () => browserEvents.get("disconnected")?.(),
+    connectionOptions: {
+      name: "design",
+      owner: "agent-a",
+      task: "connection-check",
+      registryPath: options.registryPath,
+      packagePath,
+      leaseDirectory: join(options.directory, "leases"),
+    },
+  };
 }
 
 test("navigation starts with a bound target and failure closes only the new page", async (t) => {
@@ -277,6 +296,31 @@ test("closing a selected existing target keeps the page open", async (t) => {
   assert.equal(existing.close.mock.callCount(), 0);
   assert.equal(disconnect.mock.callCount(), 1);
   assert.deepEqual(listLeases(connectionOptions.leaseDirectory), []);
+});
+
+test("a closed page marks its lease target_gone and fails closed", async (t) => {
+  const { closePage, connectionOptions } = await connectionFixture(t);
+  const connection = await connectLinuxBrowser(connectionOptions);
+  closePage();
+  assert.equal(listLeases(connectionOptions.leaseDirectory)[0].status, "target_gone");
+  assert.throws(() => connection.lease.assertOwned(), /target is gone/);
+  await connection.close();
+  assert.deepEqual(listLeases(connectionOptions.leaseDirectory), []);
+});
+
+test("a browser disconnect invalidates and releases its tab lease", async (t) => {
+  const { disconnectBrowser, connectionOptions } = await connectionFixture(t);
+  const connection = await connectLinuxBrowser(connectionOptions);
+  disconnectBrowser();
+  assert.throws(() => connection.lease.assertOwned(), /target is gone/);
+  assert.deepEqual(listLeases(connectionOptions.leaseDirectory), []);
+});
+
+test("tab reports contain only the owned page", () => {
+  const owned = { targetId: "owned" };
+  const other = { targetId: "other" };
+  assert.deepEqual(pagesForReport("tab", [{ pages: () => [owned, other] }], owned), [owned]);
+  assert.deepEqual(pagesForReport("browser", [{ pages: () => [owned, other] }], owned), [owned, other]);
 });
 
 test("discovery joins live targets with owners and reports leased tabs that disappeared", async (t) => {
