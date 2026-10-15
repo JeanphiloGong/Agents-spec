@@ -2,15 +2,18 @@
 import { createHash, randomUUID } from "node:crypto";
 import {
   mkdirSync,
+  existsSync,
   readFileSync,
+  realpathSync,
   readdirSync,
   renameSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
 import { homedir } from "node:os";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 import { parseArgs } from "node:util";
+import { pathToFileURL } from "node:url";
 
 export const defaultLeaseDirectory = join(
   process.env.XDG_STATE_HOME || join(homedir(), ".local", "state"),
@@ -28,11 +31,17 @@ export function listLeases(directory = defaultLeaseDirectory, now = Date.now()) 
         const record = JSON.parse(readFileSync(join(directory, name, "lease.json"), "utf8"));
         if (
           typeof record.runId !== "string" ||
+          typeof record.instance !== "string" ||
+          typeof record.endpoint !== "string" ||
+          !["tab", "browser"].includes(record.scope || "browser") ||
           !Array.isArray(record.resources) ||
           !Number.isFinite(Date.parse(record.lastHeartbeat)) ||
           !Number.isFinite(record.ttlMs) ||
           record.ttlMs <= 0
         ) throw new Error("invalid lease");
+        const endpoint = new URL(record.endpoint);
+        if (endpoint.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(endpoint.hostname))
+          throw new Error("invalid endpoint");
         return {
           ...record,
           status: now - Date.parse(record.lastHeartbeat) > record.ttlMs ? "unresponsive" : "active",
@@ -47,31 +56,51 @@ export function listLeases(directory = defaultLeaseDirectory, now = Date.now()) 
 export function acquireLease({
   endpoint,
   instance,
+  owner,
   task,
+  scope = "tab",
+  browserId,
+  targetId,
   resources = [],
   directory = defaultLeaseDirectory,
   heartbeatMs = 10000,
   ttlMs = 45000,
 }) {
-  if (!instance?.trim() || !task?.trim()) throw new Error("instance and task are required for browser ownership");
-  if (!Array.isArray(resources) || resources.some((resource) => typeof resource !== "string" || !resource.trim()))
-    throw new Error("resources must contain non-empty identifiers without credentials or full URLs");
+  if ([instance, owner, task].some(value => typeof value !== "string" || !value.trim() || /[\r\n]/.test(value)))
+    throw new Error("instance, owner and task are required for browser ownership");
+  if (!["tab", "browser"].includes(scope)) throw new Error("scope must be tab or browser");
+  const validId = value => typeof value === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(value);
+  if (scope === "tab" && !validId(browserId)) throw new Error("tab leases require the observed browserId");
+  if (targetId != null && !validId(targetId)) throw new Error("targetId must be an observed CDP target identifier");
+  if (!Array.isArray(resources) || resources.some(resource =>
+    typeof resource !== "string" || !/^[A-Za-z0-9][A-Za-z0-9:._/-]*$/.test(resource) ||
+    resource.includes("://") || /^(endpoint|instance|tab|connection):/.test(resource)))
+    throw new Error("resources must be business identifiers, without URLs or reserved ownership prefixes");
   const origin = new URL(endpoint);
-  if (origin.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(origin.hostname))
+  if (origin.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(origin.hostname) ||
+    origin.username || origin.password || origin.pathname !== "/" || origin.search || origin.hash)
     throw new Error("lease endpoint must be a loopback HTTP origin");
   if (!Number.isFinite(heartbeatMs) || heartbeatMs < 10 || !Number.isFinite(ttlMs) || ttlMs <= heartbeatMs)
     throw new Error("heartbeat interval must be positive and shorter than the lease TTL");
-  const claims = [...new Set([
-    `endpoint:${origin.port || "80"}`,
-    `instance:${instance}`,
-    ...resources,
-  ])].sort();
   mkdirSync(directory, { recursive: true, mode: 0o700 });
   const runId = randomUUID();
+  const browserClaims = [`endpoint:${origin.port || "80"}`, `instance:${instance}`];
+  const tabClaim = id => `tab:${origin.port || "80"}:${browserId}:${id}`;
+  const claims = [...new Set([
+    ...(scope === "browser" ? browserClaims : [
+      `connection:${runId}`,
+      ...(targetId == null ? [] : [tabClaim(targetId)]),
+    ]),
+    ...resources,
+  ])].sort();
   const record = {
     runId,
     instance,
+    owner,
     task,
+    scope,
+    browserId: browserId || null,
+    targetId: scope === "tab" ? targetId ?? null : null,
     endpoint: origin.origin,
     pid: process.pid,
     resources: claims,
@@ -82,6 +111,7 @@ export function acquireLease({
   const held = [];
   let timer;
   let released = false;
+  let ownershipError;
   const release = () => {
     if (released) return;
     released = true;
@@ -92,39 +122,81 @@ export function acquireLease({
         const current = JSON.parse(readFileSync(join(path, "lease.json"), "utf8"));
         if (current.runId !== runId) continue;
       } catch (error) {
-        if (error.code !== "ENOENT") throw error;
+        if (error.code === "ENOENT") {
+          // The directory was created by this run before its first heartbeat.
+          rmSync(path, { recursive: true, force: true });
+          continue;
+        }
+        // An unreadable record cannot prove this controller owns it.
+        continue;
       }
       rmSync(path, { recursive: true, force: true });
     }
   };
+  const assertOwned = () => {
+    if (released) throw new Error("browser lease was released; stop this controller");
+    if (ownershipError) throw ownershipError;
+    for (const path of held) {
+      const current = JSON.parse(readFileSync(join(path, "lease.json"), "utf8"));
+      if (current.runId !== runId) throw new Error("browser ownership changed; stop this controller");
+    }
+  };
   const heartbeat = (verifyOwner = true) => {
+    if (verifyOwner) assertOwned();
     record.lastHeartbeat = new Date().toISOString();
     for (const path of held) {
-      if (verifyOwner) {
-        const current = JSON.parse(readFileSync(join(path, "lease.json"), "utf8"));
-        if (current.runId !== runId) throw new Error("browser ownership changed; stop this controller");
-      }
       const temporary = join(path, `${runId}.tmp`);
       writeFileSync(temporary, JSON.stringify(record, null, 2) + "\n", { mode: 0o600 });
       renameSync(temporary, join(path, "lease.json"));
     }
   };
-  try {
-    for (const resource of claims) {
-      const path = join(directory, lockName(resource));
-      try {
-        mkdirSync(path, { mode: 0o700 });
-      } catch (error) {
-        if (error.code !== "EEXIST") throw error;
-        throw new Error(`browser resource is occupied: ${resource}; inspect leases before release`);
-      }
-      held.push(path);
+  const hold = resource => {
+    const path = join(directory, lockName(resource));
+    try {
+      mkdirSync(path, { mode: 0o700 });
+    } catch (error) {
+      if (error.code !== "EEXIST") throw error;
+      throw new Error(`browser resource is occupied: ${resource}; inspect leases before release`);
     }
+    held.push(path);
+  };
+  const checkBrowserConflict = () => {
+    if (scope === "tab") {
+      for (const resource of browserClaims) {
+        if (existsSync(join(directory, lockName(resource))))
+          throw new Error(`browser resource is occupied: ${resource}; inspect leases before release`);
+      }
+    } else {
+      for (const other of listLeases(directory)) {
+        if (other.runId === runId) continue;
+        if (other.status === "unknown" || other.instance === instance ||
+          new URL(other.endpoint).port === origin.port)
+          throw new Error("browser resource is occupied by another controller; inspect leases before release");
+      }
+    }
+  };
+  try {
+    // Publish membership before checking exclusivity so browser and tab claims cannot both win a race.
+    for (const resource of claims) hold(resource);
     heartbeat(false);
-    timer = setInterval(() => heartbeat(), heartbeatMs);
+    checkBrowserConflict();
+    timer = setInterval(() => {
+      try { heartbeat(); }
+      catch (error) { ownershipError = error; clearInterval(timer); }
+    }, heartbeatMs);
     timer.unref();
     process.once("exit", release);
-    return { runId, release };
+    const claimTab = id => {
+      assertOwned();
+      if (scope !== "tab" || record.targetId != null) throw new Error("this lease already has a target or is browser-wide");
+      if (!validId(id)) throw new Error("targetId must be an observed CDP target identifier");
+      const resource = tabClaim(id);
+      hold(resource);
+      record.targetId = id;
+      claims.push(resource);
+      heartbeat(false);
+    };
+    return { runId, assertOwned, claimTab, release };
   } catch (error) {
     release();
     throw error;
@@ -170,7 +242,7 @@ async function main() {
   throw new Error("use --status or --release RUN_ID --confirm-owner-stopped");
 }
 
-if (process.argv[1] && import.meta.url === `file://${resolve(process.argv[1])}`) {
+if (process.argv[1] && existsSync(process.argv[1]) && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
   main().catch((error) => {
     console.error(error.message);
     process.exitCode = 1;

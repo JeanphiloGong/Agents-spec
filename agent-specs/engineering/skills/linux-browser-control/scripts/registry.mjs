@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync, renameSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
+import { pathToFileURL } from "node:url";
+import { defaultLeaseDirectory, listLeases } from "./lease.mjs";
 
 export const defaultRegistryPath = join(
   process.env.XDG_DATA_HOME || join(homedir(), ".local", "share"),
@@ -106,6 +108,7 @@ export function profileProcess(profileDir) {
 }
 
 export async function readCdpVersion(endpoint) {
+  const origin = loopbackOrigin(endpoint);
   const response = await fetch(new URL("/json/version", endpoint), {
     signal: AbortSignal.timeout(5000),
     redirect: "error",
@@ -114,7 +117,17 @@ export async function readCdpVersion(endpoint) {
   const version = await response.json();
   if (typeof version.webSocketDebuggerUrl !== "string")
     throw new Error("CDP discovery has no WebSocket endpoint");
-  return { Browser: version.Browser, ProtocolVersion: version["Protocol-Version"] };
+  const socket = new URL(version.webSocketDebuggerUrl);
+  const match = /^\/devtools\/browser\/([A-Za-z0-9_-]+)$/.exec(socket.pathname);
+  if (socket.protocol !== "ws:" || !match || socket.username || socket.password || socket.search || socket.hash)
+    throw new Error("CDP discovery returned an unexpected WebSocket endpoint");
+  socket.host = origin.host;
+  return {
+    Browser: version.Browser,
+    ProtocolVersion: version["Protocol-Version"],
+    browserId: match[1],
+    webSocketDebuggerUrl: socket.href,
+  };
 }
 
 export function writeProfile({ registryPath = defaultRegistryPath, profile }) {
@@ -130,10 +143,23 @@ export function writeProfile({ registryPath = defaultRegistryPath, profile }) {
   renameSync(temporary, registryPath);
 }
 
-function inspect(profile) {
+function leaseSummary(record) {
+  return {
+    runId: record.runId,
+    owner: record.owner || null,
+    task: record.task,
+    status: record.status,
+    scope: record.scope || "browser",
+    lastHeartbeat: record.lastHeartbeat,
+    resources: record.resources.filter(resource => !/^(endpoint|instance|connection|tab):/.test(resource)),
+  };
+}
+
+export async function inspectProfile(profile, { includeTabs = false, leaseDirectory = defaultLeaseDirectory } = {}) {
   const processes = profileProcess(profile.profile_dir);
-  return readCdpVersion(profile.cdp_endpoint)
-    .then((cdp) => ({
+  try {
+    const cdp = await readCdpVersion(profile.cdp_endpoint);
+    const result = {
       name: profile.name,
       purpose: profile.purpose,
       profile_dir: profile.profile_dir,
@@ -142,8 +168,43 @@ function inspect(profile) {
       process_matches: processes.length,
       browser: cdp.Browser,
       protocol_version: cdp.ProtocolVersion,
-    }))
-    .catch((error) => ({
+      browser_id: cdp.browserId,
+    };
+    if (!includeTabs) return result;
+    const records = listLeases(leaseDirectory);
+    const leases = records.filter(record => record.status !== "unknown" &&
+      (record.instance === profile.name || new URL(record.endpoint).port === new URL(profile.cdp_endpoint).port));
+    const browserLease = leases.find(record => record.scope !== "tab");
+    const response = await fetch(new URL("/json/list", profile.cdp_endpoint), {
+      signal: AbortSignal.timeout(5000), redirect: "error",
+    });
+    if (!response.ok) throw new Error(`CDP targets returned HTTP ${response.status}`);
+    const targets = await response.json();
+    if (!Array.isArray(targets)) throw new Error("CDP targets must be an array");
+    const pages = targets.filter(target => target.type === "page");
+    result.browser_lease = browserLease ? leaseSummary(browserLease) : null;
+    result.unknown_leases = records.filter(record => record.status === "unknown");
+    result.allocations = leases.filter(record => record.scope === "tab" && !record.targetId).map(leaseSummary);
+    result.tabs = pages.map(target => {
+      const record = leases.find(item => item.scope === "tab" && item.browserId === cdp.browserId && item.targetId === target.id);
+      const holder = record || browserLease;
+      const url = new URL(target.url || "about:blank");
+      return {
+        targetId: target.id,
+        title: typeof target.title === "string" ? target.title.slice(0, 80) : "",
+        title_truncated: typeof target.title === "string" && target.title.length > 80,
+        url: ["http:", "https:"].includes(url.protocol) ? `${url.origin}${url.pathname}` : url.protocol === "about:" ? "about:blank" : url.protocol,
+        availability: holder ? "occupied" : "unclaimed",
+        ...(holder ? leaseSummary(holder) : { owner: null }),
+      };
+    });
+    for (const record of leases.filter(item => item.scope === "tab" && item.targetId &&
+      (item.browserId !== cdp.browserId || !pages.some(target => target.id === item.targetId)))) {
+      result.tabs.push({ targetId: record.targetId, browserId: record.browserId, availability: "missing", ...leaseSummary(record) });
+    }
+    return result;
+  } catch (error) {
+    return {
       name: profile.name,
       purpose: profile.purpose,
       profile_dir: profile.profile_dir,
@@ -151,7 +212,8 @@ function inspect(profile) {
       status: processes.length ? "process-without-cdp" : "stopped",
       process_matches: processes.length,
       error: error.message,
-    }));
+    };
+  }
 }
 
 async function main() {
@@ -161,29 +223,42 @@ async function main() {
       purpose: { type: "string" },
       registry: { type: "string" },
       inspect: { type: "boolean" },
+      list: { type: "boolean" },
+      tabs: { type: "boolean" },
+      "lease-directory": { type: "string" },
       help: { type: "boolean" },
     },
   });
   if (values.help) {
-    console.log("registry.mjs --name PROFILE [--registry PATH] [--inspect]");
+    console.log("registry.mjs [--list | --name PROFILE] [--inspect | --tabs] [--registry PATH]");
     return;
   }
   assertLinux();
+  const registryPath = values.registry || defaultRegistryPath;
+  if (values.list) {
+    const profiles = readRegistry(registryPath).profiles.map(profile => validateProfile(profile, registryPath));
+    console.log(JSON.stringify(await Promise.all(profiles.map(profile => inspectProfile(profile, {
+      includeTabs: values.tabs, leaseDirectory: values["lease-directory"],
+    }))), null, 2));
+    return;
+  }
   const profile = selectProfile({
-    registryPath: values.registry || defaultRegistryPath,
+    registryPath,
     name: values.name,
     purpose: values.purpose,
   });
   console.log(
     JSON.stringify(
-      values.inspect ? await inspect(profile) : profile,
+      values.inspect || values.tabs ? await inspectProfile(profile, {
+        includeTabs: values.tabs, leaseDirectory: values["lease-directory"],
+      }) : profile,
       null,
       2,
     ),
   );
 }
 
-if (process.argv[1] && import.meta.url === `file://${resolve(process.argv[1])}`) {
+if (process.argv[1] && existsSync(process.argv[1]) && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
   main().catch((error) => {
     console.error(error.message);
     process.exitCode = 1;
