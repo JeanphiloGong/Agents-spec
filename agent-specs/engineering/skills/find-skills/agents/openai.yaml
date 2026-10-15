@@ -1,0 +1,4 @@
+interface:
+  display_name: "Find Skills"
+  short_description: "v0.1.0 - Find and evaluate community agent skills"
+  default_prompt: "Use $find-skills to search for community agent skills, inspect suitable candidates, and install a selected skill within the requested repository and runtime scope."

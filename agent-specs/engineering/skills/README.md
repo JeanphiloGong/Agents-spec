@@ -8,6 +8,7 @@ the package README files explain when to use each group.
 
 | Package | Purpose |
 | --- | --- |
+| [`find-skills`](find-skills/SKILL.md) | Discover and evaluate community skills through Vercel's Skills CLI. |
 | [`development-skill-pack`](development-skill-pack/README.md) | General development lifecycle skills imported as a curated local pack. |
 | [`implementation-guides`](implementation-guides/README.md) | Skills for learning, reference implementations, and human-led landing from drafts. |
 | [`delivery-workflow`](delivery-workflow/README.md) | Skills for issue traceability, commits, PR/MR publishing, reviews, and releases. |
