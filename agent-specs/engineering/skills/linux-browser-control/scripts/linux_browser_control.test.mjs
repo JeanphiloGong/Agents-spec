@@ -236,6 +236,10 @@ async function connectionFixture(t) {
   const pages = [existing];
   const targetSession = {
     send: t.mock.fn(async (method, params) => {
+      if (method === "Target.closeTarget") {
+        assert.deepEqual(params, { targetId: "new-tab" });
+        return { success: true };
+      }
       assert.equal(method, "Target.createTarget");
       assert.deepEqual(params, { url: "about:blank", background: true, newWindow: false });
       pages.push(page);
@@ -244,7 +248,7 @@ async function connectionFixture(t) {
     detach: t.mock.fn(async () => {}),
   };
   const context = {
-    pages: () => pages,
+    pages: () => [...pages],
     newCDPSession: async candidate => ({
       send: async () => ({ targetInfo: { targetId: candidate.targetId } }),
       detach: async () => {},
@@ -263,6 +267,9 @@ async function connectionFixture(t) {
   return {
     page,
     existing,
+    context,
+    pages,
+    targetSession,
     disconnect,
     closePage: () => pageEvents.get("close")?.(),
     disconnectBrowser: () => browserEvents.get("disconnected")?.(),
@@ -275,6 +282,68 @@ async function connectionFixture(t) {
       leaseDirectory: join(options.directory, "leases"),
     },
   };
+}
+
+for (const targetId of [undefined, "existing-tab"]) {
+  for (const failure of ["already closed", "stale GUID", "closed during lookup"]) {
+    test(`target lookup skips an unrelated ${failure} candidate for ${targetId ?? "a new tab"}`, async (t) => {
+      const { page, existing, context, pages, connectionOptions } = await connectionFixture(t);
+      let closed = failure === "already closed";
+      const stale = { isClosed: () => closed };
+      pages.unshift(stale);
+      const newCDPSession = context.newCDPSession;
+      const detach = t.mock.fn(async () => {});
+      context.newCDPSession = async candidate => {
+        if (candidate !== stale) return newCDPSession(candidate);
+        assert.notEqual(failure, "already closed", "closed pages must not receive CDP calls");
+        if (failure === "stale GUID")
+          throw new Error("browserContext.newCDPSession: page: no object with guid page@stale-candidate");
+        return {
+          send: async () => {
+            closed = true;
+            throw new Error("cdpSession.send: Target page, context or browser has been closed");
+          },
+          detach,
+        };
+      };
+      const connection = await connectLinuxBrowser({ ...connectionOptions, targetId });
+      assert.equal(connection.page, targetId ? existing : page);
+      assert.equal(connection.targetId, targetId ?? "new-tab");
+      connection.lease.assertOwned();
+      if (failure === "closed during lookup") assert.equal(detach.mock.callCount(), 1);
+      await connection.close();
+      assert.deepEqual(listLeases(connectionOptions.leaseDirectory), []);
+    });
+  }
+}
+
+test("a missing requested target still fails closed after a stale candidate", async (t) => {
+  const { context, pages, disconnect, connectionOptions } = await connectionFixture(t);
+  const stale = { isClosed: () => false };
+  pages.unshift(stale);
+  const newCDPSession = context.newCDPSession;
+  context.newCDPSession = async candidate => {
+    if (candidate !== stale) return newCDPSession(candidate);
+    throw new Error("browserContext.newCDPSession: page: no object with guid page@missing-target");
+  };
+  await assert.rejects(
+    connectLinuxBrowser({ ...connectionOptions, targetId: "missing-tab" }),
+    /target is not an open page: missing-tab/,
+  );
+  assert.equal(disconnect.mock.callCount(), 1);
+  assert.deepEqual(listLeases(connectionOptions.leaseDirectory), []);
+});
+
+for (const failure of ["unexpected transport failure", "cdpSession.send: Target page, context or browser has been closed"]) {
+  test(`target lookup propagates ${failure} for a candidate not known to be closed`, async (t) => {
+    const { context, targetSession, disconnect, connectionOptions } = await connectionFixture(t);
+    const error = new Error(failure);
+    context.newCDPSession = async () => { throw error; };
+    await assert.rejects(connectLinuxBrowser(connectionOptions), actual => actual === error);
+    assert.ok(targetSession.send.mock.calls.some(call => call.arguments[0] === "Target.closeTarget"));
+    assert.equal(disconnect.mock.callCount(), 1);
+    assert.deepEqual(listLeases(connectionOptions.leaseDirectory), []);
+  });
 }
 
 test("navigation starts with a bound target and failure closes only the new page", async (t) => {

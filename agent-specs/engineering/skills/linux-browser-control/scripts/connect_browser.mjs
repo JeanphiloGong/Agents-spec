@@ -61,9 +61,22 @@ export async function connectLinuxBrowser({
       if (targetId != null) throw new Error("browser leases cannot select a target");
     } else {
       const targetIdOf = async candidate => {
-        const session = await context.newCDPSession(candidate);
-        try { return (await session.send("Target.getTargetInfo")).targetInfo.targetId; }
-        finally { await session.detach().catch(() => {}); }
+        if (candidate.isClosed()) return null;
+        let session;
+        try {
+          session = await context.newCDPSession(candidate);
+          const { targetInfo } = await session.send("Target.getTargetInfo");
+          return candidate.isClosed() ? null : targetInfo.targetId;
+        } catch (error) {
+          const message = error?.message ?? "";
+          if (
+            /^(?:browserContext\.newCDPSession: )?page: no object with guid page@[A-Za-z0-9_-]+$/.test(message) ||
+            (candidate.isClosed() && /^(?:browserContext\.newCDPSession: |cdpSession\.send: )?Target page, context or browser has been closed$/.test(message))
+          ) return null;
+          throw error;
+        } finally {
+          if (session) await session.detach().catch(() => {});
+        }
       };
       const pages = context.pages();
       if (targetId != null) {
