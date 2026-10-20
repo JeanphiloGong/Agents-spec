@@ -12,6 +12,8 @@ import sys
 import urllib.error
 import urllib.request
 
+import tomli
+
 
 MAX_DOWNLOAD_BYTES = 32 * 1024 * 1024
 IMAGE_SIGNATURES = (
@@ -34,21 +36,19 @@ def load_config() -> tuple[str, str]:
     if not isinstance(api_key, str) or not api_key.strip():
         raise RuntimeError("OPENAI_API_KEY is missing from the Codex auth file")
 
-    base_url = os.environ.get("OPENAI_API_BASE", "").strip()
-    if not base_url:
-        try:
-            text = config_path.read_text(encoding="utf-8")
-        except OSError as exc:
-            raise RuntimeError(f"could not read Codex config file: {exc}") from exc
-        provider_match = next(
-            (line.split("=", 1)[1].strip().strip('"') for line in text.splitlines()
-             if line.strip().startswith("base_url") and "=" in line),
-            "",
-        )
-        base_url = provider_match
-    if not base_url:
-        raise RuntimeError("provider base_url is missing from Codex config")
-    return api_key.strip(), base_url.rstrip("/")
+    try:
+        config = tomli.loads(config_path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        raise RuntimeError(f"could not read Codex config file: {exc}") from exc
+    except tomli.TOMLDecodeError:
+        raise RuntimeError("Codex config is not valid TOML") from None
+    try:
+        base_url = config["model_providers"][config["model_provider"]]["base_url"]
+    except (KeyError, TypeError):
+        raise RuntimeError("selected provider base_url is missing from Codex config") from None
+    if not isinstance(base_url, str) or not base_url.strip():
+        raise RuntimeError("selected provider base_url is missing from Codex config")
+    return api_key.strip(), base_url.strip().rstrip("/")
 
 
 def endpoint_for(base_url: str) -> str:

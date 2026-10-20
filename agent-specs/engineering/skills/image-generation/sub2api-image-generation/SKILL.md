@@ -1,6 +1,6 @@
 ---
 name: sub2api-image-generation
-description: "v0.1.0 - Generate and verify images through a configured Sub2API endpoint. Use when a Codex session needs a real image asset or UI reference generated through its current OpenAI-compatible proxy."
+description: "v0.1.1 - Generate and verify images through a configured Sub2API endpoint. Use when a Codex session needs a real image asset or UI reference generated through its current OpenAI-compatible proxy."
 ---
 
 # Sub2api Image Generation
@@ -11,6 +11,8 @@ Generate a raster image through the OpenAI-compatible Sub2API endpoint already
 configured for the current Codex environment, save it locally, and verify that
 the result is a real readable image. This skill is for producing an asset that
 can be inspected or handed to a later implementation task.
+
+The bundled helper requires Python 3 with the `tomli` package installed.
 
 ## When to Use
 
@@ -28,8 +30,10 @@ OpenAI-compatible endpoint.
 
 1. Resolve configuration without printing secrets. Read `OPENAI_API_KEY` from
    `~/.codex/auth.json` unless the user supplied another authorized key. Resolve
-   the provider `base_url` from `~/.codex/config.toml`, with an explicit
-   `OPENAI_API_BASE` override taking precedence.
+   `model_provider` from `~/.codex/config.toml` and use the corresponding
+   `model_providers.<model_provider>.base_url`. Do not use `OPENAI_API_BASE`
+   or the first `base_url` in the file. If the selected provider has no
+   address or the configuration cannot be read, stop and report the error.
 2. Choose an image model supported by the configured account, normally
    `gpt-image-2`. Preserve the user's prompt verbatim except for adding a
    clearly requested format or size constraint. Use one image by default.
@@ -77,6 +81,8 @@ OpenAI-compatible endpoint.
 ## Verification
 
 - [ ] Configuration was resolved without exposing the key.
+- [ ] The address matches the selected Codex provider even when
+      `OPENAI_API_BASE` points elsewhere.
 - [ ] The request used the intended model, prompt, and output path.
 - [ ] HTTP response was successful and contained image data.
 - [ ] Saved bytes have a recognized image signature and non-zero size.
