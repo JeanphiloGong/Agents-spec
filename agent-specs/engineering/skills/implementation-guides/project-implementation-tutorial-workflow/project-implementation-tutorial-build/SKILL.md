@@ -1,6 +1,6 @@
 ---
 name: project-implementation-tutorial-build
-description: v0.1.0 - Write step-by-step feature implementation tutorials against real project code. Use when the user has discussed a solution and wants exact files, complete code examples, caller integration, migrations, and test guidance. Use when rebuilding a vague or standalone tutorial into an actionable existing-project guide.
+description: v0.1.1 - Write step-by-step feature implementation tutorials against real project code. Use when the user has discussed a solution and wants exact files, complete code examples, caller integration, migrations, and test guidance. Use when rebuilding a vague or standalone tutorial into an actionable existing-project guide.
 ---
 
 # Project Implementation Tutorial Build
@@ -14,10 +14,13 @@ in an isolated copy to establish what the document really delivers.
 
 The reader must be able to apply the code in order. Every implementation step
 shows the real file path, the symbol or insertion point, the complete code
-needed for that step, and the next observable result. Explain tests without
-turning the tutorial into a test-writing lesson: name the test location,
-behavior to cover, setup, expected result, and why it matters, but omit test
-source-code examples unless the user explicitly asks for them.
+needed for that step, and the next observable result. At each capability
+checkpoint supply a directly runnable check: a minimal invocation with assertions
+or expected output, an existing test command, or a supplied verification asset.
+Minimal verification code belongs in the guide even when tests were not
+explicitly requested. Describe broader test coverage through locations, inputs,
+and expected results; expand a full test suite only when requested or when
+testing itself is the feature being taught.
 
 Version planning and teaching are both essential. Reuse an agreed plan from
 conversation or a document; a separate planning skill invocation is optional.
@@ -64,6 +67,11 @@ for review-only work.
    will observe after this version. Name the few concepts and invariants needed
    to understand the change. Scope down the feature, not away its required real
    authentication, persistence, caller, or transaction boundaries.
+   Verify the chosen scope is small enough to teach and check independently.
+   Start with its business behavior, not a tour of configuration files. Keep
+   setup in brief prerequisites. An implementation foundation must execute a
+   meaningful rule, not merely repeat contracts; do not add a domain framework
+   just for teaching.
 5. Write and verify one connected code step.
    Show a concrete input, call, or failure exposing the baseline's gap. Explain
    the requirement and why the selected change solves it. Name the exact file,
@@ -72,9 +80,12 @@ for review-only work.
    signatures, surrounding context, and affected callers. Do not replace a
    required implementation with a prose instruction such as "add this in the
    Service". Explain new fields and helper inputs/outputs, side effects, and
-   ownership where non-obvious. Replay this step in the verification copy; run
-   its check and state what now works.
-   Fix the earliest failure before proceeding, or mark the blocked verification.
+   ownership where non-obvious. Replay this step in the verification copy. At
+   its capability freeze, run the reader's exact check against only the edits
+   taught so far and state what now works. Apply the failure and environment-
+   blocking decisions below before dependent work. A final replay cannot
+   retroactively establish intermediate checkpoints. If several edits must land
+   together, group them and give that group one small observable result.
    Update `progress.yaml` after this step with its stable ID, drafting status,
    actual check result, input identity, blocker, and next action. Record results
    when checks finish, not by marking all steps verified at the end.
@@ -87,9 +98,8 @@ for review-only work.
    Keep code changes in numbered implementation steps. A migration, model,
    repository, service, route, worker, or caller that the reader must add gets
    its own code example or is included in a clearly ordered complete example.
-   Tests are documented after the corresponding code step as test guidance:
-   path, scenario, fixture/input, expected result, and boundary. Do not include
-   test implementation blocks by default.
+   Place the runnable reader check after the corresponding change, then describe
+   broader test scenarios, setup, expected results, and boundaries in prose.
 7. Freeze the complete version.
    Ensure the final connected step leaves all declared targets fully specified;
    no hidden edits or new logic in an appendix. Replay the final tutorial state
@@ -115,8 +125,14 @@ for review-only work.
   make them one coherent step with one behavioral check.
 - If source has drifted, reconcile the affected steps with current code; ask
   when the drift conflicts with an agreed rule rather than silently changing it.
-- If runtime verification is blocked, record exact checks not run and why.
-  Deliver an explicitly unverified draft, not a supposedly completed version.
+- If a reader check exposes a defect in the documented code, fix the earliest
+  failing step and rerun it before drafting dependent checkpoints.
+- If a required runtime, credential, or service is unavailable, record the
+  exact check and missing prerequisite. Continue independent checks and, if
+  the writing scope calls for later chapters, draft them with affected and
+  dependent checkpoints explicitly unverified. Once access is available,
+  replay those intermediate states in order before marking them verified.
+  Deliver remaining blocked work as an unverified draft with its limits.
 - If the user asks for mock responses, mark their exact fields and activation
   boundary, reuse actual routes and models, and explain what the mocks do not
   prove. Do not replace the project with a separate mock server by default.
@@ -129,7 +145,9 @@ Write in the user's language and match existing tutorial conventions.
 2. A short real scenario and the behavior/contracts to preserve.
 3. Numbered implementation steps: why, exact target, complete code example,
    reader check, and test guidance.
-4. Final capability checkpoint: reader checks, expected results, known limits.
+4. Each capability checkpoint: before/after behavior, runnable check and expected
+   result, and what the next checkpoint reuses (or the final delivered capability).
+   State actual verification limits separately from expected reader outcomes.
 5. The next agreed capability, without pulling it into this version.
 
 Use natural explanatory paragraphs and ordered code blocks, not repeated
@@ -164,6 +182,8 @@ it must remain understandable without the records.
 - Teaching code uses different auth, tables, dialect, or API envelopes from source.
 - Success claims come only from mocked repositories or JSON parsing.
 - The reader must guess which of several competing final snippets to keep.
+- The only check is a command targeting tests the reader has not been given.
+- Setup or prose-only agreement is labeled a completed implementation version.
 
 ## Verification
 
@@ -173,8 +193,8 @@ it must remain understandable without the records.
       with a real path, symbol, imports, and application point.
 - [ ] Every changed/new symbol, import, caller, and test fixture is accounted for.
 - [ ] Each step explains a real gap, changes it, and checks the new behavior.
-- [ ] Tests are described by location, scenario, setup, expected result, and
-      boundary without unnecessary test source-code examples.
+- [ ] Each capability checkpoint has a runnable reader check; broader test
+      guidance names locations, inputs, expected results, and boundaries.
 - [ ] The complete entrypoint-to-output path exists for the promised scope.
 - [ ] Boundary/failure tests cover relevant invariants, not only the happy path.
 - [ ] Replayed tutorial changes match the verified implementation.

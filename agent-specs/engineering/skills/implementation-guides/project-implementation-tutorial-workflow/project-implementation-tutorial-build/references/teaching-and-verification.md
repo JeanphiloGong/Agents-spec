@@ -2,6 +2,15 @@
 
 Read before writing a non-trivial existing-project implementation tutorial.
 
+## Contents
+
+- [Teaching methods and baseline](#reuse-the-teaching-methods-change-the-baseline)
+- [Connected steps](#one-connected-step)
+- [Exact edits](#exact-edit-contract)
+- [Code, checks, and example](#code-examples-first-test-guidance-second)
+- [Required integration](#integration-is-part-of-the-promise)
+- [Replay evidence](#replay-and-evidence)
+
 ## Reuse the Teaching Methods, Change the Baseline
 
 Keep Nystrom's connected engineering chain, Karpathy's early executable code,
@@ -76,12 +85,70 @@ when the caller is part of the promised behavior. A short diff is acceptable
 only when its location and unchanged context make the edit unambiguous. A
 sentence such as "add a Repository method" is not an implementation example.
 
-Tests remain part of the feature's acceptance, but they are not the tutorial's
-main teaching material. Describe each needed test in prose with its path,
-scenario, setup or fixture, expected result, and boundary. Show the command the
-reader runs when useful. Do not include test source-code blocks by default;
-include them only after the user explicitly requests test examples or a test
-itself is the feature being taught.
+At every capability freeze include a runnable reader check, including its
+minimal verification code when needed. Use an existing test only if it exists
+at that point; a command for tests the reader must invent is not sufficient.
+Broader tests can be described through paths, inputs, setup, expected results,
+and boundaries. A full suite is needed in the prose only when requested or
+when testing itself is the subject. Author-only sandbox tests provide additional
+evidence, not a replacement for the reader's check.
+
+Execute the reader check on the intermediate state. If it needs later code,
+narrow or regroup the checkpoint. Repair code failures before drafting dependent
+checkpoints. If the environment is unavailable, record the missing prerequisite;
+independent checks and later writing may continue, but affected and dependent
+checkpoints remain unverified drafts. Replay their intermediate states in order
+when access is restored. Final-state success cannot verify earlier states.
+
+### Example: First-Read Checkpoint
+
+Illustrative fixture: the reader's project already has `messages.py:Message`
+with `user_id` and `read_at`; the requested addition is first-read behavior.
+The following is the complete replacement file for this small fixture, not a
+required architecture for other projects.
+
+`messages.py` — checkpoint:
+
+```python
+from dataclasses import dataclass
+from datetime import datetime
+
+
+@dataclass
+class Message:
+    user_id: str
+    read_at: datetime | None = None
+
+    def mark_read(self, now: datetime) -> None:
+        if self.read_at is None:
+            self.read_at = now
+```
+
+Previously a caller could overwrite the timestamp on every read. Callers now
+use `mark_read(now)` to preserve the first read. This fixture has no existing
+read caller; if the actual project has one, its exact update belongs in this
+checkpoint too. Run from the directory containing `messages.py`:
+
+```bash
+python - <<'PY'
+from datetime import datetime, timedelta, timezone
+from messages import Message
+
+first = datetime(2026, 1, 1, tzinfo=timezone.utc)
+message = Message(user_id="user-A")
+assert message.read_at is None
+message.mark_read(first)
+message.mark_read(first + timedelta(minutes=1))
+assert message.read_at == first
+print("first read preserved")
+PY
+```
+
+Expected: `first read preserved`, exit code 0. This proves the model transition;
+the next checkpoint persists this same state. It does not prove concurrent
+database updates. Reject "implement the model, then write tests and run pytest"
+as a replacement for this check. A persistence checkpoint must supply its own
+database verification appropriate to its promise.
 
 ## Integration Is Part of the Promise
 

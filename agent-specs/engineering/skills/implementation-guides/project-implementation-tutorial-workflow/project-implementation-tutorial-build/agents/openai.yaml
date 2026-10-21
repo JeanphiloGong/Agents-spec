@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Tutorial Build"
-  short_description: "v0.1.0 - Write verified real-project tutorials"
-  default_prompt: "Use $project-implementation-tutorial-build to turn our agreed feature version into a complete tutorial grounded in the actual project, without changing the source worktree."
+  short_description: "v0.1.1 - Write verified real-project tutorials"
+  default_prompt: "Use $project-implementation-tutorial-build to write the agreed real-project tutorial with complete edits and a runnable reader check at each capability checkpoint. Verify intermediate states in isolation without changing production."
