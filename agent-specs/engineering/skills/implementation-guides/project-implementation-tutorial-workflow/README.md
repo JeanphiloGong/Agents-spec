@@ -26,8 +26,9 @@ the next version, real files, prerequisites, exclusions, and commit_when checks.
 $project-implementation-tutorial-build
 Turn our agreed version into a tutorial against the actual code. Give exact
 file/method edits and complete implementations that can be applied step by
-step. Describe the tests and expected results without test code examples unless
-requested. Verify in isolation; do not modify the source worktree.
+step. Include minimal runnable reader checks; describe broader test scenarios
+without expanding a full suite unless requested. Verify in isolation; do not
+modify the source worktree.
 
 $project-implementation-tutorial-review
 Review this tutorial against its baseline and promised version. Check missing
@@ -76,6 +77,19 @@ The lesson must remain usable without these files. Resume from recorded state,
 but revalidate affected checks when the source or tutorial changes.
 
 ## Completion Boundary
+
+A useful implementation checkpoint changes an executable capability: what the
+reader could not do before, what now works, an immediate check with expected
+results, and what the next checkpoint reuses. Contract summaries, setup, and
+record updates are preparation, not implementation progress. A user-requested
+documentation deliverable can stand alone, but must be named as such.
+
+Choose the smallest useful capability before requiring its full integration.
+A core-model checkpoint can verify a business rule without HTTP or a database;
+an HTTP checkpoint must include its real authentication and persistence path.
+Do not force a domain layer or a model-first chapter onto every feature.
+Keep environment setup brief and separate from the teaching spine. Supply a
+reader-runnable check at each freeze, even when full test source is omitted.
 
 A tutorial is complete only for its agreed version. A foundation checkpoint
 may be intentionally partial, but the boundary must be stated before writing.

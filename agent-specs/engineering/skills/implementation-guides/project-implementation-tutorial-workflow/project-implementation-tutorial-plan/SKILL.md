@@ -1,6 +1,6 @@
 ---
 name: project-implementation-tutorial-plan
-description: v0.1.0 - Plan versioned feature implementation tutorials grounded in an existing project. Use when agreed requirements need prerequisite checks, incremental versions, real-file targets, and verifiable checkpoints before tutorial writing. Use when a growing tutorial needs its current and future scope separated.
+description: v0.1.1 - Plan versioned feature implementation tutorials grounded in an existing project. Use when agreed requirements need prerequisite checks, incremental versions, real-file targets, and verifiable checkpoints before tutorial writing. Use when a growing tutorial needs its current and future scope separated.
 ---
 
 # Project Implementation Tutorial Plan
@@ -53,14 +53,22 @@ the last case, use `project-implementation-tutorial-build` directly.
    For each version name its prerequisite baseline, observable addition,
    included integration, explicit exclusions, and acceptance evidence. Inspect
    prerequisite code instead of trusting an earlier claim that it is complete.
-   Prefer vertical capabilities over versions named only ORM, Repository, and
-   Service. An explicitly requested foundation checkpoint is allowed, but must
-   say it is not yet a user-visible feature.
+   Choose the smallest useful capability before expanding its integration.
+   For each implementation checkpoint state the before/after behavior, an
+   immediate executable check, and what the next checkpoint reuses. Prefer
+   behavioral names over file-layer names. A core-model foundation can verify
+   a business rule without HTTP or persistence; do not invent a domain layer
+   solely to fill V0. Contract alignment and environment setup are preparation,
+   not implementation checkpoints unless documentation/setup is the requested
+   deliverable. Do not assign V0 to preparation by default.
 5. Select the current version and order its teaching steps.
    Map each step to exact real files and symbols, the previous step's gap, the
    change, and a check. Include migrations, callers, configuration, and test
    guidance needed for this version's promise. The plan names test scenarios,
-   expected outcomes, and boundaries; it does not need test source examples.
+   expected outcomes, and boundaries. Specify how the reader can check the
+   checkpoint without first authoring missing tests; full test source remains
+   optional. Put dependency installation and configuration in brief prerequisites
+   or at first use, not ahead of every business change.
    Multiple files may implement one coherent behavior. Future versions remain
    a roadmap, not hidden current tasks.
 6. Define the freeze and handoff.
@@ -94,13 +102,36 @@ Include:
 
 - Baseline: repository, revision and relevant dirty files, observed capability.
 - Goal and contracts: confirmed rules, invariants, unresolved blockers.
-- Versions: name, starts from, adds, includes, excludes, acceptance.
+- Versions: name, starts from, before/after capability, includes, excludes,
+  immediate reader check with expected result, and next-step reuse or completion.
 - Current version: selected scope and why it is independently verifiable.
 - Steps: real file/symbol, reason, change, dependency, check and expected result.
-- Freeze: regression commands, `commit_when`, limits, next version.
+- Freeze: how the reader executes the check, broader regression scope,
+  `commit_when`, verification limits, and next version.
 
 Keep record IDs and bookkeeping out of the public plan. Briefly report the
 record path and unresolved decisions separately in the handoff.
+
+## Example: Plan One Executable Foundation
+
+Illustrative fixture, not a prescribed project layout. Input: "Our existing
+`messages.py:Message` has `user_id` and optional `read_at`. Teach first-read
+behavior before persistence; the Python environment already works."
+
+A suitable compact plan:
+
+- Baseline: `Message` holds a timestamp but has no read transition.
+- Current version: V0 adds `Message.mark_read(now)`; reading twice preserves
+  the first timestamp. Includes the transition; excludes persistence and HTTP.
+- Step: patch that class in `messages.py`, preserve unrelated fields, and update
+  any affected callers; no new architectural layer is needed.
+- Freeze: the builder supplies a runnable invocation with fixed UTC times
+  `t1 < t2`; mark read at each time and assert `read_at == t1`. It must pass
+  before V0 is verified. Broader test guidance can remain prose.
+- Next reuse: V1 loads and saves this same message state.
+
+Reject: "V0 confirms contracts; V1 installs dependencies; write some tests."
+That output has no implementation capability or direct check for the reader.
 
 ## Common Rationalizations
 
@@ -117,6 +148,8 @@ record path and unresolved decisions separately in the handoff.
 - A later version is required for the current version's advertised behavior.
 - Targets are invented or copied from an old tutorial without checking source.
 - A complete discussion is turned into another mandatory planning ceremony.
+- A version has no executable capability delta, or requires unrelated concepts
+  to be completed before its first useful check.
 - Unrequested compatibility layers, configuration, or deployment work appear.
 
 ## Verification

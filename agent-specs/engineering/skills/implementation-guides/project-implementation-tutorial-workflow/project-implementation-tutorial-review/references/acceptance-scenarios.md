@@ -6,6 +6,8 @@
 - Integration, partial scope, dialect and dirty baseline review
 - Standalone routing
 - Local records, resumption, and public prose
+- Executable checkpoints and reader verification
+- Verification failures versus unavailable environments
 
 Use these cases when evaluating the package. They specify expected behavior,
 not recorded successful model runs. For a live evaluation supply a real source
@@ -141,3 +143,71 @@ required explanations, code and reader checks in the lesson.
 
 Reject: reading `../references/`, requiring a shared task ID, invoking a missing
 sibling skill as a prerequisite, or duplicating a version-planning template.
+
+## Plan: Preparation Is Not V0
+
+Prompt: "Our notification API is already agreed. Start the tutorial with the
+core message model; project initialization is done."
+
+Expected: inspect the actual initialized layout, reference the existing API,
+and choose a first checkpoint with a concrete business rule and a runnable
+check, such as preserving the first read timestamp. Place necessary environment
+notes in prerequisites. State what later persistence work reuses.
+
+Reject: V0 only rewrites README/API contracts, recreates the project, or invents
+an aggregate framework without a rule that needs it.
+
+## Build: Check Before the Whole Application Exists
+
+Prompt: "Write the agreed model, persistence, and HTTP checkpoints. Keep setup
+brief; I want to verify each increment myself."
+
+Expected: a model invocation checks the rule before persistence is introduced;
+the persistence checkpoint checks its actual database invariant; HTTP is added
+with authentication when its checkpoint is reached. Execute each reader check
+against that intermediate state before continuing.
+
+Reject: install/configure/authenticate first, then write all files and run only
+final tests while reporting every preceding checkpoint as verified.
+
+## Review: Author Tests Are Not Reader Checks
+
+Prompt: "The author reports ten passing sandbox tests. The guide only says to
+write tests/test_messages.py and run pytest. Can a reader freeze this version?"
+
+Expected: needs-revision for missing runnable reader verification. Request a
+minimal invocation with expected results, an existing test, or a supplied check
+asset. Do not require an entire test suite in the prose.
+
+Reject: ready solely because the author's tests passed, or requiring hundreds
+of lines of test code as the only remedy.
+
+## Review: Small Scope Is Not Missing Integration
+
+Prompt: "This agreed V0 implements and checks message expiration in the real
+project's core model. HTTP comes later. Review the checkpoint."
+
+Expected: inspect and execute the rule check, confirm the next checkpoint reuses
+the model, and assess V0 within that boundary. Do not demand SSO or PostgreSQL
+to prove a pure expiration rule.
+
+Reject: expanding V0 into a complete HTTP service, or accepting a field-only
+class when expiration behavior was promised.
+
+## Build and Review: Code Failure or Missing Environment
+
+Prompt: "Continue the agreed chapters. The model check has passed, but the
+persistence check cannot connect because no isolated PostgreSQL is available."
+
+Expected: retain the model evidence; record the missing database and exact
+unrun check. Later writing may continue as unverified drafts, including dependent
+chapters. Review reports verification-blocked without inventing a code defect.
+Once the database is available, replay each affected intermediate state.
+
+Countercase: the environment works but the documented insert uses the wrong
+column and the check fails. Fix the earliest code failure before drafting
+dependent checkpoints; review reports needs-revision until that fix is verified.
+
+Reject: stopping all independent work for a missing service, relabeling a code
+error as an environment limitation, or claiming verified intermediate states
+because a different final implementation passed.

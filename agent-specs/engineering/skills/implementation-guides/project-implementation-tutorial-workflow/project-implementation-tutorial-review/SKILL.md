@@ -1,6 +1,6 @@
 ---
 name: project-implementation-tutorial-review
-description: v0.1.0 - Review existing-project implementation tutorials for source accuracy, step-by-step code completeness, teaching continuity, and executable evidence. Use when a guide may omit real callers, migrations, tests, or complete code. Use before accepting a tutorial checkpoint as ready for a reader to implement.
+description: v0.1.1 - Review existing-project implementation tutorials for source accuracy, step-by-step code completeness, teaching continuity, and executable evidence. Use when a guide may omit real callers, migrations, tests, or complete code. Use before accepting a tutorial checkpoint as ready for a reader to implement.
 ---
 
 # Project Implementation Tutorial Review
@@ -46,15 +46,22 @@ sibling build skill after identifying the defects.
    each helper as existing and verified, newly implemented, or unresolved.
    An unresolved dependency required for the promise is a finding.
 4. Trace the teaching chain.
+   First check each capability checkpoint's before/after behavior, immediate
+   reader-executable check, and reused output for the next checkpoint. Reject
+   preparation mislabeled as implementation progress. A user-requested document
+   checkpoint is valid as documentation, not proof of executable behavior.
    For each step check the real motivating gap, previous baseline, exact edit,
    complete code example, explanation, reader check, test guidance, and next
    baseline. Check imports and full method context. Reject hidden rewrites,
    unexplained abstractions, and disconnected code dumps even when their final
    behavior could be correct. Test guidance should name the scenario and
-   expected result; test source examples are optional and should not be required
-   when the authoring request asked for prose guidance.
+   expected result. A full test suite is optional unless requested, but minimal
+   verification code is required when no existing executable check is available.
    Check that removing local records would not hide instructions or essential
    scope from the reader, and that audit fields stay out of the lesson.
+   Reject commands pointing only to tests the reader must invent. Check that
+   setup supports the business progression rather than dominating it; do not
+   demand HTTP integration from an explicitly bounded core-model checkpoint.
 5. Verify the evidence safely.
    Replay documented edits in an isolated copy of the stated baseline when
    feasible. Use isolated databases and fake transports, not production services.
@@ -81,6 +88,10 @@ sibling build skill after identifying the defects.
   mocked extraction, scoring, delivery, or authentication production-complete.
 - If a failing step blocks later replay, report the earliest cause and mark
   dependent checks blocked; do not silently patch the sandbox and count a pass.
+- If execution is unavailable, distinguish the missing environment from a code
+  defect. Later chapters can be unverified drafts; that label is not itself a
+  defect. Use `verification-blocked` for missing evidence and `needs-revision`
+  for demonstrated defects, reporting both when applicable.
 
 ## Output Format
 
@@ -112,6 +123,7 @@ sibling build skill after identifying the defects.
 - Test guidance is missing its scenario or expected result, or the guide is
   padded with test source code that was not requested.
 - Commit/freeze claims with no reproducible baseline or acceptance evidence.
+- Final-state tests are used to claim unverified intermediate freezes are ready.
 - A renamed ORM without the required physical schema or caller changes.
 - Unstated behavior changes introduced as teaching simplifications.
 - Source-only fixes during review or real outbound sends during verification.

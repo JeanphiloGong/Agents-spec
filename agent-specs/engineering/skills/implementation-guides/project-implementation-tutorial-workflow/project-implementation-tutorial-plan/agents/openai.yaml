@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Tutorial Plan"
-  short_description: "v0.1.0 - Plan real-project tutorial versions"
-  default_prompt: "Use $project-implementation-tutorial-plan to plan verifiable feature tutorial versions from the current project and our agreed requirements."
+  short_description: "v0.1.1 - Plan real-project tutorial versions"
+  default_prompt: "Use $project-implementation-tutorial-plan to plan small executable capability checkpoints from the actual project. Give each a before/after behavior, immediate reader check, and next-step reuse; keep setup separate."
