@@ -12,8 +12,28 @@ building a real tutorial, translate these fields into natural teaching prose,
 code blocks, and reader-facing checkpoints unless the human asks for a
 structured audit-style guide.
 
+## Placement in a Versioned Series
+
+This file illustrates the reasoning inside one capability version. It is not
+a complete multi-document tutorial to copy as the public entry. A real series
+would place the material as follows:
+
+| Document | Role | Checkpoints |
+| --- | --- | --- |
+| `from-scratch-tutorial.md` | Reader goal, prerequisites, route, links; no implementation | none |
+| `v0-baseline.md` | Runnable scan-based cache with get/put and capacity behavior | V0.C0 onward, ending in a checked V0 freeze |
+| `v1-constant-time-lru.md` | Preserve cache behavior while deriving O(1) lookup and recency | V1.C0 onward, ending in its own assembled checkpoint |
+
+The derivation below belongs inside V1. When building that document, use IDs
+V1.C0 through V1.C8 for its nine local steps, declare the verified V0 final
+checkpoint and files as the entry baseline, and replay every change against
+that state. The isolated snippets here illustrate local reasoning; they do
+not replace the complete version document or its executable replay evidence.
+Do not create a version file for each helper or combine V0 and V1 in the entry.
+
 ## Contents
 
+- Placement in a Versioned Series
 - Reader and Goal
 - Real Scenario
 - Problem Compression

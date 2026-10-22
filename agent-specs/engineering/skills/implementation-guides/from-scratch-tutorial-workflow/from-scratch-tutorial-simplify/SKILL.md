@@ -1,17 +1,36 @@
 ---
 name: from-scratch-tutorial-simplify
-description: v0.3.1 - Simplify a working from-scratch tutorial without breaking task/checkpoint continuity, Nystrom/Karpathy/Norvig standards, or the tutorial increment cycle. Use when a guide is correct but too repetitive, wordy, checklist-like, or hard to scan, while real scenario, problem compression, core model, invariants, pressure, naive baseline, break, one patch/checkpoint change, check, freeze, final assembled checkpoint, and helper boundaries must be preserved.
+description: v0.3.2 - Simplify a working from-scratch tutorial series while preserving separate capability-version documents and verified checkpoints. Use when version files repeat context, feel wordy or checklist-like, or need clearer navigation without losing entry baselines, teaching pressure, per-version assembled code, and replay continuity.
 ---
 
 # From-Scratch Tutorial Simplify
 
 ## Overview
 
-Simplify a completed from-scratch tutorial while preserving its teaching
+Simplify a completed from-scratch tutorial series while preserving its teaching
 behavior. The goal is not shorter at any cost. The goal is a guide that is
 easier to follow without losing external contract, teaching pressure,
 connected code checkpoints, step checks, freeze points, helper boundaries, or
 final-code traceability.
+
+## Version and Document Contract
+
+- Preserve one navigation entry plus a separate tutorial document for every
+  capability version. Do not add a document-mode selector or merge the bodies.
+- `V0` is the smallest runnable baseline; `V1` through `Vn` add capabilities.
+  Preserve checkpoint IDs such as `V1.C0` and `V1.C1` within each version file.
+- Keep `from-scratch-tutorial.md` to the reader goal, prerequisites, version
+  route, and links. Keep bodies in `v0-baseline.md`, `v1-<capability>.md`, etc.
+- Preserve each version's scope, exact entry checkpoint, required files,
+  setup/check commands, exit capability, assembled final checkpoint, and
+  version checks. Later versions depend on verified earlier final checkpoints.
+- Link shared explanations instead of repeating them, while retaining enough
+  local context to understand the current version. Do not remove its baseline.
+- Keep empty-directory replay evidence and inherited-file references intact.
+  A latest example cannot replace intermediate checkpoints or version freezes.
+
+If the existing draft combines capability versions or has broken transitions,
+review and repair that structure before treating the task as prose cleanup.
 
 Preserve the teaching standard:
 
@@ -88,6 +107,8 @@ the guide shorter.
 1. Establish the Baseline
    - Identify reader goal, external contract, tutorial tasks or steps, helper
      contracts, and final code.
+   - Read the entry and version map. Record version files, checkpoint IDs,
+     entry/final checkpoints, links, commands, and the edit scope.
    - Verify: the current tutorial is complete enough to simplify.
 2. Protect Required Fields
    - Preserve `Question`, `Pressure Example`, `Naive or Previous Baseline`,
@@ -99,10 +120,14 @@ the guide shorter.
      verification matrix when present.
    - Preserve a first baseline that starts from caller-visible input before
      internal abstractions.
+   - Preserve version/document boundaries and each version's entry/exit
+     contract, inherited files, final checkpoint, and check commands.
    - Verify: no step loses the connected build loop.
 3. Remove Repetition
    - Delete repeated rationale that does not add new pressure.
    - Merge duplicate warnings only when the result remains explicit.
+   - Replace repeated series-level context with links to its owning version.
+     Keep the local pressure and exact starting state in the current file.
    - Verify: each remaining sentence earns its place.
 4. Tighten Prose
    - Prefer concrete verbs, shorter bullets, and direct reader-facing language.
@@ -116,7 +141,10 @@ the guide shorter.
    - Do not alter code behavior unless the user explicitly asks.
    - If code snippets are shortened, keep the add/replace relation obvious.
    - Preserve whether each code block is a patch or checkpoint.
-   - Keep the final assembled checkpoint complete.
+   - Keep every version's final assembled checkpoint complete.
+   - Verify navigation and checkpoint references after editing. If executable
+     instructions changed, replay the affected checkpoints and transitions;
+     if only prose changed, state that and preserve existing code evidence.
    - Verify: final code still traces to the connected steps.
 6. Report Changes
    - Summarize what was simplified and what was intentionally preserved.
@@ -126,6 +154,8 @@ the guide shorter.
 
 - If a guide has broken task or checkpoint continuity, use
   `from-scratch-tutorial-review` or rebuild before simplifying.
+- If the draft mixes capability versions in one body, use review/build to
+  establish separate files; do not hide a structural rebuild as simplification.
 - If simplification would remove a step check, keep the check and shorten
   surrounding prose instead.
 - If code needs behavior changes, stop and ask whether this is now a build
@@ -152,6 +182,7 @@ When editing a file directly, keep this report brief and include changed paths.
 | Rationalization | Reality |
 |---|---|
 | "Shorter is clearer." | Removing pressure, checks, or gaps makes the guide harder to learn from. |
+| "Merging version files removes repetition." | Link shared context; preserve capability boundaries and each version's runnable exit. |
 | "The freeze line is repetitive." | Freeze lines prevent hidden rewrites between checkpoints. |
 | "Step checks can move to the end." | End-only verification loses per-checkpoint evidence. |
 | "Code can be compacted while simplifying prose." | Code behavior changes belong to build, not simplify. |
@@ -165,6 +196,8 @@ When editing a file directly, keep this report brief and include changed paths.
 
 ## Red Flags
 
+- Version documents are merged, checkpoint IDs change, or navigation breaks.
+- A version loses its entry baseline, inherited files, final code, or commands.
 - A step loses `Step Check` or `Still Lacks`.
 - A step loses the concrete `What Breaks` explanation or the link from defect
   to new requirement.
@@ -184,6 +217,11 @@ When editing a file directly, keep this report brief and include changed paths.
 
 ## Verification
 
+- [ ] The navigation entry and separate capability-version documents remain intact.
+- [ ] Version/checkpoint IDs, entry baselines, inherited files, and links resolve.
+- [ ] Every version retains its own assembled final checkpoint and check commands.
+- [ ] Affected executable instructions were replayed when changed; otherwise
+      the report identifies the edit as prose-only and preserves prior evidence.
 - [ ] The connected build loop remains intact in every step.
 - [ ] Real scenario, problem compression, core model, invariants, and
       verification matrix remain intact when relevant.
@@ -204,6 +242,8 @@ When editing a file directly, keep this report brief and include changed paths.
 ## Guardrails
 
 - Do not simplify by deleting required teaching fields.
+- Do not merge version bodies into the entry or replace version freezes with
+  one final-series example.
 - Do not simplify by deleting scenario, compression, core model, invariants, or
   verification matrix from non-trivial tutorials.
 - Do not change code behavior as part of prose simplification.

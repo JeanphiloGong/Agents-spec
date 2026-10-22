@@ -9,7 +9,7 @@ cannot catch.
 Review in this order:
 
 1. teaching standard fit
-2. executable continuity
+2. version/document structure and executable continuity
 3. defect-driven teaching depth
 4. code change role clarity and final checkpoint completeness
 5. semantic choice visibility
@@ -45,6 +45,35 @@ Finding severity:
   runnable.
 
 ## 1. Executable Continuity
+
+### Version and Document Boundaries
+
+Check for:
+
+- a navigation-only `from-scratch-tutorial.md` linking separate V0 through Vn
+  capability documents, with no document-mode selector or duplicate route
+- V0 as the smallest runnable baseline and later versions as meaningful
+  capability additions, rather than length splits or unnecessary extra versions
+- IDs such as V1.C0 and V1.C1 used as sections within their version document
+- explicit scope, entry checkpoint, required files, setup/check commands,
+  exit capability, and final checkpoint for every version
+- later versions restored from verified earlier final checkpoints, not a latest
+  example or undocumented future files
+- every version's own assembled exit code and verification, plus evidence of
+  empty-directory replay through checkpoints and version transitions
+
+Finding severity:
+
+- `block` for future-code dependencies, unrunnable version exits, or failing
+  transitions.
+- `revise` for combined capability bodies, implementation in the navigation
+  entry, ambiguous IDs, missing contracts/links, or missing replay evidence.
+
+For a plan, check that these requirements are planned; do not demand executed
+replay before building. For a single-version review, name that scope and check
+entry/exit references without asserting whole-series acceptance.
+
+### Within a Version
 
 Every code checkpoint must be runnable from the visible previous baseline.
 
@@ -141,14 +170,17 @@ Check for:
 - a `patch` shows one local addition or replacement from the visible previous
   baseline
 - a `checkpoint` shows the complete current runnable file, module, or script
-- the final meaningful step in a code tutorial is a checkpoint
-- the final checkpoint contains no logic that was not explained earlier
+- the final meaningful code step in each version is a checkpoint
+- each final checkpoint contains no unexplained logic; any last change is
+  explicitly taught in that step
 - the reader does not need to stitch snippets from earlier steps to get the
   final runnable code
+- required inherited files are named and available from the declared entry
+  checkpoint, with complete commands to verify this version
 
 Finding severity:
 
-- `block` when the final meaningful step is not an assembled complete
+- `block` when any version's final meaningful step is not an assembled complete
   checkpoint or when the checkpoint introduces unexplained logic.
 - `revise` when intermediate steps do not declare patch/checkpoint role or
   target clearly enough.

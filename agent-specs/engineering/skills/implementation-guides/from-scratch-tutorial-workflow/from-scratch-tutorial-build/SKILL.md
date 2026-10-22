@@ -1,16 +1,42 @@
 ---
 name: from-scratch-tutorial-build
-description: v0.3.1 - Build a from-scratch tutorial from a task-first tutorial plan through Nystrom/Karpathy/Norvig standards and the tutorial increment cycle. Use when turning reader goal, real scenario, problem compression, core model, invariants, external contract, teaching example, dependency graph, and tutorial build tasks into a natural guide with verified checkpoints and final assembled code.
+description: v0.3.2 - Build a from-scratch tutorial series as separate V0 through Vn documents with verified checkpoints inside each version. Use when turning a task-first plan into natural teaching prose, replaying version transitions, and delivering an assembled runnable final checkpoint for every capability version.
 ---
 
 # From-Scratch Tutorial Build
 
 ## Overview
 
-Build a from-scratch implementation tutorial one complete teaching increment
-at a time. The goal is not to dump final code. The goal is to let the reader
+Build a tutorial series one complete teaching increment at a time. Let the reader
 feel a small pressure, see the naive baseline break, make one code change,
 check that change, freeze the checkpoint, and then continue.
+
+## Version and Document Contract
+
+- Use a navigation entry and one tutorial file per capability version. This is
+  the sole structure; do not add a `document_mode` selector or a parallel path.
+- `V0` is the smallest runnable baseline; `V1` through `Vn` add meaningful
+  capabilities. Do not invent extra versions to meet a document count.
+- Use `V0.C0`, `V1.C0`, `V1.C1`, and so on for checkpoints within each version.
+  They are sections in that version's file, not another set of version files.
+- Keep `from-scratch-tutorial.md` to reader goal, prerequisites, version route,
+  status, and links. Put implementation in `v0-baseline.md`,
+  `v1-<capability>.md`, and subsequent version files.
+- Open every version with its scope, exact entry checkpoint, required files,
+  setup/check commands, and exit capability. Link shared scenario material;
+  do not repeat the whole series introduction in every file.
+- Start later versions from a verified earlier version's final checkpoint,
+  never from the latest example. A separate article continues that baseline;
+  it does not require restarting from empty or duplicating the whole history.
+- End each version's last meaningful code step with an assembled runnable
+  checkpoint. Explain that step's last change, name any inherited files, and
+  provide commands that verify the whole version. Do not add a code dump later.
+- Replay the series from an empty directory through every checkpoint and
+  version freeze. Any accompanying example supports this evidence; it cannot
+  replace replay of the documents.
+
+Even a topic with only `V0` uses a navigation entry and its version document.
+Keep tutorial artifacts outside production code unless explicitly requested.
 
 ## Teaching Standard
 
@@ -24,9 +50,8 @@ Every built tutorial must satisfy:
 - **Norvig small complete problem compression** - the real problem is reduced
   to a small complete model that can be held in one sitting.
 
-This is not a style preference. If a draft lacks a real scenario, a compressed
-problem, an ordered task ladder, or a final assembled checkpoint, repair it
-before continuing.
+If a draft lacks a real scenario, compressed problem, ordered task ladder, or
+assembled final checkpoint per version, repair it before continuing.
 
 ## The Tutorial Increment Cycle
 
@@ -92,8 +117,9 @@ previous visible baseline.
 1. Load the Plan or Scope
    - Read reader goal, real scenario, problem compression, core model,
      invariants, external contract, teaching example, tutorial dependency
-     graph, tutorial build task list, helper contracts, verification matrix,
-     checkpoint commit handoff, and review risks.
+     graph, version/document map, entry baselines, tutorial build task list,
+     helper contracts, verification matrix, checkpoint commit handoff, and
+     review risks.
    - Treat the tutorial build task list as the execution source of truth. Do
      not reconstruct an old table-driven plan or draft from a hidden final-code
      outline.
@@ -101,14 +127,20 @@ previous visible baseline.
      non-trivial tutorial.
    - If no plan exists, infer lightweight assumptions only when they do not
      change the public contract or data structure.
-   - Verify: the tutorial is scoped to one method, feature, or coherent core
-     slice.
-2. Draft the Scenario and Compression First
+   - Verify: every task has a version/checkpoint ID and a version-file target;
+     repair a combined-document plan before drafting.
+2. Draft Navigation and Open the Current Version
+   - Create the entry as navigation only. Route each version to a separate
+     file from the plan; do not put the step ladder in the entry.
    - Write the real scenario: who calls or uses this, why they need it, and
      what they observe.
    - Write the compressed problem: what smaller model the tutorial implements,
      what it includes, and what it deliberately leaves out.
    - Write the core model and invariants before code structure.
+   - Put shared context in V0 and link it from later versions. State the current
+     version's scope, required files, exact entry checkpoint, and exit behavior.
+   - For V0, establish a clean workspace. For later versions, restore and check
+     the named earlier final checkpoint using the documented commands.
    - Verify: the reader understands why this thing exists before seeing helpers
      or internal classes.
 3. Draft the Contract
@@ -139,8 +171,10 @@ previous visible baseline.
 6. Run the Step Check
    - Add a tiny assertion, trace, manual check, or compile/run check that fits
      the current checkpoint.
-   - Verify: the check proves the named defect is addressed, not the final
-     solution.
+   - Run it against the current replay workspace, using only files introduced
+     up to this checkpoint. Keep observed evidence separate from expected output.
+   - Verify: the check proves the current change; it does not require a future
+     version or a prebuilt final example.
 7. Freeze and Self-Review the Step
    - State what this checkpoint can do now.
    - State that this checkpoint is the baseline for the next step.
@@ -154,7 +188,7 @@ previous visible baseline.
    - Verify: the next step can only continue from this checkpoint, not a hidden
      rewrite.
 8. Continue Step-by-Step
-   - Repeat the full step loop for the next tutorial build task.
+   - Repeat the full step loop for the next checkpoint in the current version.
    - Before starting a task, confirm its dependencies and acceptance criteria.
    - After finishing a task, check its verification items and document target.
    - Do not outline all code checkpoints first and then fill them thinly.
@@ -162,18 +196,20 @@ previous visible baseline.
      only one numbered task.
    - Verify: each completed step would still teach correctly if read alone with
      the prior steps.
-9. Finish Without a Detached Code Dump
-   - Let the last meaningful step yield the complete assembled checkpoint when
-     code is needed.
-   - If the tutorial builds real code, the final step's `Code Change Type` must
-     be `checkpoint`.
+9. Freeze the Version Before Advancing
+   - Let this version's last meaningful code step yield its assembled runnable
+     checkpoint with `Code Change Type: checkpoint`. Include the complete
+     changed targets and explicitly list inherited files needed to run them.
+   - Run the version check, including inherited behavior promised by its
+     contract. Record the final checkpoint ID, result, and remaining limits.
    - Add only practice, common mistakes, verification checklist, and next small
-     step after the build.
-   - Verify: no final code section introduces new logic.
+     step after that version's build.
+   - Verify: only after this freeze passes may the next version begin. Repeat
+     the loop per version, then verify entry links and the empty-directory replay.
 
 ## Connected Build Contract
 
-Every tutorial build task that drafts a numbered step inside `## From Scratch`
+Every tutorial build task that drafts a checkpoint inside a version document
 follows the increment cycle. Use these fields internally, or publicly when the
 user wants a structured guide:
 
@@ -205,14 +241,16 @@ Cycle rules:
 - `Code Change Type` is `patch` for a local edit or `checkpoint` for a
   complete current runnable unit.
 - `Code Change Target` names where the reader applies the change.
-- The final meaningful code step is an assembled `checkpoint`, not a detached
-  final code dump.
+- The final meaningful code step of each version is an assembled `checkpoint`,
+  not a detached final code dump. A one-checkpoint V0 teaches and verifies its
+  first runnable baseline in that step, without inventing a prior implementation.
 - The internal self-review checks pressure, one change, check, freeze, and next
   gap before moving on, but those compliance bullets are not public output.
 
 Task execution rules:
 - Each task must have acceptance criteria, verification, dependencies, document
-  target, and estimated scope.
+  target, version, checkpoint ID, and estimated scope. Use `n/a` checkpoint IDs
+  for navigation/prose-only tasks.
 - Start a task only when its dependencies are satisfied.
 - Do not merge two tutorial-step tasks just because they edit the same
   document.
@@ -237,14 +275,17 @@ Public voice rules:
 - If no plan exists and the tutorial has multiple possible teaching paths, use
   `from-scratch-tutorial-plan` first.
 - If the supplied task plan lacks concrete previous-baseline defects,
-  acceptance criteria, dependencies, or verification, repair the task plan
-  before writing the tutorial body.
+  acceptance criteria, dependencies, verification, or a version/document map,
+  repair it before writing the tutorial bodies.
 - If constraints are missing but the goal is clear, infer lightweight
   assumptions and label them before teaching.
 - If missing constraints would change the data structure or public contract,
   ask before drafting the guide.
 - If the draft fails its own step checks, repair the earliest failing checkpoint
-  before continuing.
+  before continuing. Recheck downstream checkpoints affected by that repair.
+- If old material combines capability versions in one article, separate the
+  version bodies, preserve valid code continuity, and turn the old entry into
+  navigation. Remove duplicate combined bodies rather than keeping two routes.
 - If a step cannot explain why the previous baseline is insufficient, stop at
   that step and rewrite it; do not continue to later steps.
 - If simplification is needed after the guide works, hand off to
@@ -256,67 +297,61 @@ Public voice rules:
 
 ## Fixed Defaults
 
-- `build_mode=task-first-connected-checkpoint-tutorial`
-- `plan_shape=task-first-tutorial-build-plan`
+- `plan_shape=task-first-versioned-tutorial-build-plan`
 - `step_loop=task-scoped-pressure-naive-break-change-check-freeze`
 - `teaching_standard=nystrom-chain+karpathy-coding+norvig-compression`
 - `implementation_style=scenario-and-contract-first-with-explicit-helper-boundaries`
-- `final_code_policy=last-step-yields-assembled-checkpoint`
+- `final_code_policy=each-version-last-step-yields-assembled-checkpoint`
 - `code_change_policy=patch-or-checkpoint-with-explicit-target`
-- `source_fact_policy=separate-supplied-from-inferred`
-- `step_depth_policy=complete-one-step-before-next-step`
-- `naive_baseline_policy=external-input-before-internal-carrier`
 - `public_voice_policy=natural-tutorial-not-checklist`
 - `checkpoint_commit_policy=single-doc-freeze-fields-in-commit-message`
-- `checkpoint_handoff_policy=follow-plan-checkpoint-commit-handoff`
 
 ## Output Format
 
+Deliver the entry plus the planned version documents, not one combined article:
+
+```text
+<tutorial-root>/
+  plan.md
+  from-scratch-tutorial.md   # navigation only
+  v0-baseline.md            # V0.C0 onward, ending in V0 freeze
+  v1-<capability>.md        # when justified, ending in V1 freeze
+  ...
+```
+
+The entry states the reader goal, prerequisites, and version route, linking
+each capability and its entry/final checkpoints. Each version document uses
+the following shape; express the teaching obligations as natural prose:
+
 ```markdown
-# <Topic> From Scratch
+# V1: <Capability>
 
-## Reader and Goal
-- ...
+## Starting Point
+Link the named earlier final checkpoint. List required files and setup/check
+commands. V0 starts from an empty workspace instead.
 
-## Real Scenario
-- ...
-
-## Problem Compression
-- ...
-
-## Core Model and Invariants
-- ...
-
-## External Contract
-- Supplied facts:
-- Inferred assumptions:
-- Constraints:
-
-## Teaching Example
-- ...
+## Scope and Goal
+State included/deferred behavior, entry contract, and exit capability. V0
+introduces the shared scenario, compressed model, invariants, external contract,
+and teaching example; later versions link them and explain any changes.
 
 ## From Scratch
-### Step 1: <one concrete problem>
+### V1.C0: <one concrete problem>
 Explain the pressure in prose, show the naive or previous baseline, name what
 breaks, make one patch or checkpoint change, check it, and freeze this
 checkpoint.
-Use reader-facing labels such as `Checkpoint` or `Try This` instead of dumping
-the internal field list unless structured output is requested.
+Continue through this version's final assembled checkpoint; do not append a
+second final implementation section.
 
-## Helper Contracts
-- ...
+## Version Freeze
+Name the final checkpoint, files inherited from the entry baseline, complete
+run/check commands, observed results, exit capability, and remaining limits.
 
 ## Common Mistakes
 - ...
 
-## Verification Checklist
-- ...
-
-## Next Small Step
-- ...
-
-## Blocking Questions (Only If Blocking)
-- ...
+## Next Version
+Link the next capability version, or state the final scoped stopping point.
 ```
 
 ## Bundled Resources
@@ -338,6 +373,8 @@ examples.
 | Rationalization | Reality |
 |---|---|
 | "The plan is enough; I can summarize the steps." | The build must produce the actual connected guide. |
+| "I can write V0 through Vn as headings in one file." | Each capability version needs its own tutorial document; the entry only navigates. |
+| "The final example passes, so every version works." | Replay must check intermediate checkpoints and each version's actual exit state. |
 | "The final code can be clearer if I rewrite it at the end." | A rewrite breaks the teaching chain and hides logic. |
 | "Step checks are optional because this is documentation." | Checks are how the reader knows each checkpoint works. |
 | "I can skip freezing the checkpoint." | Without a freeze, the next step may silently depend on hidden changes. |
@@ -355,6 +392,9 @@ examples.
 
 ## Red Flags
 
+- The entry contains implementation steps, or capability versions are merged.
+- A version silently starts from future code or has no assembled final checkpoint.
+- A checkpoint gets its own version file without a capability boundary.
 - A step lacks `Step Check`.
 - A step lacks `Freeze This Checkpoint`.
 - A step states `What Breaks` without first showing a concrete pressure
@@ -375,9 +415,8 @@ examples.
 - A step's `Code Change` does not say whether it is a patch or checkpoint.
 - A `patch` has no target or does not identify what it changes from the
   previous baseline.
-- A `checkpoint` is incomplete for its target or contains logic that earlier
-  steps did not explain.
-- The final meaningful step is a patch or partial class, forcing the reader to
+- A `checkpoint` is incomplete for its target or contains unexplained logic.
+- A version's final meaningful step is a patch or partial class, forcing the reader to
   assemble final code from previous snippets.
 - A data structure appears before the external contract and hard constraints.
 - A helper appears before its caller, purpose, and mutation boundary are
@@ -390,6 +429,11 @@ examples.
 
 ## Verification
 
+- [ ] The entry is navigation only and all version links resolve.
+- [ ] Every capability version has its own document and unambiguous checkpoint IDs.
+- [ ] Each version starts from its declared, verified baseline and required files.
+- [ ] Every checkpoint was replayed in order from an initially empty directory.
+- [ ] Every version's assembled final checkpoint and version check passed.
 - [ ] The guide starts with reader goal, external contract, constraints, and
       teaching example.
 - [ ] The guide includes real scenario, problem compression, core model, and
@@ -410,13 +454,12 @@ examples.
       answer the named defect.
 - [ ] Every step declares `Code Change Type` and `Code Change Target`.
 - [ ] Patch steps modify exactly one visible part of the previous baseline.
-- [ ] Checkpoint steps show complete runnable units and introduce no new logic.
+- [ ] Checkpoint steps show complete runnable units with no unexplained logic.
 - [ ] Every step has a concrete `Step Check`.
 - [ ] Every step freezes the current checkpoint before naming the next gap.
 - [ ] Helpers appear only after a step creates their need.
 - [ ] Each helper has an explicit purpose and mutation or return boundary.
-- [ ] The final complete code is the last connected step's assembled
-      checkpoint.
+- [ ] Each version's final code is its last connected step's assembled checkpoint.
 - [ ] The guide ends with common mistakes, verification checklist, and next
       small step.
 - [ ] Public tutorial output uses reader-facing checkpoints, not
@@ -435,6 +478,8 @@ examples.
   non-trivial tutorials.
 - Do not continue from hidden code that was not shown in the previous baseline.
 - Do not add a detached final implementation section.
+- Do not add a document-mode selector or keep an obsolete combined tutorial body.
+- Do not advance to the next version before the current version freeze passes.
 - Do not leave the reader to assemble the final code from scattered snippets.
 - Do not label a partial class or isolated function as a checkpoint.
 - Do not recommend a helper before explaining what pressure or requirement

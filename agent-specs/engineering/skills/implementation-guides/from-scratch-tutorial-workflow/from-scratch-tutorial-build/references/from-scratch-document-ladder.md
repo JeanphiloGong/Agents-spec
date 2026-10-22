@@ -6,6 +6,7 @@ with connected code growth.
 ## Contents
 
 - Core Rule
+- Version Documents
 - Required Step Shape
 - Public Tutorial Voice
 - Recommended Ladder
@@ -23,7 +24,7 @@ standalone concept prose, unrelated code blocks, and a late complete-code dump.
 Write one problem, one concrete defect, one code change, one check, one new
 capability, and one remaining gap at a time. Finish that step before drafting
 the next step. Mark every code change as a `patch` or `checkpoint`, and make
-the last meaningful code step an assembled complete checkpoint.
+the last meaningful code step of each version an assembled complete checkpoint.
 
 Before the defect statement, show a pressure example: a tiny input, trace, call
 site, or extension that makes the naive baseline's weakness visible.
@@ -46,6 +47,24 @@ Prefer this order:
 9. common mistakes
 10. verification checklist
 11. next small step
+
+## Version Documents
+
+Use `from-scratch-tutorial.md` as navigation only. Put the smallest runnable
+baseline in `v0-baseline.md` and meaningful later capabilities in separate
+`v1-<capability>.md` through `vn-<capability>.md` files. There is no document-mode
+choice. A topic with only V0 still has an entry and a baseline document.
+
+Inside each version, label increments `V0.C0`, `V1.C0`, `V1.C1`, etc. These are
+sections, not separate version files. Apply the ladder below within the current
+version; it is not a mandate to create ten checkpoints or ten versions.
+
+Open each version with scope, entry checkpoint, required files, setup/check
+commands, and exit capability. Later versions start from a named verified
+earlier final checkpoint and link shared context instead of silently loading
+the latest example. Freeze each version's own assembled checkpoint, then run
+its checks before the next version. Replay the full route from an empty
+directory, verifying intermediate state as well as version exits.
 
 ## Required Step Shape
 
@@ -91,9 +110,10 @@ Use code change roles consistently:
   checkpoint.
 - `checkpoint`: the complete current runnable unit for the named target.
 
-The final meaningful code step must be a `checkpoint`. It should include the
+Each version's final meaningful code step must be a `checkpoint`. It should include the
 imports, types, helpers, and public API needed for the target to run. It must
-not include logic that earlier steps did not explain.
+not include unexplained logic; teach any last change in that step. Name inherited
+files from the entry checkpoint and the complete version verification commands.
 
 Every code step should be connected to the previous baseline. Use these
 connectors in substance:
@@ -199,13 +219,13 @@ read like a lesson.
 - Confirm that each step in the trace matches the stated invariants.
 - Confirm that the trace proves the current step's defect was addressed.
 
-### Step 10: Let the final step be the complete code
+### Step 10: Let the version's final step be the complete code
 
 - The last meaningful step should already yield the complete implementation
-  when code is needed.
+  for this capability version when code is needed.
 - Its `Code Change Type` must be `checkpoint`.
 - Its `Code Change Target` must name the complete file, module, or script.
-- The complete code must not introduce new logic that was never explained.
+- Explain the last change in this step; do not introduce unexplained logic.
 
 ## Good Signs
 
@@ -251,9 +271,10 @@ Do not do these in from-scratch mode:
 
 Default policy:
 
-- the last meaningful incremental step should be a `checkpoint` that yields the
-  complete runnable implementation when the user needs code
-- the guide should usually end there
+- each version's last meaningful incremental step is a `checkpoint` that yields
+  its complete runnable implementation, with inherited files named explicitly
+- end the version with verification, limits, and a link to the next version;
+  do not append a duplicate complete implementation
 
 Only add a separate wrapper or final-code section if the user explicitly needs a
 platform shell, file layout, or delivery format. That section must contain no

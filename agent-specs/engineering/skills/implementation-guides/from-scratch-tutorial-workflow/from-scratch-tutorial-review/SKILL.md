@@ -1,13 +1,13 @@
 ---
 name: from-scratch-tutorial-review
-description: v0.3.1 - Review from-scratch tutorials against task-first planning, Nystrom/Karpathy/Norvig standards, and the tutorial increment cycle. Use when checking a draft or plan for missing real scenario, weak problem compression, missing core model or invariants, template-like public prose, missing pressure, vague breaks, premature final abstractions in naive baselines, disconnected task/checkpoint continuity, unclear patch/checkpoint roles, public self-review leakage, unexplained helpers, silent semantic choices, or final-code drift before accepting it.
+description: v0.3.2 - Review a from-scratch tutorial series or plan for separate capability-version documents, checkpoint continuity, and runnable version freezes. Use when checking navigation, V0 through Vn boundaries, verified entry baselines, per-version assembled code, replay evidence, teaching depth, or final-code drift before acceptance.
 ---
 
 # From-Scratch Tutorial Review
 
 ## Overview
 
-Review a from-scratch implementation tutorial as a teaching artifact. The
+Review a from-scratch implementation tutorial series as a teaching artifact. The
 primary question is whether a reader can follow the guide from external
 behavior to final code without trusting a hidden answer. Findings lead the
 response, ordered by severity, with file or section references when available.
@@ -15,6 +15,27 @@ response, ordered by severity, with file or section references when available.
 Use the bundled quality standards reference when headings are present but the
 tutorial may still hide state, skip semantic choices, miss pressure examples,
 or read like an internal generation artifact.
+
+## Version and Document Contract
+
+- The sole structure is a navigation entry plus one tutorial document per
+  capability version. Reject a document-mode selector or parallel old/new paths.
+- `V0` is the smallest runnable baseline; later `V1` through `Vn` add meaningful
+  capabilities. A small topic may end at V0; do not require artificial versions.
+- Checkpoints use `V0.C0`, `V1.C0`, `V1.C1`, and so on as sections within version
+  documents. They are not product release numbers or separate version files.
+- `from-scratch-tutorial.md` contains the goal, prerequisites, version route,
+  and links. Bodies live in `v0-baseline.md`, `v1-<capability>.md`, and so on.
+- Every version declares scope, exact entry baseline, required files,
+  setup/check commands, exit capability, and final checkpoint. Later versions
+  start from a named verified earlier final checkpoint, never a latest example.
+- Every version's last meaningful code step is an assembled runnable
+  checkpoint with no unexplained logic. Inherited files must be explicit.
+- Evidence must cover empty-directory replay through each checkpoint and
+  version transition. Passing only the latest example proves too little.
+
+A review may target one version; report that scope and check its entry/exit
+links without claiming the unread rest of the series passed.
 
 ## Teaching Standard
 
@@ -73,6 +94,10 @@ general code review, production merge review, or publishing metadata review.
 1. Identify the Tutorial Contract
    - Read reader goal, real scenario, problem compression, core model,
      invariants, external contract, constraints, and teaching example.
+   - Read the navigation entry and version/document map. Identify which
+     versions are in review and their entry/final checkpoints.
+   - Check that capability versions occupy separate files and checkpoints
+     remain inside those files. Verify all relevant navigation links.
    - Verify: supplied facts and inferred assumptions are separated.
 2. Check Scenario and Problem Compression
    - Confirm the guide says who uses the thing, why it is needed, and what the
@@ -84,7 +109,11 @@ general code review, production merge review, or publishing metadata review.
 3. Check Increment Continuity
    - If a task-first plan is present, compare each tutorial build task's
      dependencies, acceptance criteria, verification, document target, code
-     change type, checkpoint commit policy, and resulting section.
+     change type, version/checkpoint ID, checkpoint commit policy, and
+     resulting section.
+   - At each version boundary, compare the declared entry baseline with the
+     earlier version's frozen files and behavior. Confirm setup commands
+     reproduce that state without copying later code.
    - If any task requests checkpoint history, confirm the plan has a
      `Checkpoint Commit Handoff` section and routes the task to
      `single-doc-checkpoint-commit-skill`.
@@ -107,6 +136,8 @@ general code review, production merge review, or publishing metadata review.
    - Inspect `Step Check` and `What To Verify`.
    - Verify: checks prove the current checkpoint's named defect was addressed,
      not the final solution.
+   - Check replay evidence for every checkpoint and each version freeze. When
+     reviewing a plan, check that replay is planned rather than claiming it ran.
 6. Check Semantic Choice Visibility
    - Look for behavior choices that appear silently: copying vs mutating,
      raising vs returning, stopping vs continuing, rejecting before side
@@ -117,9 +148,10 @@ general code review, production merge review, or publishing metadata review.
    - Ensure every helper appears only after a requirement pressure creates it.
    - Verify: helper purpose, inputs, output or mutation boundary are explicit.
 8. Check Final-Code Drift
-   - Compare the final complete code to the connected steps.
-   - Confirm the final meaningful step is an assembled checkpoint, not a patch
-     or partial snippet.
+   - For every reviewed version, compare its final code to its connected steps
+     and explicitly inherited files.
+   - Confirm that version's final meaningful step is an assembled checkpoint,
+     not a patch or partial snippet; its complete run/check commands must work.
    - Verify: no state, branch, helper, or mutation rule appears only at the
      end.
 9. Check Engineering Completeness
@@ -151,8 +183,13 @@ general code review, production merge review, or publishing metadata review.
 
 Specific severity calibration:
 
-- `block`: final runnable code must be stitched from scattered snippets, a core
-  helper or semantic rule appears only in the final checkpoint, or a core step
+- `block`: a version depends on hidden future code, its final checkpoint cannot
+  run from its declared files, or a version transition fails on replay.
+- `revise`: capability versions share one tutorial body, the entry contains an
+  implementation ladder, checkpoint IDs are ambiguous, or a version lacks
+  scope, baseline documentation, navigation, or replay evidence.
+- `block`: final runnable code must be stitched from scattered snippets, an
+  unexplained helper or semantic rule appears in the final checkpoint, or a core step
   introduces a structure without a visible previous-baseline break.
 - `revise`: a non-trivial tutorial lacks a real scenario, problem compression,
   core model, invariants, verification matrix, or natural reader-facing prose.
@@ -179,6 +216,9 @@ Specific severity calibration:
 - pass | revise | block
 
 ## Verification Notes
+- Reviewed versions/documents:
+- Entry and final checkpoint checks:
+- Replay performed / evidence inspected / checks not run:
 - ...
 ```
 
@@ -187,6 +227,8 @@ Specific severity calibration:
 | Rationalization | Reality |
 |---|---|
 | "The final code is correct, so the tutorial is fine." | A from-scratch tutorial can fail even when the code works. |
+| "Different version headings count as separate documents." | Each capability version needs its own file and entry/exit contract. |
+| "The latest example passes, so the earlier versions pass." | Only replay of the earlier checkpoints establishes their behavior. |
 | "A missing step check is only a documentation issue." | Step checks prove the task ladder is real. |
 | "The reader can infer why the helper exists." | The tutorial must make helper pressure explicit. |
 | "Review should summarize first." | Findings come first so required fixes are visible. |
@@ -204,6 +246,9 @@ Specific severity calibration:
 
 ## Red Flags
 
+- The entry mixes navigation with implementation or several versions share a body.
+- A version has no named entry baseline, required files, or final checkpoint.
+- The series has only latest-example evidence or unresolved version links.
 - A step lacks `Naive or Previous Baseline`, `What Breaks`, `New Requirement`,
   `Add or Replace`, `Step Check`, `Freeze This Checkpoint`, or `Still Lacks`.
 - A non-trivial engineering tutorial lacks real scenario, problem compression,
@@ -248,6 +293,13 @@ Specific severity calibration:
 
 ## Verification
 
+- [ ] Review scope identifies the versions/documents actually inspected.
+- [ ] The entry is navigation only and version files/links match the plan.
+- [ ] Capability versions and checkpoint sections use distinct, stable IDs.
+- [ ] Each later version starts from a verified earlier final checkpoint.
+- [ ] Each version has an assembled runnable final checkpoint and explicit files.
+- [ ] Replay evidence covers checkpoints and version transitions, or missing
+      evidence is reported; a plan is not presented as an executed tutorial.
 - [ ] Findings are ordered by severity.
 - [ ] Nystrom/Karpathy/Norvig standards were checked.
 - [ ] Real scenario, problem compression, core model, invariants, and
@@ -263,8 +315,7 @@ Specific severity calibration:
 - [ ] Step checks were reviewed for relevance to the current checkpoint.
 - [ ] Helper necessity and mutation boundaries were checked.
 - [ ] Final-code drift was checked.
-- [ ] The final meaningful step was checked as an assembled complete
-      checkpoint.
+- [ ] Every reviewed version's final step was checked as an assembled checkpoint.
 - [ ] Public prose was checked for tutorial voice rather than checklist voice.
 - [ ] Single-document checkpoint metadata, when requested, was routed to
       `single-doc-checkpoint-commit-skill` rather than public tutorial prose.
@@ -276,5 +327,7 @@ Specific severity calibration:
 
 - Do not rewrite the tutorial during review unless the user asks for fixes.
 - Do not approve a guide only because the final code is correct.
+- Do not approve a combined version body as the new document structure.
+- Do not report whole-series acceptance after reviewing only one version.
 - Do not invent source facts to make a teaching gap look acceptable.
 - Do not bury blocking findings under summaries.

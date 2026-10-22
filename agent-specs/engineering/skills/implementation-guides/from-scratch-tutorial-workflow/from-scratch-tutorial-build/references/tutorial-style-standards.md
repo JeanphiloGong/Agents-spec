@@ -179,6 +179,30 @@ Use general-purpose teaching examples in references and tests of the skill:
 Avoid examples tied to a user's current production system, current reference
 module, or current business vocabulary.
 
+## Capability Versions and Local Checkpoints
+
+Write one coherent series with a navigation entry and separate tutorial bodies:
+
+```text
+from-scratch-tutorial.md   navigation only
+v0-baseline.md            V0.C0: smallest runnable baseline
+v1-<capability>.md        V1.C0 ... V1.Cn: one capability and its freeze
+```
+
+Add later versions only for meaningful capability growth. Keep local
+checkpoints as sections within their version document; do not split files for
+every edit or put all versions under headings in the entry.
+
+Each version opens with its exact starting checkpoint, required files,
+setup/check commands, scope, and goal. Later versions link shared context and
+continue from an earlier verified final checkpoint; they do not copy a latest
+example or repeat the whole series introduction. V0 establishes the first
+runnable state without inventing a prior implementation or testing future scope.
+
+Finish and check the current version before advancing. Replay from an empty
+directory through the checkpoints and version transitions; expected output
+alone does not establish that this replay was performed.
+
 ## Public Tutorial Voice
 
 The public tutorial should read like a lesson, not a compliance report.
@@ -215,20 +239,24 @@ structured audit-style tutorial.
 The agent should still perform those checks internally before moving to the
 next step.
 
-## Final Checkpoint
+## Final Checkpoint of Each Version
 
-The last meaningful step is where the final code appears.
+The last meaningful code step in each version yields that version's final code.
 
 It should:
 
 - be `Code Change Type: checkpoint`
 - name the complete target
 - include imports, types, helpers, and public API needed for that target
-- contain only logic already explained in prior steps
+- contain only logic explained in earlier checkpoints or explicitly taught in
+  this last step
 - be copyable without stitching earlier snippets together
+- name inherited files needed from the entry checkpoint and provide complete
+  commands to run and verify the current version
 
 Do not add a separate final code dump after the connected steps. The final
-step is the final assembled checkpoint.
+step is that version's final assembled checkpoint. Do not defer this until the
+last version of the series.
 
 ## Engineering Tutorial Completeness
 
