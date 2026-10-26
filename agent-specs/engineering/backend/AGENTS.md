@@ -100,6 +100,49 @@
    - How: Document step-by-step remediation and keep it current.
    - Check: On-call can resolve incidents using the runbook.
 
+## Data Flow and Model Boundaries
+
+For changes crossing interface, application, domain, or persistence boundaries,
+briefly trace one real use case before editing and check it again during review.
+Use existing task notes or the review report; do not require a separate document
+or redesign for a trivial change.
+
+1. Trace the complete operation, not just the directory structure.
+   - Follow external input, parsing, loading, domain operations, any required
+     save, and the response. Identify the model or parameters at each handoff.
+   - Include relevant failure paths and side effects. A read-only selection
+     need not save, and returning a result does not imply it was persisted.
+2. Reuse domain objects for core business data and rules.
+   - Interfaces may construct new domain values; repositories restore existing
+     objects. Pass those objects through the use case where they fit.
+   - Keep business invariants in domain operations. Domain code must not depend
+     on interface request/response classes or persistence records.
+3. Let application functions orchestrate with explicit arguments.
+   - Domain objects plus IDs, expected versions, or execution options can be
+     sufficient. Do not add a Command, DTO, or result wrapper merely for a layer.
+   - When the caller supplies IDs, let the use case organize loading the current
+     objects; do not move that work into the handler just to pass domain objects.
+   - An application-owned command is appropriate when a real shared contract,
+     queued operation, or other independent use justifies it.
+4. Keep external formats at their owning boundaries.
+   - Interfaces parse external input once and construct client responses from
+     use-case results. Application and domain code do not decode raw JSON or
+     import interface-specific models.
+   - Repositories map storage representations to and from domain objects or
+     query results. Storage layout is not automatically the public protocol.
+5. Add models for actual contracts and distinct information.
+   - Reuse domain objects in small results carrying needed query metadata;
+     return the domain object directly when no extra result is needed.
+   - Keep mappings direct unless format differences, independent evolution,
+     or substantial real reuse justify storage models or named mappers.
+   - Do not force a full aggregate into a read projection or impose DDD layers
+     on a small script that does not need them.
+6. Review data flow and code dependencies separately.
+   - Check real callers, arguments, returns, imports, and writes. Passing an
+     object through a component does not require reversing module dependencies.
+   - Report a concrete contract violation or unnecessary conversion with file
+     and symbol evidence; do not request new layers for naming or layout alone.
+
 ## Scope (Responsibilities / Non-goals)
 ### Responsibilities
 - Define service boundaries and API contracts.

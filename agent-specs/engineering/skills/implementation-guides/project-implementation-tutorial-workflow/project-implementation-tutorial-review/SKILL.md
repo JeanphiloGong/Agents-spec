@@ -1,6 +1,6 @@
 ---
 name: project-implementation-tutorial-review
-description: v0.1.1 - Review existing-project implementation tutorials for source accuracy, step-by-step code completeness, teaching continuity, and executable evidence. Use when a guide may omit real callers, migrations, tests, or complete code. Use before accepting a tutorial checkpoint as ready for a reader to implement.
+description: v0.1.2 - Review existing-project implementation tutorials for source accuracy, complete data flow, step-by-step code completeness, teaching continuity, and executable evidence. Use when a guide may omit real callers, migrations, tests, or complete code. Use before accepting a tutorial checkpoint as ready for a reader to implement.
 ---
 
 # Project Implementation Tutorial Review
@@ -45,7 +45,22 @@ sibling build skill after identifying the defects.
    transitions, schema deployment, and worker wiring where relevant. Classify
    each helper as existing and verified, newly implemented, or unresolved.
    An unresolved dependency required for the promise is a finding.
-4. Trace the teaching chain.
+4. Trace Data Flow and Model Boundaries.
+   - For each promised operation that crosses an interface, application,
+     domain, or persistence boundary, trace external input, parsing, loading,
+     domain decisions, reads/writes, and response mapping.
+   - Name the model or parameters at each handoff. Check that interface
+     request/response models do not leak into application or domain code, that
+     storage representations do not become the public response, and that
+     domain objects carry the business rules they claim to own.
+   - Check failure paths and side effects: identify where invalid input,
+     business rejection, and persistence conflict stop, and whether a write
+     has already occurred. Do not require a Command, DTO, mapper, or extra
+     result model without a distinct contract or lifecycle.
+   - Verify: the tutorial's path is complete and the reader can see which
+     values are transformed, reused, persisted, or returned. Mark static
+     inspection separately from executed evidence.
+5. Trace the teaching chain.
    First check each capability checkpoint's before/after behavior, immediate
    reader-executable check, and reused output for the next checkpoint. Reject
    preparation mislabeled as implementation progress. A user-requested document
@@ -62,13 +77,13 @@ sibling build skill after identifying the defects.
    Reject commands pointing only to tests the reader must invent. Check that
    setup supports the business progression rather than dominating it; do not
    demand HTTP integration from an explicitly bounded core-model checkpoint.
-5. Verify the evidence safely.
+6. Verify the evidence safely.
    Replay documented edits in an isolated copy of the stated baseline when
    feasible. Use isolated databases and fake transports, not production services.
    Verify happy paths and relevant failure/boundary cases; inspect whether mocks
    bypass the very integration being claimed. A SQLite check cannot establish
    PostgreSQL lock/concurrency behavior. Report checks not run explicitly.
-6. Report findings and readiness.
+7. Report findings and readiness.
    Lead with severity-ordered findings and tutorial/source path plus line or
    symbol, the concrete consequence, and minimal correction. Give the scope
    verdict and evidence limits. Delete only disposable artifacts from this
@@ -100,6 +115,7 @@ sibling build skill after identifying the defects.
 - Verdict: `ready`, `needs-revision`, or `verification-blocked`, scoped to the
   stated version. If defects and blocked checks coexist, report both.
 - Verification: actual commands/results, skipped checks, baseline provenance.
+- Data-flow trace: operation, boundary values, side effects, and static/runtime evidence.
 - State explicitly when no findings were identified; absence of findings does
   not prove checks that were not run.
 - Report the record path separately; keep detailed review history out of the
@@ -127,12 +143,16 @@ sibling build skill after identifying the defects.
 - A renamed ORM without the required physical schema or caller changes.
 - Unstated behavior changes introduced as teaching simplifications.
 - Source-only fixes during review or real outbound sends during verification.
+- A tutorial names layers or models but never shows one complete input-to-output
+  operation, or presents a response model as if it were persistence data.
 
 ## Verification
 
 - [ ] Reviewed scope matches the agreed version, not a newly invented goal.
 - [ ] The guide is applicable to the stated baseline; current drift is reported.
 - [ ] Full promised paths, not only snippets, were traced.
+- [ ] Applicable data-flow and model-boundary trace names values, owners,
+      failure stops, and side effects.
 - [ ] Each checkpoint is teachable and reproducible from previous edits.
 - [ ] Findings cite concrete evidence and distinguish blockers from preferences.
 - [ ] Verification claims match the checks actually executed.

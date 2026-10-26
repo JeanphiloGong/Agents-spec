@@ -1,4 +1,4 @@
 interface:
   display_name: "Workflow Review"
-  short_description: "v0.1.0 - Review changes before merge"
-  default_prompt: "Use $workflow-review to review this change for correctness, maintainability, risk, and missing tests before merge."
+  short_description: "v0.1.1 - Review changes and trace cross-boundary data flow before merge"
+  default_prompt: "Use $workflow-review to review this change for correctness, maintainability, risk, missing tests, and applicable data-flow/model-boundary problems before merge."

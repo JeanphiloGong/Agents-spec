@@ -100,6 +100,20 @@
    - How: Apply the rule consistently in design, implementation, and review.
    - Check: Reviews or metrics confirm the rule is followed.
 
+## Data-Flow Review
+
+- Apply the [backend data-flow and model-boundary rules](../../AGENTS.md#data-flow-and-model-boundaries).
+- Trace one affected operation from external input through loading, domain
+  decisions, any persistence, and response mapping using actual callers.
+- Name the values crossing each boundary and where rejected operations stop.
+  Check which writes have or have not occurred before the failure.
+- Flag interface models in application/domain code, repeated JSON decoding,
+  unnecessary model copies, and loading/saving moved into handlers solely to
+  pass domain objects. Cite files and symbols; allow justified application
+  commands and query projections.
+- State which behavior was executed and which conclusions come from static
+  inspection. Do not present a flow diagram alone as runtime verification.
+
 ## Scope (Responsibilities / Non-goals)
 ### Responsibilities
 - Review changes for correctness, security, and maintainability.

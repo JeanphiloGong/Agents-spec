@@ -1,6 +1,6 @@
 ---
 name: pr-mr-review-publish-skill
-description: v0.1.1 - Evaluate GitHub PRs or GitLab MRs, normalize evidence-backed review findings, and optionally publish review comments or verdicts via gh/glab. Use when a target PR/MR needs a merge recommendation, review body, or publish-safe review action.
+description: v0.1.2 - Evaluate GitHub PRs or GitLab MRs, normalize evidence-backed review findings, and optionally publish review comments or verdicts via gh/glab. Use when a target PR/MR needs a merge recommendation, review body, or publish-safe review action.
 ---
 
 # PR/MR Review Publish Skill
@@ -82,6 +82,10 @@ Optional but strongly recommended:
      target diff and extract findings before drafting the review.
    - Do not discard operator-provided findings just because local inspection
      found fewer issues.
+   - If the diff crosses interface, application, domain, or persistence
+     boundaries, preserve or request a data-flow finding from the deeper code
+     review. This publishing skill normalizes and publishes evidence; it does
+     not replace the detailed boundary trace.
 3. Normalize findings.
    - Classify each item as `blocking`, `non-blocking`, `question`, or
      `follow-up`.
@@ -175,6 +179,8 @@ Rules:
   behavior.
 - CI status, PR metadata, or diff status is invented.
 - Operator-provided findings disappear without explicit evidence.
+- A boundary-crossing diff is approved or published without stating whether a
+  complete data-flow review was supplied, performed, or left unverified.
 
 ## Verification
 
@@ -186,6 +192,8 @@ Rules:
 - [ ] Verdict uses exactly `approve`, `comment`, or `block`.
 - [ ] `approve` is not used while blocking findings remain.
 - [ ] Draft passes `references/acceptance-criteria.md`.
+- [ ] Applicable data-flow review evidence is included or explicitly marked
+      unavailable; this skill did not silently substitute a summary for it.
 - [ ] Publish command family matches the selected platform when publication is
       requested.
 - [ ] Output states whether publication happened.

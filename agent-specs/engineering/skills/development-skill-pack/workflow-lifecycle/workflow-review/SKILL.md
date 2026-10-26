@@ -1,6 +1,6 @@
 ---
 name: workflow-review
-description: v0.1.0 - Conducts multi-axis code review. Use before merging any change. Use when reviewing code written by yourself, another agent, or a human. Use when you need to assess code quality across multiple dimensions before it enters the main branch.
+description: v0.1.1 - Conducts multi-axis code review with data-flow and model-boundary checks. Use before merging any change. Use when reviewing code written by yourself, another agent, or a human. Use when you need to assess code quality across multiple dimensions before it enters the main branch.
 ---
 
 # Code Review and Quality
@@ -55,6 +55,15 @@ Does the change fit the system's design?
 - Is there code duplication that should be shared?
 - Are dependencies flowing in the right direction (no circular dependencies)?
 - Is the abstraction level appropriate (not over-engineered, not too coupled)?
+
+For changes that cross interface, application, domain, or persistence boundaries,
+run a data-flow pass. Choose one real operation and trace external input,
+parsing, loading, domain decisions, reads/writes, and response mapping. Name the
+model or parameters at each handoff, inspect where rejected operations stop, and
+check whether interface models, repeated JSON decoding, or field-identical
+Command/DTO/Record copies have entered the wrong layer. Allow a new model when a
+real contract, projection, format difference, or independent lifecycle justifies
+it; do not require every directory to have one.
 
 ### 4. Security
 
@@ -151,6 +160,12 @@ For each file changed:
 4. Security: Any vulnerabilities?
 5. Performance: Any bottlenecks?
 ```
+
+If the change crosses a boundary, record the data-flow trace separately from
+the five-axis summary. Check actual callers, imports, returns, and writes; a
+diagram alone is not runtime evidence. Distinguish a read-only operation from
+one that persists state, and state which failure paths were executed versus
+inspected only.
 
 ### Step 4: Categorize Findings
 
@@ -288,6 +303,10 @@ Part of code review is dependency review:
 - [ ] Follows existing patterns
 - [ ] No unnecessary coupling or dependencies
 - [ ] Appropriate abstraction level
+- [ ] Real cross-boundary operations have an input-to-output trace
+- [ ] Models and parameters have named owners and consumers
+- [ ] Interface and persistence formats do not leak into domain logic
+- [ ] Failure paths identify whether a write occurred
 
 ### Security
 - [ ] No secrets in code
@@ -335,6 +354,7 @@ Part of code review is dependency review:
 - No regression tests with bug fix PRs
 - Review comments without severity labels — makes it unclear what's required vs optional
 - Accepting "I'll fix it later" — it never happens
+- A layer review lists directories but never traces a real operation or its side effects
 
 ## Verification
 
@@ -345,3 +365,12 @@ After review is complete:
 - [ ] Tests pass
 - [ ] Build succeeds
 - [ ] The verification story is documented (what changed, how it was verified)
+
+## Guardrails
+
+- Do not turn a missing data-flow trace into an architectural preference; cite
+  the affected operation, boundary, contract, or side effect.
+- Do not require a Command, DTO, mapper, or DDD directory solely because a
+  change crosses a layer.
+- Do not approve a boundary-crossing change when the claimed data flow or
+  failure side effects remain unknown; report the missing evidence.

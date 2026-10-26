@@ -193,6 +193,9 @@
 
 ## Code Structure Example (DDD)
 Use this as a reference layout for clean DDD boundaries in Python services.
+Apply the [backend data-flow and model-boundary rules](../AGENTS.md#data-flow-and-model-boundaries)
+when tracing actual calls. This layout does not require a model, port, or mapper
+for every directory; preserve a simpler existing structure when it meets the use case.
 
 ### Reference Layout
 ```

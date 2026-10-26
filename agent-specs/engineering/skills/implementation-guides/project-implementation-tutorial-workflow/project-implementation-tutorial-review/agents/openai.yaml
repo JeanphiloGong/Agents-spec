@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Tutorial Review"
-  short_description: "v0.1.1 - Review real-project tutorial completeness"
-  default_prompt: "Use $project-implementation-tutorial-review to check the actual baseline, scope, and each checkpoint's capability gain and runnable reader check. Reject preparation-only implementation milestones and final-only verification claims."
+  short_description: "v0.1.2 - Review real-project tutorial completeness and data flow"
+  default_prompt: "Use $project-implementation-tutorial-review to check the actual baseline, complete data flow, scope, each checkpoint's capability gain, and runnable reader check. Reject preparation-only implementation milestones and final-only verification claims."

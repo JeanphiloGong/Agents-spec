@@ -1,6 +1,6 @@
 ---
 name: from-scratch-tutorial-review
-description: v0.3.2 - Review a from-scratch tutorial series or plan for separate capability-version documents, checkpoint continuity, and runnable version freezes. Use when checking navigation, V0 through Vn boundaries, verified entry baselines, per-version assembled code, replay evidence, teaching depth, or final-code drift before acceptance.
+description: v0.3.3 - Review a from-scratch tutorial series or plan for separate capability-version documents, checkpoint continuity, complete data flow, and runnable version freezes. Use when checking navigation, V0 through Vn boundaries, verified entry baselines, per-version assembled code, replay evidence, teaching depth, or final-code drift before acceptance.
 ---
 
 # From-Scratch Tutorial Review
@@ -158,7 +158,20 @@ general code review, production merge review, or publishing metadata review.
    - Check core model, invariants, verification matrix, and deferred scope.
    - Verify: the guide is not only a code ladder; it teaches the small system
      model around the code.
-10. Check Reader-Facing Publishability
+10. Check Data Flow and Model Boundaries When Applicable
+   - If the tutorial crosses interface, application, domain, or persistence
+     boundaries, trace one real operation from external input through parsing,
+     loading, domain decisions, reads/writes, and response mapping.
+   - Name the model or parameters at each handoff. Check that the first
+     baseline and each later checkpoint do not introduce interface models into
+     domain logic, storage records into public responses, or model copies with
+     no distinct contract.
+   - Check failure stops and side effects, including whether a read-only flow
+     saves anything and whether a rejected write changed state.
+   - Verify: the data flow is visible at the checkpoint where it is introduced;
+     executed checks and static inspection are reported separately. Skip this
+     gate only when the asset genuinely has no cross-boundary operation.
+11. Check Reader-Facing Publishability
    - Identify internal scaffolding, excessive compliance language, or missing
      reader recap after correctness issues are handled.
    - Treat public `Step Self-Review` sections or yes/no compliance bullets as
@@ -170,7 +183,7 @@ general code review, production merge review, or publishing metadata review.
      rather than in the public tutorial body.
    - Verify: publishability feedback is not used to hide blocking correctness
      findings.
-11. Produce Verdict
+12. Produce Verdict
    - Use `pass`, `revise`, or `block`.
    - Include required fixes before summaries.
 
@@ -218,6 +231,8 @@ Specific severity calibration:
 ## Verification Notes
 - Reviewed versions/documents:
 - Entry and final checkpoint checks:
+- Data-flow trace when applicable: operation, boundary values, failure stops,
+  side effects, and static/runtime evidence.
 - Replay performed / evidence inspected / checks not run:
 - ...
 ```
@@ -283,6 +298,10 @@ Specific severity calibration:
 - The guide starts with internal structure before external behavior.
 - A helper lacks a caller, input, output, or mutation boundary.
 - The tutorial has no concrete trace or check.
+- A layered tutorial shows directories or classes but never traces one complete
+  operation and the state or response it produces.
+- A later version silently changes the owner of parsing, business rules,
+  persistence, or response mapping.
 - The tutorial reads like an internal compliance checklist rather than a
   reader-facing guide.
 - The tutorial publicly dumps internal field labels when natural teaching prose
@@ -314,6 +333,10 @@ Specific severity calibration:
 - [ ] Meaningful semantic choices were checked for explanation and evidence.
 - [ ] Step checks were reviewed for relevance to the current checkpoint.
 - [ ] Helper necessity and mutation boundaries were checked.
+- [ ] Applicable data-flow and model-boundary ownership was checked across the
+      version transition and the final checkpoint.
+- [ ] Failure stops and side effects were checked, with static and executed
+      evidence distinguished.
 - [ ] Final-code drift was checked.
 - [ ] Every reviewed version's final step was checked as an assembled checkpoint.
 - [ ] Public prose was checked for tutorial voice rather than checklist voice.

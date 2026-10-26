@@ -1,6 +1,6 @@
 ---
 name: reference-core-review
-description: v0.1.7 - Review one standalone runnable reference-core nano asset checkpoint. Use when checking whether a module is independently understandable without source-project context, chain-complete for one version checkpoint, invariant-preserving, scenario-fit in src architecture, executable, git-reviewable, safely placed, version-checkpoint ready, strong enough to become a from-scratch tutorial target, and optionally ready for map-back.
+description: v0.1.8 - Review one standalone runnable reference-core nano asset checkpoint. Use when checking whether a module is independently understandable without source-project context, chain-complete for one version checkpoint, data-flow explicit, invariant-preserving, scenario-fit in src architecture, executable, git-reviewable, safely placed, version-checkpoint ready, strong enough to become a from-scratch tutorial target, and optionally ready for map-back.
 ---
 
 # Reference Core Review
@@ -56,29 +56,42 @@ tutorial review, or writing map-back guidance.
      transitions, output, and defining invariant.
    - Verify: the module is neither a vague sketch nor a copied production
      module.
-3. Check Validation Evidence
+3. Check Data Flow and Boundary Ownership
+   - Trace the selected chain from its caller-visible input through parsing,
+     internal state or domain operations, persistence or external effects when
+     included, and output.
+   - Name the model or parameters at each handoff. Check that the asset keeps
+     interface formats, domain rules, and storage representations distinct,
+     while avoiding model copies or layers that do not earn their complexity.
+   - Check the failure path and side effects: identify where the defining
+     invariant rejects input and whether state or external output changed.
+   - Verify: the README and runnable check expose the same chain; static
+     architecture observations are distinguished from executed evidence.
+   - Skip persistence and response checks only when the selected asset
+     explicitly excludes those boundaries.
+4. Check Validation Evidence
    - Inspect happy path and boundary or failure check.
    - Verify: the boundary check would fail visibly if the invariant broke.
-4. Check Placement and Imports
+5. Check Placement and Imports
    - Confirm the module is outside production-imported paths by default.
    - Verify: no production module depends on the module.
-5. Check Module Shape
+6. Check Module Shape
    - Confirm the artifact is a git-reviewable directory with README, source,
      checks, and optional fixtures/traces, or a justified single-file exception.
    - Confirm the README starts from standalone scenario/problem/engineering
      zero/current version instead of source-project mapping.
    - Verify: another engineer can run and review the module without reopening
      the production draft.
-6. Check `src/` Architecture Fit
+7. Check `src/` Architecture Fit
    - Confirm the internal `src/` layout matches the planned style and the
      chain pressure.
    - Verify: chain-first modules are not over-layered, and DDD-inspired or
      ports/adapters modules name the business or boundary pressure that earns
      those directories.
-7. Check Deferred Constraints
+8. Check Deferred Constraints
    - Confirm production concerns are deferred unless they define the core.
    - Verify: included and deferred lists are concrete and non-overlapping.
-8. Check Version Checkpoint
+9. Check Version Checkpoint
    - Confirm asset line, version name, version role, and starts-from point are
      recorded in the module or build output.
    - Confirm the artifact contains exactly one asset checkpoint.
@@ -89,7 +102,7 @@ tutorial review, or writing map-back guidance.
      reusable, publishable, or map-back-ready.
    - Verify: tag recommendation has a concrete retrieval reason and does not
      replace the required commit.
-9. Check Nano Asset And From-Scratch Readiness
+10. Check Nano Asset And From-Scratch Readiness
    - Confirm the module is nameable as a `nano-*` or similar small complete
      asset, not merely a runnable demo.
    - Confirm another engineer could say, "Today I will teach you how to
@@ -99,7 +112,7 @@ tutorial review, or writing map-back guidance.
      tutorial exclusions.
    - Verify: the handoff points to `from-scratch-tutorial-plan` without asking
      this review to write the tutorial.
-10. Produce Verdict
+11. Produce Verdict
    - Use `pass`, `revise`, or `block`.
    - Lead with findings, then residual risks.
 
@@ -150,6 +163,8 @@ tutorial review, or writing map-back guidance.
 - reason:
 
 ## Verification Notes
+- Data-flow trace when applicable: caller input, handoff models or parameters,
+  invariant failure stop, side effects, and executed/static evidence.
 - ...
 ```
 
@@ -173,6 +188,11 @@ tutorial review, or writing map-back guidance.
 - No runnable happy path exists.
 - No boundary or failure check exists.
 - The module does not expose the chain steps.
+- The module names layers or classes without showing the values and state
+  changes crossing them.
+- Interface, persistence, and domain representations are mixed without a
+  stated contract reason.
+- A failure check does not show whether state or external output changed.
 - The `src/` architecture is generic, production-shaped, or over-layered for
   the chain.
 - The module copies broad production structure.
@@ -194,6 +214,9 @@ tutorial review, or writing map-back guidance.
 
 - [ ] Findings are ordered by severity.
 - [ ] Chain completeness was checked.
+- [ ] Applicable data-flow and boundary ownership were checked.
+- [ ] Failure stops and side effects were checked, with static and executed
+      evidence distinguished.
 - [ ] Happy-path and boundary/failure validation were checked.
 - [ ] Module directory shape and README were checked.
 - [ ] README standalone narrative was checked.
