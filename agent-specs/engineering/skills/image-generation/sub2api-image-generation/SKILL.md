@@ -1,6 +1,6 @@
 ---
 name: sub2api-image-generation
-description: "v0.1.1 - Generate and verify images through a configured Sub2API endpoint. Use when a Codex session needs a real image asset or UI reference generated through its current OpenAI-compatible proxy."
+description: "v0.1.3 - Generate and verify images through a configured Sub2API endpoint. Use when a Codex session needs a real image asset or UI reference generated through its current OpenAI-compatible proxy."
 ---
 
 # Sub2api Image Generation
@@ -34,8 +34,13 @@ OpenAI-compatible endpoint.
    `model_providers.<model_provider>.base_url`. Do not use `OPENAI_API_BASE`
    or the first `base_url` in the file. If the selected provider has no
    address or the configuration cannot be read, stop and report the error.
-2. Choose an image model supported by the configured account, normally
-   `gpt-image-2`. Preserve the user's prompt verbatim except for adding a
+2. Unless the user explicitly requests another model, use these default
+   candidates in order: `gpt-image-2.5-flare`, then `gpt-image-2.5-sunburst`.
+   Check availability before submitting a generation request and select the
+   first available candidate without asking the user to choose between them.
+   The helper defaults to `flare`; pass `--model gpt-image-2.5-sunburst` when
+   selecting `sunburst`. Submit only one generation request, not one per model.
+   Preserve the user's prompt verbatim except for adding a
    clearly requested format or size constraint. Use one image by default.
 3. Call the synchronous `/images/generations` endpoint with JSON. Use the
    bundled `scripts/generate_image.py` for deterministic request construction,
@@ -50,6 +55,18 @@ OpenAI-compatible endpoint.
 
 ## Decision Points
 
+- Before generation, confirm the requested model is available through
+  `/v1/models` or `/v1/models/{model}` on the selected provider. If the user
+  explicitly selected a model and it is unavailable, report the error and
+  stop; do not substitute another model. With no explicit selection, check
+  both default candidates and select the first available one. If neither is
+  available or the availability request fails, report the error and stop.
+  Once a generation request has been submitted, do not automatically switch
+  models or retry on an error or timeout.
+- Both default candidates returned HTTP 200 and readable PNGs in actual tests
+  on 2026-11-01. Availability must still be checked on each use. Both tests
+  requested `1024x1024` but returned `1254x1254`; inspect the actual image
+  dimensions rather than assuming the requested size was honored.
 - If `base_url` already ends in `/v1`, append `/images/generations`; otherwise
   normalize it before appending `/v1/images/generations`.
 - If the API returns `data[0].b64_json`, decode it locally. If it returns a
@@ -75,6 +92,7 @@ OpenAI-compatible endpoint.
 
 - The configured URL or token is printed in a command, log, or final response.
 - A request is retried automatically after a read timeout.
+- Both default models are called when the user requested only one image.
 - The result is reported as generated without a saved, validated file.
 - The skill changes Sub2API, Codex, account, group, or deployment settings.
 
@@ -84,6 +102,8 @@ OpenAI-compatible endpoint.
 - [ ] The address matches the selected Codex provider even when
       `OPENAI_API_BASE` points elsewhere.
 - [ ] The request used the intended model, prompt, and output path.
+- [ ] Default selection preferred `flare`, then `sunburst`, before submission;
+      an explicitly requested model was respected.
 - [ ] HTTP response was successful and contained image data.
 - [ ] Saved bytes have a recognized image signature and non-zero size.
 - [ ] Final response includes the absolute output path and no credential data.

@@ -1,3 +1,5 @@
+import base64
+import io
 import json
 import os
 import pathlib
@@ -5,7 +7,37 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from generate_image import load_config
+from generate_image import load_config, main
+
+
+class ModelSelectionTests(unittest.TestCase):
+    def test_default_and_explicit_models_are_sent_to_images_api(self):
+        image = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII="
+        )
+        for flags, expected in (
+            ([], "gpt-image-2.5-flare"),
+            (["--model", "gpt-image-2.5-sunburst"], "gpt-image-2.5-sunburst"),
+        ):
+            with self.subTest(model=expected), tempfile.TemporaryDirectory() as directory:
+                output = pathlib.Path(directory) / "result.png"
+                response = io.BytesIO(json.dumps({
+                    "data": [{"b64_json": base64.b64encode(image).decode()}]
+                }).encode())
+                response.status = 200
+                arguments = ["generate_image.py", "test image", "-o", str(output), *flags]
+                with (
+                    patch("sys.argv", arguments),
+                    patch("generate_image.load_config", return_value=("test-key", "https://provider.example/v1")),
+                    patch("generate_image.urllib.request.urlopen", return_value=response) as urlopen,
+                    patch("sys.stdout", new_callable=io.StringIO) as stdout,
+                ):
+                    self.assertEqual(main(), 0)
+                    urlopen.assert_called_once()
+                    request = urlopen.call_args.args[0]
+                    self.assertEqual(json.loads(request.data)["model"], expected)
+                    self.assertEqual(json.loads(stdout.getvalue())["model"], expected)
+                    self.assertEqual(output.read_bytes(), image)
 
 
 class LoadConfigTests(unittest.TestCase):

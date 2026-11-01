@@ -92,7 +92,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("prompt")
     parser.add_argument("-o", "--output", required=True, type=pathlib.Path)
-    parser.add_argument("-m", "--model", default="gpt-image-2")
+    parser.add_argument("-m", "--model", default="gpt-image-2.5-flare")
     parser.add_argument("--size", default="1024x1024")
     parser.add_argument("--quality", default="low")
     parser.add_argument("--response-format", choices=("b64_json", "url"), default="b64_json")

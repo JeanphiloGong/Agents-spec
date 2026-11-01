@@ -1,4 +1,4 @@
 interface:
   display_name: "Sub2API Image Generation"
-  short_description: "v0.1.1 - Generate images via Sub2API"
-  default_prompt: "Use $sub2api-image-generation to generate an image through the configured Sub2API endpoint and verify the saved output."
+  short_description: "v0.1.3 - Generate images via Sub2API"
+  default_prompt: "Use $sub2api-image-generation to generate one image through the configured Sub2API endpoint, prefer gpt-image-2.5-flare then gpt-image-2.5-sunburst after checking availability, and verify the saved output."
