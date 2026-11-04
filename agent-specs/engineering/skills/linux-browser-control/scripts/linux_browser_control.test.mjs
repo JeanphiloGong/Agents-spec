@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
-import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
@@ -17,7 +16,7 @@ import {
   validateProfile,
 } from "./registry.mjs";
 import { acquireLease, listLeases, releaseLease } from "./lease.mjs";
-import { connectLinuxBrowser, pagesForReport } from "./connect_browser.mjs";
+import { connectLinuxBrowser } from "./connect_browser.mjs";
 
 function fixture(t) {
   const directory = mkdtempSync(join(tmpdir(), "linux-browser-control-"));
@@ -202,209 +201,235 @@ for (const [scenario, overrides] of [
 
 async function connectionFixture(t) {
   const options = fixture(t);
-  let discoveries = 0;
+  const targets = new Set(["existing-tab", "other-tab"]);
+  const calls = [];
+  let socket;
+  let failClose = false;
   const server = createServer((request, response) => {
-    discoveries++;
+    assert.equal(request.url, "/json/version");
     response.setHeader("Content-Type", "application/json");
     response.end(JSON.stringify({
       Browser: "Chrome/test", "Protocol-Version": "1.3",
-      webSocketDebuggerUrl: `ws://localhost:${server.address().port}/devtools/browser/browser-${discoveries}`,
+      webSocketDebuggerUrl: `ws://localhost:${server.address().port}/devtools/browser/browser-1`,
     }));
   });
   await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
-  t.after(() => server.close());
+  t.after(() => { server.close(); server.closeAllConnections(); });
   const endpoint = `http://127.0.0.1:${server.address().port}`;
   const registry = readRegistry(options.registryPath);
   registry.profiles[0].cdp_endpoint = endpoint;
   writeFileSync(options.registryPath, JSON.stringify(registry));
-  const packagePath = join(options.directory, "package.json");
-  const modulePath = join(options.directory, "node_modules", "playwright");
-  mkdirSync(modulePath, { recursive: true });
-  writeFileSync(join(modulePath, "index.js"), "module.exports = {};\n");
-  const playwright = createRequire(packagePath)("playwright");
-  const pageEvents = new Map();
-  const page = {
-    targetId: "new-tab",
-    isClosed: () => false,
-    close: t.mock.fn(async () => {}),
-    goto: async () => {},
-    once: (event, handler) => pageEvents.set(event, handler),
-  };
-  const existing = { ...page, targetId: "existing-tab", close: t.mock.fn(async () => {}) };
-  const disconnect = t.mock.fn(async () => {});
-  const browserEvents = new Map();
-  const pages = [existing];
-  const targetSession = {
-    send: t.mock.fn(async (method, params) => {
-      if (method === "Target.closeTarget") {
-        assert.deepEqual(params, { targetId: "new-tab" });
-        return { success: true };
+  class CdpSocket extends EventTarget {
+    constructor(url) {
+      super();
+      assert.equal(url, `${endpoint.replace("http:", "ws:")}/devtools/browser/browser-1`);
+      socket = this;
+      queueMicrotask(() => this.dispatchEvent(new Event("open")));
+    }
+    send(raw) {
+      const { id, method, params } = JSON.parse(raw);
+      calls.push({ method, params });
+      let result = {};
+      let error;
+      if (method === "Target.getTargets") result = { targetInfos: [...targets].map(targetId => ({ targetId, type: "page", url: "about:blank" })) };
+      if (method === "Target.createTarget") {
+        assert.deepEqual(params, { url: "about:blank", background: true, newWindow: false });
+        targets.add("new-tab"); result = { targetId: "new-tab" };
       }
-      assert.equal(method, "Target.createTarget");
-      assert.deepEqual(params, { url: "about:blank", background: true, newWindow: false });
-      pages.push(page);
-      return { targetId: "new-tab" };
-    }),
-    detach: t.mock.fn(async () => {}),
-  };
-  const context = {
-    pages: () => [...pages],
-    newCDPSession: async candidate => ({
-      send: async () => ({ targetInfo: { targetId: candidate.targetId } }),
-      detach: async () => {},
-    }),
-  };
-  const browser = {
-    contexts: () => [context],
-    newBrowserCDPSession: async () => targetSession,
-    once: (event, handler) => browserEvents.set(event, handler),
-    close: disconnect,
-  };
-  playwright.chromium = { connectOverCDP: async socket => {
-    assert.equal(socket, `${endpoint.replace("http:", "ws:")}/devtools/browser/browser-1`);
-    return browser;
-  } };
+      if (method === "Target.closeTarget") {
+        if (failClose) error = { message: "close failed" };
+        else targets.delete(params.targetId);
+      }
+      queueMicrotask(() => this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify({ id, result, ...(error ? { error } : {}) }) })));
+    }
+    close() { this.dispatchEvent(new Event("close")); }
+  }
+  const originalSocket = globalThis.WebSocket;
+  globalThis.WebSocket = CdpSocket;
+  t.after(() => { globalThis.WebSocket = originalSocket; });
+  const executablePath = join(options.directory, "agent-browser");
+  const logPath = join(options.directory, "commands.jsonl");
+  writeFileSync(executablePath, `#!/usr/bin/env node
+const fs = require('node:fs');
+const args = process.argv.slice(2);
+if (args[0] === '--version') { console.log('agent-browser 0.41.2'); process.exit(0); }
+const commands = args.slice(args.indexOf('--json')+1);
+fs.appendFileSync(${JSON.stringify(logPath)},JSON.stringify({args,envKeys:Object.keys(process.env).filter(k=>k.startsWith('AGENT_BROWSER_'))})+'\\n');
+const session = args[args.indexOf('--session')+1];
+const binding = JSON.parse(fs.readFileSync(process.env.AGENT_BROWSER_SOCKET_DIR+'/'+session+'.target','utf8'));
+const fail = commands.includes('fail') || commands.includes('https://fail.test');
+console.log(JSON.stringify(fail ? {success:false,error:'navigation failed'} : {success:true,data:{result:binding.targetId,snapshot:'owned page only'}}));
+process.exitCode = fail ? 1 : 0;
+`, { mode: 0o700 });
   return {
-    page,
-    existing,
-    context,
-    pages,
-    targetSession,
-    disconnect,
-    closePage: () => pageEvents.get("close")?.(),
-    disconnectBrowser: () => browserEvents.get("disconnected")?.(),
+    targets, calls, logPath,
+    commands: () => readFileSync(logPath, "utf8").trim().split("\n").map(JSON.parse),
+    closePage: () => {
+      targets.delete("new-tab");
+      socket.dispatchEvent(new MessageEvent("message", { data: JSON.stringify({ method: "Target.targetDestroyed", params: { targetId: "new-tab" } }) }));
+    },
+    disconnectBrowser: () => socket.close(),
+    failClose: () => { failClose = true; },
     connectionOptions: {
-      name: "design",
-      owner: "agent-a",
-      task: "connection-check",
-      registryPath: options.registryPath,
-      packagePath,
-      leaseDirectory: join(options.directory, "leases"),
+      name: "design", owner: "agent-a", task: "connection-check", registryPath: options.registryPath,
+      executablePath, runtimeRoot: join(options.directory, "runtime"), leaseDirectory: join(options.directory, "leases"),
     },
   };
 }
 
-for (const targetId of [undefined, "existing-tab"]) {
-  for (const failure of ["already closed", "stale GUID", "closed during lookup"]) {
-    test(`target lookup skips an unrelated ${failure} candidate for ${targetId ?? "a new tab"}`, async (t) => {
-      const { page, existing, context, pages, connectionOptions } = await connectionFixture(t);
-      let closed = failure === "already closed";
-      const stale = { isClosed: () => closed };
-      pages.unshift(stale);
-      const newCDPSession = context.newCDPSession;
-      const detach = t.mock.fn(async () => {});
-      context.newCDPSession = async candidate => {
-        if (candidate !== stale) return newCDPSession(candidate);
-        assert.notEqual(failure, "already closed", "closed pages must not receive CDP calls");
-        if (failure === "stale GUID")
-          throw new Error("browserContext.newCDPSession: page: no object with guid page@stale-candidate");
-        return {
-          send: async () => {
-            closed = true;
-            throw new Error("cdpSession.send: Target page, context or browser has been closed");
-          },
-          detach,
-        };
-      };
-      const connection = await connectLinuxBrowser({ ...connectionOptions, targetId });
-      assert.equal(connection.page, targetId ? existing : page);
-      assert.equal(connection.targetId, targetId ?? "new-tab");
-      connection.lease.assertOwned();
-      if (failure === "closed during lookup") assert.equal(detach.mock.callCount(), 1);
-      await connection.close();
-      assert.deepEqual(listLeases(connectionOptions.leaseDirectory), []);
-    });
-  }
-}
-
-test("a missing requested target still fails closed after a stale candidate", async (t) => {
-  const { context, pages, disconnect, connectionOptions } = await connectionFixture(t);
-  const stale = { isClosed: () => false };
-  pages.unshift(stale);
-  const newCDPSession = context.newCDPSession;
-  context.newCDPSession = async candidate => {
-    if (candidate !== stale) return newCDPSession(candidate);
-    throw new Error("browserContext.newCDPSession: page: no object with guid page@missing-target");
-  };
-  await assert.rejects(
-    connectLinuxBrowser({ ...connectionOptions, targetId: "missing-tab" }),
-    /target is not an open page: missing-tab/,
-  );
-  assert.equal(disconnect.mock.callCount(), 1);
-  assert.deepEqual(listLeases(connectionOptions.leaseDirectory), []);
+test("native connection binds its background page and exposes no Playwright objects", async (t) => {
+  const f = await connectionFixture(t);
+  const connection = await connectLinuxBrowser(f.connectionOptions);
+  try {
+    assert.equal(connection.page, undefined);
+    assert.equal(connection.browser, undefined);
+    assert.equal(connection.targetId, "new-tab");
+    assert.equal((await connection.command(["eval", "document.title"])).result, "new-tab");
+    assert.ok(f.commands()[0].args.includes("--pin-tab"));
+    assert.ok(f.commands().every(c => !c.envKeys.includes("AGENT_BROWSER_RESTORE")));
+  } finally { await connection.close(); }
+  assert.deepEqual([...f.targets], ["existing-tab", "other-tab"]);
+  assert.deepEqual(listLeases(f.connectionOptions.leaseDirectory), []);
+  assert.deepEqual(readdirSync(f.connectionOptions.runtimeRoot), []);
 });
 
-for (const failure of ["unexpected transport failure", "cdpSession.send: Target page, context or browser has been closed"]) {
-  test(`target lookup propagates ${failure} for a candidate not known to be closed`, async (t) => {
-    const { context, targetSession, disconnect, connectionOptions } = await connectionFixture(t);
-    const error = new Error(failure);
-    context.newCDPSession = async () => { throw error; };
-    await assert.rejects(connectLinuxBrowser(connectionOptions), actual => actual === error);
-    assert.ok(targetSession.send.mock.calls.some(call => call.arguments[0] === "Target.closeTarget"));
-    assert.equal(disconnect.mock.callCount(), 1);
-    assert.deepEqual(listLeases(connectionOptions.leaseDirectory), []);
-  });
-}
-
-test("navigation starts with a bound target and failure closes only the new page", async (t) => {
-  const { page, existing, disconnect, connectionOptions } = await connectionFixture(t);
-  page.goto = async () => {
-    const [lease] = listLeases(connectionOptions.leaseDirectory);
-    assert.equal(lease.targetId, "new-tab");
-    assert.equal(lease.browserId, "browser-1");
-    throw new Error("navigation failed");
-  };
-  await assert.rejects(connectLinuxBrowser({ ...connectionOptions, startUrl: "https://example.test" }), /navigation failed/);
-  assert.equal(page.close.mock.callCount(), 1);
-  assert.equal(existing.close.mock.callCount(), 0);
-  assert.equal(disconnect.mock.callCount(), 1);
-  assert.deepEqual(listLeases(connectionOptions.leaseDirectory), []);
-});
-
-test("page close failure still disconnects and releases ownership", async (t) => {
-  const { page, disconnect, connectionOptions } = await connectionFixture(t);
-  page.close = async () => { throw new Error("page close failed"); };
-  const connection = await connectLinuxBrowser(connectionOptions);
-  await assert.rejects(connection.close(), /page close failed/);
+test("existing targets remain open after native disconnect", async (t) => {
+  const f = await connectionFixture(t);
+  const connection = await connectLinuxBrowser({ ...f.connectionOptions, targetId: "existing-tab" });
+  assert.equal((await connection.command(["snapshot"])).result, "existing-tab");
   await connection.close();
-  assert.equal(disconnect.mock.callCount(), 1);
-  assert.deepEqual(listLeases(connectionOptions.leaseDirectory), []);
+  assert.deepEqual([...f.targets], ["existing-tab", "other-tab"]);
+  assert.ok(!f.calls.some(c => c.method === "Target.createTarget" || c.method === "Target.closeTarget"));
 });
 
-test("closing a selected existing target keeps the page open", async (t) => {
-  const { page, existing, disconnect, connectionOptions } = await connectionFixture(t);
-  const connection = await connectLinuxBrowser({ ...connectionOptions, targetId: "existing-tab" });
-  assert.equal(connection.page, existing);
+test("missing target fails before the native controller starts", async (t) => {
+  const f = await connectionFixture(t);
+  await assert.rejects(connectLinuxBrowser({ ...f.connectionOptions, targetId: "missing-tab" }), /not an open page/);
+  assert.deepEqual(listLeases(f.connectionOptions.leaseDirectory), []);
+  assert.deepEqual(readdirSync(f.connectionOptions.runtimeRoot), []);
+});
+
+test("navigation failure removes its new page and releases ownership", async (t) => {
+  const f = await connectionFixture(t);
+  await assert.rejects(connectLinuxBrowser({ ...f.connectionOptions, startUrl: "https://fail.test" }), /navigation failed/);
+  assert.deepEqual([...f.targets], ["existing-tab", "other-tab"]);
+  assert.deepEqual(listLeases(f.connectionOptions.leaseDirectory), []);
+  assert.ok(f.commands().some(c => c.args.at(-1) === "close"));
+});
+
+test("failed page closure still stops native session and releases lease", async (t) => {
+  const f = await connectionFixture(t);
+  const connection = await connectLinuxBrowser(f.connectionOptions);
+  f.failClose();
+  await assert.rejects(connection.close(), /close failed/);
+  assert.deepEqual(listLeases(f.connectionOptions.leaseDirectory), []);
+  assert.ok(f.commands().some(c => c.args.at(-1) === "close"));
+});
+
+test("a vanished page stops later commands without selecting a sibling", async (t) => {
+  const f = await connectionFixture(t);
+  const connection = await connectLinuxBrowser(f.connectionOptions);
+  f.closePage();
+  assert.equal(listLeases(f.connectionOptions.leaseDirectory)[0].status, "target_gone");
+  const before = f.commands().length;
+  await assert.rejects(connection.command(["eval", "document.title"]), /target is gone/);
+  assert.equal(f.commands().length, before);
   await connection.close();
-  assert.equal(page.close.mock.callCount(), 0);
-  assert.equal(existing.close.mock.callCount(), 0);
-  assert.equal(disconnect.mock.callCount(), 1);
-  assert.deepEqual(listLeases(connectionOptions.leaseDirectory), []);
 });
 
-test("a closed page marks its lease target_gone and fails closed", async (t) => {
-  const { closePage, connectionOptions } = await connectionFixture(t);
-  const connection = await connectLinuxBrowser(connectionOptions);
-  closePage();
-  assert.equal(listLeases(connectionOptions.leaseDirectory)[0].status, "target_gone");
-  assert.throws(() => connection.lease.assertOwned(), /target is gone/);
+test("browser disconnection invalidates the lease and refuses more input", async (t) => {
+  const f = await connectionFixture(t);
+  const connection = await connectLinuxBrowser(f.connectionOptions);
+  f.disconnectBrowser();
+  assert.throws(connection.lease.assertOwned, /target is gone/);
+  await assert.rejects(connection.command(["snapshot"]), /target is gone/);
   await connection.close();
-  assert.deepEqual(listLeases(connectionOptions.leaseDirectory), []);
+  assert.deepEqual(listLeases(f.connectionOptions.leaseDirectory), []);
 });
 
-test("a browser disconnect invalidates and releases its tab lease", async (t) => {
-  const { disconnectBrowser, connectionOptions } = await connectionFixture(t);
-  const connection = await connectLinuxBrowser(connectionOptions);
-  disconnectBrowser();
-  assert.throws(() => connection.lease.assertOwned(), /target is gone/);
-  assert.deepEqual(listLeases(connectionOptions.leaseDirectory), []);
+test("command surface refuses foreground input, tab switching and connection overrides", async (t) => {
+  const f = await connectionFixture(t);
+  const connection = await connectLinuxBrowser(f.connectionOptions);
+  try {
+    for (const args of [["click", "#apply"], ["tab", "other-tab"], ["press", "Enter"], ["open"], ["--session", "other", "snapshot"], ["snapshot", "--cdp", "9999"], ["cookies"], ["snapshot", "--session-name", "capture"], ["snapshot", "--auto-connect"]]) {
+      await assert.rejects(connection.command(args), /unsupported|reserved|URL/);
+    }
+  } finally { await connection.close(); }
 });
 
-test("tab reports contain only the owned page", () => {
-  const owned = { targetId: "owned" };
-  const other = { targetId: "other" };
-  assert.deepEqual(pagesForReport("tab", [{ pages: () => [owned, other] }], owned), [owned]);
-  assert.deepEqual(pagesForReport("browser", [{ pages: () => [owned, other] }], owned), [owned, other]);
+test("released ownership stops native commands", async (t) => {
+  const f = await connectionFixture(t);
+  const connection = await connectLinuxBrowser(f.connectionOptions);
+  connection.lease.release();
+  await assert.rejects(connection.command(["snapshot"]), /released/);
+  await connection.close();
+});
+
+test("retained-page cleanup closes only the explicitly leased target", async (t) => {
+  const f = await connectionFixture(t);
+  const connection = await connectLinuxBrowser({ ...f.connectionOptions, targetId: "existing-tab" });
+  try { await connection.closeTarget(); }
+  finally { await connection.close(); }
+  assert.deepEqual([...f.targets], ["other-tab"]);
+  assert.deepEqual(listLeases(f.connectionOptions.leaseDirectory), []);
+});
+
+test("the native version must match before a target is allocated", async (t) => {
+  const f = await connectionFixture(t);
+  const path = f.connectionOptions.executablePath;
+  writeFileSync(path, readFileSync(path, "utf8").replace("agent-browser 0.41.2", "agent-browser 0.0.0"));
+  await assert.rejects(connectLinuxBrowser(f.connectionOptions), /0.41.2 is required/);
+  assert.ok(!f.calls.some(c => c.method === "Target.createTarget"));
+  assert.deepEqual(listLeases(f.connectionOptions.leaseDirectory), []);
+});
+
+test("native shutdown failure is reported and its diagnostic directory remains", async (t) => {
+  const f = await connectionFixture(t);
+  const connection = await connectLinuxBrowser(f.connectionOptions);
+  const path = f.connectionOptions.executablePath;
+  writeFileSync(path, readFileSync(path, "utf8").replace("commands.includes('fail')", "commands.includes('close')"));
+  await assert.rejects(connection.close(), /navigation failed/);
+  assert.deepEqual([...f.targets], ["existing-tab", "other-tab"]);
+  assert.deepEqual(listLeases(f.connectionOptions.leaseDirectory), []);
+  assert.equal(readdirSync(f.connectionOptions.runtimeRoot).length, 1);
+});
+
+test("browser-scope native work keeps all tab owners excluded", async (t) => {
+  const f = await connectionFixture(t);
+  const connection = await connectLinuxBrowser({ ...f.connectionOptions, scope: "browser" });
+  try {
+    assert.throws(() => acquireLease({ endpoint: connection.profile.cdp_endpoint, instance: "design", owner: "agent-b", task: "competing-tab",
+      scope: "tab", browserId: "browser-1", targetId: "other-tab", directory: f.connectionOptions.leaseDirectory }), /occupied/);
+    await connection.command(["open", "chrome://settings/performance"]);
+  } finally { await connection.close(); }
+  assert.deepEqual([...f.targets], ["existing-tab", "other-tab"]);
+});
+
+test("failed native bootstrap closes the allocated target and releases its lease", async (t) => {
+  const f = await connectionFixture(t);
+  const path = f.connectionOptions.executablePath;
+  writeFileSync(path, readFileSync(path, "utf8").replace("commands.includes('fail')", "commands.includes('--cdp')"));
+  await assert.rejects(connectLinuxBrowser(f.connectionOptions), /navigation failed/);
+  assert.deepEqual([...f.targets], ["existing-tab", "other-tab"]);
+  assert.deepEqual(listLeases(f.connectionOptions.leaseDirectory), []);
+  assert.deepEqual(readdirSync(f.connectionOptions.runtimeRoot), []);
+});
+
+test("an occupied target fails before starting another native controller", async (t) => {
+  const f = await connectionFixture(t);
+  const connection = await connectLinuxBrowser({ ...f.connectionOptions, targetId: "existing-tab" });
+  try {
+    const count = f.commands().length;
+    await assert.rejects(connectLinuxBrowser({ ...f.connectionOptions, owner: "agent-b", targetId: "existing-tab" }), /occupied/);
+    assert.equal(f.commands().length, count);
+  } finally { await connection.close(); }
+});
+
+test("legacy Playwright callers fail before opening a native session", async (t) => {
+  const f = await connectionFixture(t);
+  await assert.rejects(connectLinuxBrowser({ ...f.connectionOptions, packagePath: "/old/package.json" }), /packagePath was removed/);
+  assert.deepEqual(f.calls, []);
+  assert.deepEqual(listLeases(f.connectionOptions.leaseDirectory), []);
 });
 
 test("discovery joins live targets with owners and reports leased tabs that disappeared", async (t) => {

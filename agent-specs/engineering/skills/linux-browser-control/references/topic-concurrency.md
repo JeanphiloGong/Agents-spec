@@ -53,7 +53,8 @@ const submission = acquireLease({
 try {
   connection.lease.assertOwned();
   submission.assertOwned();
-  // Submit through connection.page and verify the visible result.
+  // Submit through connection.command(["eval", controllerAuthoredScript]);
+  // wait for and verify the visible result before releasing this resource.
 } finally {
   submission.release();
 }

@@ -1,4 +1,4 @@
 interface:
   display_name: "Linux Browser Control"
-  short_description: "v0.1.5 - Lease topic tabs and keep account actions exclusive"
-  default_prompt: "Use $linux-browser-control to coordinate user-defined topics, lease each topic's working tab, keep account submissions exclusive, distinguish topic allowance from platform preflight slots, preserve desktop focus, and clean up completed task pages and connections while preserving user pages and unfinished work."
+  short_description: "v0.1.6 - Native browser control with tab leases and cleanup"
+  default_prompt: "Use $linux-browser-control to operate a registered visible Linux Chrome through pinned native agent-browser commands, lease each task target and shared resource, preserve desktop focus with verified DOM actions, and close completed temporary pages and native sessions while preserving user pages and unfinished work."

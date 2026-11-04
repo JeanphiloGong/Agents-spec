@@ -16,12 +16,12 @@
    before normal cleanup. On a temporary page, save the result before calling
    `close()`; do not promise that disconnecting will preserve that page.
 4. Always use `try/finally` around a connection. After task completion, call
-   `connection.close()` promptly rather than leaving a connected Node or REPL
-   session idle. Keep the connection and lease only while work is still in
+   `connection.close()` promptly rather than leaving a connected Node
+   coordinator or native daemon idle. Keep the connection and lease only while work is still in
    progress, including an observed wait for generation to finish.
 5. Check a fresh tab inventory and lease status after closing. Confirm the
-   temporary target and its lease are gone; an existing retained target should
-   still be present without this task's lease. Report failures or uncertain
+   temporary target, native session directory and its lease are gone; an
+   existing retained target should still be present without this task's lease. Report failures or uncertain
    cleanup rather than claiming success. Closing the last tab may stop Chrome;
    report that result without relaunching it or deleting its persistent profile.
 
@@ -45,14 +45,21 @@ unclaimed tabs.
 3. Skip targets with active, unresponsive, unknown, or unresolved leases. Do
    not release or reclaim another controller's lease to enable cleanup.
 4. For each approved unclaimed target, acquire its tab lease, assert ownership,
-   and recheck identity and task state before `page.close()`. If a competing
-   claim wins, skip the target. Always call `connection.close()` in `finally`
-   to disconnect and release the cleanup lease. Do not take a browser-wide
-   lease merely to bypass occupied tabs.
+   and recheck identity and task state before `connection.closeTarget()`.
+   If a competing claim wins, skip the target. Always call `connection.close()` in `finally`
+   to stop its native daemon, disconnect and release the cleanup lease. Do not
+   take a browser-wide lease merely to bypass occupied tabs.
 5. Preserve the final tab during retained-page cleanup unless browser exit is
    already within the user's requested scope. Verify target removal, remaining
    pages, lease release, and desktop focus; report closed and retained targets
    using sanitized inventory metadata.
+
+Native `close` alone disconnects from an external Chrome without closing its
+page. Always call the skill connection's `close()`, which also removes a
+self-created temporary page. A crash or SIGKILL can leave a daemon/page; inspect
+the exact session directory and owner before cleanup. Failed shutdown retains
+its private diagnostic directory and is reported as an error. Do not sweep
+other task directories or infer inactivity from heartbeat age.
 
 ## Memory Saver and Idle Timeouts
 
@@ -62,8 +69,8 @@ the tab available; it does not close it. Recommend the Balanced setting at
 `chrome://settings/performance` as a starting point. Change browser settings
 only within the requested scope and with a browser-wide lease.
 
-Drafts, media, downloads, and other activity can prevent deactivation. Debugger
-connections can also affect eligibility; verify behavior in the actual CDP
+Drafts, media, downloads, and other activity can prevent deactivation.
+Native and CDP connections can also affect eligibility; verify behavior in the actual CDP
 session rather than promising that enabling Memory Saver releases memory.
 Disconnect completed tasks promptly.
 
