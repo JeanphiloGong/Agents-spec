@@ -1,6 +1,6 @@
 ---
 name: linux-browser-control
-description: "v0.1.6 - Control visible Linux Chrome through pinned native agent-browser sessions with per-tab leases, topic coordination, focus-preserving DOM operations, and task cleanup. Use when reusing a signed-in Linux browser, coordinating tasks on different pages, checking ownership or vanished targets, or cleaning up completed browser work."
+description: "v0.1.7 - Control visible Linux Chrome through pinned native agent-browser sessions with per-tab leases, topic coordination, focus-preserving DOM operations, and task cleanup. Use when reusing a signed-in Linux browser, coordinating tasks on different pages, checking ownership or vanished targets, or cleaning up completed browser work."
 ---
 
 # Linux Browser Control
@@ -73,8 +73,15 @@ registry, lease or session metadata.
    and endpoint rather than inventing a replacement.
 4. Install the fixed native binary if missing. Then call `connectLinuxBrowser`
    with owner, task, resources and optionally an observed `targetId`. Without
-   a target it creates and leases a background temporary page. Existing
-   targets must be observed page targets, not arbitrary lock names.
+   a target it creates and leases a background temporary page in an existing
+   window by default. The imported API accepts `newWindow: true` to request a
+   separate window for a new temporary page; it cannot be combined with
+   `targetId`. This option is not exposed by the CLI. A separate window may
+   cover other windows or change focus despite `background: true`: monitor
+   desktop focus and stacking during creation and each exercised action as
+   described in the focus reference, and stop on an unexpected transition.
+   It does not guarantee rendering or bypass native action limitations.
+   Existing targets must be observed page targets, not arbitrary lock names.
 5. Keep the returned connection alive throughout the task. Use only
    `connection.command(args)` for page operations; it asserts ownership,
    checks target presence and invokes the pinned native session. A browser
@@ -96,7 +103,31 @@ registry, lease or session metadata.
    In `finally`, call `connection.close()`: stop the native session, verify
    removal of a self-created target, disconnect CDP, release ownership and
    remove successfully closed session metadata. An explicitly selected target
-   stays open. Report shutdown errors and retained diagnostic paths.
+   stays open. If shutdown or temporary-target removal cannot be confirmed,
+   `close()` reports the lease run ID, target and diagnostic paths and retains
+   ownership without further heartbeats or automatic release on process exit.
+   To hand a newly created, still visible and unchanged `about:blank` page to
+   another stage, a browser-scope connection that has not executed any page
+   command may explicitly call `close({ retainTarget: true })`. It checks the
+   exact target and blank document, stops native and releases the lease without
+   closing the page. A failed check or shutdown does not request target closure
+   and retains the lease for investigation; do not retry or assume the page is
+   still present or safe to claim. Another controller must observe and lease
+   the target explicitly. This check is a point-in-time observation, not a lock
+   against other browser or raw CDP actors, whose prior changes to JavaScript
+   state or event listeners cannot be detected; coordinate them separately.
+   `closeTarget()` is rejected while closing; if its request is already in
+   flight, shutdown retains ownership because the target state is uncertain.
+   Repeated `close()` calls return the same failure; do not treat expiry as
+   permission to take over.
+   Confirm the exact owner has stopped, inspect its reported session directory
+   and PID, stop only that session's remaining native process if needed, and
+   independently verify the reported target's state. Preserve unfinished work.
+   After cleanup is confirmed, inspect `node scripts/lease.mjs --status` and
+   release that exact run ID with `node scripts/lease.mjs --release RUN_ID
+   --confirm-owner-stopped` (add `--directory DIR` for a custom lease directory).
+   Releasing a lease does not stop a process or close a page; retain diagnostic
+   files until their investigation is complete.
 10. Verify a fresh inventory and lease list. Report temporary pages removed,
     retained pages and reasons, native shutdown, CDP/lease release and focus
     verification. Closing the last page may exit Chrome; do not relaunch it
@@ -230,13 +261,15 @@ cleanup of a selected retained page without exposing other tabs.
 
 ## Verification
 
-- [ ] SKILL.md and agents/openai.yaml match v0.1.6 and native runtime scope.
+- [ ] SKILL.md and agents/openai.yaml match v0.1.7 and native runtime scope.
 - [ ] Installed binary is the fixed official version and checksum.
 - [ ] Registry inspection validates exact loopback discovery and strips query/fragment.
 - [ ] Existing separate-process tests enforce target/browser/resource exclusivity.
-- [ ] Native lifecycle tests prove background target binding, no page API,
-      version rejection, missing target handling and failure cleanup.
+- [ ] Native lifecycle tests prove default and opt-in background target creation,
+      conflicting target rejection, no page API, version rejection, missing
+      target handling and failure cleanup.
 - [ ] Target destruction/disconnection fails ownership; no sibling is adopted.
+- [ ] Explicit blank-page handoff preserves only a verified self-created browser-scope page and releases its lease; failed handoffs retain ownership.
 - [ ] close() removes temporary pages and sessions; selected pages remain unless
       closeTarget() was explicitly used; cleanup failure is surfaced.
 - [ ] Live snapshot/DOM input/wait/verification succeeds on the owned page.

@@ -138,6 +138,11 @@ export function acquireLease({
       rmSync(path, { recursive: true, force: true });
     }
   };
+  const retain = () => {
+    clearInterval(timer);
+    process.off("exit", release);
+    ownershipError = new Error("browser lease retained for cleanup; stop this controller");
+  };
   const assertOwned = () => {
     if (ownershipError) throw ownershipError;
     if (released) throw new Error("browser lease was released; stop this controller");
@@ -226,7 +231,7 @@ export function acquireLease({
       claims.push(resource);
       heartbeat(false);
     };
-    return { runId, assertOwned, claimTab, markTargetGone, release };
+    return { runId, assertOwned, claimTab, markTargetGone, retain, release };
   } catch (error) {
     release();
     throw error;

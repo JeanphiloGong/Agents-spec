@@ -58,13 +58,14 @@ export async function connectLinuxBrowser(options) {
   if (Object.hasOwn(options, "packagePath"))
     throw new Error("packagePath was removed; use connection.command(args) instead of Playwright page/browser objects");
   const {
-    name, purpose, owner, task, scope = "tab", targetId, startUrl, resources = [],
+    name, purpose, owner, task, scope = "tab", targetId, startUrl, newWindow = false, resources = [],
     registryPath = defaultRegistryPath, leaseDirectory = defaultLeaseDirectory,
     executablePath = agentBrowserPath,
     runtimeRoot = join(process.env.XDG_STATE_HOME || join(homedir(), ".local", "state"), "linux-browser-control", "sessions"),
   } = options;
   assertLinux();
   if (scope === "browser" && targetId != null) throw new Error("browser leases cannot select a target");
+  if (newWindow === true && targetId != null) throw new Error("newWindow cannot be combined with targetId");
   const profile = selectProfile({ registryPath, name, purpose });
   const version = await readCdpVersion(profile.cdp_endpoint);
   const lease = acquireLease({ endpoint: profile.cdp_endpoint, instance: profile.name, owner, task, scope,
@@ -97,11 +98,31 @@ export async function connectLinuxBrowser(options) {
     }
     return result.data;
   };
-  const close = () => {
+  let commandsInFlight = 0;
+  let targetCloseInFlight = false;
+  let pageCommandUsed = false;
+  const handoffCheck = Symbol("handoff check");
+  const close = ({ retainTarget = false } = {}) => {
     if (closing) return closing;
+    const retainRequested = retainTarget !== false;
+    const targetClosing = targetCloseInFlight;
     closing = (async () => {
       const errors = [];
       try {
+        if (targetClosing) errors.push(new Error("closeTarget is in flight; cannot confirm target state"));
+        if (retainRequested && !errors.length) {
+          try {
+            if (retainTarget !== true) throw new Error("handoff requires retainTarget: true");
+            if (commandsInFlight) throw new Error("handoff requires all page commands to finish");
+            if (pageCommandUsed) throw new Error("handoff requires no prior page command");
+            if (!createdTarget || scope !== "browser") throw new Error("handoff requires a self-created page and browser scope");
+            const { result } = await command(["eval", `location.href === "about:blank" && document.visibilityState === "visible" && document.doctype === null && document.documentElement.outerHTML === "<html><head></head><body></body></html>"`], handoffCheck);
+            if (result !== true) throw new Error("handoff requires a visible unchanged blank document");
+            const { targetInfos } = await cdp.send("Target.getTargets");
+            if (!targetInfos.some(target => target.targetId === boundTargetId && target.type === "page" && target.url === "about:blank"))
+              throw new Error("handoff requires the exact about:blank target");
+          } catch (error) { errors.push(error); }
+        }
         if (nativeStarted) {
           try {
             await invoke(["close"]);
@@ -112,8 +133,17 @@ export async function connectLinuxBrowser(options) {
             }
           } catch (error) { errors.push(error); }
         }
-        if (createdTarget && !disconnected) {
+        if (retainRequested && !errors.length) {
           try {
+            lease.assertOwned();
+            const { targetInfos } = await cdp.send("Target.getTargets");
+            if (!targetInfos.some(target => target.targetId === boundTargetId && target.type === "page" && target.url === "about:blank"))
+              throw new Error("handoff target changed during native shutdown");
+          } catch (error) { errors.push(error); }
+        }
+        if (createdTarget && !retainRequested && !targetClosing) {
+          try {
+            if (disconnected) throw new Error(`cannot confirm temporary target closed: ${boundTargetId} (browser disconnected)`);
             const { targetInfos } = await cdp.send("Target.getTargets");
             if (targetInfos.some(target => target.targetId === boundTargetId)) {
               await cdp.send("Target.closeTarget", { targetId: boundTargetId });
@@ -128,16 +158,17 @@ export async function connectLinuxBrowser(options) {
           } catch (error) { errors.push(error); }
         }
       } finally {
-        cdp?.close();
-        lease.release();
+        try { cdp?.close(); } catch (error) { errors.push(error); }
+        if (errors.length) lease.retain();
+        else lease.release();
         // Preserve native runtime diagnostics when shutdown could not be confirmed.
         if (sessionDirectory && !errors.length) rmSync(sessionDirectory, { recursive: true, force: true });
       }
-      if (errors.length) throw new AggregateError(errors, errors.map(error => error.message).join("; "));
+      if (errors.length) throw new AggregateError(errors, `${errors.map(error => error.message).join("; ")}; lease retained: ${lease.runId}; target: ${boundTargetId ?? "none"}; session: ${sessionDirectory ?? "none"}; lease directory: ${leaseDirectory}`);
     })();
     return closing;
   };
-  const command = async args => {
+  const command = async (args, internal) => {
     lease.assertOwned();
     if (closing) throw new Error("browser connection is closing");
     // These operations stay on the bound target; global flags could replace that binding.
@@ -154,13 +185,19 @@ export async function connectLinuxBrowser(options) {
     if (args[0] === "open" && (!args[1] || !(/^(https?:\/\/|about:blank$)/.test(args[1]) ||
       (scope === "browser" && /^chrome:\/\/settings(?:\/|$)/.test(args[1])))))
       throw new Error("open requires an explicit HTTP(S) URL or about:blank");
-    const { targetInfos } = await cdp.send("Target.getTargets");
-    if (!targetInfos.some(target => target.targetId === boundTargetId && target.type === "page")) {
-      lease.markTargetGone(); lease.assertOwned();
-    }
-    const result = await invoke(args);
-    lease.assertOwned();
-    return result;
+    if (internal !== handoffCheck) pageCommandUsed = true;
+    commandsInFlight++;
+    try {
+      const { targetInfos } = await cdp.send("Target.getTargets");
+      if (!targetInfos.some(target => target.targetId === boundTargetId && target.type === "page")) {
+        lease.markTargetGone(); lease.assertOwned();
+      }
+      lease.assertOwned();
+      if (closing && internal !== handoffCheck) throw new Error("browser connection is closing");
+      const result = await invoke(args);
+      lease.assertOwned();
+      return result;
+    } finally { commandsInFlight--; }
   };
   try {
     if (!existsSync(executablePath)) throw new Error("native browser executable missing; run scripts/install_agent_browser.mjs");
@@ -182,7 +219,7 @@ export async function connectLinuxBrowser(options) {
       if (!targetInfos.some(target => target.targetId === boundTargetId && target.type === "page"))
         throw new Error(`target is not an open page: ${boundTargetId}`);
     } else {
-      ({ targetId: boundTargetId } = await cdp.send("Target.createTarget", { url: "about:blank", background: true, newWindow: false }));
+      ({ targetId: boundTargetId } = await cdp.send("Target.createTarget", { url: "about:blank", background: true, newWindow: newWindow === true }));
       createdTarget = true;
       if (scope === "tab") lease.claimTab(boundTargetId);
     }
@@ -195,8 +232,13 @@ export async function connectLinuxBrowser(options) {
     return { command, targetId: boundTargetId, profile, version, lease, session, sessionDirectory, close,
       async closeTarget() {
         lease.assertOwned();
-        await cdp.send("Target.closeTarget", { targetId: boundTargetId });
-        lease.markTargetGone("page explicitly closed");
+        if (closing) throw new Error("browser connection is closing");
+        if (targetCloseInFlight) throw new Error("closeTarget is already in flight");
+        targetCloseInFlight = true;
+        try {
+          await cdp.send("Target.closeTarget", { targetId: boundTargetId });
+          lease.markTargetGone("page explicitly closed");
+        } finally { targetCloseInFlight = false; }
       },
     };
   } catch (error) {

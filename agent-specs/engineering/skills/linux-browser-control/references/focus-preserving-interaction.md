@@ -10,6 +10,14 @@ a local fixture's default screenshot timed out. This is scoped evidence, not a
 guarantee for every page or action. The replacement controller must be tested
 with its Node coordination cost included.
 
+The optional `newWindow: true` requests a separate window for a newly created
+temporary page, still with CDP `background: true`. The comparison above did
+not establish focus or stacking behavior for this option: the window may
+cover other windows or change focus. Monitor both transitions during creation
+and each action, stop on an unexpected change, and report unverified behavior.
+The option does not guarantee that a particular page renders or enable trusted
+input, tab switching, or native dialogs through the command surface.
+
 Historical Playwright/Figma observations showed that injected mouse input can
 activate Chrome or a modal file chooser. Chromium's
 [input handler](https://chromium.googlesource.com/chromium/src/+/refs/heads/main/content/browser/devtools/protocol/input_handler.cc)
