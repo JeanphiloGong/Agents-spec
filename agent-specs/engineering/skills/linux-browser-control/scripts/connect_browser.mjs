@@ -99,6 +99,7 @@ export async function connectLinuxBrowser(options) {
     return result.data;
   };
   let commandsInFlight = 0;
+  let commandsDrained;
   let targetCloseInFlight = false;
   let pageCommandUsed = false;
   const handoffCheck = Symbol("handoff check");
@@ -110,6 +111,7 @@ export async function connectLinuxBrowser(options) {
       const errors = [];
       try {
         if (targetClosing) errors.push(new Error("closeTarget is in flight; cannot confirm target state"));
+        if (!retainRequested && commandsInFlight) await new Promise(resolve => { commandsDrained = resolve; });
         if (retainRequested && !errors.length) {
           try {
             if (retainTarget !== true) throw new Error("handoff requires retainTarget: true");
@@ -197,7 +199,10 @@ export async function connectLinuxBrowser(options) {
       const result = await invoke(args);
       lease.assertOwned();
       return result;
-    } finally { commandsInFlight--; }
+    } finally {
+      commandsInFlight--;
+      if (!commandsInFlight) commandsDrained?.();
+    }
   };
   try {
     if (!existsSync(executablePath)) throw new Error("native browser executable missing; run scripts/install_agent_browser.mjs");

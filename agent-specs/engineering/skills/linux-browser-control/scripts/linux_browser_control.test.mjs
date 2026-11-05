@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
@@ -371,6 +371,43 @@ test("handoff refuses to release ownership while another page command is in flig
   assert.ok(!f.commands().some(c => c.args.includes("document.body.textContent = 'changed'")));
   assert.ok(f.targets.has(connection.targetId));
   assert.equal(listLeases(f.connectionOptions.leaseDirectory)[0].runId, connection.lease.runId);
+});
+
+test("ordinary close holds the lease until an in-flight native page command finishes", async (t) => {
+  const f = await connectionFixture(t);
+  const started = join(f.connectionOptions.runtimeRoot, "command-started");
+  const release = join(f.connectionOptions.runtimeRoot, "release-command");
+  const path = f.connectionOptions.executablePath;
+  writeFileSync(path, readFileSync(path, "utf8").replace(
+    "const fail = commands.includes('fail')",
+    `if (commands[0] === 'eval' && commands[1] === 'delayed command') {
+  fs.writeFileSync(${JSON.stringify(started)}, 'started');
+  while (!fs.existsSync(${JSON.stringify(release)})) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 10);
+}
+const fail = commands.includes('fail')`,
+  ));
+  const connection = await connectLinuxBrowser({ ...f.connectionOptions, targetId: "existing-tab" });
+  const pending = connection.command(["eval", "delayed command"]);
+  const pendingResult = pending.then(value => ({ value }), error => ({ error }));
+  let closing;
+  try {
+    const deadline = Date.now() + 5000;
+    while (!existsSync(started)) {
+      if (Date.now() > deadline) throw new Error("native command did not start");
+      await setTimeout(10);
+    }
+    closing = connection.close();
+    const status = await Promise.race([closing.then(() => "closed"), setTimeout(300, "pending")]);
+    assert.equal(status, "pending");
+    assert.equal(listLeases(f.connectionOptions.leaseDirectory)[0].runId, connection.lease.runId);
+    writeFileSync(release, "release");
+    assert.equal((await pendingResult).value.result, "existing-tab");
+    await closing;
+    assert.deepEqual(listLeases(f.connectionOptions.leaseDirectory), []);
+  } finally {
+    writeFileSync(release, "release");
+    await Promise.allSettled([pendingResult, closing ?? connection.close()]);
+  }
 });
 
 test("handoff rejects pages after a caller page command", async (t) => {
