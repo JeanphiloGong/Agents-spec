@@ -1,6 +1,6 @@
 ---
 name: project-implementation-tutorial-review
-description: v0.1.2 - Review existing-project implementation tutorials for source accuracy, complete data flow, step-by-step code completeness, teaching continuity, and executable evidence. Use when a guide may omit real callers, migrations, tests, or complete code. Use before accepting a tutorial checkpoint as ready for a reader to implement.
+description: v0.2.0 - Review frontend or backend module design documents and implementation tutorials against real source. Use to assess V0 behavior/interface decisions or V1–Vn code, integration, teaching continuity, and executable evidence without confusing design readiness with runtime completion.
 ---
 
 # Project Implementation Tutorial Review
@@ -13,6 +13,32 @@ correctness and teaching continuity. Valid snippets alone are not enough.
 Review does not authorize changes to the tutorial or production code.
 Read [the review record guide](references/review-record.md).
 Local review records are allowed; they do not grant permission to repair source.
+
+## Mode and Version Acceptance
+
+Recover the module, frontend/backend mode, and version kind from the agreed
+scope. A new series can have design V0 and implementation V1–Vn; an explicitly
+agreed implementation-first V0 remains an implementation. Do not infer the
+kind from the version number alone or demand a planning record to identify it.
+
+| Mode | Design version | Implementation version |
+| --- | --- | --- |
+| frontend | Inspect design sources, user actions, routes/return paths, applicable UI states, API coverage/gaps, state/component ownership and acceptance examples. | Trace actual input, component state, API requests, navigation and rendered feedback; verify relevant keyboard/viewport behavior and failure paths. |
+| backend | Inspect the real business scenario, invariants, models/responsibilities, interface/storage/transaction decisions and failure effects. | Trace actual callers, domain rules, persistence and response/effect; verify relevant auth, migration, transaction and concurrency guarantees. |
+
+For design V0, apply the scope/source inspection and reporting rules below to
+the document's proposed operation. Check source facts and contract consistency,
+not the existence of future implementation. Missing required code or runtime
+checks is not a defect in a design-only promise. Unresolved blocking behavior
+or API decisions, invented current capabilities, or assistant proposals claimed
+as agreed are defects. Shared frontend/backend interfaces need one contract
+owner and explicit module/version dependencies.
+
+Scope `ready` to the design artifact and implementation handoff only; do not
+claim runtime completion. A successful document review does not replace the
+user's unresolved product decisions. For implementation versions, enforce
+complete edits and replay evidence as below. Both modes reuse existing project
+architecture; neither forces DDD or a second client/API family.
 
 ## When to Use
 
@@ -29,17 +55,21 @@ sibling build skill after identifying the defects.
 1. Recover the acceptance boundary.
    Read the latest agreed plan or discussion and the entire selected tutorial
    version. Identify promised behavior, prerequisites, exclusions, baseline,
-   and claimed verification. Do not expand a foundation-only checkpoint into a
-   complete feature, or allow a complete feature to shrink into schemas only.
+   module/mode, design authority, and claimed verification. Do not expand a
+   foundation-only checkpoint into a complete feature, or shrink a complete
+   feature into schemas only.
    Read a previous review record only when resuming this review. Plan/build
    records are optional explicitly supplied evidence, not prerequisites. Create
    only the review's own record; do not invent a plan or authoring progress.
 2. Inspect the source independently.
-   Read applicable rules and relevant current source, tests, and migrations.
+   Read applicable rules and relevant current source, tests, and migrations
+   where needed by the selected mode and scope.
    Compare paths, symbols, signatures, callers, field semantics, runtime, and
    dialect. Separate actual baseline drift from tutorial errors. When source
    cannot be obtained, mark source verification blocked instead of inventing it.
 3. Trace the implementation promise.
+   For design-only scope, trace the specified future operation against observed
+   prerequisites and identify unresolved decisions without claiming execution.
    Follow every claimed entrypoint through dependencies to observable output.
    Check authorization/user scope, serializers, transaction ownership, state
    transitions, schema deployment, and worker wiring where relevant. Classify
@@ -61,6 +91,8 @@ sibling build skill after identifying the defects.
      values are transformed, reused, persisted, or returned. Mark static
      inspection separately from executed evidence.
 5. Trace the teaching chain.
+   For design V0 check the decision/document acceptance and handoff. The
+   executable-check and complete-code requirements here apply to implementation.
    First check each capability checkpoint's before/after behavior, immediate
    reader-executable check, and reused output for the next checkpoint. Reject
    preparation mislabeled as implementation progress. A user-requested document
@@ -78,6 +110,9 @@ sibling build skill after identifying the defects.
    setup supports the business progression rather than dominating it; do not
    demand HTTP integration from an explicitly bounded core-model checkpoint.
 6. Verify the evidence safely.
+   Design-only checks cover source/design references, contract consistency,
+   concrete acceptance examples and the basis for agreed decisions; no code
+   replay or database is required unless that version actually promises it.
    Replay documented edits in an isolated copy of the stated baseline when
    feasible. Use isolated databases and fake transports, not production services.
    Verify happy paths and relevant failure/boundary cases; inspect whether mocks
@@ -113,7 +148,8 @@ sibling build skill after identifying the defects.
 - Findings first: severity, evidence, reader impact, minimal requested correction.
 - Open questions only where they affect behavior or acceptance.
 - Verdict: `ready`, `needs-revision`, or `verification-blocked`, scoped to the
-  stated version. If defects and blocked checks coexist, report both.
+  stated module, mode and design/implementation kind. If defects and blocked
+  checks coexist, report both.
 - Verification: actual commands/results, skipped checks, baseline provenance.
 - Data-flow trace: operation, boundary values, side effects, and static/runtime evidence.
 - State explicitly when no findings were identified; absence of findings does
@@ -149,6 +185,8 @@ sibling build skill after identifying the defects.
 ## Verification
 
 - [ ] Reviewed scope matches the agreed version, not a newly invented goal.
+- [ ] Mode and design/implementation kind determine acceptance; design
+      readiness is not runtime completion.
 - [ ] The guide is applicable to the stated baseline; current drift is reported.
 - [ ] Full promised paths, not only snippets, were traced.
 - [ ] Applicable data-flow and model-boundary trace names values, owners,

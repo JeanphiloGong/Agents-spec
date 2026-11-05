@@ -1,18 +1,20 @@
 ---
 name: project-implementation-tutorial-build
-description: v0.1.1 - Write step-by-step feature implementation tutorials against real project code. Use when the user has discussed a solution and wants exact files, complete code examples, caller integration, migrations, and test guidance. Use when rebuilding a vague or standalone tutorial into an actionable existing-project guide.
+description: v0.2.0 - Write frontend or backend module design documents and implementation tutorials against real project code. Use for a module's V0 design discussion or its agreed V1–Vn coding lessons, with complete edits, integration, and reader verification.
 ---
 
 # Project Implementation Tutorial Build
 
 ## Overview
 
-Teach the reader to implement the selected capability in the existing project.
-Produce a tutorial, not a production patch or a standalone mock application.
-Use the actual baseline as the starting point and replay the tutorial changes
-in an isolated copy to establish what the document really delivers.
+Produce the selected module design document or teach its implementation in
+frontend or backend mode. For an implementation version, produce a tutorial,
+not a production patch or a standalone mock application.
+For coding versions use the actual baseline and replay tutorial changes in an
+isolated copy to establish what the document really delivers. Design versions
+follow the document workflow below without an artificial implementation replay.
 
-The reader must be able to apply the code in order. Every implementation step
+The reader must be able to apply implementation code in order. Every code step
 shows the real file path, the symbol or insertion point, the complete code
 needed for that step, and the next observable result. At each capability
 checkpoint supply a directly runnable check: a minimal invocation with assertions
@@ -21,6 +23,13 @@ Minimal verification code belongs in the guide even when tests were not
 explicitly requested. Describe broader test coverage through locations, inputs,
 and expected results; expand a full test suite only when requested or when
 testing itself is the feature being taught.
+
+Reuse the agreed mode, module, version kind (`design` or `implementation`), and
+design authority. Infer these from clear discussion/source when not supplied;
+ask only when ambiguity changes the work. A new module series can use V0 for
+design and V1–Vn for coding. Preserve explicitly agreed implementation-first
+numbering, including an executable V0. Do not require sibling installation or
+a planning record to identify the selected mode and scope.
 
 Version planning and teaching are both essential. Reuse an agreed plan from
 conversation or a document; a separate planning skill invocation is optional.
@@ -31,6 +40,7 @@ Persist execution state locally; keep the tutorial independent of these records.
 ## When to Use
 
 - "We agreed on the feature; write the tutorial against my current code."
+- "Discuss this frontend/backend module's V0 and write its design document."
 - The user needs exact file and method changes, not pseudocode or a mock app.
 - An existing implementation guide has missing callers, tests, or explanations.
 
@@ -39,21 +49,72 @@ learning module, or review-only requests. Use the sibling plan skill only if
 version boundaries still need meaningful design; use the sibling review skill
 for review-only work.
 
+## Design Document Version
+
+For a selected design V0, follow this path instead of the implementation replay
+loop below. Do not produce code merely to make a design version executable.
+
+1. Recover existing decisions and inspect the actual baseline plus the relevant
+   design/contract sources. Start discussion from a concrete user or business
+   operation, not a fixed questionnaire.
+2. In **frontend mode**, resolve consequential action semantics, routes/return
+   paths, applicable UI states, API data needs and gaps, state/component owners,
+   and keyboard/viewport behavior. Distinguish Figma or mocked states from
+   capabilities the backend actually supports.
+3. In **backend mode**, resolve business invariants and state transitions,
+   models/responsibilities, API/error contracts, storage/transaction ownership,
+   concurrency and failure side effects where applicable. Reuse the project
+   architecture; do not impose DDD or database-first steps without a need.
+4. Write one module design document in the user's language, linking its Figma,
+   API, schema, and source authorities. Include decisions and unresolved
+   questions, acceptance examples, and the V1–Vn implementation handoff. A
+   shared API has one owner; frontend/backend documents reference that same
+   contract rather than duplicating it.
+5. Verify source references, internal consistency, acceptance examples, and
+   evidence for agreed decisions. Mark assistant proposals as proposed. A
+   blocking open decision leaves the design a draft; continue independent
+   work, but do not declare dependent coding ready. Already sufficient design
+   can be reused after checking drift without repeating the discussion.
+
+Record module/mode/kind in this document's progress. Design checks are static
+or decision-review evidence, not runtime passes. Finishing V0 means the
+bounded design is ready to implement; it does not mean the feature runs.
+The user need not approve another copy of a decision already made in context.
+
+## Implementation Modes
+
+- **frontend:** teach complete user actions through actual layouts, components,
+  state owners and API clients. Include relevant loading/error/empty states,
+  late-response or workspace isolation, navigation/return context, keyboard and
+  viewport behavior. Verify interaction claims in a browser; state mock and
+  unavailable-backend limits. Do not duplicate server domain logic in the UI.
+- **backend:** teach the business rule through the actual entrypoints,
+  models, services and persistence needed by the promise. Check authorization,
+  transactions, migrations and concurrency when relevant. Do not equate a
+  schema or signature with an integrated feature or demand a UI for a bounded
+  backend checkpoint.
+
+Use the selected module's sufficient design/contract as the implementation
+baseline. Resolve material drift before teaching changed behavior. Steps below
+apply to implementation versions; setup and document-only agreement are not
+executable capability gains.
+
 ## The Operating Loop
 
 1. Confirm the selected version.
-   Recover the latest requirements and decisions, intended reader, starting
-   version, promised outcome, exclusions, and document location. When these are
-   already clear, proceed without requesting another plan. Ask before choosing
+   Recover the latest requirements and decisions, intended reader, module/mode,
+   starting version, kind, promised outcome, exclusions, and document location.
+   When clear, proceed without requesting another plan. Ask before choosing
    missing rules that affect contracts, data, authorization, or scope.
    Read this tutorial's progress record if resuming. Accept an agreed conversation
    directly; do not create a planning record. Read upstream plan/review artifacts
    only when explicitly supplied as inputs. Reconcile source and document drift
    before reusing prior verification evidence.
 2. Read the baseline and trace the path.
-   Read project rules and actual models, entrypoints, services, repositories,
-   callers, initialization/migrations, and relevant tests. Record revision and
-   relevant dirty changes. Check source names and database dialect rather than
+   Read project rules and the mode's actual entrypoints, state/models, API
+   clients/services, callers, and tests; inspect persistence/migrations when
+   needed by the promise. Record revision and relevant dirty changes. Check
+   source names and applicable database dialect rather than
    inferring them from old prose. Distinguish observed behavior from proposed
    changes. Identify the full input -> state -> output path for this version.
 3. Establish safe verification.
@@ -183,11 +244,15 @@ it must remain understandable without the records.
 - Success claims come only from mocked repositories or JSON parsing.
 - The reader must guess which of several competing final snippets to keep.
 - The only check is a command targeting tests the reader has not been given.
-- Setup or prose-only agreement is labeled a completed implementation version.
+- A design V0 is claimed as executable progress, or an implementation version
+  supplies only setup or prose-only agreement.
 
 ## Verification
 
 - [ ] The baseline and agreed version are explicit and source-backed.
+- [ ] Mode, module and version kind match the request and design handoff.
+- [ ] Design-only acceptance is checked as a document; the code/replay items
+      below apply to implementation promises, not to a design V0.
 - [ ] Every code block is an applicable change or clearly labeled illustration.
 - [ ] Each required implementation step has an ordered, complete code example
       with a real path, symbol, imports, and application point.

@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Tutorial Build"
-  short_description: "v0.1.1 - Write verified real-project tutorials"
-  default_prompt: "Use $project-implementation-tutorial-build to write the agreed real-project tutorial with complete edits and a runnable reader check at each capability checkpoint. Verify intermediate states in isolation without changing production."
+  short_description: "v0.2.0 - Write module designs and coding tutorials"
+  default_prompt: "Use $project-implementation-tutorial-build in the agreed frontend/backend mode to write this module's design document or coding tutorial, using design review for V0 and complete edits with isolated reader checks for implementation."

@@ -10,6 +10,8 @@ Do not invent authoring progress or an approved plan to populate this record.
 
 1. Identify the tutorial content, promised scope and source baseline under
    review. Use any explicitly supplied prior evidence as claims to verify.
+   Identify module, frontend/backend mode, version and design/implementation
+   kind; the V0 label alone does not establish executable acceptance.
 2. Reuse a supplied record for the same review, or default to
    `.agent-runs/tutorial-review/<document-topic>/review.yaml` in the tutorial
    workspace. Announce the path; do not attach it to another skill's task ID.
@@ -31,6 +33,10 @@ chapter-progress references are needed.
 ```yaml
 subject:
   tutorial: "/path/to/guide.md"
+  module: "files"
+  mode: "frontend"
+  version: "V1"
+  kind: "implementation"
   content_fingerprint: null
   promised_scope: "Capability being assessed"
   source_repository: "/path/to/project"
@@ -58,6 +64,12 @@ Use `findings: []` when none were identified. A finding is `open` or
 Preserve the input identity associated with evidence when updating a review;
 do not relabel old checks with a new baseline. A successful author report is
 not verification. Do not silently repair the sandbox and report the guide passed.
+
+For a design-only review, use `kind: design` and scope the verdict to design
+readiness. Static checks may use `method: source-review` or `decision-review`,
+`command: null`, and an actual reference/result. Record unresolved blocking
+decisions as findings; document consistency is not user agreement or runtime
+evidence. Implementation reviews retain the executable evidence requirements.
 
 ## Boundaries
 

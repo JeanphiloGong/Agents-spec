@@ -8,6 +8,7 @@
 - Local records, resumption, and public prose
 - Executable checkpoints and reader verification
 - Verification failures versus unavailable environments
+- Frontend/backend modes and module-local design versions
 
 Use these cases when evaluating the package. They specify expected behavior,
 not recorded successful model runs. For a live evaluation supply a real source
@@ -144,7 +145,7 @@ required explanations, code and reader checks in the lesson.
 Reject: reading `../references/`, requiring a shared task ID, invoking a missing
 sibling skill as a prerequisite, or duplicating a version-planning template.
 
-## Plan: Preparation Is Not V0
+## Plan: Preparation Is Not an Implementation Checkpoint
 
 Prompt: "Our notification API is already agreed. Start the tutorial with the
 core message model; project initialization is done."
@@ -154,8 +155,9 @@ and choose a first checkpoint with a concrete business rule and a runnable
 check, such as preserving the first read timestamp. Place necessary environment
 notes in prerequisites. State what later persistence work reuses.
 
-Reject: V0 only rewrites README/API contracts, recreates the project, or invents
-an aggregate framework without a rule that needs it.
+Reject in this implementation-first request: V0 only rewrites README/API
+contracts, recreates the project, or invents an aggregate framework without
+a rule that needs it. This does not reject an explicitly requested design V0.
 
 ## Build: Check Before the Whole Application Exists
 
@@ -211,3 +213,90 @@ dependent checkpoints; review reports needs-revision until that fix is verified.
 Reject: stopping all independent work for a missing service, relabeling a code
 error as an environment limitation, or claiming verified intermediate states
 because a different final implementation passed.
+
+## Plan: Frontend V0 Discussion
+
+Prompt: "Frontend mode. This Figma shows the Files and Approval screens. Start
+the file-research module at V0: discuss button behavior and API support, then
+write one design document before planning its coding versions."
+
+Expected: inspect the supplied design and actual routes/clients. Distinguish
+navigation, unsaved selection, job submission and approved writes; identify
+applicable UI states, data/contract gaps and state/component owners. Discuss
+unresolved consequential choices and record actual decisions in one V0 design,
+with V1–Vn implementation acceptance. Keep unresolved choices draft. Do not
+require another build invocation merely to produce the V0 discussion result.
+
+Reject: immediately write a sidebar implementation, treat artwork as proof of
+API capability, force DDD layers on the UI, or invent four separate documents
+when existing Figma/API references plus one module design suffice.
+
+## Plan: Backend V0 Discussion
+
+Prompt: "Backend mode. Start notification reminders at V0. We need to settle
+who receives them, retry rules, tables and interface before coding."
+
+Expected: inspect the actual business process and callers, resolve recipient
+and retry semantics, identify invariants, data ownership, transaction/failure
+boundaries and API requirements. Produce a source-backed design with proposed
+versus agreed decisions and bounded implementation versions. Do not require
+screen artwork or a DDD framework to accept this backend design.
+
+Reject: declare a table/model class equivalent to completed reminders, start
+production implementation during design, or silently choose opt-in and retry
+semantics the user has not agreed to.
+
+## Plan: Module Versions and Shared Contract
+
+Prompt: "Workspace navigation and file research each need their own V0–Vn.
+The file UI depends on an existing backend module's V2 response."
+
+Expected: preserve two module-local version lines, qualify dependencies by
+module and version, inspect the claimed backend prerequisite, and identify one
+API authority referenced by both sides. Select the current module/version;
+do not require all future modules to finish design before its bounded work.
+
+Reject: flatten everything into one V0–V7 sequence, let two V0 record entries
+collide, silently assume the backend V2 exists, or maintain competing copies
+of the same API contract.
+
+## Build and Review: Design Is a Document Promise
+
+Prompt: "Write and then review our frontend approval module V0 design. It
+contains pending-call clarification behavior and API gaps, not code yet."
+
+Expected: build follows the design-document path, labels unresolved blocking
+choices and checks actual source/contract references. Review judges action
+semantics, state transitions, API support and ownership. It can accept a
+sufficient agreed design as design-ready without requiring runnable feature
+code; missing consequential decisions still prevent readiness. No runtime
+execution is claimed from links, prose or prototype clicks.
+
+Reject: demand an executable V0 to satisfy a document-only promise, mark
+assistant proposals as user-approved, or report the feature runtime-ready.
+
+## Build: Frontend Coding Version
+
+Prompt: "Our file-research/frontend V0 is agreed. Write V1 so selecting two
+papers opens research in the same workspace. The backend contract is supplied."
+
+Expected: reuse that design and real components/state/API clients. Teach and
+replay a complete bounded user action, including the selected paper identities,
+workspace change behavior, errors, navigation and a runnable browser check.
+State any mocked backend boundary. Keep later versions out of scope.
+
+Reject: repeat settled V0 discussion, teach markup/CSS with data integration
+silently left to a later version, or equate mocked success with persisted writes.
+
+## Plan and Review: Preserve an Implementation-First V0
+
+Prompt: "Backend mode. Our design is complete; keep the existing V0 numbering
+and teach the first-read invariant directly. Do not add a design chapter."
+
+Expected: inspect drift, preserve V0 as `implementation`, and require an
+applicable model change and reader check. Mode-specific backend invariants
+still apply. Do not insert or relabel a design version or force HTTP integration
+into a bounded core-rule checkpoint.
+
+Reject: renumber the agreed tutorial, restart discussion because V0 must always
+mean design, or accept a prose-only V0 despite the executable promise.

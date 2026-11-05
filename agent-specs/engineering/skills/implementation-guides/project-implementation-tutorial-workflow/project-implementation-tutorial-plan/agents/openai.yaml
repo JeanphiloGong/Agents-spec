@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Tutorial Plan"
-  short_description: "v0.1.1 - Plan real-project tutorial versions"
-  default_prompt: "Use $project-implementation-tutorial-plan to plan small executable capability checkpoints from the actual project. Give each a before/after behavior, immediate reader check, and next-step reuse; keep setup separate."
+  short_description: "v0.2.0 - Plan frontend/backend module tutorials"
+  default_prompt: "Use $project-implementation-tutorial-plan in frontend or backend mode to plan the module's V0 design and V1–Vn implementation against real source, preserving agreed direct-to-code scope and separating design acceptance from runtime checks."

@@ -8,7 +8,8 @@ build/review files, shared task ID, or sibling skill instructions are required.
 
 ## Recording Loop
 
-1. Identify the feature, source baseline and latest agreed requirements.
+1. Identify the feature, frontend/backend mode, module boundaries, source
+   baseline and latest agreed requirements.
 2. Complete the version reasoning before translating conclusions into YAML.
    An unfinished decision stays an open question, not an invented agreement.
 3. Write or update `planning.yaml` for this planning task. Reuse a supplied
@@ -17,8 +18,12 @@ build/review files, shared task ID, or sibling skill instructions are required.
    planning tasks instead of overwriting them.
 4. Update after a material decision or before handoff. On resume compare the
    source baseline and requirement changes before reusing version decisions.
-5. Verify version IDs are unique, dependencies exist and are acyclic, the
-   selected version exists, and acceptance conditions match the public plan.
+5. Verify module IDs are unique and each has a frontend/backend mode. Qualify
+   version IDs and cross-module dependencies, for example `files/V0` and
+   `workspace/V1`; local V0 labels can repeat across modules. Verify IDs are
+   unique, dependencies exist and are acyclic, the selected version exists,
+   and acceptance matches its design/implementation kind and public plan.
+   External prerequisites name their source and promised version.
 
 ## Template
 
@@ -32,21 +37,26 @@ source_baseline:
   repository: "/path/to/project"
   revision: null
   relevant_changes: []
+modules:
+  - id: "files"
+    mode: "frontend"
+    design_document: "/path/to/tutorials/files/V0-design.md"
 decisions:
   - rule: "Confirmed behavior or proposed design choice"
     status: "agreed"
     reason: "Concise tradeoff, not a reasoning transcript"
 versions:
-  - id: "V1"
-    starts_from: "Observed prerequisite capability"
+  - id: "files/V0"
+    kind: "design"
+    starts_from: "Observed file UI, design sources and existing API"
     depends_on: []
-    outcome: "Observable addition"
-    includes: []
-    excludes: []
+    outcome: "Module design ready for the bounded V1 implementation"
+    includes: ["User actions, UI states, API gaps and state/component ownership"]
+    excludes: ["Production implementation"]
     targets: []
-    acceptance: []
-    commit_when: []
-selected_version: "V1"
+    acceptance: ["Source facts checked; blocking behavior/API choices resolved"]
+    commit_when: ["Design document matches agreed decisions and V1 acceptance"]
+selected_version: "files/V0"
 open_questions: []
 next_planning_action: "Confirm the outstanding scope choice"
 ```
@@ -54,6 +64,13 @@ next_planning_action: "Confirm the outstanding scope choice"
 Use `agreed` or `proposed` for decision status. Targets name actual files and
 symbols; acceptance names observable conditions. `commit_when` is a proposed
 freeze condition, never permission to commit. No test-pass flags belong here.
+
+For implementation use `kind: implementation`, supply before/after runtime
+behavior, executable reader checks and prerequisites. Do not relabel an
+existing implementation-first V0 as design. Reuse supplied records without
+bulk rewriting unrelated numbering. Design acceptance means decision/document
+readiness, not successful execution. Keep proposed API changes and unresolved
+user choices visibly unagreed.
 
 ## Boundaries
 

@@ -12,6 +12,8 @@ record or require a sibling skill before writing.
 1. Identify the target tutorial, selected scope and real source baseline. Read
    an upstream plan or review only when provided or explicitly designated as
    input; validate it against current decisions rather than scanning other runs.
+   Carry module, frontend/backend mode, version and design/implementation kind
+   in the document identity; another module's V0 is a different writing task.
 2. Reuse this document's supplied progress record, or default to
    `.agent-runs/tutorial-build/<document-topic>/progress.yaml` in the tutorial
    workspace. Announce the path and avoid collisions with unrelated guides.
@@ -30,6 +32,10 @@ Omit `input_reference` when no upstream artifact exists.
 
 ```yaml
 tutorial: "/path/to/guide.md"
+module: "files"
+mode: "frontend"
+version: "V1"
+kind: "implementation"
 scope: "The agreed capability this guide delivers"
 input_reference: "/optional/path/to/agreed-plan.md"
 baseline:
@@ -59,6 +65,13 @@ Chapter status is `pending`, `drafted`, `verified`, or `blocked`; check status i
 by the chapter's promise to pass. Explain blocked checks and do not count
 mocked or substituted environments as proof of untested production behavior.
 Keep concise durable results, not only pointers to logs in a deleted sandbox.
+
+For design V0 use `kind: design`. Checks can use `method: source-review` or
+`method: decision-review` with `command: null` and the actual source/decision
+reference and result. Do not fabricate commands or runtime passes. Unresolved
+blocking user/API choices keep dependent content drafted or blocked; verified
+document checks alone do not turn proposals into agreements. The public design
+document is the V1–Vn handoff, not this local record.
 
 ## Boundaries
 

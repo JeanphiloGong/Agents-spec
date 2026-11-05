@@ -1,6 +1,9 @@
 # Teaching and Verification
 
 Read before writing a non-trivial existing-project implementation tutorial.
+This reference governs coding versions in either mode. A selected design V0
+uses the build skill's design-document path; it does not need artificial code
+steps or a replay just to meet implementation criteria.
 
 ## Contents
 
@@ -19,7 +22,9 @@ the real project, not a replacement runtime. Reuse its ORM, session management,
 authentication, fixtures, and conventions where they already fit.
 
 Keep version lineage: each version starts from a named baseline, adds a clear
-capability, preserves explicit invariants, and has a testable freeze. Distinguish
+capability, preserves explicit invariants, and has a testable freeze. Reuse the
+module's agreed design; identify cross-module versions explicitly rather than
+flattening all modules into one V0–Vn line. Distinguish
 a version from the smaller teaching steps inside it. Do not invent several
 versions for a one-method change or collapse a large roadmap into one tutorial.
 

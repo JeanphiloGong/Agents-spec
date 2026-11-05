@@ -26,6 +26,11 @@ without requiring a standalone project or changing production code. An agreed
 solution can go directly to build. It preserves version and teaching discipline
 without depending on the two learning-asset packages below.
 
+Frontend and backend modes share module-local versioning: a new module's V0
+discusses and records its design, and V1–Vn teach implementation. The mode
+changes design focus and verification; existing implementation-first tutorials
+retain their agreed numbering.
+
 ## From-Scratch Tutorial Workflow
 
 `from-scratch-tutorial-workflow/` is the package for tutorial-writing skills
