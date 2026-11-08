@@ -1,4 +1,4 @@
 interface:
   display_name: "Obsidian 笔记助手"
-  short_description: "v0.1.0 - 整理日记、工作规划、学习和生活思考，按需生成白板"
+  short_description: "v0.1.1 - 整理日记、工作与学习笔记，记录创建时间并按需生成白板"
   default_prompt: "使用 $obsidian-notes，把我提供的内容整理为 Obsidian 笔记；明确要求记录时保存到仓库，只讨论时不要写入文件。"
