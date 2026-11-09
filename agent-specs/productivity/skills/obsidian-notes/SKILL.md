@@ -1,6 +1,6 @@
 ---
 name: obsidian-notes
-description: v0.1.1 - Organize personal Obsidian notes with creation timestamps while preserving the user's voice and optionally create Canvas mind maps. Use when the user says 帮我记一下, requests daily journals, work plans, learning notes or life reflections in their vault. Use when organizing supplied ideas into linked notes or a Canvas; discussion and drafts alone must not trigger file writes.
+description: v0.1.2 - Organize personal Obsidian notes with creation and modification timestamps while preserving the user's voice and optionally create Canvas mind maps. Use when the user says 帮我记一下, requests daily journals, work plans, learning notes or life reflections in their vault. Use when organizing supplied ideas into linked notes or a Canvas; discussion and drafts alone must not trigger file writes.
 ---
 
 # Obsidian 笔记助手
@@ -45,20 +45,26 @@ Obsidian 仓库。优先保留原意、个人语气和疑问，减少分类与�
 按需创建目标子文件夹，不为一条笔记预建整套分类。已有合适主题优先复用；
 Canvas 放在相关主题笔记旁边。一次随手记通常只产生一篇笔记。
 
-## Creation Time
+## 时间 Properties
 
-- 新建 Markdown 笔记时，在文件顶部的 YAML frontmatter 中写入唯一的 `created`
-  属性。首次写入前读取实际系统时间，按上述时区生成带 UTC 偏移、精确到秒的
+- 新建 Markdown 笔记时，在文件顶部的 YAML frontmatter 中分别写入唯一的
+  `created` 和 `updated` 属性，两者使用同一次获取的实际时间。首次写入前读取
+  实际系统时间，按上述时区生成带 UTC 偏移、精确到秒的
   ISO 8601 字符串，例如 `created: "2026-11-08T09:30:00+08:00"`；示例不可照抄。
 - `created` 表示本次笔记文件的创建时刻。补写昨天的日记时，标题和文件名可以
   使用昨天的日期，`created` 仍使用实际创建时刻，不用事件日期或文件系统
   `ctime`/`mtime` 代替，也不把草稿生成时间当作保存时间。
-- 新笔记使用模板时，将 `created` 合入同一个 frontmatter，保留其他属性；
+- 新笔记使用模板时，将 `created` 和 `updated` 合入同一个 frontmatter，
+  保留其他属性；
   模板中的旧时间或日期占位符须替换为新笔记的实际创建时间，不修改模板本身。
 - 追加或修改已有笔记时，保留原有 `created`，不改值或格式；旧笔记缺少该字段
   就保持缺少。只有用户明确要求补录并提供可靠的原始时间时才补入，不猜测。
+- 本次获授权的追加或修改实际改变笔记内容时，将 `updated` 设为保存前获取的
+  实际时间，按上述时区使用带 UTC 偏移、精确到秒的 ISO 8601 字符串；
+  旧笔记缺少 `updated` 时可新增。
+  与正文改动一并保存，不因只读、草稿、重复请求或内容未变而单独更新时间。
 - 本规则仅适用于 Markdown 笔记，不向 `.canvas` JSON 或附件写入 YAML，
-  不额外引入 `updated` 属性，也不为本次升级批量修改旧笔记。
+  也不为本次升级批量修改旧笔记；除本次需更新的 `updated` 外保留其他属性。
 
 ## The Operating Loop
 
@@ -92,8 +98,8 @@ Canvas 放在相关主题笔记旁边。一次随手记通常只产生一篇笔�
    新笔记创建前确认不存在；已有笔记优先保留原文，追加到相关段落，或在末尾
    添加明确的小节。日记不存在时可参考已配置模板；仅处理理解的日期占位符，
    不执行模板脚本、不把未知插件语法当成普通正文写入。
-   新建 Markdown 时按 Creation Time 写入 `created`；已有笔记保留原有属性，
-   包括 `created` 缺失的状态。写前确认模板和正文未产生重复 frontmatter。
+   按“时间 Properties”维护 `created` 和 `updated`；已有笔记的 `created` 原值或
+   缺失状态保持不变。写前确认模板和正文未产生重复 frontmatter。
    替换正文、合并、移动或删除前准备具体差异供用户确认；如果当前会话已明确
    授权同一具体修改，直接执行，不再确认。其他获授权的新建或追加可先完成。
    写入前重新读取已有目标；发现与刚才读取的内容不同，基于最新内容重做改动，
@@ -156,7 +162,8 @@ Canvas 放在相关主题笔记旁边。一次随手记通常只产生一篇笔�
 - [ ] 观点、疑问和来源忠实于输入；AI 建议单独标识。
 - [ ] 旧内容保留；无重复追加；重写等操作符合本次授权。
 - [ ] 新 Markdown 的唯一 `created` 是实际创建时刻且带时区；已有笔记的原值或
-      缺失状态保持不变；YAML 属性可解析，其他属性保留，Canvas 未混入 YAML。
+      缺失状态保持不变；新建时 `updated` 与 `created` 相同，实际修改时才更新
+      `updated`；YAML 属性可解析，其他属性保留，Canvas 未混入 YAML。
 - [ ] 新增链接能定位目标，附件无覆盖；Canvas 检查已完成或限制已说明。
 - [ ] 回读确认实际落盘；未把草稿或部分成功报告为全部完成。
 
