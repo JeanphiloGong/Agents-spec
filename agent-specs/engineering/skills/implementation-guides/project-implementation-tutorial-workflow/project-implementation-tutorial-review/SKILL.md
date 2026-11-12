@@ -1,6 +1,6 @@
 ---
 name: project-implementation-tutorial-review
-description: v0.2.0 - Review frontend or backend module design documents and implementation tutorials against real source. Use to assess V0 behavior/interface decisions or V1–Vn code, integration, teaching continuity, and executable evidence without confusing design readiness with runtime completion.
+description: v0.3.0 - Review frontend or backend tutorials against real source. Assess V0 business logic, delivered contract documents and implementation/verification planning, or V1–Vn code, integration and executable evidence, without treating design readiness as runtime completion.
 ---
 
 # Project Implementation Tutorial Review
@@ -34,6 +34,20 @@ or API decisions, invented current capabilities, or assistant proposals claimed
 as agreed are defects. Shared frontend/backend interfaces need one contract
 owner and explicit module/version dependencies.
 
+V0 must explain complete business logic, deliver applicable contracts and
+constraints, then derive implementation exercises and verification scenarios.
+Read the actual contract documents, not just the main lesson or a list of
+planned files. Check that actors, objects, states, interfaces, stored facts and
+failure effects describe the same bounded process. Required contracts that
+are absent, empty or deferred to V1 make the design `needs-revision`.
+
+Contracts belong with the reference project or a sufficient existing authority.
+Check their ownership, accessibility and agreement with the reviewed V0 state;
+later final snapshots must not silently replace earlier contracts. Do not
+require a fixed folder/document count, unrelated database or RPC documents,
+full contract copies in the lesson, per-file patches or reader document-check
+commands. Those presentation mechanics do not establish design completeness.
+
 Scope `ready` to the design artifact and implementation handoff only; do not
 claim runtime completion. A successful document review does not replace the
 user's unresolved product decisions. For implementation versions, enforce
@@ -64,6 +78,9 @@ sibling build skill after identifying the defects.
 2. Inspect the source independently.
    Read applicable rules and relevant current source, tests, and migrations
    where needed by the selected mode and scope.
+   For design V0, include the delivered/reused contract documents and relevant
+   reference checkpoint in the reviewed inputs. Inspect the required contract
+   contents and examples; a file name, diagram or roadmap alone is insufficient.
    Compare paths, symbols, signatures, callers, field semantics, runtime, and
    dialect. Separate actual baseline drift from tutorial errors. When source
    cannot be obtained, mark source verification blocked instead of inventing it.
@@ -91,13 +108,18 @@ sibling build skill after identifying the defects.
      values are transformed, reused, persisted, or returned. Mark static
      inspection separately from executed evidence.
 5. Trace the teaching chain.
-   For design V0 check the decision/document acceptance and handoff. The
-   executable-check and complete-code requirements here apply to implementation.
-   First check each capability checkpoint's before/after behavior, immediate
+   For design V0 check logic first, contract documents next, and the derived
+   implementation/verification plan last. Each proposed increment must fulfill
+   identified behavior and contracts, with concrete expected results. Check
+   that no unresolved business rule is silently delegated to later coding.
+   Do not demand executable tests or document-editing instructions from a
+   design-only delivery. The executable-check and complete-code requirements
+   here apply to implementation. For implementation, first check each
+   capability checkpoint's before/after behavior, immediate
    reader-executable check, and reused output for the next checkpoint. Reject
    preparation mislabeled as implementation progress. A user-requested document
    checkpoint is valid as documentation, not proof of executable behavior.
-   For each step check the real motivating gap, previous baseline, exact edit,
+   For each implementation step check the real motivating gap, previous baseline, exact edit,
    complete code example, explanation, reader check, test guidance, and next
    baseline. Check imports and full method context. Reject hidden rewrites,
    unexplained abstractions, and disconnected code dumps even when their final
@@ -113,8 +135,12 @@ sibling build skill after identifying the defects.
    Design-only checks cover source/design references, contract consistency,
    concrete acceptance examples and the basis for agreed decisions; no code
    replay or database is required unless that version actually promises it.
-   Replay documented edits in an isolated copy of the stated baseline when
-   feasible. Use isolated databases and fake transports, not production services.
+   Check field/type, identity, state, error and transaction meanings across the
+   design and applicable contracts. For later implementation reviews, compare
+   code and tests with the matching contract revision; report unrecorded drift.
+   For implementation, replay documented edits in an isolated copy of the
+   stated baseline when feasible. Use isolated databases and fake transports,
+   not production services.
    Verify happy paths and relevant failure/boundary cases; inspect whether mocks
    bypass the very integration being claimed. A SQLite check cannot establish
    PostgreSQL lock/concurrency behavior. Report checks not run explicitly.
@@ -181,6 +207,10 @@ sibling build skill after identifying the defects.
 - Source-only fixes during review or real outbound sends during verification.
 - A tutorial names layers or models but never shows one complete input-to-output
   operation, or presents a response model as if it were persistence data.
+- V0 offers schemas or endpoints without their business flow, or promises
+  contract documents that are absent from the deliverable.
+- A final reference snapshot is used to judge V0 without identifying its
+  contract state, or later code changes silently contradict that contract.
 
 ## Verification
 
@@ -189,6 +219,10 @@ sibling build skill after identifying the defects.
       readiness is not runtime completion.
 - [ ] The guide is applicable to the stated baseline; current drift is reported.
 - [ ] Full promised paths, not only snippets, were traced.
+- [ ] Design V0 explains the complete bounded flow, supplies/reuses complete
+      applicable contract documents, and derives its version plan from them.
+- [ ] Reviewed contract/checkpoint identities match the selected version;
+      later code and test claims agree with that version's contract.
 - [ ] Applicable data-flow and model-boundary trace names values, owners,
       failure stops, and side effects.
 - [ ] Each checkpoint is teachable and reproducible from previous edits.

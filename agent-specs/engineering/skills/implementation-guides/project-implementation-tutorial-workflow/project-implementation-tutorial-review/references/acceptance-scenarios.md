@@ -223,13 +223,14 @@ write one design document before planning its coding versions."
 Expected: inspect the supplied design and actual routes/clients. Distinguish
 navigation, unsaved selection, job submission and approved writes; identify
 applicable UI states, data/contract gaps and state/component owners. Discuss
-unresolved consequential choices and record actual decisions in one V0 design,
+unresolved consequential choices and deliver the V0 design plus applicable
+interaction/state contracts, reusing sufficient existing API authority. End
 with V1–Vn implementation acceptance. Keep unresolved choices draft. Do not
 require another build invocation merely to produce the V0 discussion result.
 
 Reject: immediately write a sidebar implementation, treat artwork as proof of
-API capability, force DDD layers on the UI, or invent four separate documents
-when existing Figma/API references plus one module design suffice.
+API capability, force DDD layers or an unrelated database/RPC contract on the
+UI, or leave required interaction/API rules as future document tasks.
 
 ## Plan: Backend V0 Discussion
 
@@ -238,13 +239,73 @@ who receives them, retry rules, tables and interface before coding."
 
 Expected: inspect the actual business process and callers, resolve recipient
 and retry semantics, identify invariants, data ownership, transaction/failure
-boundaries and API requirements. Produce a source-backed design with proposed
-versus agreed decisions and bounded implementation versions. Do not require
-screen artwork or a DDD framework to accept this backend design.
+boundaries and API requirements. Deliver the source-backed business design and
+complete applicable storage/API contracts with the reference project, clearly
+separating proposed and agreed decisions. Derive bounded implementation and
+verification versions last. Do not require screen artwork or a DDD framework.
 
 Reject: declare a table/model class equivalent to completed reminders, start
 production implementation during design, or silently choose opt-in and retry
 semantics the user has not agreed to.
+
+## Plan: V0 Delivers Contracts Before Coding
+
+Prompt: "Finish our email-registration V0. Explain the full process, provide
+the contracts with the reference project and put the coding exercises last."
+
+Expected: explain the send/verify/register process and relevant failed or
+concurrent paths before deriving data and HTTP contracts. The actual documents
+define the challenge identity, mailbox/purpose binding, digest/state/expiry,
+attempt limits, request/response fields, errors and atomic consumption with
+account creation. Deliver them with the reference project, then derive
+implementation increments and expected verification results. The main lesson
+links the documents without repeating their full contents or providing
+per-file patches/copy/check instructions. Leave production untouched.
+
+Reject: only a table/endpoint list, contracts deferred to V1, or calling
+design completion proof that registration already runs.
+
+## Review: Contracts Exist but Do Not Close the Flow
+
+Prompt: "Our V0 has a business diagram, data-model.md and http-api.md. The API
+accepts challenge_id, but storage identifies proofs only by email and purpose;
+resending and consuming the previous code are unspecified. Is V0 ready?"
+
+Expected: needs-revision with the concrete identity/lifecycle gap and its
+effect on resend and consumption. Check the contract contents against the
+flow; file existence and valid links alone are insufficient. Request the
+smallest consistent rule and contract correction without inventing agreement.
+
+Reject: ready because each document exists, or demanding runtime tests before
+the missing design decision can be assessed.
+
+## Review: Planned Documents Are Not Delivered Contracts
+
+Prompt: "V0 says contracts/data-model.md and contracts/http-api.md will be
+created in V1. The version roadmap is detailed; can we freeze V0?"
+
+Expected: needs-revision for missing V0 contract deliverables. Identify their
+required content from the agreed flow without imposing a fixed folder layout
+or document count. Do not repair them during review.
+
+Reject: accepting a file inventory as delivered design or requiring exact
+patches in the V0 prose as the remedy.
+
+## Review: Reuse Authority and Preserve the V0 State
+
+Prompt: "Our frontend V0 supplies its interaction contract and references an
+existing API contract at the recorded revision. Both are available with the
+reference project. The lesson ends with exercises but has no document-copying
+commands or embedded contract text. Can that be sufficient?"
+
+Expected: inspect the complete task, actual documents and examples, their
+ownership/revisions and the derived exercises. Accept design readiness if
+those agree and no blocking decisions remain. Do not demand duplicate API
+documents, a database/RPC contract or future executable feature code.
+
+Countercase: only a Vn final snapshot survives, with changed challenge fields
+and no way to recover V0's contract. Report the missing version evidence;
+do not silently substitute the later contract for the reviewed version.
 
 ## Plan: Module Versions and Shared Contract
 
@@ -267,9 +328,10 @@ contains pending-call clarification behavior and API gaps, not code yet."
 
 Expected: build follows the design-document path, labels unresolved blocking
 choices and checks actual source/contract references. Review judges action
-semantics, state transitions, API support and ownership. It can accept a
-sufficient agreed design as design-ready without requiring runnable feature
-code; missing consequential decisions still prevent readiness. No runtime
+semantics, state transitions, actual applicable contract documents, API support
+and ownership. It can accept a sufficient agreed design as design-ready without
+requiring runnable feature code; missing consequential decisions or required
+contract deliverables still prevent readiness. No runtime
 execution is claimed from links, prose or prototype clicks.
 
 Reject: demand an executable V0 to satisfy a document-only promise, mark

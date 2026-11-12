@@ -8,8 +8,10 @@ not one tutorial module per architectural layer.
 
 Inspect the real actors/events, existing callers, domain rules, interfaces,
 repositories, schema/migrations, and tests relevant to the requested scope.
-Trace one operation from input through decisions and side effects to the
-observable result, including what initiates the next action.
+First explain the complete bounded business flow: actors, intent, real objects,
+prerequisites, ordered actions and state changes, alternatives and failures,
+observable result and what initiates the next action. Derive storage and
+interfaces from that flow before planning implementation versions.
 
 Settle the decisions that affect implementation:
 
@@ -27,11 +29,20 @@ Settle the decisions that affect implementation:
   direct callers, and required configuration or worker wiring. Identify
   genuine model differences; do not copy the same object into every layer.
 
-Write one module V0 design document containing the scenario, agreed rules,
-models/responsibilities, data and interface design, full operation and failure
-flow, acceptance examples, open decisions, and proposed V1–Vn increments.
-Reuse the authoritative API/schema docs by reference; record proposed changes
-without silently editing a published contract during planning.
+Deliver the V0 design plus complete applicable contract documents with the
+tutorial's reference project. For persistent data, define relationships, field
+meaning and types, nullability, keys, constraints, relevant indexes and
+lifecycle. HTTP/RPC contracts define consumers, inputs/outputs, identity and
+authorization, errors and examples. Explain required transaction, concurrency
+and external-effect boundaries; a table list or route list is insufficient.
+Reuse sufficient authoritative documents, and distinguish proposed changes
+from current published behavior. Do not silently edit production contracts.
+
+The V0 lesson connects the business flow to these documents and ends with
+V1–Vn exercises and verification scenarios. Keep document contents in their
+owning files rather than repeating them as full blocks or exact patches in the
+lesson. Use existing version/checkpoint conventions to retain the V0 contract
+state alongside later reference code.
 
 DDD is an option when the domain and project warrant it, not a required stack.
 A rule-bearing core model may be the first implementation increment; a simple

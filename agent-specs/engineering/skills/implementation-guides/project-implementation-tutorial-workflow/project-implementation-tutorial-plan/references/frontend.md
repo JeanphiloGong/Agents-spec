@@ -12,7 +12,10 @@ design revision was inspected; unavailable Figma access is a stated limitation,
 not a reason to invent its contents. Figma is useful input, not proof of runtime
 behavior or a mandatory tool when another agreed design source exists.
 
-Walk a real user task and settle the decisions that change the implementation:
+First walk the complete bounded user task from intent through its observable
+result and next action, including alternatives and failures. Derive contracts
+and ownership from this flow before planning implementation exercises. Settle
+the decisions that change the implementation:
 
 - What does each consequential action do: navigate, change an unsaved selection,
   create a record, submit a job, or approve a specific write? Include its
@@ -31,11 +34,17 @@ Walk a real user task and settle the decisions that change the implementation:
   current code. Cover keyboard/focus, relevant viewport changes, long text,
   localization, and existing theme behavior where they affect the task.
 
-Write one module V0 design document with the scenario, design links, behavior
-and state transitions, API coverage/gaps, ownership, decisions/open questions,
-acceptance examples, and proposed V1–Vn increments. Tables or diagrams are
-optional when they clarify. Link existing authorities; do not force separate
-route, state, API, and component documents or copy every endpoint definition.
+Deliver the V0 design plus complete applicable contract documents with the
+tutorial's reference project. Define interaction/state rules and the consumed
+API's fields, error behavior and ownership; reuse sufficient authoritative
+contracts without creating a second API definition. New or changed required
+contracts cannot remain empty templates or future implementation tasks.
+An unrelated database or RPC document is not required for a frontend module.
+
+The lesson presents user flow first, contracts and constraints next, and
+V1–Vn exercises with acceptance scenarios last. Link the actual documents
+without repeating their full contents or prescribing per-file copy/patch
+steps. Use existing checkpoints or versions to preserve the V0 contract state.
 
 An assistant's proposed answer is not a user decision. Resolve blocking choices
 in conversation, then update the document. Reuse already confirmed rules.

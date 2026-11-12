@@ -1,6 +1,6 @@
 ---
 name: project-implementation-tutorial-plan
-description: v0.2.0 - Plan frontend or backend module tutorials against an existing project, from V0 design discussion to V1–Vn implementation. Use when module behavior, interfaces, dependencies, or incremental coding checkpoints need clarification. Also supports already-agreed implementation-first tutorials.
+description: v0.3.0 - Plan frontend or backend module tutorials against real source, delivering V0 business logic and contract documents before V1–Vn implementation and verification planning. Use when behavior, contracts, dependencies or coding checkpoints need clarification. Preserve agreed implementation-first tutorials.
 ---
 
 # Project Implementation Tutorial Plan
@@ -35,22 +35,34 @@ A feature spanning both sides can have linked frontend and backend modules.
 Keep one authoritative shared API contract and name its owner; do not invent a
 third mode or copy the contract into competing documents.
 
-For a new module series, use **V0 for design discussion and its resulting
-document**, then **V1–Vn for incremental implementation tutorials**. Each module
-has its own version line; dependencies identify the other module and version,
+For a new module series, use **V0 for design discussion, the module design and
+applicable contract documents**, then **V1–Vn for incremental implementation
+tutorials**. Each module has its own version line; dependencies identify the other module and version,
 not just an ambiguous V0. Split by coherent user or business capability, not
 one module per screen, component, database table, or code layer.
 
-V0 captures the scenario, agreed behavior, existing-code/API gaps, ownership,
-failure paths, and acceptance examples needed to implement the selected scope.
-Consolidate this in one module design document, linking existing Figma and
-contract authorities instead of demanding four additional documents. Resolve
-decisions through discussion; keep proposals distinct from user decisions.
-Blocking questions leave V0 a draft and dependent implementation unready.
-When asked to complete V0, conduct that discussion and write/update its design
-document with the actual decisions; a roadmap promising later discussion is
-not the deliverable. Build can author a requested design document too, but
-is not a mandatory extra invocation to finish a planning/design discussion.
+V0 has three ordered parts: complete business logic, contracts and constraints,
+then the implementation and verification plan. Explain actors, intent, real
+objects, prerequisites, state changes, ownership, failure paths and subsequent
+use before deriving schemas, APIs or version increments. The main design
+document connects that flow to complete, reader-usable contract documents.
+Their scope follows the module: data/storage and HTTP/RPC when applicable,
+interaction/state contracts for frontend behavior. Reuse sufficient existing
+authority; do not invent a fixed document count or duplicate shared contracts.
+
+When asked to complete V0, write or update both the design and required
+contracts with actual decisions. A file list, empty template or promise to
+write them in V1 does not complete V0. Keep contracts with the tutorial's
+reference project, using its document ownership and version/checkpoint rules
+so the V0 state remains recoverable after later changes. The lesson links and
+explains them without repeating their full contents or requiring per-file
+patches, copy instructions or reader document-check commands. Production
+writes still require explicit authorization.
+
+Resolve consequential decisions through discussion; distinguish proposals
+from user decisions. Blocking questions leave V0 a draft and dependent
+implementation unready. Plan can finish this design delivery without another
+build invocation; build can also author a separately requested design.
 
 Do not restart a completed discussion. Reuse an already sufficient design and
 check drift. Preserve an existing implementation-first series or an explicit
@@ -89,10 +101,16 @@ the last case, use `project-implementation-tutorial-build` directly.
    happens and what must change. Name contracts to preserve and rules that
    tests can falsify, such as user isolation or atomic state-and-event writes.
    Reuse current infrastructure; do not design another app to explain it.
-4. Plan the version line.
+4. Complete the selected module's logic and contracts.
+   For design V0, trace the full bounded business process before deriving its
+   interface and data constraints. Produce or sufficiently reuse the required
+   contract documents, with examples and failure semantics actual consumers
+   can implement. Check that each object, field and operation has a role in
+   that process. Settle shared dependencies without requiring every future
+   module's design. Do not leave contract creation as a later coding task.
+   When design is already sufficient, inspect drift and reuse it.
+5. Derive the version line and teaching steps.
    For each module separate V0 design acceptance from V1–Vn runtime acceptance.
-   Start the selected module's review without requiring every future module's
-   design to be complete; settle shared dependencies needed by its promise.
    For each version name its prerequisite baseline, observable addition,
    included integration, explicit exclusions, and acceptance evidence. Inspect
    prerequisite code instead of trusting an earlier claim that it is complete.
@@ -103,11 +121,10 @@ the last case, use `project-implementation-tutorial-build` directly.
    a business rule without HTTP or persistence; do not invent a domain layer
    solely to fill a version. A requested V0 design document is a valid design
    checkpoint. Setup alone or a contract summary is not an implementation gain.
-5. Select the current version and order its teaching steps.
-   For design V0, order the discussion around the mode's unresolved decisions
-   and write/update the design document; do not silently select product rules or
-   prescribe final APIs before the discussion resolves them. For an
-   implementation version, use the agreed design as the starting contract.
+   Select the current version. End design V0 with implementation exercises and
+   verification scenarios derived from the completed logic and contracts;
+   do not silently choose unresolved product rules to fill a version table.
+   For an implementation version, use the agreed design as the starting contract.
    For implementation, map each step to exact files/symbols, the previous
    step's gap, the change, and a check. Include migrations, callers, configuration, and test
    guidance needed for this version's promise. The plan names test scenarios,
@@ -133,6 +150,8 @@ the last case, use `project-implementation-tutorial-build` directly.
   confirm only baseline drift and hand off directly to build.
 - If the user requests V0 discussion, keep discussing decisions that determine
   behavior or contracts; a polished document cannot substitute for agreement.
+  A discussion-only or outline request does not authorize writing artifacts;
+  report the remaining deliverables without declaring V0 complete.
 - If mode or module boundaries change, reconcile the affected design and
   dependencies before reusing a version's readiness; preserve unrelated work.
 - If the source is unavailable, request access or the relevant files. An
@@ -153,16 +172,18 @@ Include:
 - Mode and module: frontend/backend, owned capability, selected version kind,
   design document, and any cross-module contract/dependency.
 - Baseline: repository, revision and relevant dirty files, observed capability.
-- Goal and contracts: confirmed rules, invariants, unresolved blockers.
+- Goal and contracts: complete business flow, confirmed rules, delivered or
+  reused contract documents, invariants and unresolved blockers.
 - Versions: module-local name, design/implementation kind, starts from,
   includes/excludes, acceptance evidence, and next-step reuse or completion.
   Implementation versions also name before/after runtime behavior and an
   immediate reader check with expected result.
 - Current version: selected scope and why it is independently verifiable.
-- Steps: V0 discussion decisions and document sections, or implementation
-  file/symbol, reason, change, dependency, check and expected result.
-- Freeze: how the reader executes the check, broader regression scope,
-  `commit_when`, verification limits, and next version.
+- Steps: V0 logic, contract documents, then implementation/verification
+  planning; or implementation file/symbol, reason, change, dependency, check
+  and expected result.
+- Freeze: design/document evidence or implementation reader checks as
+  appropriate, broader verification scope, `commit_when`, limits and next version.
 
 Keep record IDs and bookkeeping out of the public plan. Briefly report the
 record path and unresolved decisions separately in the handoff.
@@ -223,6 +244,11 @@ design V0 is valid, but cannot be counted as implemented first-read behavior.
 - [ ] Test expectations are described as scenarios and outcomes; test source
       examples are not required by the plan.
 - [ ] Existing decisions are reused; blocking choices are explicit.
+- [ ] Design V0 supplies coherent end-to-end logic and complete applicable
+      contract documents before its implementation/verification plan.
+- [ ] Contract artifacts are available with the reference project or existing
+      authority, with their V0 state recoverable; no required documents are
+      deferred to coding or hidden only in local records.
 - [ ] Tutorial writing and production implementation are separate permissions.
 - [ ] The planning record matches the plan; no build/review record is required.
 

@@ -27,7 +27,9 @@ solution can go directly to build. It preserves version and teaching discipline
 without depending on the two learning-asset packages below.
 
 Frontend and backend modes share module-local versioning: a new module's V0
-discusses and records its design, and V1–Vn teach implementation. The mode
+delivers complete business logic and applicable contract documents with the
+reference project, then plans V1–Vn implementation and verification. V1–Vn
+teach the implementation. The mode
 changes design focus and verification; existing implementation-first tutorials
 retain their agreed numbering.
 

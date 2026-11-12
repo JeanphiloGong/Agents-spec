@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Tutorial Review"
-  short_description: "v0.2.0 - Review module designs and coding tutorials"
-  default_prompt: "Use $project-implementation-tutorial-review to assess this frontend/backend module and version: review design decisions for V0, or complete code and executable evidence for implementation, without treating design readiness as runtime completion."
+  short_description: "v0.3.0 - Review V0 contracts and implementation tutorials"
+  default_prompt: "Use $project-implementation-tutorial-review to check this module's V0 business flow, actual contract documents and derived implementation/verification plan, or its implementation code and tests against the matching contracts, without treating design readiness as runtime completion."

@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Tutorial Plan"
-  short_description: "v0.2.0 - Plan frontend/backend module tutorials"
-  default_prompt: "Use $project-implementation-tutorial-plan in frontend or backend mode to plan the module's V0 design and V1–Vn implementation against real source, preserving agreed direct-to-code scope and separating design acceptance from runtime checks."
+  short_description: "v0.3.0 - Deliver V0 logic, contracts and version plans"
+  default_prompt: "Use $project-implementation-tutorial-plan to deliver this module's V0 business logic and complete applicable contract documents with the reference project, then plan V1–Vn implementation and verification against real source; preserve agreed implementation-first scope."

@@ -1,6 +1,6 @@
 # Project Implementation Tutorial Workflow
 
-Version: **v0.2.0** (plan, build and review).
+Versions: **v0.3.0** (plan and review); **v0.2.0** (build).
 
 Create tutorials that teach a feature inside an existing project. The reader
 implements the changes; the agent writes and verifies the guide without
@@ -10,7 +10,7 @@ modifying the production worktree by default.
 
 | Situation | Skill | Deliverable |
 | --- | --- | --- |
-| A module needs design discussion or implementation versions | [plan](project-implementation-tutorial-plan/SKILL.md) | Source-backed module design/implementation versions, dependencies and acceptance |
+| A module needs design discussion or implementation versions | [plan](project-implementation-tutorial-plan/SKILL.md) | Complete module logic, contract documents and an implementation/verification plan |
 | Write the selected design or coding version | [build](project-implementation-tutorial-build/SKILL.md) | A module design document, or complete real-file implementation lessons and reader checks |
 | Check whether the selected version is ready | [review](project-implementation-tutorial-review/SKILL.md) | Mode-appropriate findings and design or implementation readiness verdict |
 
@@ -29,9 +29,9 @@ what to discuss, how to teach the change, and what evidence establishes readines
 | frontend | User tasks, design/Figma, interactions, UI states, routes, required API data and state/component ownership | Working user actions through real routes/clients, feedback and relevant keyboard/viewport/failure behavior |
 | backend | Real business process, invariants, models/responsibilities, interfaces, storage/transactions and failure effects | Executable rules and the actual caller, auth, persistence and response/effect required by the scope |
 
-For a new module series, V0 is discussion leading to one module design
-document; V1–Vn incrementally implement that design. Each module has its own
-version line. Cross-module dependencies name the module and version, and both
+For a new module series, V0 delivers the module design and its applicable
+contract documents; V1–Vn incrementally implement that design. Each module has
+its own version line. Cross-module dependencies name the module and version, and both
 sides reference one authoritative API contract. Do not split every screen or
 architectural layer into a separate module.
 
@@ -51,11 +51,36 @@ finding-publication (backend)
 ```
 
 V0 stays a draft while blocking decisions are unresolved. A consistent design
-document is not executable behavior or automatic user agreement. No four-part
-documentation ceremony is required: link existing design/API authorities and
-record the module-specific decisions in one document. A sufficient design can
-be reused without repeating discussion. Preserve an explicitly agreed
-implementation-first V0; version kind, not number, determines acceptance.
+is not executable behavior or automatic user agreement. Reuse sufficient
+existing design and contract authorities without repeating discussion or
+creating competing copies. Preserve an explicitly agreed implementation-first
+V0; version kind, not number, determines acceptance.
+
+## V0 Deliverables
+
+Present the design in this order:
+
+1. **Complete business logic:** actors, intent, real objects, prerequisites,
+   ordered actions, state changes, ownership, failure paths and the next use of
+   the result. Explain these before choosing tables, endpoints or helpers.
+2. **Contracts and constraints:** deliver the complete documents required by
+   that flow, such as data/storage, HTTP/RPC, or frontend interaction/state
+   contracts. Explain fields, rules and boundaries using the actual consumers.
+3. **Implementation and verification plan:** derive V1–Vn capabilities,
+   prerequisites and concrete acceptance scenarios from those decisions.
+
+The V0 lesson explains and links the contracts; the documents themselves are
+reader-usable deliverables, not an inventory of files to write later. Keep them
+with the tutorial's reference project under the project's document ownership
+rules. Existing sufficient authority can satisfy a deliverable by reference.
+No fixed folder, document count or schema tool is required, and a frontend-only
+module does not acquire an unrelated database design.
+
+Keep the V0 contract state recoverable through the existing checkpoint or
+version mechanism; a later final reference snapshot alone is insufficient when
+contracts evolve. Later agreed changes update the contract and affected code,
+tests and examples together. V0 prose need not repeat full contract contents,
+provide per-file patches or teach document-copying/check commands.
 
 ## Usage
 
@@ -125,9 +150,13 @@ but revalidate affected checks when the source or tutorial changes.
 
 ## Completion Boundary
 
-A design V0 freezes the bounded module's agreed behavior and interfaces with
-source references, acceptance examples and an implementation handoff. A useful
-implementation checkpoint changes an executable capability: what the
+A design V0 is complete when the bounded business flow is coherent, its
+required contract documents are supplied or sufficiently reused, and the final
+implementation/verification plan follows them. Review checks this alignment;
+headings, endpoint lists and future document tasks alone do not establish it.
+Design acceptance uses source and document evidence without requiring the
+future feature to run. A useful implementation checkpoint changes an
+executable capability: what the
 reader could not do before, what now works, an immediate check with expected
 results, and what the next checkpoint reuses. Contract summaries, setup, and
 record updates are not implementation progress. Design and coding versions

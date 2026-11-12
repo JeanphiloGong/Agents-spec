@@ -70,6 +70,10 @@ readiness. Static checks may use `method: source-review` or `decision-review`,
 `command: null`, and an actual reference/result. Record unresolved blocking
 decisions as findings; document consistency is not user agreement or runtime
 evidence. Implementation reviews retain the executable evidence requirements.
+Include the actual contract documents and reference checkpoint/revision in
+input identities or check references. Changing one of those contracts invalidates
+its affected design and implementation evidence, even if the main lesson did
+not change. A document inventory alone is not contract verification.
 
 ## Boundaries
 

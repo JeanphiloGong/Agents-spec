@@ -41,6 +41,8 @@ modules:
   - id: "files"
     mode: "frontend"
     design_document: "/path/to/tutorials/files/V0-design.md"
+    contract_documents:
+      - "/path/to/reference/docs/contracts/file-selection.md"
 decisions:
   - rule: "Confirmed behavior or proposed design choice"
     status: "agreed"
@@ -50,8 +52,8 @@ versions:
     kind: "design"
     starts_from: "Observed file UI, design sources and existing API"
     depends_on: []
-    outcome: "Module design ready for the bounded V1 implementation"
-    includes: ["User actions, UI states, API gaps and state/component ownership"]
+    outcome: "Complete logic and contract documents ready for the bounded V1 implementation"
+    includes: ["Complete user flow", "Delivered or reused interaction/API contracts", "Implementation and verification plan"]
     excludes: ["Production implementation"]
     targets: []
     acceptance: ["Source facts checked; blocking behavior/API choices resolved"]
@@ -64,6 +66,10 @@ next_planning_action: "Confirm the outstanding scope choice"
 Use `agreed` or `proposed` for decision status. Targets name actual files and
 symbols; acceptance names observable conditions. `commit_when` is a proposed
 freeze condition, never permission to commit. No test-pass flags belong here.
+For design V0, `contract_documents` lists actual delivered or reused authorities;
+record the applicable reference checkpoint/revision when it is separate from
+the source baseline. This list records delivery, not a substitute for writing
+the documents. Keep their contents and explanations outside local records.
 
 For implementation use `kind: implementation`, supply before/after runtime
 behavior, executable reader checks and prerequisites. Do not relabel an
