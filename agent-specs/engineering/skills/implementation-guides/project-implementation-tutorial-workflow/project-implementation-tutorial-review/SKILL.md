@@ -1,6 +1,6 @@
 ---
 name: project-implementation-tutorial-review
-description: v0.3.0 - Review frontend or backend tutorials against real source. Assess V0 business logic, delivered contract documents and implementation/verification planning, or V1–Vn code, integration and executable evidence, without treating design readiness as runtime completion.
+description: v0.3.1 - Review frontend or backend tutorials against real source. Assess V0 business logic, delivered contract documents and implementation/verification planning, or V1–Vn code, integration and executable evidence, without treating design readiness as runtime completion.
 ---
 
 # Project Implementation Tutorial Review
@@ -47,6 +47,13 @@ later final snapshots must not silently replace earlier contracts. Do not
 require a fixed folder/document count, unrelated database or RPC documents,
 full contract copies in the lesson, per-file patches or reader document-check
 commands. Those presentation mechanics do not establish design completeness.
+
+Contract writing should stay compact: a short purpose, field tables,
+constraints and necessary request/response examples. Flag repeated field or
+example explanations, repeated shared conventions and unrelated architecture
+commentary, recommendations, checklists or summaries. Keep prose for business
+rules not expressed by tables/examples; do not remove required constraints,
+authorization or failure semantics just to shorten the document.
 
 Scope `ready` to the design artifact and implementation handoff only; do not
 claim runtime completion. A successful document review does not replace the

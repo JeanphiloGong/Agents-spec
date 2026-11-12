@@ -291,6 +291,21 @@ or document count. Do not repair them during review.
 Reject: accepting a file inventory as delivered design or requiring exact
 patches in the V0 prose as the remedy.
 
+## Review: Concise Contract Writing
+
+Prompt: "The data contract has a purpose, field table and constraints. The API
+contract has shared auth/errors, endpoint fields and examples. Every field and
+example is then explained again, followed by generic architecture advice.
+Make a review recommendation about the writing."
+
+Expected: identify the repeated and unrelated prose as removable, preserving
+field types/nullability, required inputs, authorization, failure semantics and
+business rules such as atomic writes. A concise contract can be complete; do
+not require additional explanatory sections merely to appear thorough.
+
+Reject: keeping all repetition as necessary teaching, adding new commentary,
+or shortening by deleting actual contract requirements.
+
 ## Review: Reuse Authority and Preserve the V0 State
 
 Prompt: "Our frontend V0 supplies its interaction contract and references an

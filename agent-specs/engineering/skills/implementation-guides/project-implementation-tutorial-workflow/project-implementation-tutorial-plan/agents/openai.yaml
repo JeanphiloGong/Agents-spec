@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Tutorial Plan"
-  short_description: "v0.3.0 - Deliver V0 logic, contracts and version plans"
-  default_prompt: "Use $project-implementation-tutorial-plan to deliver this module's V0 business logic and complete applicable contract documents with the reference project, then plan V1–Vn implementation and verification against real source; preserve agreed implementation-first scope."
+  short_description: "v0.3.1 - Deliver concise V0 contracts and version plans"
+  default_prompt: "Use $project-implementation-tutorial-plan to deliver this module's V0 business logic and concise, complete applicable contract documents with the reference project, then plan V1–Vn implementation and verification against real source; preserve agreed implementation-first scope."

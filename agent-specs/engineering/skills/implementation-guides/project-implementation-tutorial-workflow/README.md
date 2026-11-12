@@ -1,6 +1,6 @@
 # Project Implementation Tutorial Workflow
 
-Versions: **v0.3.0** (plan and review); **v0.2.0** (build).
+Versions: **v0.3.1** (plan and review); **v0.2.0** (build).
 
 Create tutorials that teach a feature inside an existing project. The reader
 implements the changes; the agent writes and verifies the guide without
@@ -75,6 +75,11 @@ with the tutorial's reference project under the project's document ownership
 rules. Existing sufficient authority can satisfy a deliverable by reference.
 No fixed folder, document count or schema tool is required, and a frontend-only
 module does not acquire an unrelated database design.
+
+Keep contracts concise: short purpose, field tables, constraints and necessary
+examples. Explain shared conventions once; add prose only for otherwise
+unexpressed business rules. Plan includes a short writing example; review
+checks for repetition and unrelated commentary without weakening the contract.
 
 Keep the V0 contract state recoverable through the existing checkpoint or
 version mechanism; a later final reference snapshot alone is insufficient when

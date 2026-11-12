@@ -1,6 +1,6 @@
 ---
 name: project-implementation-tutorial-plan
-description: v0.3.0 - Plan frontend or backend module tutorials against real source, delivering V0 business logic and contract documents before V1–Vn implementation and verification planning. Use when behavior, contracts, dependencies or coding checkpoints need clarification. Preserve agreed implementation-first tutorials.
+description: v0.3.1 - Plan frontend or backend module tutorials against real source, delivering V0 business logic and contract documents before V1–Vn implementation and verification planning. Use when behavior, contracts, dependencies or coding checkpoints need clarification. Preserve agreed implementation-first tutorials.
 ---
 
 # Project Implementation Tutorial Plan
@@ -58,6 +58,11 @@ so the V0 state remains recoverable after later changes. The lesson links and
 explains them without repeating their full contents or requiring per-file
 patches, copy instructions or reader document-check commands. Production
 writes still require explicit authorization.
+
+When writing contract documents, read the short
+[contract writing example](references/contract-writing-example.md). Use a brief
+purpose, field tables, constraints and necessary examples; explain shared
+conventions once and add prose only for rules those structures cannot express.
 
 Resolve consequential decisions through discussion; distinguish proposals
 from user decisions. Blocking questions leave V0 a draft and dependent
