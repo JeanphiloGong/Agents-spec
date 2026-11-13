@@ -10,11 +10,13 @@ a local fixture's default screenshot timed out. This is scoped evidence, not a
 guarantee for every page or action. The replacement controller must be tested
 with its Node coordination cost included.
 
-The optional `newWindow: true` requests a separate window for a newly created
-temporary page, still with CDP `background: true`. The comparison above did
-not establish focus or stacking behavior for this option: the window may
-cover other windows or change focus. Monitor both transitions during creation
-and each action, stop on an unexpected change, and report unverified behavior.
+Use a background tab in an existing window by default and reuse the task page
+for sequential work. The optional `newWindow: true` requests a separate window
+for a newly created temporary page when a concrete task requires it, still with
+CDP `background: true`. The comparison above did not establish focus or stacking
+behavior for this option: the window may cover other windows or change focus.
+Record both transitions during creation and each action, and report unverified
+behavior.
 The option does not guarantee that a particular page renders or enable trusted
 input, tab switching, or native dialogs through the command surface.
 
@@ -27,9 +29,10 @@ commands. A Rust implementation does not remove that behavior.
 
 Native tab switching calls `Page.bringToFront`; stalled-renderer recovery can
 call `Target.activateTarget`. The connection exposes no tab-switch/input API,
-but internal recovery remains a limitation. Stop on stalls or unexpected focus
-changes; do not retry until recovery is within an agreed foreground operation.
-Do not bypass the connection using bare native commands.
+but internal recovery remains a limitation. Stop on stalls or identified
+unintended automation activation and investigate. Arrange an agreed foreground
+step if recovery needs one; do not repeatedly retry or bypass the connection
+using bare native commands.
 
 Synthetic DOM events have `isTrusted === false`. Pages can reject them;
 clipboard, native dialogs and canvas gestures require target-specific checks.
@@ -104,6 +107,10 @@ xprop -id 0xWINDOW WM_CLASS WM_TRANSIENT_FOR _NET_WM_WINDOW_TYPE
 Record IDs/classes, not unrelated window contents. Stop the observer after the
 verification interval. A page screenshot excludes native dialogs; inspect
 window relationships when necessary. On Wayland, use a supported desktop
-observer or report unverified focus. If focus changes, stop input, identify
-the action and modal state, and arrange a specific foreground step. Never
-repeatedly restore focus after raising Chrome.
+observer or report unverified focus. X11 transitions alone do not identify their
+cause: record what changed without attributing it to automation or the user.
+Normal user window switching does not interrupt background work. If evidence
+shows automation unexpectedly activated a window, stop input and investigate
+the action and modal state. Stop as well if the page is unresponsive or a
+trusted foreground operation is needed; arrange an agreed step before that
+operation. Do not automatically activate a window or force focus back.

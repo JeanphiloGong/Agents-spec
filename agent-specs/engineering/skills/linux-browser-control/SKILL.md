@@ -1,6 +1,6 @@
 ---
 name: linux-browser-control
-description: "v0.1.7 - Control visible Linux Chrome through pinned native agent-browser sessions with per-tab leases, topic coordination, focus-preserving DOM operations, and task cleanup. Use when reusing a signed-in Linux browser, coordinating tasks on different pages, checking ownership or vanished targets, or cleaning up completed browser work."
+description: "v0.1.8 - Control visible Linux Chrome through pinned native agent-browser sessions with per-tab leases, topic coordination, focus-preserving DOM operations, and task cleanup. Use when reusing a signed-in Linux browser, coordinating tasks on different pages, checking ownership or vanished targets, or cleaning up completed browser work."
 ---
 
 # Linux Browser Control
@@ -46,8 +46,9 @@ command surface are not automatically authorized.
 - CDP: HTTP loopback only (`127.0.0.1`, `localhost`, `[::1]`).
 - Browser candidates: `$LINUX_BROWSER`, `google-chrome`,
   `google-chrome-stable`, `chromium`, `chromium-browser`.
-- Keep the browser visible and preserve desktop focus. Reuse one task page
-  for sequential research; create more only for independent concurrent work.
+- Keep the browser visible and work in background tabs by default. Reuse one
+  task page for sequential research; create more only for independent concurrent
+  work. Use a separate window only for a concrete task need.
 - One owner per page; browser scope conflicts with all tab leases; shared
   document writers and account submissions also claim business resources.
 - Up to six active user-defined topics per account, including generation
@@ -75,11 +76,10 @@ registry, lease or session metadata.
    with owner, task, resources and optionally an observed `targetId`. Without
    a target it creates and leases a background temporary page in an existing
    window by default. The imported API accepts `newWindow: true` to request a
-   separate window for a new temporary page; it cannot be combined with
-   `targetId`. This option is not exposed by the CLI. A separate window may
-   cover other windows or change focus despite `background: true`: monitor
-   desktop focus and stacking during creation and each exercised action as
-   described in the focus reference, and stop on an unexpected transition.
+   separate window for a new temporary page when needed; it cannot be combined
+   with `targetId` and is not exposed by the CLI. A separate window may cover
+   other windows or change focus despite `background: true`: record desktop
+   focus and stacking transitions as described in the focus reference.
    It does not guarantee rendering or bypass native action limitations.
    Existing targets must be observed page targets, not arbitrary lock names.
 5. Keep the returned connection alive throughout the task. Use only
@@ -91,6 +91,9 @@ registry, lease or session metadata.
    Inspect DOM/snapshot, identify the control, perform one page-local action,
    wait, inspect and verify the result. Use `eval` with DOM events for inputs.
    Check desktop focus and stacking transitions for each new action method.
+   Normal user window switching does not interrupt background work; a transition
+   alone does not establish its cause. Do not automatically activate or
+   force-restore windows.
 7. Keep the document resource for the full editing operation. Claim an account
    resource such as `social:x:ACCOUNT_ID` only while submitting and verifying.
    Follow [Topic Concurrency](references/topic-concurrency.md). Login/logout
@@ -156,9 +159,10 @@ passwords or tokens, create popups, or target another page through it.
 
 The native runtime may call `Target.activateTarget` when recovering a stalled
 renderer. Excluding explicit foreground commands does **not** prove that every
-native operation preserves focus. Stop on unresponsive pages or unexpected
-activation, report the action and require an agreed foreground step for
-recovery; do not repeatedly retry or force focus back. Screenshot failures
+native operation preserves focus. Stop on unresponsive pages or identified
+unintended automation activation, report the evidence and investigate. If a
+trusted foreground operation is needed, arrange an agreed step before proceeding;
+do not repeatedly retry or force focus back. Screenshot failures
 must be reported without a hidden foreground or headless fallback.
 
 ## Examples
@@ -261,7 +265,7 @@ cleanup of a selected retained page without exposing other tabs.
 
 ## Verification
 
-- [ ] SKILL.md and agents/openai.yaml match v0.1.7 and native runtime scope.
+- [ ] SKILL.md and agents/openai.yaml match v0.1.8 and native runtime scope.
 - [ ] Installed binary is the fixed official version and checksum.
 - [ ] Registry inspection validates exact loopback discovery and strips query/fragment.
 - [ ] Existing separate-process tests enforce target/browser/resource exclusivity.
@@ -273,8 +277,9 @@ cleanup of a selected retained page without exposing other tabs.
 - [ ] close() removes temporary pages and sessions; selected pages remain unless
       closeTarget() was explicitly used; cleanup failure is surfaced.
 - [ ] Live snapshot/DOM input/wait/verification succeeds on the owned page.
-- [ ] Desktop focus and stacking transitions are checked for exercised methods;
-      native recovery and unsupported actions remain explicit limitations.
+- [ ] Desktop focus and stacking transitions are recorded for exercised methods
+      without assuming their cause; native recovery and unsupported actions
+      remain explicit limitations.
 - [ ] Full controller PSS includes Node coordination and native daemon; no
       generic speed or Chrome-memory improvement is inferred.
 - [ ] Final inventory, native processes and this task's leases are checked;

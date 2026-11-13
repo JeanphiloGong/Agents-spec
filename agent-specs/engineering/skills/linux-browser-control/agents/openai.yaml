@@ -1,4 +1,4 @@
 interface:
   display_name: "Linux Browser Control"
-  short_description: "v0.1.7 - Native browser control with tab leases and cleanup"
+  short_description: "v0.1.8 - Native browser control with tab leases and cleanup"
   default_prompt: "Use $linux-browser-control to operate a registered visible Linux Chrome through pinned native agent-browser commands, lease each task target and shared resource, preserve desktop focus with verified DOM actions, and close completed temporary pages and native sessions while preserving user pages and unfinished work."
