@@ -4,13 +4,30 @@ import { execFile } from "node:child_process";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { parseArgs, promisify } from "node:util";
+import { parseArgs } from "node:util";
 import { assertLinux, defaultRegistryPath, readCdpVersion, selectProfile } from "./registry.mjs";
 import { acquireLease, defaultLeaseDirectory } from "./lease.mjs";
 
 export const agentBrowserVersion = "0.41.2";
 export const agentBrowserPath = join(homedir(), ".local", "share", "linux-browser-control", "bin", `agent-browser-${agentBrowserVersion}`);
-const execute = promisify(execFile);
+const execute = (file, args, options) => new Promise((resolve, reject) => {
+  const child = execFile(file, args, { ...options, timeout: 0, killSignal: "SIGKILL" }, (error, stdout, stderr) => {
+    clearTimeout(timer);
+    if (error) { error.stdout = stdout; error.stderr = stderr; reject(error); }
+    else resolve({ stdout, stderr });
+  });
+  const timer = setTimeout(() => {
+    let killError;
+    try { child.kill("SIGKILL"); } catch (error) { killError = error; }
+    child.stdin?.destroy();
+    child.stdout?.destroy();
+    child.stderr?.destroy();
+    child.unref();
+    const error = new Error("native process timed out", { cause: killError });
+    error.killed = true;
+    reject(error);
+  }, options.timeout);
+});
 
 async function openCdp(url, onEvent, onDisconnect) {
   const socket = new WebSocket(url);
@@ -70,6 +87,8 @@ export async function connectLinuxBrowser(options) {
   const version = await readCdpVersion(profile.cdp_endpoint);
   const lease = acquireLease({ endpoint: profile.cdp_endpoint, instance: profile.name, owner, task, scope,
     browserId: version.browserId, targetId, resources, directory: leaseDirectory });
+  // A process exit does not cancel CDP requests or dispose of the native session.
+  lease.persistOnExit();
   let cdp;
   let disconnected = false;
   let boundTargetId = targetId;
@@ -80,16 +99,27 @@ export async function connectLinuxBrowser(options) {
   // The unique directory provides isolation; keep the Unix socket filename short.
   const session = "page";
   const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith("AGENT_BROWSER_")));
+  let nativeUncertain = false;
   const invoke = async args => {
     let stdout;
+    let result;
     try {
-      ({ stdout } = await execute(executablePath, ["--config", join(sessionDirectory, "config.json"), "--session", session, "--json", ...args],
-        { env, cwd: sessionDirectory, timeout: 45000, maxBuffer: 8 * 1024 * 1024 }));
+      lease.beginNative();
+      try {
+        ({ stdout } = await execute(executablePath, ["--config", join(sessionDirectory, "config.json"), "--session", session, "--json", ...args],
+          { env, cwd: sessionDirectory, timeout: 45000, maxBuffer: 8 * 1024 * 1024 }));
+      } catch (error) {
+        if (error.killed || error.signal || !error.stdout)
+          throw new Error(`agent-browser command failed (${error.killed ? "timeout" : error.code}); outcome is uncertain`, { cause: error });
+        stdout = error.stdout;
+      }
+      result = JSON.parse(stdout);
+      if (typeof result.success !== "boolean") throw new Error("agent-browser returned an incomplete response");
+      lease.finishNative();
     } catch (error) {
-      if (!error.stdout) throw new Error(`agent-browser command failed (${error.killed ? "timeout" : error.code})`, { cause: error });
-      stdout = error.stdout;
+      nativeUncertain = true;
+      throw error;
     }
-    const result = JSON.parse(stdout);
     if (!result.success) {
       if (result.code === "tab_gone") lease.markTargetGone("native controller lost its bound target");
       const error = new Error(result.error);
@@ -110,8 +140,11 @@ export async function connectLinuxBrowser(options) {
     closing = (async () => {
       const errors = [];
       try {
+        if (nativeStarted && lease.isReleased()) errors.push(new Error("lease already released; cannot confirm native session cleanup"));
+        if (lease.pendingOperation()) errors.push(new Error(`${lease.pendingOperation()} outcome is uncertain`));
         if (targetClosing) errors.push(new Error("closeTarget is in flight; cannot confirm target state"));
         if (!retainRequested && commandsInFlight) await new Promise(resolve => { commandsDrained = resolve; });
+        if (lease.nativePending() && !commandsInFlight) errors.push(new Error("native command outcome is uncertain"));
         if (retainRequested && !errors.length) {
           try {
             if (retainTarget !== true) throw new Error("handoff requires retainTarget: true");
@@ -125,7 +158,7 @@ export async function connectLinuxBrowser(options) {
               throw new Error("handoff requires the exact about:blank target");
           } catch (error) { errors.push(error); }
         }
-        if (nativeStarted) {
+        if (nativeStarted && !lease.nativePending() && !lease.pendingOperation() && !commandsInFlight && !lease.isReleased()) {
           try {
             await invoke(["close"]);
             const deadline = Date.now() + 5000;
@@ -143,12 +176,14 @@ export async function connectLinuxBrowser(options) {
               throw new Error("handoff target changed during native shutdown");
           } catch (error) { errors.push(error); }
         }
-        if (createdTarget && !retainRequested && !targetClosing) {
+        if (createdTarget && !retainRequested && !errors.length && !targetClosing && !lease.pendingOperation() && !lease.nativePending() && !lease.isReleased()) {
           try {
             if (disconnected) throw new Error(`cannot confirm temporary target closed: ${boundTargetId} (browser disconnected)`);
             const { targetInfos } = await cdp.send("Target.getTargets");
             if (targetInfos.some(target => target.targetId === boundTargetId)) {
-              await cdp.send("Target.closeTarget", { targetId: boundTargetId });
+              lease.beginClose();
+              const result = await cdp.send("Target.closeTarget", { targetId: boundTargetId });
+              if (result.success !== true) throw new Error(`temporary target close was not confirmed: ${boundTargetId}`);
               const deadline = Date.now() + 5000;
               while (true) {
                 const { targetInfos: remaining } = await cdp.send("Target.getTargets");
@@ -156,6 +191,7 @@ export async function connectLinuxBrowser(options) {
                 if (Date.now() > deadline) throw new Error(`temporary target still open: ${boundTargetId}`);
                 await new Promise(resolve => setTimeout(resolve, 50));
               }
+              lease.finishClose();
             }
           } catch (error) { errors.push(error); }
         }
@@ -166,12 +202,14 @@ export async function connectLinuxBrowser(options) {
         // Preserve native runtime diagnostics when shutdown could not be confirmed.
         if (sessionDirectory && !errors.length) rmSync(sessionDirectory, { recursive: true, force: true });
       }
-      if (errors.length) throw new AggregateError(errors, `${errors.map(error => error.message).join("; ")}; lease retained: ${lease.runId}; target: ${boundTargetId ?? "none"}; session: ${sessionDirectory ?? "none"}; lease directory: ${leaseDirectory}`);
+      if (errors.length) throw new AggregateError(errors, `${errors.map(error => error.message).join("; ")}; lease ${lease.isReleased() ? "already released" : "retained"}: ${lease.runId}; target: ${boundTargetId ?? "none"}; session: ${sessionDirectory ?? "none"}; lease directory: ${leaseDirectory}`);
     })();
     return closing;
   };
   const command = async (args, internal) => {
     lease.assertOwned();
+    if (lease.pendingOperation()) throw new Error(`${lease.pendingOperation()} outcome is uncertain; stop this controller`);
+    if (nativeUncertain) throw new Error("native command outcome is uncertain; stop this controller");
     if (closing) throw new Error("browser connection is closing");
     // These operations stay on the bound target; global flags could replace that binding.
     if (!["open", "snapshot", "eval", "get", "wait", "screenshot"].includes(args[0]))
@@ -195,9 +233,12 @@ export async function connectLinuxBrowser(options) {
         lease.markTargetGone(); lease.assertOwned();
       }
       lease.assertOwned();
+      if (lease.pendingOperation()) throw new Error(`${lease.pendingOperation()} outcome is uncertain; stop this controller`);
+      if (nativeUncertain) throw new Error("native command outcome is uncertain; stop this controller");
       if (closing && internal !== handoffCheck) throw new Error("browser connection is closing");
       const result = await invoke(args);
       lease.assertOwned();
+      if (nativeUncertain) throw new Error("native command outcome is uncertain; stop this controller");
       return result;
     } finally {
       commandsInFlight--;
@@ -211,6 +252,7 @@ export async function connectLinuxBrowser(options) {
       throw new Error(`agent-browser ${agentBrowserVersion} is required; run scripts/install_agent_browser.mjs`);
     mkdirSync(runtimeRoot, { recursive: true, mode: 0o700 });
     sessionDirectory = mkdtempSync(join(runtimeRoot, "session-"));
+    lease.setSessionDirectory(sessionDirectory);
     env.AGENT_BROWSER_SOCKET_DIR = sessionDirectory;
     env.AGENT_BROWSER_AUTOSAVE_INTERVAL_MS = "0";
     writeFileSync(join(sessionDirectory, "config.json"), "{}\n", { mode: 0o600 });
@@ -224,9 +266,12 @@ export async function connectLinuxBrowser(options) {
       if (!targetInfos.some(target => target.targetId === boundTargetId && target.type === "page"))
         throw new Error(`target is not an open page: ${boundTargetId}`);
     } else {
+      lease.beginCreate();
       ({ targetId: boundTargetId } = await cdp.send("Target.createTarget", { url: "about:blank", background: true, newWindow: newWindow === true }));
       createdTarget = true;
       if (scope === "tab") lease.claimTab(boundTargetId);
+      else lease.setTarget(boundTargetId);
+      lease.finishCreate();
     }
     // Version-pinned native contract: restore this observed target without foreground tab switching.
     writeFileSync(join(sessionDirectory, `${session}.target`), JSON.stringify({ targetId: boundTargetId, url: "about:blank", pinned: true }), { mode: 0o600 });
@@ -238,10 +283,17 @@ export async function connectLinuxBrowser(options) {
       async closeTarget() {
         lease.assertOwned();
         if (closing) throw new Error("browser connection is closing");
+        if (lease.pendingOperation()) throw new Error(`${lease.pendingOperation()} outcome is uncertain; stop this controller`);
+        if (lease.nativePending()) throw new Error("native command is in flight or its outcome is uncertain; stop this controller");
         if (targetCloseInFlight) throw new Error("closeTarget is already in flight");
         targetCloseInFlight = true;
         try {
-          await cdp.send("Target.closeTarget", { targetId: boundTargetId });
+          lease.beginClose();
+          const result = await cdp.send("Target.closeTarget", { targetId: boundTargetId });
+          if (result.success !== true) throw new Error(`target close was not confirmed: ${boundTargetId}`);
+          const { targetInfos } = await cdp.send("Target.getTargets");
+          if (targetInfos.some(target => target.targetId === boundTargetId)) throw new Error(`target still open: ${boundTargetId}`);
+          lease.finishClose();
           lease.markTargetGone("page explicitly closed");
         } finally { targetCloseInFlight = false; }
       },

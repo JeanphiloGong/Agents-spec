@@ -1,6 +1,6 @@
 ---
 name: linux-browser-control
-description: "v0.1.8 - Control visible Linux Chrome through pinned native agent-browser sessions with per-tab leases, topic coordination, focus-preserving DOM operations, and task cleanup. Use when reusing a signed-in Linux browser, coordinating tasks on different pages, checking ownership or vanished targets, or cleaning up completed browser work."
+description: "v0.1.9 - Control visible Linux Chrome through pinned native agent-browser sessions with per-tab leases, topic coordination, focus-preserving DOM operations, and task cleanup. Use when reusing a signed-in Linux browser, coordinating tasks on different pages, checking ownership or vanished targets, or cleaning up completed browser work."
 ---
 
 # Linux Browser Control
@@ -214,6 +214,14 @@ cleanup of a selected retained page without exposing other tabs.
 
 ## Decision Points
 
+- An `uncertain` lease records an unconfirmed target mutation or native command.
+  A timeout or controller exit does not cancel an external effect. Stop commands,
+  preserve the lease and session diagnostics, and inspect before exact-run recovery.
+  An uncertain target creation also blocks new tab claims through its allocation
+  guard until the owner and any late-created page have been investigated.
+- Native subprocess deadlines terminate the CLI and settle the caller even when
+  inherited output pipes remain open; they do not prove the daemon or page stopped.
+
 - Missing registry: report its exact path; ask before creating a persistent
   profile unless creation was already requested. A stopped profile is reused.
 - Process alive but exact CDP endpoint fails: investigate that process and
@@ -265,7 +273,7 @@ cleanup of a selected retained page without exposing other tabs.
 
 ## Verification
 
-- [ ] SKILL.md and agents/openai.yaml match v0.1.8 and native runtime scope.
+- [ ] SKILL.md and agents/openai.yaml match v0.1.9 and native runtime scope.
 - [ ] Installed binary is the fixed official version and checksum.
 - [ ] Registry inspection validates exact loopback discovery and strips query/fragment.
 - [ ] Existing separate-process tests enforce target/browser/resource exclusivity.

@@ -165,13 +165,72 @@ test("retained lease survives owner exit without an active heartbeat", async (t)
   assert.deepEqual(listLeases(directory), []);
 });
 
+test("exact recovery releases all records even when their resource snapshots differ", (t) => {
+  const options = fixture(t);
+  const directory = join(options.directory, "leases");
+  const lease = acquireLease(tabOptions(options, { resources: ["document:one"] }));
+  lease.retain();
+  const paths = readdirSync(directory).map(name => join(directory, name, "lease.json"));
+  const old = JSON.parse(readFileSync(paths[0], "utf8"));
+  old.resources = [];
+  writeFileSync(paths[0], JSON.stringify(old));
+  releaseLease(lease.runId, directory);
+  assert.deepEqual(readdirSync(directory), []);
+});
+
+test("a killed allocator leaves an identifiable guard and recovery preserves another owner", async (t) => {
+  const options = fixture(t);
+  const directory = join(options.directory, "leases");
+  const other = acquireLease(tabOptions(options, { owner: "other", targetId: "other-tab" }));
+  t.after(other.release);
+  const childCode = `
+    import fs from 'node:fs';
+    import { syncBuiltinESMExports } from 'node:module';
+    const original = fs.linkSync;
+    fs.linkSync = (...args) => { original(...args); process.kill(process.pid, 'SIGKILL'); };
+    syncBuiltinESMExports();
+    const { acquireLease } = await import(${JSON.stringify(new URL("./lease.mjs", import.meta.url).href)});
+    const lease = acquireLease(JSON.parse(process.argv[1]));
+    lease.persistOnExit();
+    lease.beginCreate();
+    process.exit(9);
+  `;
+  const child = spawn(process.execPath, ["--input-type=module", "-e", childCode,
+    JSON.stringify(tabOptions(options, { owner: "allocator", targetId: undefined }))]);
+  const result = await new Promise(resolve => child.on("exit", (code, signal) => resolve({ code, signal })));
+  assert.equal(result.signal, "SIGKILL");
+  const record = listLeases(directory).find(item => item.owner === "allocator");
+  assert.equal(record.pendingOperation, "createTarget");
+  assert.equal(record.status, "uncertain");
+  assert.throws(() => acquireLease(tabOptions(options, { owner: "claimant", targetId: "new-tab" })), /occupied/);
+  releaseLease(record.runId, directory);
+  assert.equal(listLeases(directory).find(item => item.owner === "other").runId, other.runId);
+  const claimant = acquireLease(tabOptions(options, { owner: "claimant", targetId: "new-tab" }));
+  claimant.release();
+});
+
+test("concurrent recovery for the same run fails before removing any owner", (t) => {
+  const options = fixture(t);
+  const directory = join(options.directory, "leases");
+  const first = acquireLease(tabOptions(options));
+  const other = acquireLease(tabOptions(options, { owner: "other", targetId: "other-tab" }));
+  t.after(first.release);
+  t.after(other.release);
+  const recovery = join(directory, `.recovery-${first.runId}`);
+  mkdirSync(recovery);
+  assert.throws(() => releaseLease(first.runId, directory), /recovery already in progress/);
+  first.assertOwned();
+  other.assertOwned();
+  rmSync(recovery, { recursive: true });
+});
+
 test("lease inputs reject missing owners, unsafe endpoints and reserved resources", (t) => {
   const options = fixture(t);
   for (const override of [
     { owner: "" }, { browserId: "" }, { scope: "other" },
     { endpoint: "http://user:password@127.0.0.1:19224" },
     { endpoint: "http://127.0.0.1:19224/path" },
-    { resources: ["endpoint:19224"] }, { targetId: "tab/../other" },
+    { resources: ["endpoint:19224"] }, { resources: ["allocation:19224"] }, { targetId: "tab/../other" },
   ]) assert.throws(() => acquireLease(tabOptions(options, override)));
   assert.deepEqual(listLeases(join(options.directory, "leases")), []);
 });
@@ -238,6 +297,7 @@ async function connectionFixture(t, expectedNewWindow = false) {
   let targetUrl = "about:blank";
   let pausedResponse;
   let pauseCloseResponse = false;
+  let delayedMethod;
   const server = createServer((request, response) => {
     assert.equal(request.url, "/json/version");
     response.setHeader("Content-Type", "application/json");
@@ -262,6 +322,13 @@ async function connectionFixture(t, expectedNewWindow = false) {
     send(raw) {
       const { id, method, params } = JSON.parse(raw);
       calls.push({ method, params });
+      if (method === delayedMethod) {
+        setTimeout(15500).then(() => {
+          if (method === "Target.createTarget") targets.add("new-tab");
+          else targets.delete(params.targetId);
+        });
+        return;
+      }
       let result = {};
       let error;
       if (method === "Target.getTargets") result = { targetInfos: [...targets].map(targetId => ({ targetId, type: "page", url: targetId === "new-tab" ? targetUrl : "about:blank" })) };
@@ -271,7 +338,7 @@ async function connectionFixture(t, expectedNewWindow = false) {
       }
       if (method === "Target.closeTarget") {
         if (failClose) error = { message: "close failed" };
-        else targets.delete(params.targetId);
+        else { targets.delete(params.targetId); result = { success: true }; }
       }
       const respond = () => this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify({ id, result, ...(error ? { error } : {}) }) }));
       if (method === "Target.getTargets" && pausedResponse === true) pausedResponse = respond;
@@ -312,6 +379,7 @@ process.exitCode = fail ? 1 : 0;
     setBlank: value => writeFileSync(blankPath, JSON.stringify(value)),
     pauseTargetQuery: () => { pausedResponse = true; },
     pauseCloseTarget: () => { pauseCloseResponse = true; },
+    delayMethod: value => { delayedMethod = value; },
     resumeTargetQuery: () => { const respond = pausedResponse; pausedResponse = undefined; respond(); },
     connectionOptions: {
       name: "design", owner: "agent-a", task: "connection-check", registryPath: options.registryPath,
@@ -319,6 +387,79 @@ process.exitCode = fail ? 1 : 0;
     },
   };
 }
+
+test("timed-out creation retains its allocation guard after the target appears late", { timeout: 22000 }, async (t) => {
+  const f = await connectionFixture(t);
+  f.delayMethod("Target.createTarget");
+  await assert.rejects(connectLinuxBrowser(f.connectionOptions), /lease retained/);
+  const [record] = listLeases(f.connectionOptions.leaseDirectory);
+  assert.equal(record.pendingOperation, "createTarget");
+  await setTimeout(700);
+  assert.ok(f.targets.has("new-tab"));
+  assert.throws(() => acquireLease({ endpoint: record.endpoint, instance: "design", owner: "other", task: "claim",
+    browserId: "browser-1", targetId: "new-tab", directory: f.connectionOptions.leaseDirectory }), /occupied/);
+  releaseLease(record.runId, f.connectionOptions.leaseDirectory);
+});
+
+test("timed-out explicit close retains its target lease after a late close", { timeout: 22000 }, async (t) => {
+  const f = await connectionFixture(t);
+  const connection = await connectLinuxBrowser({ ...f.connectionOptions, targetId: "existing-tab" });
+  f.delayMethod("Target.closeTarget");
+  await assert.rejects(connection.closeTarget(), /timed out/);
+  assert.throws(() => connection.lease.release(), /uncertain/);
+  await assert.rejects(connection.closeTarget(), /uncertain/);
+  await assert.rejects(connection.command(["snapshot"]), /uncertain/);
+  assert.equal(f.calls.filter(call => call.method === "Target.closeTarget").length, 1);
+  await assert.rejects(connection.close(), /lease retained/);
+  const [record] = listLeases(f.connectionOptions.leaseDirectory);
+  assert.equal(record.pendingOperation, "closeTarget");
+  await setTimeout(700);
+  assert.ok(!f.targets.has("existing-tab"));
+  assert.throws(() => acquireLease({ endpoint: record.endpoint, instance: "design", owner: "other", task: "claim",
+    browserId: "browser-1", targetId: "existing-tab", directory: f.connectionOptions.leaseDirectory }), /occupied/);
+  releaseLease(record.runId, f.connectionOptions.leaseDirectory);
+});
+
+test("normal process exit during a target mutation preserves the exact owner's lease", async (t) => {
+  const f = await connectionFixture(t);
+  for (const method of ["Target.createTarget", "Target.closeTarget", "steady"]) {
+    const childCode = `
+      import { connectLinuxBrowser } from ${JSON.stringify(new URL("./connect_browser.mjs", import.meta.url).href)};
+      const options = JSON.parse(process.argv[1]);
+      const mutation = process.argv[2];
+      globalThis.WebSocket = class extends EventTarget {
+        constructor() { super(); queueMicrotask(() => this.dispatchEvent(new Event('open'))); }
+        send(raw) {
+          const { id, method } = JSON.parse(raw);
+          if (method === mutation) process.exit(0);
+          const result = method === 'Target.getTargets' ? {targetInfos:[{targetId:'existing-tab',type:'page'}]} :
+            method === 'Target.createTarget' ? {targetId:'new-tab'} : {};
+          queueMicrotask(() => this.dispatchEvent(new MessageEvent('message', {data:JSON.stringify({id,result})})));
+        }
+        close() { this.dispatchEvent(new Event('close')); }
+      };
+      const connection = await connectLinuxBrowser(mutation === 'Target.closeTarget' ? {...options,targetId:'existing-tab'} :
+        mutation === 'steady' ? {...options,scope:'browser'} : options);
+      if (mutation === 'steady') process.exit(0);
+      await connection.closeTarget();
+    `;
+    const child = spawn(process.execPath, ["--input-type=module", "-e", childCode, JSON.stringify(f.connectionOptions), method]);
+    let stderr = "";
+    child.stderr.on("data", data => { stderr += data; });
+    assert.equal(await new Promise(resolve => child.on("exit", resolve)), 0, stderr);
+    const [record] = listLeases(f.connectionOptions.leaseDirectory);
+    assert.equal(record.owner, "agent-a");
+    assert.equal(record.pendingOperation, method === "steady" ? undefined : method.split(".")[1]);
+    assert.equal(record.status, method === "steady" ? "active" : "uncertain");
+    assert.ok(record.sessionDirectory.startsWith(f.connectionOptions.runtimeRoot));
+    if (method === "steady") assert.equal(record.targetId, "new-tab");
+    assert.throws(() => acquireLease({ endpoint: record.endpoint, instance: "design", owner: "other", task: "claim",
+      browserId: "browser-1", targetId: method === "Target.createTarget" ? "unknown-new-tab" : "existing-tab",
+      directory: f.connectionOptions.leaseDirectory }), /occupied/);
+    releaseLease(record.runId, f.connectionOptions.leaseDirectory);
+    assert.deepEqual(listLeases(f.connectionOptions.leaseDirectory), []);
+  }
+});
 
 test("native connection binds its background page and exposes no Playwright objects", async (t) => {
   const f = await connectionFixture(t);
@@ -586,7 +727,9 @@ test("released ownership stops native commands", async (t) => {
   const connection = await connectLinuxBrowser(f.connectionOptions);
   connection.lease.release();
   await assert.rejects(connection.command(["snapshot"]), /released/);
-  await connection.close();
+  await assert.rejects(connection.close(), /lease already released/);
+  assert.ok(!f.commands().some(c => c.args.at(-1) === "close"));
+  assert.ok(!f.calls.some(c => c.method === "Target.closeTarget"));
 });
 
 test("retained-page cleanup closes only the explicitly leased target", async (t) => {
@@ -613,7 +756,8 @@ test("native shutdown failure is reported and its diagnostic directory remains",
   const path = f.connectionOptions.executablePath;
   writeFileSync(path, readFileSync(path, "utf8").replace("commands.includes('fail')", "commands.includes('close')"));
   await assert.rejects(connection.close(), /navigation failed/);
-  assert.deepEqual([...f.targets], ["existing-tab", "other-tab"]);
+  assert.deepEqual([...f.targets], ["existing-tab", "other-tab", "new-tab"]);
+  assert.ok(!f.calls.some(c => c.method === "Target.closeTarget"));
   assert.equal(listLeases(f.connectionOptions.leaseDirectory)[0].runId, connection.lease.runId);
   assert.equal(readdirSync(f.connectionOptions.runtimeRoot).length, 1);
 });
@@ -653,7 +797,8 @@ test("failed bootstrap and cleanup retain a recoverable lease", async (t) => {
   assert.ok(failure.message.includes(f.connectionOptions.leaseDirectory));
   assert.ok(failure.message.includes(join(f.connectionOptions.runtimeRoot, readdirSync(f.connectionOptions.runtimeRoot)[0])));
   assert.ok(failure.message.includes("new-tab"));
-  assert.deepEqual([...f.targets], ["existing-tab", "other-tab"]);
+  assert.deepEqual([...f.targets], ["existing-tab", "other-tab", "new-tab"]);
+  assert.ok(!f.calls.some(c => c.method === "Target.closeTarget"));
   assert.equal(readdirSync(f.connectionOptions.runtimeRoot).length, 1);
 });
 

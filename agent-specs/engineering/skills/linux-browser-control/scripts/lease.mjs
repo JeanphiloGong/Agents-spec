@@ -3,6 +3,8 @@ import { createHash, randomUUID } from "node:crypto";
 import {
   mkdirSync,
   existsSync,
+  linkSync,
+  lstatSync,
   readFileSync,
   realpathSync,
   readdirSync,
@@ -21,6 +23,7 @@ export const defaultLeaseDirectory = join(
   "leases",
 );
 const lockName = (resource) => createHash("sha256").update(resource).digest("hex");
+const recordPath = path => lstatSync(path).isDirectory() ? join(path, "lease.json") : path;
 
 export function listLeases(directory = defaultLeaseDirectory, now = Date.now()) {
   mkdirSync(directory, { recursive: true, mode: 0o700 });
@@ -28,7 +31,7 @@ export function listLeases(directory = defaultLeaseDirectory, now = Date.now()) 
     .filter((name) => /^[a-f0-9]{64}$/.test(name))
     .map((name) => {
       try {
-        const record = JSON.parse(readFileSync(join(directory, name, "lease.json"), "utf8"));
+        const record = JSON.parse(readFileSync(recordPath(join(directory, name)), "utf8"));
         if (
           typeof record.runId !== "string" ||
           typeof record.instance !== "string" ||
@@ -46,7 +49,7 @@ export function listLeases(directory = defaultLeaseDirectory, now = Date.now()) 
         if (!["active", "target_gone"].includes(state)) throw new Error("invalid lease state");
         return {
           ...record,
-          status: state === "target_gone"
+          status: record.pendingOperation || record.pendingNative ? "uncertain" : state === "target_gone"
             ? "target_gone"
             : now - Date.parse(record.lastHeartbeat) > record.ttlMs ? "unresponsive" : "active",
         };
@@ -54,7 +57,14 @@ export function listLeases(directory = defaultLeaseDirectory, now = Date.now()) 
         return { lock: name, status: "unknown" };
       }
     });
-  return [...new Map(records.map((record) => [record.runId || record.lock, record])).values()];
+  const byRun = new Map();
+  for (const record of records) {
+    const key = record.runId || record.lock;
+    const previous = byRun.get(key);
+    if (!previous || record.status === "uncertain" || (record.status === "target_gone" && previous.status !== "uncertain"))
+      byRun.set(key, record);
+  }
+  return [...byRun.values()];
 }
 
 export function acquireLease({
@@ -78,7 +88,7 @@ export function acquireLease({
   if (targetId != null && !validId(targetId)) throw new Error("targetId must be an observed CDP target identifier");
   if (!Array.isArray(resources) || resources.some(resource =>
     typeof resource !== "string" || !/^[A-Za-z0-9][A-Za-z0-9:._/-]*$/.test(resource) ||
-    resource.includes("://") || /^(endpoint|instance|tab|connection):/.test(resource)))
+    resource.includes("://") || /^(endpoint|instance|tab|connection|allocation):/.test(resource)))
     throw new Error("resources must be business identifiers, without URLs or reserved ownership prefixes");
   const origin = new URL(endpoint);
   if (origin.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(origin.hostname) ||
@@ -90,6 +100,7 @@ export function acquireLease({
   const runId = randomUUID();
   const browserClaims = [`endpoint:${origin.port || "80"}`, `instance:${instance}`];
   const tabClaim = id => `tab:${origin.port || "80"}:${browserId}:${id}`;
+  const allocationClaim = `allocation:${origin.port || "80"}`;
   const claims = [...new Set([
     ...(scope === "browser" ? browserClaims : [
       `connection:${runId}`,
@@ -119,12 +130,13 @@ export function acquireLease({
   let ownershipError;
   const release = () => {
     if (released) return;
+    if (record.pendingOperation || record.pendingNative) throw new Error(`${record.pendingOperation || "native command"} outcome is uncertain; retain the lease for cleanup`);
     released = true;
     clearInterval(timer);
     process.off("exit", release);
     for (const path of held) {
       try {
-        const current = JSON.parse(readFileSync(join(path, "lease.json"), "utf8"));
+        const current = JSON.parse(readFileSync(recordPath(path), "utf8"));
         if (current.runId !== runId) continue;
       } catch (error) {
         if (error.code === "ENOENT") {
@@ -147,7 +159,7 @@ export function acquireLease({
     if (ownershipError) throw ownershipError;
     if (released) throw new Error("browser lease was released; stop this controller");
     for (const path of held) {
-      const current = JSON.parse(readFileSync(join(path, "lease.json"), "utf8"));
+      const current = JSON.parse(readFileSync(recordPath(path), "utf8"));
       if (current.runId !== runId) throw new Error("browser ownership changed; stop this controller");
       if (current.state === "target_gone") {
         const error = new Error("browser target is gone; stop this controller");
@@ -160,9 +172,10 @@ export function acquireLease({
     if (verifyOwner) assertOwned();
     record.lastHeartbeat = new Date().toISOString();
     for (const path of held) {
-      const temporary = join(path, `${runId}.tmp`);
+      const destination = recordPath(path);
+      const temporary = destination === path ? `${path}.${runId}.tmp` : join(path, `${runId}.tmp`);
       writeFileSync(temporary, JSON.stringify(record, null, 2) + "\n", { mode: 0o600 });
-      renameSync(temporary, join(path, "lease.json"));
+      renameSync(temporary, destination);
     }
   };
   const markTargetGone = (reason = "target disappeared") => {
@@ -175,11 +188,12 @@ export function acquireLease({
     if (released) return;
     for (const path of held) {
       try {
-        const current = JSON.parse(readFileSync(join(path, "lease.json"), "utf8"));
+        const current = JSON.parse(readFileSync(recordPath(path), "utf8"));
         if (current.runId !== runId) continue;
-        const temporary = join(path, `${runId}.tmp`);
+        const destination = recordPath(path);
+        const temporary = destination === path ? `${path}.${runId}.tmp` : join(path, `${runId}.tmp`);
         writeFileSync(temporary, JSON.stringify(record, null, 2) + "\n", { mode: 0o600 });
-        renameSync(temporary, join(path, "lease.json"));
+        renameSync(temporary, destination);
       } catch {
         // The local ownership error still fails closed when the record is unavailable.
       }
@@ -197,7 +211,7 @@ export function acquireLease({
   };
   const checkBrowserConflict = () => {
     if (scope === "tab") {
-      for (const resource of browserClaims) {
+      for (const resource of [...browserClaims, allocationClaim]) {
         if (existsSync(join(directory, lockName(resource))))
           throw new Error(`browser resource is occupied: ${resource}; inspect leases before release`);
       }
@@ -225,13 +239,73 @@ export function acquireLease({
       assertOwned();
       if (scope !== "tab" || record.targetId != null) throw new Error("this lease already has a target or is browser-wide");
       if (!validId(id)) throw new Error("targetId must be an observed CDP target identifier");
-      const resource = tabClaim(id);
-      hold(resource);
       record.targetId = id;
+      heartbeat(false);
+      const resource = tabClaim(id);
+      try { hold(resource); }
+      catch (error) {
+        if (!record.pendingOperation) { record.targetId = null; heartbeat(false); }
+        throw error;
+      }
       claims.push(resource);
       heartbeat(false);
     };
-    return { runId, assertOwned, claimTab, markTargetGone, retain, release };
+    const setTarget = id => {
+      if (!validId(id)) throw new Error("targetId must be an observed CDP target identifier");
+      record.targetId = id;
+      heartbeat(false);
+    };
+    const setSessionDirectory = path => { record.sessionDirectory = path; heartbeat(false); };
+    const persistOnExit = () => process.off("exit", release);
+    const beginCreate = () => {
+      assertOwned();
+      claims.push(allocationClaim);
+      record.pendingOperation = "createTarget";
+      const path = join(directory, lockName(allocationClaim));
+      const temporary = `${path}.${runId}.tmp`;
+      try {
+        writeFileSync(temporary, JSON.stringify(record, null, 2) + "\n", { mode: 0o600, flag: "wx" });
+        linkSync(temporary, path);
+        held.push(path);
+      } catch (error) {
+        claims.pop();
+        delete record.pendingOperation;
+        if (error.code === "EEXIST") throw new Error(`browser resource is occupied: ${allocationClaim}; inspect leases before release`);
+        throw error;
+      } finally { rmSync(temporary, { force: true }); }
+      heartbeat(false);
+    };
+    const finishCreate = () => {
+      delete record.pendingOperation;
+      claims.splice(claims.indexOf(allocationClaim), 1);
+      try {
+        heartbeat(false);
+        const path = join(directory, lockName(allocationClaim));
+        rmSync(path, { recursive: true, force: true });
+        held.splice(held.indexOf(path), 1);
+      } catch (error) {
+        record.pendingOperation = "createTarget";
+        throw error;
+      }
+    };
+    const beginClose = () => { record.pendingOperation = "closeTarget"; heartbeat(false); };
+    const finishClose = () => {
+      delete record.pendingOperation;
+      try { heartbeat(false); }
+      catch (error) { record.pendingOperation = "closeTarget"; throw error; }
+    };
+    const pendingOperation = () => record.pendingOperation;
+    const beginNative = () => { record.pendingNative = (record.pendingNative || 0) + 1; heartbeat(false); };
+    const finishNative = () => {
+      record.pendingNative--;
+      if (!record.pendingNative) delete record.pendingNative;
+      try { heartbeat(false); }
+      catch (error) { record.pendingNative = (record.pendingNative || 0) + 1; throw error; }
+    };
+    const nativePending = () => record.pendingNative || 0;
+    return { runId, assertOwned, claimTab, markTargetGone, retain, release, persistOnExit,
+      beginCreate, finishCreate, beginClose, finishClose, pendingOperation, isReleased: () => released,
+      setTarget, setSessionDirectory, beginNative, finishNative, nativePending };
   } catch (error) {
     release();
     throw error;
@@ -240,19 +314,25 @@ export function acquireLease({
 
 export function releaseLease(runId, directory = defaultLeaseDirectory) {
   if (!/^[a-f0-9-]{36}$/.test(runId)) throw new Error("supply the exact run ID after confirming its owner stopped");
-  const records = listLeases(directory).filter((record) => record.runId === runId);
-  if (!records.length) throw new Error("no lease matches that run ID");
-  for (const record of records) {
-    for (const resource of record.resources) {
-      const path = join(directory, lockName(resource));
+  const recovery = join(directory, `.recovery-${runId}`);
+  try { mkdirSync(recovery, { mode: 0o700 }); }
+  catch (error) {
+    if (error.code === "EEXIST") throw new Error(`recovery already in progress or interrupted: ${recovery}; inspect before retrying`);
+    throw error;
+  }
+  try {
+    let found = false;
+    for (const name of readdirSync(directory).filter(name => /^[a-f0-9]{64}$/.test(name))) {
+      const path = join(directory, name);
       try {
-        const current = JSON.parse(readFileSync(join(path, "lease.json"), "utf8"));
-        if (current.runId === runId) rmSync(path, { recursive: true, force: true });
+        const current = JSON.parse(readFileSync(recordPath(path), "utf8"));
+        if (current.runId === runId) { found = true; rmSync(path, { recursive: true, force: true }); }
       } catch (error) {
-        if (error.code !== "ENOENT") throw error;
+        if (error.code !== "ENOENT" && !(error instanceof SyntaxError)) throw error;
       }
     }
-  }
+    if (!found) throw new Error("no lease matches that run ID");
+  } finally { rmSync(recovery, { recursive: true, force: true }); }
 }
 
 async function main() {
